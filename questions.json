@@ -1,0 +1,186 @@
+[
+  {
+    "id": "1780397619649",
+    "text": "Comment s'appelle le premier Président du RC Lens ?",
+    "type": "qcm",
+    "options": [
+      "Arthur Lotin",
+      "Carlos Douterlungne",
+      "Guy Alibert",
+      "Pacôme Jeanderelle"
+    ],
+    "correctIdx": 0,
+    "answer": "Arthur Lotin"
+  },
+  {
+    "id": "1780398016449",
+    "text": "La Place Verte, célèbre pour avoir été le premier lieu de rassemblement d'étudiants, avant de devenir le RCL, se trouve aujourd'hui",
+    "type": "qcm",
+    "options": [
+      "Boulevard Basly",
+      "Place de la République",
+      "Stade Léo Lagrange"
+    ],
+    "correctIdx": 1,
+    "answer": "Place de la République"
+  },
+  {
+    "id": "1780398088018",
+    "text": "Comment s'appelle le club à son origine ?",
+    "type": "qcm",
+    "options": [
+      "Football Club de Lens",
+      "Association Lens-Lièvin de Football",
+      "RC Lensois",
+      "RC Lens"
+    ],
+    "correctIdx": 2,
+    "answer": "RC Lensois"
+  },
+  {
+    "id": "1780399861339",
+    "text": "Quel championnat le RCL intègre-t-il en 1907 ?",
+    "type": "qcm",
+    "options": [
+      "La Ligue du Nord",
+      "La Ligue d'Artois",
+      "La Ligue du Pas-de-Calais",
+      "La Ligue des Hauts-de-France (déjà)"
+    ],
+    "correctIdx": 1,
+    "answer": "La Ligue d'Artois"
+  },
+  {
+    "id": "1780400826942",
+    "text": "En 1919, le RC Lens adopte de nouvelles couleurs : bleu ciel, blanc et rouge, laissant de côté le vert et noir. A quoi cela fait référence ?",
+    "type": "qcm",
+    "options": [
+      "Au ciel, parce que c'est l'horizon",
+      "Au Racing Club de Paris",
+      "À l’Union Sportive du Foyer Franco-américain"
+    ],
+    "correctIdx": 2,
+    "answer": "À l’Union Sportive du Foyer Franco-américain"
+  },
+  {
+    "id": "1780400982717",
+    "text": "Quel Président emblématique, et à l'origine de l'adoption des couleurs Sang et Or, prend les rennes du RC Lens en 1923 ?",
+    "type": "qcm",
+    "options": [
+      "Paul Delacourt",
+      "René Moglia",
+      "Henri Trannin"
+    ],
+    "correctIdx": 1,
+    "answer": "René Moglia"
+  },
+  {
+    "id": "1780401107070",
+    "text": "A quoi font référence, encore aujourd'hui, les couleurs Sang et Or ?",
+    "type": "qcm",
+    "options": [
+      "Au sang des mineurs, et à l'or noir du charbon",
+      "Ketchup-mayo",
+      "Les couleurs de l'Espagne, qui occupait l'Artois aux XVI et XVIIe siècles",
+      "Couleurs choisies au hasard, comme Thorgan"
+    ],
+    "correctIdx": 2,
+    "answer": "Les couleurs de l'Espagne, qui occupait l'Artois aux XVI et XVIIe siècles"
+  },
+  {
+    "id": "1780401199079",
+    "text": "Le premier titre de l'Histoire du RC Lens fut",
+    "type": "qcm",
+    "options": [
+      "La Coupe Drago",
+      "La Ligue d'Artois",
+      "La Coupe des Villages de Foires"
+    ],
+    "correctIdx": 1,
+    "answer": "La Ligue d'Artois"
+  },
+  {
+    "id": "1780401292885",
+    "text": "Comment s'appelait la première association de supporters lensois ?",
+    "type": "qcm",
+    "options": [
+      "Les Tigres Rouges",
+      "Le Supporter Club Lensois",
+      "Artois 1926"
+    ],
+    "correctIdx": 1,
+    "answer": "Le Supporter Club Lensois"
+  },
+  {
+    "id": "1780401446191",
+    "text": "Comment s'appelle le directeur de la Compagnie des Mines le plus connu de notre Histoire ?",
+    "type": "libre",
+    "answer": "Félix Bollaert"
+  },
+  {
+    "id": "1780401531905",
+    "text": "En quelle année le football français voit son football se professionnaliser ?",
+    "type": "qcm",
+    "options": [
+      "1929",
+      "1932",
+      "1938"
+    ],
+    "correctIdx": 1,
+    "answer": "1932"
+  },
+  {
+    "id": "1780401585240",
+    "text": "Quel Président du RC Lens permet au club d'accéder au statut professionnel ?",
+    "type": "qcm",
+    "options": [
+      "Félix Bollaert",
+      "Pascal Dumoulins",
+      "Pierre Brossard"
+    ],
+    "correctIdx": 2,
+    "answer": "Pierre Brossard"
+  },
+  {
+    "id": "1780408685967",
+    "text": "La tribune Marek abrite le kop du RC Lens. Mais qui était-il ?",
+    "type": "qcm",
+    "options": [
+      "Un ingénieur des mines",
+      "Un défenseur autrichien",
+      "Un recruteur du RC Lens"
+    ],
+    "correctIdx": 1,
+    "answer": "Un défenseur autrichien"
+  },
+  {
+    "id": "1780408892096",
+    "text": "En quelle année le RC Lens atteint la Première Division pour la première fois ?",
+    "type": "qcm",
+    "options": [
+      "1932",
+      "1936",
+      "1937"
+    ],
+    "correctIdx": 2,
+    "answer": "1937"
+  },
+  {
+    "id": "1780408956938",
+    "text": "Contre quelle équipe le RC Lens dispute la première finale de la Coupe de France de son histoire ?",
+    "type": "libre",
+    "answer": "LOSC ou Lille"
+  },
+  {
+    "id": "1780409028512",
+    "text": "Quelle est la particularité du RC Lens lorsqu'il dispute sa première finale de la Coupe de France en 1948 ?",
+    "type": "libre",
+    "answer": "Deuxième division"
+  },
+  {
+    "id": "1780409096212",
+    "text": "Qui devient le premier Sang et Or à finir meilleur buteur de D1 avec 30 réalisations ?",
+    "type": "libre",
+    "answer": "Ahmed Oudjani"
+  }
+]
