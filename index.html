@@ -5243,15 +5243,16 @@
       const questions = Array.isArray(data) ? data : (Array.isArray(data.questions) ? data.questions : null);
       if (!questions || !questions.length) return;
       const tags = (!Array.isArray(data) && Array.isArray(data.tags)) ? data.tags : [];
+      // Le JSON déployé fait autorité : on remplace toutes les questions existantes
       const existing = LS.getQ();
-      const existingIds = new Set(existing.map(q => q.id));
-      const toAdd = questions.filter(q => !existingIds.has(q.id));
-      if (toAdd.length) LS.saveQ([...existing, ...toAdd]);
+      const fileIds = new Set(questions.map(q => q.id));
+      const localOnly = existing.filter(q => !fileIds.has(q.id));
+      LS.saveQ([...questions, ...localOnly]);
       if (tags.length) {
         const existingTags = LS.getTags();
-        const existingTagIds = new Set(existingTags.map(t => t.id));
-        const newTags = tags.filter(t => !existingTagIds.has(t.id));
-        if (newTags.length) LS.saveTags([...existingTags, ...newTags]);
+        const fileTagIds = new Set(tags.map(t => t.id));
+        const localOnlyTags = existingTags.filter(t => !fileTagIds.has(t.id));
+        LS.saveTags([...tags, ...localOnlyTags]);
       }
     } catch {}
   })();
