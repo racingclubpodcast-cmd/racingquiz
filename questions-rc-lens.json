@@ -7,6 +7,15 @@
       "color": "#E30613"
     }
   ],
+  "media": [
+    {
+      "id": "1780577346506",
+      "name": "L'Histoire du RC Lens - Hugo Sport",
+      "url": "https://drive.google.com/file/d/1vJzWyT5JFq8pa-umeWdlPAiSb5T5J5ns/view?usp=drive_link",
+      "caption": "L'Histoire du RC Lens (Grégory Lallemand et David Derieux)",
+      "active": true
+    }
+  ],
   "questions": [
     {
       "id": "1780397619649",
