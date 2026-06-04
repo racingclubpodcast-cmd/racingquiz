@@ -1,0 +1,1219 @@
+{
+  "version": 1,
+  "tags": [
+    {
+      "id": "1780472277394",
+      "name": "1906-1945",
+      "color": "#E30613"
+    }
+  ],
+  "questions": [
+    {
+      "id": "1780397619649",
+      "text": "Comment s'appelle le premier Président du RCL ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 2,
+      "timerDuration": 10,
+      "options": [
+        "Arthur Lotin",
+        "Carlos Douterlungne",
+        "Guy Alibert",
+        "Jules Joseph Van Den Weghe"
+      ],
+      "correctIdx": 3,
+      "answer": "Jules Joseph Van Den Weghe",
+      "bonus": {
+        "text": "Son fils, Jules Antoine, est également indissociable de l'Histoire du Racing. Pourquoi ?",
+        "type": "qcm-multi",
+        "points": 1,
+        "options": [
+          "Il a été joueur du RC Lens",
+          "Il a été Président du RC Lens",
+          "Il a fondé la première association de supporters",
+          "Il a été capitaine du RC Lens"
+        ],
+        "correctIdxs": [
+          0,
+          1,
+          3
+        ],
+        "answer": "Il a été joueur du RC Lens · Il a été Président du RC Lens · Il a été capitaine du RC Lens"
+      }
+    },
+    {
+      "id": "1780398016449",
+      "text": "La Place Verte, célèbre pour avoir été le premier lieu de rassemblement d'étudiants, avant de devenir le RCL, se trouve aujourd'hui",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 2,
+      "options": [
+        "Boulevard Basly",
+        "Place de la République",
+        "Stade Léo Lagrange"
+      ],
+      "correctIdx": 1,
+      "answer": "Place de la République"
+    },
+    {
+      "id": "1780398088018",
+      "text": "Quel est le premier nom du club ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "Football Club de Lens",
+        "Association Lens-Lièvin de Football",
+        "RC Lensois",
+        "RC Lens"
+      ],
+      "correctIdx": 2,
+      "answer": "RC Lensois"
+    },
+    {
+      "id": "1780399861339",
+      "text": "Quel championnat le RCL intègre-t-il en 1907 ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "La Ligue du Nord",
+        "La Ligue d'Artois",
+        "La Ligue du Pas-de-Calais",
+        "La Ligue des Hauts-de-France (déjà)"
+      ],
+      "correctIdx": 1,
+      "answer": "La Ligue d'Artois"
+    },
+    {
+      "id": "1780400826942",
+      "text": "En 1919, le RC Lens adopte de nouvelles couleurs : bleu ciel, blanc et rouge, laissant de côté le vert et noir. A quoi cela fait référence ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "Au ciel, parce que c'est l'horizon",
+        "Au Racing Club de Paris",
+        "À l’Union Sportive du Foyer Franco-américain"
+      ],
+      "correctIdx": 2,
+      "answer": "À l’Union Sportive du Foyer Franco-américain"
+    },
+    {
+      "id": "1780400982717",
+      "text": "Quel Président emblématique, et à l'origine de l'adoption des couleurs Sang et Or, prend les rennes du RC Lens en 1923 ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "Paul Delacourt",
+        "René Moglia",
+        "Henri Trannin"
+      ],
+      "correctIdx": 1,
+      "answer": "René Moglia"
+    },
+    {
+      "id": "1780401107070",
+      "text": "A quoi font référence les couleurs Sang et Or ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "Au sang des mineurs, et à l'or noir du charbon",
+        "Ketchup-mayo",
+        "Les couleurs de l'Espagne, qui occupait l'Artois aux XVI et XVIIe siècles",
+        "Couleurs choisies au hasard, comme Thorgan"
+      ],
+      "correctIdx": 2,
+      "answer": "Les couleurs de l'Espagne, qui occupait l'Artois aux XVI et XVIIe siècles"
+    },
+    {
+      "id": "1780401199079",
+      "text": "Le premier titre de l'Histoire du RC Lens fut",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "La Coupe Drago",
+        "La Ligue d'Artois",
+        "La Coupe des Villages de Foires"
+      ],
+      "correctIdx": 1,
+      "answer": "La Ligue d'Artois"
+    },
+    {
+      "id": "1780401292885",
+      "text": "Comment s'appelait la première association de supporters lensois ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Les Tigres Rouges",
+        "Le Supporter Club Lensois",
+        "Artois 1926"
+      ],
+      "correctIdx": 1,
+      "answer": "Le Supporter Club Lensois",
+      "bonus": {
+        "text": "Comment s'appelle le fondateur ?",
+        "type": "qcm",
+        "points": 1,
+        "options": [
+          "Pierre Villeneuve",
+          "Maurice Carton",
+          "Philippe Léotard"
+        ],
+        "correctIdx": 1,
+        "answer": "Maurice Carton"
+      }
+    },
+    {
+      "id": "1780401531905",
+      "text": "En quelle année se tient le premier championnat de football professionnel en France ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "1929",
+        "1932",
+        "1938"
+      ],
+      "correctIdx": 1,
+      "answer": "1932"
+    },
+    {
+      "id": "1780401585240",
+      "text": "Quel Président du RC Lens permet au club d'accéder au statut professionnel ?",
+      "type": "qcm",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "Félix Bollaert",
+        "Pascal Dumoulins",
+        "Pierre Brossard"
+      ],
+      "correctIdx": 2,
+      "answer": "Pierre Brossard"
+    },
+    {
+      "id": "1780408685967",
+      "text": "La tribune Tony Marek est célèbre pour être celle dans laquelle prend place le kop du RC Lens. Mais qui était Tony Marek ?",
+      "type": "qcm-multi",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Un recruteur du RC Lens",
+        "Un défenseur du RC Lens",
+        "Un entraîneur du RC Lens",
+        "Le premier speaker de l'histoire du RC Lens"
+      ],
+      "correctIdxs": [
+        1,
+        2
+      ],
+      "answer": "Un défenseur du RC Lens · Un entraîneur du RC Lens",
+      "bonus": {
+        "text": "De quelle nationalité était Anton \"Tony\" Marek ?",
+        "type": "qcm",
+        "points": 1,
+        "options": [
+          "Hongrois",
+          "Polonais",
+          "Autrichien"
+        ],
+        "correctIdx": 2,
+        "answer": "Autrichien"
+      }
+    },
+    {
+      "id": "1780408892096",
+      "text": "En quelle année le RC Lens atteint la Première Division pour la première fois ?",
+      "type": "qcm",
+      "options": [
+        "1932",
+        "1936",
+        "1937"
+      ],
+      "correctIdx": 2,
+      "answer": "1937"
+    },
+    {
+      "id": "1780408956938",
+      "text": "Contre quelle équipe le RC Lens dispute la première finale de la Coupe de France de son histoire ?",
+      "type": "libre",
+      "tags": [],
+      "answers": [
+        "LOSC",
+        "Lille"
+      ],
+      "answer": "LOSC"
+    },
+    {
+      "id": "1780409028512",
+      "text": "Quelle est la particularité du RC Lens lorsqu'il dispute sa première finale de la Coupe de France en 1948 ?",
+      "type": "libre",
+      "tags": [],
+      "answers": [
+        "Deuxième division",
+        "D2"
+      ],
+      "answer": "Deuxième division"
+    },
+    {
+      "id": "1780409096212",
+      "text": "Qui devient le premier Sang et Or à finir meilleur buteur de D1 avec 30 réalisations ?",
+      "type": "libre",
+      "answer": "Ahmed Oudjani"
+    },
+    {
+      "id": "1780468779467",
+      "text": "En quelle année, à la suite de la crise du charbon et au désengagement de la Compagnie des Mines, le RC Lens retrouve le statut amateur ?",
+      "type": "qcm",
+      "options": [
+        "1968",
+        "1969",
+        "1970"
+      ],
+      "correctIdx": 2,
+      "answer": "1970"
+    },
+    {
+      "id": "1780468836544",
+      "text": "Quel est le grand directeur sportif qui oeuvre à la renaissance du RC Lens post-désengagement de la Compagnie des Mines ?",
+      "type": "libre",
+      "answer": "Henri Trannin"
+    },
+    {
+      "id": "1780476894264",
+      "text": "Si je dis \"Lensois en Bleus pour la première fois\", tu réponds :",
+      "type": "qcm-multi",
+      "tags": [
+        "1780472277394"
+      ],
+      "options": [
+        "Xercès Louis",
+        "Edmond Novicki",
+        "Daniel Xuereb",
+        "Raymond François"
+      ],
+      "correctIdxs": [
+        1,
+        3
+      ],
+      "answer": "Edmond Novicki · Raymond François",
+      "bonus": {
+        "text": "Contre quelle sélection ?",
+        "answer": "Belgique"
+      }
+    },
+    {
+      "id": "1780477080131",
+      "text": "Dans les années 1970, quel maire de Lens a largement oeuvré à la renaissance du RC Lens, qui avait fraîchement perdu son statut de club professionnel ?",
+      "type": "libre",
+      "tags": [],
+      "answers": [
+        "André Delelis",
+        "Delelis"
+      ],
+      "answer": "André Delelis"
+    },
+    {
+      "id": "1780477754638",
+      "text": "En quelle année le RC Lens se qualifie pour la première fois en Coupe d'Europe ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "1975"
+      ],
+      "answer": "1975",
+      "bonus": {
+        "text": "Quelle Coupe d'Europe ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "La Coupe des Vainqueurs de Coupe",
+          "C2"
+        ],
+        "answer": "La Coupe des Vainqueurs de Coupe"
+      }
+    },
+    {
+      "id": "1780478164203",
+      "text": "Dans quel club évoluait Anton Marek avant d'arriver en France ?",
+      "type": "qcm",
+      "tags": [],
+      "options": [
+        "Austria Wien",
+        "Wacker Wien",
+        "Bayern Münich",
+        "Sturm Graz"
+      ],
+      "correctIdx": 1,
+      "answer": "Wacker Wien",
+      "bonus": {
+        "text": "Dans quel autre club français, aujourd'hui professionnel, Anton Marek a-t-il évolué en tant que joueur ?",
+        "type": "libre",
+        "answers": [
+          "Toulouse FC",
+          "Toulouse"
+        ],
+        "answer": "Toulouse FC"
+      }
+    },
+    {
+      "id": "1780478768734",
+      "text": "Contre quelle équipe le RC Lens perd sa seconde finale de Coupe de France ?",
+      "type": "libre",
+      "tags": [],
+      "answers": [
+        "ASSE",
+        "AS Saint-Etienne",
+        "Saint-Etienne",
+        "Les Verts"
+      ],
+      "answer": "ASSE",
+      "bonus": {
+        "text": "Qui sont les buteurs côté Verts ?",
+        "type": "qcm-multi",
+        "options": [
+          "Jean-Michel Larqué",
+          "Jean-Michel Larqué (doublé)",
+          "Oswaldo Piazza",
+          "Patrick Revelli"
+        ],
+        "correctIdxs": [
+          0,
+          2
+        ],
+        "answer": "Jean-Michel Larqué · Oswaldo Piazza"
+      }
+    },
+    {
+      "id": "1780478879885",
+      "text": "Qui est l'entraîneur du RC Lens lors de la finale de Coupe de France de 1975 ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Arnold Sowinski",
+        "Sowinski"
+      ],
+      "answer": "Arnold Sowinski",
+      "bonus": {
+        "text": "Qui est le capitaine du RC Lens ?",
+        "type": "qcm",
+        "points": 1,
+        "options": [
+          "Daniel Leclercq",
+          "Jean-Marie Elie",
+          "Jacques Marie"
+        ],
+        "correctIdx": 2,
+        "answer": "Jacques Marie"
+      }
+    },
+    {
+      "id": "1780479170459",
+      "text": "Dans quel club Le Druide évolue-t-il avant de rejoindre le RC Lens ?",
+      "type": "libre",
+      "tags": [],
+      "answers": [
+        "OM",
+        "Olympique de Marseille"
+      ],
+      "answer": "OM",
+      "bonus": {
+        "text": "Quel est le club formateur de Daniel Leclercq ?",
+        "type": "libre",
+        "answers": [
+          "US Valenciennes-Anzin",
+          "Valenciennes",
+          "VA",
+          "USVA"
+        ],
+        "answer": "US Valenciennes-Anzin"
+      }
+    },
+    {
+      "id": "1780479297951",
+      "text": "Sur le terrain, où jouait Daniel Leclercq ?",
+      "type": "qcm-multi",
+      "tags": [],
+      "options": [
+        "Défenseur",
+        "Milieu de terrain",
+        "Ailier",
+        "Attaquant"
+      ],
+      "correctIdxs": [
+        0,
+        1
+      ],
+      "answer": "Défenseur · Milieu de terrain",
+      "bonus": {
+        "text": "Combien de buts Le Druite a-t-il inscrit au RC Lens",
+        "type": "qcm",
+        "options": [
+          "17",
+          "23",
+          "31",
+          "38"
+        ],
+        "correctIdx": 2,
+        "answer": "31"
+      }
+    },
+    {
+      "id": "1780479419885",
+      "text": "Daniel Leclercq a entraîné un club à l'étranger. Lequel ?",
+      "type": "qcm",
+      "tags": [],
+      "options": [
+        "Anderlecht",
+        "RAA Louviéroise",
+        "Valenciennes FC",
+        "Beveren"
+      ],
+      "correctIdx": 1,
+      "answer": "RAA Louviéroise"
+    },
+    {
+      "id": "1780480161944",
+      "text": "Contre quel club le RC Lens dispute-t-il son premier match européen ?",
+      "type": "qcm",
+      "tags": [],
+      "options": [
+        "Le Celtic Glasgow",
+        "Le Home Farm Dublin",
+        "Shamrock Rovers",
+        "Derry City"
+      ],
+      "correctIdx": 1,
+      "answer": "Le Home Farm Dublin",
+      "bonus": {
+        "text": "Contre quelle équipe le RC Lens tombera en 8ème de finale ?",
+        "type": "qcm",
+        "options": [
+          "ADO Den Haag",
+          "Hamburg SV",
+          "Levski Sofia",
+          "Sporting Gijon"
+        ],
+        "correctIdx": 0,
+        "answer": "ADO Den Haag"
+      }
+    },
+    {
+      "id": "1780482096443",
+      "text": "Quels sont les buteurs lensois lors du match retour légendaire qui vit le RC Lens fracasser la Lazio de Rome ?",
+      "type": "qcm-multi",
+      "tags": [],
+      "options": [
+        "Didier Six",
+        "Farès Bousdira",
+        "Moncef Djeballi",
+        "Daniel Leclercq"
+      ],
+      "correctIdxs": [
+        0,
+        1,
+        2
+      ],
+      "answer": "Didier Six · Farès Bousdira · Moncef Djeballi",
+      "bonus": {
+        "text": "Combien de buts sont inscrits dans le temps réglementaire de la rencontre ?",
+        "type": "libre",
+        "answers": [
+          "2",
+          "deux"
+        ],
+        "answer": "2"
+      }
+    },
+    {
+      "id": "1780483832155",
+      "text": "Quel club éliminera le RC Lens de la Coupe de l'UEFA 1977/78 ?",
+      "type": "qcm",
+      "tags": [],
+      "options": [
+        "Union Berlin",
+        "Hertha Berlin",
+        "1. FC Magdeburg",
+        "SC Freiburg"
+      ],
+      "correctIdx": 2,
+      "answer": "1. FC Magdeburg",
+      "bonus": {
+        "text": "Quel joueur réalise un doublé lors du match retour à Bollaert ?",
+        "type": "libre",
+        "answers": [
+          "Farès Bousdira",
+          "Bousdira"
+        ],
+        "answer": "Farès Bousdira"
+      }
+    },
+    {
+      "id": "1780484612632",
+      "text": "Lors de la saison 1983/84. le RC Lens dispute la Coupe de l'UEFA. Lors de la réception du RSC Anderlecht (match aller), un événement va marquer la rencontre. Lequel ?",
+      "type": "qcm",
+      "tags": [],
+      "options": [
+        "Le RC Lens égalise grâce à un caillou jeté des tribunes",
+        "Anderlecht ouvre le score sur un corner rentrant",
+        "Pierre Sage annonce son départ à la fin de la rencontre",
+        "Il y a eu 6 cartons rouges distribués"
+      ],
+      "correctIdx": 0,
+      "answer": "Le RC Lens égalise grâce à un caillou jeté des tribunes",
+      "bonus": {
+        "text": "Quel fut le résultat du match retour, disputé dans la capitale belge ?",
+        "type": "qcm",
+        "options": [
+          "Anderlecht 1 - 1 Lens",
+          "Anderlecht 1 - 2 Lens",
+          "Anderlecht 2 - 1 Lens",
+          "Anderlecht 1 - 0 Lens"
+        ],
+        "correctIdx": 3,
+        "answer": "Anderlecht 1 - 0 Lens"
+      }
+    },
+    {
+      "id": "1780487143491",
+      "text": "En quelle année Gervais Martel est-il intronisé Président du RC Lens",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "1988",
+        "août 1988",
+        "24 août 1988"
+      ],
+      "answer": "1988",
+      "bonus": {
+        "text": "Quel est son prédécesseur ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "Jean Honvault",
+          "Honvault"
+        ],
+        "answer": "Jean Honvault"
+      }
+    },
+    {
+      "id": "1780491493411",
+      "text": "Quelle est la ville de naissance de Gervais Martel ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Oignies"
+      ],
+      "answer": "Oignies"
+    },
+    {
+      "id": "1780491836819",
+      "text": "Quel est le premier entraîneur de l'ère Martel ?",
+      "type": "qcm",
+      "tags": [],
+      "points": 2,
+      "timerDuration": 10,
+      "options": [
+        "Marcel Husson",
+        "Jean Parisseaux",
+        "Arnold Sowinski"
+      ],
+      "correctIdx": 1,
+      "answer": "Jean Parisseaux"
+    },
+    {
+      "id": "1780491928475",
+      "text": "Contre quel club le RC Lens signe son plus large succès européen ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Avenir Beggen",
+        "Beggen"
+      ],
+      "answer": "Avenir Beggen",
+      "bonus": {
+        "text": "Le score cumulé ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "13-0"
+        ],
+        "answer": "13-0"
+      }
+    },
+    {
+      "id": "1780492314764",
+      "text": "Quel est l'entraîneur du RC Lens entre Arnaud Dos Santos et Slavo Muslin ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Patrice Bergues",
+        "Bergues"
+      ],
+      "answer": "Patrice Bergues",
+      "bonus": {
+        "text": "Combien de saisons reste-t-il à la tête de l'équipe ?",
+        "type": "libre",
+        "points": 4,
+        "answers": [
+          "4 saisons",
+          "4",
+          "quatre"
+        ],
+        "answer": "4 saisons"
+      }
+    },
+    {
+      "id": "1780492375381",
+      "text": "Qui coache le RC Lens entre 1982 et 1985 ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Gérard Houiller",
+        "Houiller"
+      ],
+      "answer": "Gérard Houiller"
+    },
+    {
+      "id": "1780492686199",
+      "text": "Quel entraîneur a coaché les Sang et Or sur trois périodes distinctes ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Arnold Sowinski",
+        "Sowinski"
+      ],
+      "answer": "Arnold Sowinski",
+      "bonus": {
+        "text": "Qui sont les entraîneurs à avoir coaché le RC Lens sur deux périodes distinctes ?",
+        "type": "qcm-multi",
+        "points": 4,
+        "options": [
+          "Roger Lemerre",
+          "Pierre Sage",
+          "Daniel Leclercq",
+          "Anton Marek"
+        ],
+        "correctIdxs": [
+          0,
+          3
+        ],
+        "answer": "Roger Lemerre · Anton Marek"
+      }
+    },
+    {
+      "id": "1780492919319",
+      "text": "Qui est l'entraîneur qui succède à Jean-Guy Wallemme ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Laszlo Bölöni",
+        "Bölöni"
+      ],
+      "answer": "Laszlo Bölöni",
+      "bonus": {
+        "text": "Quel joueur était positionné faux-neuf par Laszlo Bölöni lors de la dernière journée de la saison 2010/2011 à Nancy ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "Geoffrey Kondogbia"
+        ],
+        "answer": "Geoffrey Kondogbia"
+      }
+    },
+    {
+      "id": "1780493232618",
+      "text": "Comment s'appelle le premier joueur étranger à avoir évolué au RC Lens ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Nanni"
+      ],
+      "answer": "Nanni",
+      "bonus": {
+        "text": "De quel pays était-il originaire ?",
+        "type": "qcm",
+        "points": 1,
+        "options": [
+          "Portugal",
+          "Brésil",
+          "Belgique",
+          "Italie"
+        ],
+        "correctIdx": 3,
+        "answer": "Italie"
+      }
+    },
+    {
+      "id": "1780493385735",
+      "text": "Quel était le surnom du joueur franco-hongrois Ladislas Smid ?",
+      "type": "libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Siklo"
+      ],
+      "answer": "Siklo"
+    },
+    {
+      "id": "1780493505926",
+      "text": "Quel était le surnom de Stefan Dembicki ?",
+      "type": "libre",
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Stanis"
+      ],
+      "answer": "Stanis"
+    },
+    {
+      "id": "1780557977211",
+      "text": "Dans quel club évoluait Radek Bejbl avant de signer au RC Lens ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Osasuna",
+        "Atletico de Madrid",
+        "Real Oviedo",
+        "Slavia Prague"
+      ],
+      "correctIdx": 1,
+      "answer": "Atletico de Madrid"
+    },
+    {
+      "id": "1780558091142",
+      "text": "Dans quel club Ruben Aguilar a disputé son premier match en pro ?",
+      "type": "libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "AJ Auxerre",
+        "AJA",
+        "Auxerre"
+      ],
+      "answer": "AJ Auxerre",
+      "bonus": {
+        "text": "Quel est son club formateur ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "Grenoble",
+          "Grenoble Foot",
+          "Grenoble Foot 38"
+        ],
+        "answer": "Grenoble"
+      }
+    },
+    {
+      "id": "1780560770391",
+      "text": "Quel est le 11 du RC Lens qui joue la finale de la Coupe de France 1998 contre le Paris Saint-Germain ?",
+      "type": "multi-libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 90,
+      "mlAnswers": [
+        "Guillaume Warmuz",
+        "Frédéric Déhu",
+        "Jean-Guy Wallemme",
+        "Cyrille Magnier",
+        "Eric Sikora",
+        "Mickaël Debève",
+        "Stéphane Ziani",
+        "Vladimir Smicer",
+        "Anton Drobjnak",
+        "Tony Vairelles",
+        "Marc-Vivien Foé"
+      ],
+      "mlRequired": 11,
+      "mlMaxWrong": 2,
+      "answer": "11 réponses sur 11",
+      "bonus": {
+        "text": "Quelle équipe le RC Lens élimine en demi-finale ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "OL",
+          "Olympique Lyonnais",
+          "Lyon"
+        ],
+        "answer": "OL"
+      }
+    },
+    {
+      "id": "1780568791441",
+      "text": "Quelle est la date d'inauguration du Stade Félix Bollaert ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "12 janvier 1932",
+        "16 mars 1933",
+        "18 juin 1933"
+      ],
+      "correctIdx": 2,
+      "answer": "18 juin 1933"
+    },
+    {
+      "id": "1780580021055",
+      "text": "Le stade municipal de l'avenue Raoul-Briquet existe toujours de nos jours. Comment s'appelle-t-il ?",
+      "type": "libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Stade Léo-Lagrange",
+        "Léo-Lagrange"
+      ],
+      "answer": "Stade Léo-Lagrange"
+    },
+    {
+      "id": "1780580429304",
+      "text": "En quelle année le RC Lens adopte définitivement les couleurs Sang et Or ?",
+      "type": "libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "1924"
+      ],
+      "answer": "1924"
+    },
+    {
+      "id": "1780580733152",
+      "text": "Quel maire de Lens, en fonction entre 1900 et 1924, est considéré comme le premier grand soutien politique au RC Lens ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Eugène Lacourt",
+        "René Moglia",
+        "Emile Basly",
+        "Rodolphe Hanicotte"
+      ],
+      "correctIdx": 2,
+      "answer": "Emile Basly"
+    },
+    {
+      "id": "1780580916765",
+      "text": "Quel était le surnom d'Edmond Novicki ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [
+        "1780472277394"
+      ],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Edmond la rouste",
+        "Mickey",
+        "L'Antilope",
+        "Novistar"
+      ],
+      "correctIdx": 1,
+      "answer": "Mickey"
+    },
+    {
+      "id": "1780581314664",
+      "text": "Lors de la saison 1943-1944, le régime de Vichy crée seize équipes régionales pour constituer un championnat fédéral, remporté par Lens. Sous quel nom ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Lens-Pas de Calais",
+        "Lens-Artois",
+        "Lens-Arras",
+        "Lens-Douai"
+      ],
+      "correctIdx": 1,
+      "answer": "Lens-Artois"
+    },
+    {
+      "id": "1780581797686",
+      "text": "Quel joueur détient le plus grand nombre de sélections en Équipe de France en tant que lensois ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Xercès Louis",
+        "Georges Lech",
+        "Maryan Wisniewski",
+        "Alou Diarra"
+      ],
+      "correctIdx": 2,
+      "answer": "Maryan Wisniewski",
+      "bonus": {
+        "text": "Pour quel club étranger Maryan Wisniewski quitte-t-il le RC Lens en 1963 ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "La Sampdoria de Gênes",
+          "La Samp",
+          "Sampdoria",
+          "Sampdoria Gênes"
+        ],
+        "answer": "La Sampdoria de Gênes"
+      }
+    },
+    {
+      "id": "1780582542479",
+      "text": "Quel est le 11 du RC Lens qui s'imposa contre l'OM de Bernard Tapie en février 1992 ?",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 2,
+      "timerDuration": 100,
+      "mlAnswers": [
+        "Bernard Lama",
+        "Eric Sikora",
+        "Jean-Guy Wallemme",
+        "Francis Gillot",
+        "Jimmy Adjovi-Boco",
+        "Hervé Arsène",
+        "Pierre Laigle",
+        "Robbie Slater",
+        "Shalom Tikva",
+        "Roger Boli"
+      ],
+      "mlRequired": 10,
+      "mlMaxWrong": 3,
+      "answer": "10 réponses sur 10",
+      "bonus": {
+        "text": "Ce match est imprimé dans la mémoire collective lensoise parce que",
+        "type": "qcm-multi",
+        "points": 1,
+        "options": [
+          "le Racing a gagné (2-1)",
+          "le match bat, à l'époque, le record d'affluence pour un match de D1",
+          "trois Ballon d'Or sont sur la pelouse",
+          "les deux frères Boli ont chacun marqué un but"
+        ],
+        "correctIdxs": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "answer": "le Racing a gagné (2-1) · le match bat, à l'époque, le record d'affluence pour un match de D1 · trois Ballon d'Or sont sur la pelouse · les deux frères Boli ont chacun marqué un but"
+      }
+    },
+    {
+      "id": "1780582670863",
+      "text": "Dans quelle ville est né Roger Boli ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Douala, Cameroun",
+        "Dakar, Sénégal",
+        "Abidjan, Côte d'Ivoire",
+        "Thiès, Sénégal"
+      ],
+      "correctIdx": 2,
+      "answer": "Abidjan, Côte d'Ivoire",
+      "bonus": {
+        "text": "Dans quel club est formé Roger Boli ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "AJ Auxerre",
+          "AJA",
+          "Auxerre"
+        ],
+        "answer": "AJ Auxerre"
+      }
+    },
+    {
+      "id": "1780583200452",
+      "text": "Qui sont les 5 joueurs comptant le plus de matchs au RC Lens ?",
+      "type": "multi-libre",
+      "tags": [],
+      "points": 2,
+      "timerDuration": 59,
+      "mlAnswers": [
+        "Eric Sikora",
+        "Jean-Guy Wallemme",
+        "Bernard Placzek",
+        "Didier Sénac",
+        "Yohan Démont"
+      ],
+      "mlRequired": 5,
+      "mlMaxWrong": 2,
+      "answer": "5 réponses sur 5",
+      "bonus": {
+        "text": "Quels sont les cinq joueurs complétant le Top 10 ?",
+        "type": "multi-libre",
+        "points": 3,
+        "mlAnswers": [
+          "Daniel Leclercq",
+          "Cyrille Magnier",
+          "Maryan Wisniewski",
+          "Hervé Flak",
+          "Jean-Marie Elie"
+        ],
+        "mlRequired": 5,
+        "mlMaxWrong": 3,
+        "answer": "5 réponses sur 5"
+      }
+    },
+    {
+      "id": "1780583633362",
+      "text": "Quel joueur du RC Lens est affectueusement surnommé \"Mister Smiley\" par Lucas Colin (Racing Club Podcast)",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "options": [
+        "Saud Abdulhamid",
+        "Odsonne Edouard",
+        "Ismaëlo Ganiou",
+        "Rayan Fofana"
+      ],
+      "correctIdx": 0,
+      "answer": "Saud Abdulhamid"
+    },
+    {
+      "id": "1780584015860",
+      "text": "Qui sont les 5 meilleurs buteurs de l'Histoire du RC Lens ?",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 2,
+      "timerDuration": 60,
+      "mlAnswers": [
+        "Ahmed Oudjani",
+        "Maryan Wisniewski",
+        "Georges Lech",
+        "Roger Boli",
+        "Farès Bousdira"
+      ],
+      "mlRequired": 5,
+      "mlMaxWrong": 1,
+      "answer": "5 réponses sur 5"
+    },
+    {
+      "id": "1780584146842",
+      "text": "Dans quel pays évoluait John Utaka avant de signer au RC Lens ?",
+      "type": "libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 10,
+      "answers": [
+        "Qatar"
+      ],
+      "answer": "Qatar"
+    },
+    {
+      "id": "1780584702365",
+      "text": "Cite l'ensemble des clubs européens de la carrière de Seydou Keita",
+      "type": "multi-libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 44,
+      "mlAnswers": [
+        "Marseille",
+        "Lorient",
+        "Lens",
+        "Seville",
+        "Barcelone",
+        "Valence",
+        "AS Rome"
+      ],
+      "mlVariants": [
+        [
+          "OM",
+          "Olympique de Marseille"
+        ],
+        [
+          "FC Lorient"
+        ],
+        [
+          "RC Lens"
+        ],
+        [
+          "FC Seville"
+        ],
+        [
+          "FC Barcelone",
+          "Barça"
+        ],
+        [
+          "Valencia CF"
+        ],
+        []
+      ],
+      "mlRequired": 7,
+      "mlMaxWrong": 2,
+      "answer": "7 réponses sur 7"
+    }
+  ]
+}
