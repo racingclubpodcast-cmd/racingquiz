@@ -64,7 +64,8 @@
       "tags": [
         "1780472277394"
       ],
-      "points": 2,
+      "points": 1,
+      "timerDuration": 15,
       "options": [
         "Boulevard Basly",
         "Place de la République",
@@ -96,6 +97,8 @@
       "tags": [
         "1780472277394"
       ],
+      "points": 2,
+      "timerDuration": 15,
       "options": [
         "La Ligue du Nord",
         "La Ligue d'Artois",
@@ -1356,7 +1359,6 @@
       "id": "1780602340623",
       "text": "Aboubakar \"Titi\" Camara (attaquant - Guinée) a joué au RC Lens entre 1995 et 1997. De quel club provenait-il ?",
       "type": "libre",
-      "active": true,
       "tags": [],
       "points": 1,
       "timerDuration": 15,
@@ -1451,7 +1453,6 @@
       "id": "1780603522192",
       "text": "Esteban Fuertes débarque au RC Lens à l'été 2000. De quel club ?",
       "type": "qcm",
-      "active": true,
       "tags": [],
       "points": 1,
       "timerDuration": 15,
@@ -1469,11 +1470,11 @@
         "points": 2,
         "options": [
           "Il marquera 5 buts dans le même match avec le CA Colon",
-          "Il fêtera sa première sélection avec l'Argentine a 36 ans",
+          "Il fêtera sa première sélection avec l'Argentine à 36 ans",
           "Il se produira en concert avec son groupe de rock au Monumental devant 80 000 personnes"
         ],
         "correctIdx": 1,
-        "answer": "Il fêtera sa première sélection avec l'Argentine a 36 ans"
+        "answer": "Il fêtera sa première sélection avec l'Argentine à 36 ans"
       }
     },
     {
@@ -2236,6 +2237,382 @@
       "indiceTries": [
         2,
         2,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780663539607",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Stéphane Pédron",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Redon, en Ille-et-Vilaine",
+        "Je prends ma retraite en 2007, dans un club breton",
+        "Je me révèle sous les ordres de Christian Gourcuff",
+        "J'ai souvent joué en orange",
+        "Avant Lens, je jouais dans le Forez",
+        "J'ai mis un lob parabolique au Parc des Princes - tu te rappelles ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780664128299",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Toifilou Maoulida",
+      "playerVariants": [],
+      "indices": [
+        "J'ai grandi dans les quartiers nord de Marseille",
+        "En 20 ans de carrière pro, j'ai fréquenté 10 clubs (tous en France)",
+        "Je finis ma carrière à Tours",
+        "Avant Lens, je jouais à Auxerre",
+        "Stats lensoises : 120 matchs, 34 buts",
+        "Y'a son nom sur une bandelette - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780664716105",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Damien Tixier",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Nîmes",
+        "Je suis un joueur à vocation défensive, gaucher",
+        "Mon parcours n'a rien d'académique, et c'est au Portugal que je lance ma carrière pro",
+        "J'arrive à Lens en janvier 2007, et ne reste que 6 mois",
+        "Je prends ma retraite en 2011, après une pige de deux saisons à Nantes"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780664932741",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Baptiste Guillaume",
+      "playerVariants": [],
+      "indices": [
+        "Je suis un attaquant, né le 16 juin 1995",
+        "Je fais partie de ces joueurs ayant évolué à Lens et à Lille",
+        "A Lens, je ne performe pas réellement (3 buts)",
+        "A Lille non plus (0 but)",
+        "Belge, j'ai également évolué à Valenciennes"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780665093605",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Jean-Philippe Gbamin",
+      "playerVariants": [],
+      "indices": [
+        "Je suis formé au RC Lens",
+        "J'évolue à un poste défensif",
+        "J'ai joué 99 matchs au RC Lens (pour 4 buts)",
+        "En 2016, je suis transféré en Allemagne",
+        "Récemment, j'ai joué à Dunkerque, Nantes et Metz, après une longue expatriation."
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780666283743",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Philippe Vercruysse",
+      "playerVariants": [],
+      "indices": [
+        "Formé au RC Lens, je joue mon premier match en pro en 1980",
+        "Joueur à vocation offensive, je compte plus de dix sélections en équipe de France",
+        "Lors de mon premier passage, je joue 207 matchs et marque 48 buts",
+        "Je fais des passages remarqués à Bordeaux et à Marseille",
+        "Je reviens au RC Lens à deux reprises (1987-88 et 1997)",
+        "Considéré comme un des joueurs les plus élégants de l'histoire du football français - je suis je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780666589789",
+      "type": "joueur",
+      "active": true,
+      "playerName": "François Brisson",
+      "playerVariants": [],
+      "indices": [
+        "Mon premier club en professionnel est le Paris Saint-Germain",
+        "En 1981 et après 87 matchs au PSG, je mets le cap sur Lens.",
+        "À Lens, je brille au point de finir en équipe de France",
+        "J'ai également joué à Laval, Lille, Marseille, Lyon et Strasbourg.",
+        "Je suis champion Olympique en 1984",
+        "Adjoint de Daniel Leclercq - je suis je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780666790068",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Daniel Cousin",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Libreville",
+        "Je suis un joueur à vocation offensive",
+        "Je compte 56 capes avec ma sélection nationale",
+        "J'arrive à Lens en 2004",
+        "J'ai joué dans trois clubs portant les couleurs Sang et Or",
+        "Il a fait un gros fuck au public lensois - qui est-il ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780667005687",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Jérôme Leroy",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Béthune",
+        "Mon fils est également joueur de football professionnel",
+        "J'ai joué dans 11 clubs français",
+        "A Lens, je compte 59 matchs pour 3 buts",
+        "Milieu offensif connu pour sa grande qualité technique et son caractère sanguin",
+        "Je quitte le RC Lens pour le Beitar Jérusalem - qui suis-je ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780667341806",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Dagui Bakari",
+      "playerVariants": [],
+      "indices": [
+        "Franco-ivoirien, je démarre ma carrière à Noisy-le-Sec avant de rejoindre Amiens SC",
+        "C'est au Mans que j'explose, attirant le regard d'un club du nord",
+        "Je finis ma carrière à l'AS Nancy Lorraine",
+        "Je compte 7 sélections avec la Côte d'Ivoire",
+        "Lorsqu'il arrive à Lens, il ne marque que 2 buts. Trop peu pour un attaquant.",
+        "Un des rares joueurs à être passé de Lille à Lens directement, je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780667774942",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Vittorino Hilton",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Brasilia",
+        "J'arrive en Europe par la Suisse, via le Servette Genève",
+        "Joueur à vocation défensive, je marque 10 buts en 158 matchs à Lens",
+        "Je suis double champion de France",
+        "Avant Lens, j'évoluais au SC Bastia",
+        "J'ai joué à Montpellier jusqu'en 2021 - tu m'as trouvé ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
         1,
         1,
         1

@@ -968,7 +968,8 @@
     #quiz-sidebar {
       position: fixed;
       left: 16px;
-      bottom: 16px;
+      top: 50%;
+      transform: translateY(-50%);
       width: 160px;
       background: rgba(26,26,26,.92);
       border: 1px solid rgba(255,205,0,.18);
@@ -1643,6 +1644,13 @@
 
       <!-- Tab : settings -->
       <div id="at-settings" style="display:none;width:100%">
+
+        <!-- Catégories de questions -->
+        <div class="card" style="margin-bottom:16px;">
+          <h3>Catégories de questions</h3>
+          <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez une catégorie entière. Les catégories désactivées sont exclues lors du lancement d'une partie.</p>
+          <div id="categories-list"></div>
+        </div>
 
         <!-- Fonctionnalités -->
         <div class="card" style="margin-bottom:16px;">
@@ -2363,11 +2371,57 @@
     scoreSummary  : true,
     bonusQuestions: true,
     contact       : true,
+    catQuestions  : true,
+    catJoueur     : true,
   };
 
   function feat(key) {
     const saved = LS.getFeatures();
     return key in saved ? saved[key] : DEFAULT_FEATURES[key];
+  }
+
+  const CATEGORIES_META = [
+    { key: 'catQuestions', label: 'Questions',     desc: 'Questions classiques (Libre, QCM, Liste…)', typeFilter: q => q.type !== 'joueur' },
+    { key: 'catJoueur',    label: 'Qui suis-je ?', desc: 'Questions de type "Qui suis-je ?"',          typeFilter: q => q.type === 'joueur' },
+  ];
+
+  function getActiveQ() {
+    return LS.getQ().filter(q => {
+      if (q.active === false) return false;
+      const meta = CATEGORIES_META.find(c => c.typeFilter(q));
+      return !meta || feat(meta.key);
+    });
+  }
+
+  function renderCategoriesPanel() {
+    const el = document.getElementById('categories-list');
+    if (!el) return;
+    const allQ = LS.getQ().filter(q => q.active !== false);
+    el.innerHTML = CATEGORIES_META.map((c, idx) => {
+      const on    = feat(c.key);
+      const count = allQ.filter(c.typeFilter).length;
+      const sep   = idx < CATEGORIES_META.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,.06);' : '';
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;${sep}">
+          <label class="media-toggle" title="${on ? 'Désactiver' : 'Activer'}">
+            <input type="checkbox" ${on ? 'checked' : ''} onchange="toggleCategory('${c.key}')">
+            <span class="media-toggle-track"></span>
+            <span class="media-toggle-thumb"></span>
+          </label>
+          <div style="flex:1;">
+            <div style="font-weight:700;font-size:.88rem;">${c.label} <span style="font-size:.78rem;font-weight:400;color:rgba(255,255,255,.35);">(${count} question${count !== 1 ? 's' : ''})</span></div>
+            <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">${c.desc}</div>
+          </div>
+          ${!on ? '<span style="font-size:.72rem;color:var(--rouge,#c0392b);font-weight:600;white-space:nowrap;">Désactivée</span>' : ''}
+        </div>`;
+    }).join('');
+  }
+
+  function toggleCategory(key) {
+    const saved = LS.getFeatures();
+    saved[key]  = !feat(key);
+    LS.saveFeatures(saved);
+    renderCategoriesPanel();
   }
 
   const FEATURES_META = [
@@ -2419,7 +2473,7 @@
     document.getElementById('view-' + viewName).classList.add('active');
     const sidebar   = document.getElementById('quiz-sidebar');
     const adminDash = document.getElementById('admin-dashboard');
-    const inQuiz    = viewName === 'quiz';
+    const inQuiz    = viewName === 'quiz' || viewName === 'results';
     if (sidebar) sidebar.style.display = (inQuiz && feat('scoreSidebar')) ? 'flex' : 'none';
     if (adminDash) adminDash.style.display = viewName === 'admin' ? 'flex' : 'none';
     document.getElementById('bg').style.backgroundImage =
@@ -2438,7 +2492,10 @@
     const { questions, idx, answers, score } = session;
     if (!questions || !questions.length) return;
 
-    let scoresHtml = `<div class="qs-title">Question ${idx + 1} sur ${questions.length}</div>`;
+    const isFinished = idx >= questions.length;
+    let scoresHtml = isFinished
+      ? `<div class="qs-title">Récapitulatif final</div>`
+      : `<div class="qs-title">Question ${idx + 1} sur ${questions.length}</div>`;
     if (answers.length > 0) {
       scoresHtml += '<div class="qs-list">';
       answers.forEach((a, i) => {
@@ -2531,7 +2588,7 @@
     if (!showList) document.getElementById('at-add').style.display = 'none';
     document.getElementById('at-settings').style.display = tab === 'settings' ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
-    if (tab === 'settings') { renderTagManage(); renderMediaList(); renderFeaturesPanel(); }
+    if (tab === 'settings') { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); }
   }
 
   function toggleSettings() {
@@ -4086,7 +4143,7 @@
   }
 
   function goQuiz() {
-    if (LS.getQ().filter(q => q.active !== false).length === 0) { alert('Aucune question active disponible !'); return; }
+    if (getActiveQ().length === 0) { alert('Aucune question active disponible !'); return; }
     nav('player-name');
   }
 
@@ -4335,7 +4392,7 @@
      PLAYER NAME
   ═══════════════════════════════════════════════════ */
   function initPlayerName() {
-    const qs = LS.getQ().filter(q => q.active !== false);
+    const qs = getActiveQ();
     document.getElementById('no-q-alert').style.display = qs.length === 0 ? 'block' : 'none';
     document.getElementById('player-name').value = '';
     setTimeout(() => document.getElementById('player-name').focus(), 80);
@@ -4373,7 +4430,7 @@
 
   function startQuiz() {
     const name = (document.getElementById('player-name').value || '').trim();
-    const qs   = LS.getQ().filter(q => q.active !== false);
+    const qs   = getActiveQ();
     if (!name) { document.getElementById('player-name').focus(); return; }
     if (qs.length === 0) { document.getElementById('no-q-alert').style.display = 'block'; return; }
 
@@ -4478,15 +4535,6 @@
     }
     if (!skipTimer) startQuizTimer();
     updateSidebar();
-    // Position sidebar once per question, after layout is computed
-    setTimeout(() => {
-      const sidebar = document.getElementById('quiz-sidebar');
-      const card    = document.querySelector('#view-quiz .card');
-      if (sidebar && card && sidebar.style.display === 'flex') {
-        sidebar.style.top    = card.getBoundingClientRect().top + 'px';
-        sidebar.style.bottom = 'auto';
-      }
-    }, 0);
   }
 
   /* ═══════════════════════════════════════════════════
@@ -5437,6 +5485,7 @@
   ═══════════════════════════════════════════════════ */
   function showResults() {
     nav('results');
+    updateSidebar();
     const { name, score, maxScore, answers, questions } = session;
     const ratio = maxScore > 0 ? score / maxScore : 0;
 
