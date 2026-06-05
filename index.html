@@ -1037,6 +1037,44 @@
     }
     @media (max-width: 1040px) { #quiz-sidebar { display: none !important; } }
 
+    /* ── Bandeau réseaux sociaux – page d'accueil ── */
+    .home-social {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      background: rgba(10,10,10,.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,205,0,.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 10px 20px;
+    }
+    .home-social-label {
+      font-size: .72rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      white-space: nowrap;
+    }
+    .home-social-logos {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .home-social-logos a img {
+      height: 28px;
+      width: auto;
+      display: block;
+      transition: transform .18s;
+    }
+    .home-social-logos a img:hover { transform: scale(1.12); }
+
     /* ── Admin Dashboard (right sidebar) ── */
     #admin-dashboard {
       position: fixed;
@@ -1263,6 +1301,22 @@
         <button class="btn btn-gold btn-full mb0" onclick="nav('player-name')">Jouer</button>
       </div>
       <p style="text-align:center;font-size:clamp(1.8rem,5vw,2.6rem);color:#ffffff;margin-top:12px;font-family:'CalleoHairline',sans-serif;">Votre révision estivale</p>
+
+      <!-- Bandeau réseaux sociaux -->
+      <div class="home-social">
+        <span class="home-social-label">Abonne-toi à notre chaîne YouTube et suis-nous sur les réseaux sociaux</span>
+        <div class="home-social-logos">
+          <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" aria-label="Chaîne YouTube Racing Club Podcast">
+            <img src="YT.png" alt="YouTube">
+          </a>
+          <a href="https://www.instagram.com/leracingclubpodcast/" target="_blank" rel="noopener" aria-label="Instagram Racing Club Podcast">
+            <img src="Insta.png" alt="Instagram">
+          </a>
+          <a href="https://x.com/leracingclub" target="_blank" rel="noopener" aria-label="Compte X Racing Club Podcast">
+            <img src="X.png" alt="X">
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- ═══════════════════════════════════════ ADMIN LOGIN ═══ -->
