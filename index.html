@@ -545,9 +545,20 @@
     /* ── Joueur indice rows ── */
     .indice-row {
       display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .indice-row-top {
+      display: flex;
       align-items: center;
       gap: 8px;
-      margin-bottom: 8px;
+    }
+    .indice-row-sub {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 32px;
     }
     .indice-num {
       width: 24px;
@@ -562,7 +573,20 @@
       justify-content: center;
       flex-shrink: 0;
     }
-    .indice-row input { flex: 1; }
+    .indice-row-top input.indice-text { flex: 1; }
+    .indice-pts-input, .indice-tries-input {
+      flex: 0 0 58px;
+      width: 58px !important;
+      text-align: center;
+      font-size: .82rem;
+      padding: 6px 4px !important;
+    }
+    .indice-pts-label {
+      font-size: .7rem;
+      color: rgba(255,255,255,.35);
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
     .indice-remove-btn {
       background: none;
       border: none;
@@ -576,37 +600,92 @@
     }
     .indice-remove-btn:hover { color: var(--rouge); }
 
-    /* ── Joueur quiz indices list ── */
-    .joueur-indices-list {
-      margin: 14px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .joueur-indice-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      padding: 9px 13px;
+    .joueur-pts-badge {
+      margin-top: 6px;
+      padding: 6px 12px;
       border-radius: 8px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.09);
-      font-size: .9rem;
-    }
-    .joueur-indice-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(255,205,0,.18);
-      color: var(--or);
-      font-size: .72rem;
-      font-weight: 700;
+      background: rgba(255,205,0,.08);
+      border: 1px solid rgba(255,205,0,.2);
+      font-size: .82rem;
+      color: rgba(255,255,255,.6);
+      text-align: center;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
-      margin-top: 1px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
+    .joueur-tries-sep { color: rgba(255,255,255,.25); }
+    .btn-reveal-indice {
+      width: 100%;
+      margin-top: 10px;
+      padding: 10px 14px;
+      border-radius: 9px;
+      border: 1.5px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.05);
+      color: rgba(255,255,255,.75);
+      font-size: .88rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, border-color .15s;
+      text-align: center;
+    }
+    .btn-reveal-indice:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.35); }
+    .btn-reveal-indice:disabled { opacity: .35; cursor: default; }
+    @keyframes joueur-shake {
+      0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 60%{transform:translateX(7px)}
+    }
+    .joueur-wrong-flash {
+      animation: joueur-shake .35s ease;
+      border-color: var(--rouge) !important;
+      box-shadow: 0 0 0 2px rgba(220,38,38,.25) !important;
+    }
+
+    /* ── Joueur quiz indices list ── */
+    .joueur-indices-list {
+      margin: 14px 0;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(0,0,0,.28);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px;
+      padding: 38px 12px 12px;
+    }
+    .joueur-info-badge {
+      position: absolute;
+      top: 9px;
+      right: 12px;
+      font-size: .75rem;
+      color: rgba(255,255,255,.55);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+    }
+    .joueur-indice-item {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.09);
+    }
+    .joueur-indice-label {
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--or);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      opacity: .75;
+    }
+    .joueur-indice-text {
+      font-size: .9rem;
+      color: rgba(255,255,255,.9);
+    }
+    .joueur-indice-num { display: none; }
 
     /* ── Bonus (quiz) ── */
     .bonus-box {
@@ -1227,12 +1306,17 @@
       <!-- Tab : list -->
       <div id="at-list" style="width:100%">
         <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
             <div style="flex:1;position:relative;">
               <input type="text" id="db-search" placeholder="Rechercher dans la base…" oninput="dbSearchFilter(this.value)" style="margin-bottom:0;padding-right:36px;" />
               <button id="db-search-clear" onclick="dbClearSearch()" title="Effacer la recherche" style="display:none;position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.5);cursor:pointer;padding:0;line-height:1;font-size:1rem;">✕</button>
             </div>
             <button class="btn btn-red btn-sm" id="btn-creer" onclick="toggleAddForm()" style="white-space:nowrap;flex-shrink:0;">+ Créer une entrée</button>
+          </div>
+          <div id="db-tag-filter" style="display:flex;gap:6px;margin-bottom:14px;">
+            <button id="dbf-all"      onclick="dbSetTagFilter('all')"      class="btn btn-sm" style="flex:1;font-size:.78rem;padding:6px 8px;background:rgba(255,205,0,.18);border:1px solid var(--or);color:var(--or);">Toutes</button>
+            <button id="dbf-with-tag" onclick="dbSetTagFilter('with-tag')" class="btn btn-sm" style="flex:1;font-size:.78rem;padding:6px 8px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);">🏷 Avec tag</button>
+            <button id="dbf-no-tag"   onclick="dbSetTagFilter('no-tag')"   class="btn btn-sm" style="flex:1;font-size:.78rem;padding:6px 8px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);">Sans tag</button>
           </div>
           <div id="q-list-container"></div>
           <div id="q-list-actions" style="display:none">
@@ -1258,7 +1342,7 @@
         <!-- Sub-tabs Question / Joueur -->
         <div class="add-subtabs">
           <button class="add-subtab active" id="ast-question" onclick="setAddMode('question')">Question</button>
-          <button class="add-subtab" id="ast-joueur" onclick="setAddMode('joueur')">Joueur</button>
+          <button class="add-subtab" id="ast-joueur" onclick="setAddMode('joueur')">Qui suis-je ?</button>
         </div>
 
         <!-- ── Panel : Question (workflow existant) ── -->
@@ -1272,7 +1356,7 @@
             <div style="display:flex;gap:16px;flex-wrap:wrap;">
               <div class="form-group" style="flex:1;min-width:100px;">
                 <label class="field-label">Points</label>
-                <input type="number" id="nq-points" min="1" max="999" value="1">
+                <input type="number" id="nq-points" min="0.5" max="999" step="0.5" value="1">
                 <p class="field-hint">Points si bonne réponse.</p>
               </div>
               <div class="form-group" style="flex:1;min-width:100px;">
@@ -1378,7 +1462,7 @@
               </div>
               <div class="form-group">
                 <label class="field-label">Points bonus</label>
-                <input type="number" id="nq-bonus-points" min="1" max="999" value="1" style="max-width:110px;">
+                <input type="number" id="nq-bonus-points" min="0.5" max="999" step="0.5" value="1" style="max-width:110px;">
               </div>
               <div class="form-group">
                 <label class="field-label">Type de réponse</label>
@@ -1473,17 +1557,10 @@
               <p class="field-hint">Le nom que les joueurs devront deviner.</p>
             </div>
 
-            <div style="display:flex;gap:16px;flex-wrap:wrap;">
-              <div class="form-group" style="flex:1;min-width:100px;">
-                <label class="field-label">Points</label>
-                <input type="number" id="nj-points" min="1" max="999" value="1">
-                <p class="field-hint">Points si bonne réponse.</p>
-              </div>
-              <div class="form-group" style="flex:1;min-width:100px;">
-                <label class="field-label">Timer (secondes)</label>
-                <input type="number" id="nj-timer" min="1" max="300" value="45">
-                <p class="field-hint">Standard : 45 s.</p>
-              </div>
+            <div class="form-group" style="max-width:160px;">
+              <label class="field-label">Timer (secondes)</label>
+              <input type="number" id="nj-timer" min="1" max="300" value="60">
+              <p class="field-hint">Standard : 60 s.</p>
             </div>
 
             <div class="form-group">
@@ -1502,9 +1579,9 @@
             </div>
 
             <div id="add-joueur-err" class="alert alert-error"   style="display:none"></div>
-            <div id="add-joueur-ok"  class="alert alert-success" style="display:none">Joueur ajouté avec succès !</div>
+            <div id="add-joueur-ok"  class="alert alert-success" style="display:none">Question ajoutée avec succès !</div>
 
-            <button class="btn btn-red btn-full mb0" onclick="addJoueur()">Ajouter le joueur</button>
+            <button class="btn btn-red btn-full mb0" onclick="addJoueur()">Ajouter la question</button>
           </div>
         </div>
 
@@ -1548,7 +1625,9 @@
 
         <div class="card" style="margin-bottom:16px;">
           <h3>Tags</h3>
-          <div class="flex-row" style="margin-bottom:12px;">
+          <div class="flex-row" style="margin-bottom:12px;gap:8px;">
+            <input type="color" id="tag-new-color" value="#FFCD00"
+                   style="width:38px;height:38px;padding:2px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:none;cursor:pointer;flex-shrink:0;">
             <input type="text" id="tag-new-name" placeholder="Nom du tag…" style="flex:1;" maxlength="30"
                    onkeydown="if(event.key==='Enter')createTag()">
             <button class="btn btn-gold btn-sm" style="flex-shrink:0;" onclick="createTag()">+ Créer</button>
@@ -1639,6 +1718,7 @@
             <input type="text" id="qz-libre-input" placeholder="Votre réponse…" maxlength="200"
                    onkeydown="if(event.key==='Enter')submitLibre()">
             <button class="btn btn-red btn-full mt16 mb0" id="qz-libre-btn" onclick="submitLibre()">Valider</button>
+            <button class="btn-reveal-indice" id="qz-joueur-reveal-btn" style="display:none;" onclick="revealNextJoueurIndice('qz')">Révéler l'indice suivant</button>
           </div>
 
           <!-- QCM multi submit -->
@@ -1798,6 +1878,7 @@
             <input type="text" id="tq-libre-input" placeholder="Votre réponse…" maxlength="200"
                    onkeydown="if(event.key==='Enter')testSubmitLibre()">
             <button class="btn btn-red btn-full mt16 mb0" id="tq-libre-btn" onclick="testSubmitLibre()">Valider</button>
+            <button class="btn-reveal-indice" id="tq-joueur-reveal-btn" style="display:none;" onclick="revealNextJoueurIndice('tq')">Révéler l'indice suivant</button>
           </div>
 
           <div id="tq-multi-submit" style="display:none;margin-top:16px;">
@@ -1819,6 +1900,7 @@
 
           <div id="tq-feedback" style="display:none;margin-top:16px;">
             <div id="tq-feedback-inner"></div>
+            <div id="tq-score-summary" style="display:none;margin-top:12px;"></div>
 
             <div id="tq-bonus" style="display:none;">
               <div class="bonus-box">
@@ -1873,22 +1955,6 @@
   <!-- ── Admin Dashboard ── -->
   <div id="admin-dashboard"></div>
 
-  <!-- ── Barre sociale fixe ── -->
-  <div id="social-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(0,0,0,.65);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;padding:10px 16px 12px;gap:8px;">
-    <span style="color:#FFFFFF;font-size:.75rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;text-align:center;">Abonne-toi à notre chaîne YouTube et suis-nous sur les réseaux sociaux</span>
-    <div style="display:flex;align-items:center;gap:20px;">
-      <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" aria-label="Chaîne YouTube Racing Club Podcast">
-        <img src="YT.png" alt="YouTube" style="height:36px;width:auto;display:block;transition:transform .18s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-      </a>
-      <a href="https://www.instagram.com/leracingclubpodcast/" target="_blank" rel="noopener" aria-label="Instagram Racing Club Podcast">
-        <img src="Insta.png" alt="Instagram" style="height:36px;width:auto;display:block;transition:transform .18s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-      </a>
-      <a href="https://x.com/leracingclub" target="_blank" rel="noopener" aria-label="Compte X Racing Club Podcast">
-        <img src="X.png" alt="X" style="height:36px;width:auto;display:block;transition:transform .18s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
-      </a>
-    </div>
-    <button onclick="openContact('error')" style="background:none;border:none;color:rgba(255,255,255,.4);font-size:.7rem;cursor:pointer;padding:2px 6px;font-family:inherit;transition:color .15s;" onmouseover="this.style.color='rgba(255,255,255,.75)'" onmouseout="this.style.color='rgba(255,255,255,.4)'">✉ Contactez-nous</button>
-  </div>
 
   <!-- ════════════════════════════════════ EDIT MODAL ═══ -->
   <div id="edit-modal" class="modal-overlay" style="display:none;">
@@ -1900,9 +1966,9 @@
           <textarea id="eq-text"></textarea>
         </div>
         <div style="display:flex;gap:16px;flex-wrap:wrap;">
-          <div class="form-group" style="flex:1;min-width:100px;">
+          <div class="form-group" id="eq-pts-row" style="flex:1;min-width:100px;">
             <label class="field-label">Points</label>
-            <input type="number" id="eq-points" min="1" max="999">
+            <input type="number" id="eq-points" min="0.5" max="999" step="0.5">
           </div>
           <div class="form-group" style="flex:1;min-width:100px;">
             <label class="field-label">Timer (secondes)</label>
@@ -2011,7 +2077,7 @@
           </div>
           <div class="form-group">
             <label class="field-label">Points bonus</label>
-            <input type="number" id="eq-bonus-points" min="1" max="999" style="max-width:110px;">
+            <input type="number" id="eq-bonus-points" min="0.5" max="999" step="0.5" style="max-width:110px;">
           </div>
           <div class="form-group">
             <label class="field-label">Type de réponse</label>
@@ -2174,9 +2240,14 @@
   let addSelectedTags      = [];
   let addJoueurSelectedTags = [];
   let editSelectedTags     = [];
+  let editingTagId         = null;
   let editJoueurIndicesCount = 5;
   let correctIdxsMulti     = [];
   let editCorrectIdxsMulti = [];
+  let quizJoueurIndiceIdx  = 0;
+  let quizJoueurTryCount   = 0;
+  let testJoueurIndiceIdx  = 0;
+  let testJoueurTryCount   = 0;
   let quizMultiSelected          = [];
   let quizBonusMultiSelected     = [];
   let bonusType                  = 'libre';
@@ -2293,12 +2364,9 @@
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + viewName).classList.add('active');
     const sidebar   = document.getElementById('quiz-sidebar');
-    const socialBar = document.getElementById('social-bar');
     const adminDash = document.getElementById('admin-dashboard');
     const inQuiz    = viewName === 'quiz';
-    const inAdmin   = viewName === 'admin' || viewName === 'admin-login';
-    if (sidebar)   sidebar.style.display   = (inQuiz && feat('scoreSidebar')) ? 'flex' : 'none';
-    if (socialBar) socialBar.style.display = (inQuiz || inAdmin) ? 'none' : 'flex';
+    if (sidebar) sidebar.style.display = (inQuiz && feat('scoreSidebar')) ? 'flex' : 'none';
     if (adminDash) adminDash.style.display = viewName === 'admin' ? 'flex' : 'none';
     document.getElementById('bg').style.backgroundImage =
       viewName === 'midbreak'
@@ -2398,6 +2466,7 @@
   let dbPageQ = 0;
   let dbPageJ = 0;
   let dbSearchTerm = '';
+  let dbTagFilter  = 'all'; // 'all' | 'with-tag' | 'no-tag'
   const DB_PAGE_SIZE = 10;
 
   function adminTab(tab) {
@@ -2429,6 +2498,17 @@
     }
   }
 
+  function openAddJoueur() {
+    const form = document.getElementById('at-add');
+    const btn  = document.getElementById('btn-creer');
+    form.style.display = 'block';
+    btn.textContent    = '✕ Annuler';
+    renderTagPicker('tag-picker', addSelectedTags);
+    renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
+    setAddMode('joueur');
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   function setAddMode(mode) {
     addMode = mode;
     document.getElementById('ast-question').classList.toggle('active', mode === 'question');
@@ -2438,22 +2518,119 @@
     sessionStorage.setItem('rcAddMode', mode);
     if (mode === 'joueur') {
       renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
-      renderJoueurIndices('nj-indices-container', Array(5).fill(''));
+      renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
     }
   }
 
+  /* ── Joueur matching ── */
+  function isJoueurMatch(val, q) {
+    const allAnswers = [q.playerName, ...(q.playerVariants || [])].filter(Boolean);
+    return allAnswers.some(ans => isMatchMl(val, ans));
+  }
+
+  /* ── Joueur reveal button ── */
+  function updateJoueurRevealBtn(pfx, q, idx) {
+    const btn = document.getElementById(pfx + '-joueur-reveal-btn');
+    if (!btn) return;
+    const total = (q.indices || []).length;
+    if (idx >= total - 1) {
+      btn.style.display = 'none';
+    } else {
+      btn.textContent = `Révéler l'indice ${idx + 2} →`;
+      btn.style.display = 'block';
+    }
+  }
+
+  function revealNextJoueurIndice(pfx) {
+    const q = pfx === 'qz' ? session.questions[session.idx] : testState.q;
+    if (pfx === 'qz') {
+      quizJoueurIndiceIdx++;
+      quizJoueurTryCount = 0;
+      renderJoueurQuizIndices('qz', q, quizJoueurIndiceIdx);
+      updateJoueurRevealBtn('qz', q, quizJoueurIndiceIdx);
+    } else {
+      testJoueurIndiceIdx++;
+      testJoueurTryCount = 0;
+      renderJoueurQuizIndices('tq', q, testJoueurIndiceIdx);
+      updateJoueurRevealBtn('tq', q, testJoueurIndiceIdx);
+    }
+    document.getElementById(pfx === 'qz' ? 'qz-libre-input' : 'tq-libre-input').focus();
+  }
+
+  /* ── Joueur points + tries helpers ── */
+  function defaultIndicePts(n) {
+    return Array.from({ length: n }, (_, i) => Math.max(0.5, 5 - i));
+  }
+
+  function defaultIndiceTries(n) {
+    return Array.from({ length: n }, (_, i) => i < 2 ? 2 : 1);
+  }
+
+  function getJoueurPts(q, idx) {
+    if (q.indicePts && q.indicePts[idx] !== undefined) return Math.max(0, q.indicePts[idx]);
+    return Math.max(0.5, 5 - idx);
+  }
+
+  function getJoueurTries(q, idx) {
+    if (q.indiceTries && q.indiceTries[idx] !== undefined) return Math.max(1, q.indiceTries[idx]);
+    return idx < 2 ? 2 : 1;
+  }
+
+  function getJoueurIndicePts(containerId) {
+    const container = document.getElementById(containerId);
+    return Array.from(container.querySelectorAll('input.indice-pts-input'))
+      .map(inp => Math.max(0, parseFloat(inp.value) || 0));
+  }
+
+  function getJoueurIndiceTries(containerId) {
+    const container = document.getElementById(containerId);
+    return Array.from(container.querySelectorAll('input.indice-tries-input'))
+      .map(inp => Math.max(1, parseInt(inp.value) || 1));
+  }
+
+  function renderJoueurQuizIndices(pfx, q, upTo) {
+    const el = document.getElementById(pfx + '-indices');
+    const visible = (q.indices || []).slice(0, upTo + 1);
+    const pts      = getJoueurPts(q, upTo);
+    const maxTries = getJoueurTries(q, upTo);
+    const trysDone = pfx === 'qz' ? quizJoueurTryCount : testJoueurTryCount;
+    const trysLeft = maxTries - trysDone;
+    const tryColor = trysLeft <= 1 ? 'var(--rouge)' : trysLeft <= 2 ? '#ff8c00' : 'rgba(255,255,255,.55)';
+    el.innerHTML =
+      `<div class="joueur-info-badge">
+         <span>Bonne réponse&nbsp;= <strong>${pts} pt${pts > 1 ? 's' : ''}</strong></span>
+         <span class="joueur-tries-sep">·</span>
+         <span style="color:${tryColor}"><strong>${trysLeft}</strong> tentative${trysLeft > 1 ? 's' : ''}</span>
+       </div>` +
+      visible.map((ind, i) => `
+      <div class="joueur-indice-item">
+        <div class="joueur-indice-label">Indice ${i + 1}</div>
+        <div class="joueur-indice-text">${esc(ind)}</div>
+      </div>`).join('');
+  }
+
   /* ── Joueur indices helpers ── */
-  function renderJoueurIndices(containerId, values) {
+  function renderJoueurIndices(containerId, values, pts, tries) {
+    if (!pts   || pts.length   < values.length) pts   = defaultIndicePts(values.length);
+    if (!tries || tries.length < values.length) tries = defaultIndiceTries(values.length);
     const container = document.getElementById(containerId);
     const isEdit    = containerId === 'eq-joueur-indices';
     const max = 10, min = 5;
     container.innerHTML = values.map((v, i) => `
       <div class="indice-row" id="${containerId}-row-${i}">
-        <div class="indice-num">${i + 1}</div>
-        <input type="text" id="${containerId}-${i}" value="${esc(v)}" placeholder="Indice ${i + 1}…" maxlength="200">
-        ${values.length > min
-          ? `<button type="button" class="indice-remove-btn" title="Supprimer" onclick="${isEdit ? 'removeEditJoueurIndice' : 'removeJoueurIndice'}(${i})">✕</button>`
-          : '<span style="width:28px;flex-shrink:0;"></span>'}
+        <div class="indice-row-top">
+          <div class="indice-num">${i + 1}</div>
+          <input type="text" class="indice-text" id="${containerId}-${i}" value="${esc(v)}" placeholder="Indice ${i + 1}…" maxlength="200">
+          ${values.length > min
+            ? `<button type="button" class="indice-remove-btn" title="Supprimer" onclick="${isEdit ? 'removeEditJoueurIndice' : 'removeJoueurIndice'}(${i})">✕</button>`
+            : '<span style="width:28px;flex-shrink:0;"></span>'}
+        </div>
+        <div class="indice-row-sub">
+          <span class="indice-pts-label">Pts</span>
+          <input type="number" class="indice-pts-input" id="${containerId}-pts-${i}" value="${pts[i] ?? 1}" min="0" max="999" step="0.5">
+          <span class="indice-pts-label">Ess.</span>
+          <input type="number" class="indice-tries-input" id="${containerId}-tries-${i}" value="${tries[i] ?? 1}" min="1" max="99">
+        </div>
       </div>`).join('');
     const addBtn = document.getElementById(isEdit ? 'eq-add-indice-btn' : 'nj-add-indice-btn');
     if (addBtn) addBtn.style.display = values.length >= max ? 'none' : '';
@@ -2467,28 +2644,36 @@
 
   function addJoueurIndice() {
     const values = getJoueurIndices('nj-indices-container');
+    const pts    = getJoueurIndicePts('nj-indices-container');
+    const tries  = getJoueurIndiceTries('nj-indices-container');
     if (values.length >= 10) return;
-    renderJoueurIndices('nj-indices-container', [...values, '']);
+    renderJoueurIndices('nj-indices-container', [...values, ''], [...pts, Math.max(0.5, (pts[pts.length - 1] || 0.5) - 1)], [...tries, tries[tries.length - 1] ?? 1]);
   }
 
   function removeJoueurIndice(idx) {
     const values = getJoueurIndices('nj-indices-container');
+    const pts    = getJoueurIndicePts('nj-indices-container');
+    const tries  = getJoueurIndiceTries('nj-indices-container');
     if (values.length <= 5) return;
-    values.splice(idx, 1);
-    renderJoueurIndices('nj-indices-container', values);
+    values.splice(idx, 1); pts.splice(idx, 1); tries.splice(idx, 1);
+    renderJoueurIndices('nj-indices-container', values, pts, tries);
   }
 
   function addEditJoueurIndice() {
     const values = getJoueurIndices('eq-joueur-indices');
+    const pts    = getJoueurIndicePts('eq-joueur-indices');
+    const tries  = getJoueurIndiceTries('eq-joueur-indices');
     if (values.length >= 10) return;
-    renderJoueurIndices('eq-joueur-indices', [...values, '']);
+    renderJoueurIndices('eq-joueur-indices', [...values, ''], [...pts, Math.max(0.5, (pts[pts.length - 1] || 0.5) - 1)], [...tries, tries[tries.length - 1] ?? 1]);
   }
 
   function removeEditJoueurIndice(idx) {
     const values = getJoueurIndices('eq-joueur-indices');
+    const pts    = getJoueurIndicePts('eq-joueur-indices');
+    const tries  = getJoueurIndiceTries('eq-joueur-indices');
     if (values.length <= 5) return;
-    values.splice(idx, 1);
-    renderJoueurIndices('eq-joueur-indices', values);
+    values.splice(idx, 1); pts.splice(idx, 1); tries.splice(idx, 1);
+    renderJoueurIndices('eq-joueur-indices', values, pts, tries);
   }
 
   /* ── Add joueur ── */
@@ -2500,18 +2685,24 @@
 
     if (!name) { errEl.textContent = 'Veuillez saisir le nom du joueur.'; errEl.style.display = 'block'; return; }
 
-    const indices = getJoueurIndices('nj-indices-container');
-    const filled  = indices.filter(Boolean);
+    const allIndices = getJoueurIndices('nj-indices-container');
+    const allPts     = getJoueurIndicePts('nj-indices-container');
+    const allTries   = getJoueurIndiceTries('nj-indices-container');
+    const filled     = allIndices.reduce((acc, v, i) => { if (v) acc.push({ v, p: allPts[i] ?? 1, t: allTries[i] ?? 1 }); return acc; }, []);
     if (filled.length < 5) { errEl.textContent = 'Veuillez renseigner au moins 5 indices.'; errEl.style.display = 'block'; return; }
+
+    const playerVariants = [];
 
     const q = {
       id: Date.now().toString(),
       type: 'joueur',
       active: true,
       playerName: name,
-      indices: filled,
-      points: Math.max(1, parseInt(document.getElementById('nj-points').value) || 1),
-      timerDuration: Math.max(1, parseInt(document.getElementById('nj-timer').value) || 45),
+      playerVariants,
+      indices:    filled.map(x => x.v),
+      indicePts:  filled.map(x => x.p),
+      indiceTries: filled.map(x => x.t),
+      timerDuration: Math.max(1, parseInt(document.getElementById('nj-timer').value) || 60),
       tags: addJoueurSelectedTags.slice()
     };
 
@@ -2520,12 +2711,11 @@
     LS.saveQ(arr);
 
     // Reset form
-    document.getElementById('nj-name').value   = '';
-    document.getElementById('nj-points').value  = '1';
-    document.getElementById('nj-timer').value   = '45';
+    document.getElementById('nj-name').value  = '';
+    document.getElementById('nj-timer').value = '60';
     addJoueurSelectedTags = [];
     renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
-    renderJoueurIndices('nj-indices-container', Array(5).fill(''));
+    renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
     document.getElementById('qcount').textContent = arr.length;
 
     okEl.style.display = 'block';
@@ -2812,7 +3002,7 @@
     if (ok) {
       inner = `<div class="feedback-box fb-correct" style="margin-top:0;">
         <div>
-          <div class="fb-title correct">Bonus réussi ! <span style="font-size:.85rem;font-weight:600;opacity:.8;">+${bPts} pt${bPts > 1 ? 's' : ''}</span></div>
+          <div class="fb-title correct">You got the bonus ! Tu rajoutes ${bPts} point${bPts > 1 ? 's' : ''} !</div>
           <div class="fb-detail" style="color:var(--vert);">${state.found.length} / ${q.bonus.mlRequired} réponses trouvées !</div>
         </div>
       </div>`;
@@ -2842,6 +3032,12 @@
         const sh = renderQzScoreSummary(mainOk, mainPts, { ok, pts: bPts });
         summaryEl.innerHTML = sh; summaryEl.style.display = sh ? 'block' : 'none';
       }
+    } else {
+      const tSummaryEl = document.getElementById('tq-score-summary');
+      if (tSummaryEl && feat('scoreSummary')) {
+        const sh = renderQzScoreSummary(true, testState.q.points || 1, { ok, pts: bPts });
+        tSummaryEl.innerHTML = sh; tSummaryEl.style.display = sh ? 'block' : 'none';
+      }
     }
     document.getElementById(pfx === 'qz' ? 'qz-next-btn' : 'tq-close-btn').style.display = 'block';
     if (pfx === 'qz') updateSidebar();
@@ -2857,6 +3053,7 @@
       if (!inp || inp.disabled) return;
       inp.disabled = true;
       document.getElementById('tq-libre-btn').disabled = true;
+      document.getElementById('tq-joueur-reveal-btn').style.display = 'none';
       testShowFeedback(false, q.type === 'joueur' ? q.playerName : null, null, true);
     } else {
       testSubmitQcmMulti(true);
@@ -2873,6 +3070,7 @@
       if (!inp || inp.disabled) return;
       inp.disabled = true;
       document.getElementById('qz-libre-btn').disabled = true;
+      document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
       session.answers.push({ q, playerAns: '', ok: false, type: q.type, ptsEarned: 0 });
       showFeedback(false, q.type === 'joueur' ? q.playerName : null, null, true);
     } else {
@@ -2895,13 +3093,18 @@
     const listEl    = document.getElementById('q-list-container');
     actionsEl.style.display = qs.length > 0 ? 'block' : 'none';
 
-    const questions = qs.filter(q => q.type !== 'joueur' && matchesSearch(q, dbSearchTerm));
-    const joueurs   = qs.filter(q => q.type === 'joueur'  && matchesSearch(q, dbSearchTerm));
+    const matchesTag = q => {
+      if (dbTagFilter === 'with-tag') return Array.isArray(q.tags) && q.tags.length > 0;
+      if (dbTagFilter === 'no-tag')   return !Array.isArray(q.tags) || q.tags.length === 0;
+      return true;
+    };
+    const questions = qs.filter(q => q.type !== 'joueur' && matchesSearch(q, dbSearchTerm) && matchesTag(q));
+    const joueurs   = qs.filter(q => q.type === 'joueur'  && matchesSearch(q, dbSearchTerm) && matchesTag(q));
 
     function renderItem(q, i) {
       const typeLabel = q.type === 'qcm'         ? `QCM — ${q.options.length} choix`
                       : q.type === 'qcm-multi'   ? `QCM multiple — ${q.options.length} choix`
-                      : q.type === 'joueur'       ? `Joueur — ${(q.indices||[]).length} indices`
+                      : q.type === 'joueur'       ? `Qui suis-je ? — ${(q.indices||[]).length} indices`
                       : q.type === 'multi-libre'  ? `Liste`
                       : 'Libre';
       const answerLabel = q.type === 'qcm'
@@ -2909,7 +3112,7 @@
         : q.type === 'qcm-multi'
         ? `Bonnes réponses : <strong>${esc(q.answer)}</strong>`
         : q.type === 'joueur'
-        ? `Joueur à deviner : <strong>${esc(q.playerName)}</strong>`
+        ? `Qui suis-je ? : <strong>${esc(q.playerName)}</strong>`
         : q.type === 'multi-libre'
         ? `Réponses : <strong>${(q.mlAnswers||[]).map(esc).join('</strong>, <strong>')}</strong>`
         : q.answers && q.answers.length > 1
@@ -3008,23 +3211,17 @@
       ? pJ.items.map((q, i) => renderItem(q, pJ.start + i)).join('') + pagerHtml(pJ.safePage, pJ.totalPages, 'j')
       : `<div class="empty-state" style="padding:20px;">Aucun joueur pour le moment.</div>`;
 
-    const totalFound = questions.length + joueurs.length;
-    const searchBanner = dbSearchTerm
-      ? `<div style="margin-bottom:14px;padding:8px 12px;border-radius:8px;background:rgba(255,205,0,.08);border:1px solid rgba(255,205,0,.2);font-size:.83rem;color:rgba(255,255,255,.65);">
-           ${totalFound} résultat${totalFound !== 1 ? 's' : ''} pour <strong style="color:var(--or);">"${esc(dbSearchTerm)}"</strong>
-           <button onclick="dbClearSearch()" style="margin-left:10px;background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:.8rem;text-decoration:underline;">Effacer</button>
-         </div>`
-      : '';
-
     listEl.innerHTML = `
-      ${searchBanner}
       <div>
         <h3 style="margin-bottom:12px;">Questions <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${questions.length})</span></h3>
         ${questionsHtml}
       </div>
       <div class="sep"></div>
       <div>
-        <h3 style="margin-bottom:12px;">Joueurs <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${joueurs.length})</span></h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h3 style="margin:0;">Qui suis-je ? <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${joueurs.length})</span></h3>
+          <button class="btn btn-red btn-sm" onclick="openAddJoueur()" style="white-space:nowrap;flex-shrink:0;">+ Créer une entrée</button>
+        </div>
         ${joueursHtml}
       </div>`;
   }
@@ -3041,6 +3238,21 @@
     dbPageJ = 0;
     const clearBtn = document.getElementById('db-search-clear');
     if (clearBtn) clearBtn.style.display = dbSearchTerm ? 'block' : 'none';
+    renderAdmin();
+  }
+
+  function dbSetTagFilter(val) {
+    dbTagFilter = val;
+    dbPageQ = 0;
+    dbPageJ = 0;
+    ['all','with-tag','no-tag'].forEach(k => {
+      const btn = document.getElementById('dbf-' + k);
+      if (!btn) return;
+      const active = k === val;
+      btn.style.background = active ? 'rgba(255,205,0,.18)' : 'transparent';
+      btn.style.border     = active ? '1px solid var(--or)' : '1px solid rgba(255,255,255,.15)';
+      btn.style.color      = active ? 'var(--or)' : 'rgba(255,255,255,.5)';
+    });
     renderAdmin();
   }
 
@@ -3154,7 +3366,8 @@
     if (tags.some(t => t.name.toLowerCase() === name.toLowerCase())) {
       errEl.textContent = 'Ce tag existe déjà.'; errEl.style.display = 'block'; return;
     }
-    const color = TAG_PALETTE[tags.length % TAG_PALETTE.length];
+    const colorEl = document.getElementById('tag-new-color');
+    const color = colorEl ? colorEl.value : TAG_PALETTE[tags.length % TAG_PALETTE.length];
     tags.push({ id: Date.now().toString(), name, color });
     LS.saveTags(tags);
     input.value = '';
@@ -3182,11 +3395,69 @@
       el.innerHTML = '<p style="font-size:.83rem;color:rgba(255,255,255,.3);margin:0;">Aucun tag créé.</p>';
       return;
     }
-    el.innerHTML = tags.map(t => `
+    el.innerHTML = tags.map(t => {
+      if (editingTagId === t.id) {
+        return `
+      <div class="tag-manage-row" style="flex-direction:column;align-items:stretch;gap:8px;">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="color" id="tag-edit-color-${t.id}" value="${t.color}"
+                 style="width:38px;height:34px;padding:2px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:none;cursor:pointer;flex-shrink:0;"
+                 oninput="document.getElementById('tag-edit-preview-${t.id}').style.background=this.value">
+          <input type="text" id="tag-edit-name-${t.id}" value="${esc(t.name)}" maxlength="30"
+                 style="flex:1;"
+                 oninput="document.getElementById('tag-edit-preview-${t.id}').textContent=this.value||'…'"
+                 onkeydown="if(event.key==='Enter')saveTagEdit('${t.id}');if(event.key==='Escape')cancelTagEdit()">
+        </div>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span class="tag-chip" id="tag-edit-preview-${t.id}" style="background:${t.color};">${esc(t.name)}</span>
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <button class="btn btn-gold btn-sm" onclick="saveTagEdit('${t.id}')">✓ Enregistrer</button>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.6);" onclick="cancelTagEdit()">Annuler</button>
+          </div>
+        </div>
+      </div>`;
+      }
+      return `
       <div class="tag-manage-row">
         <span class="tag-chip" style="background:${t.color};">${esc(t.name)}</span>
-        <button class="btn btn-danger btn-sm" onclick="deleteTag('${t.id}')">✕ Supprimer</button>
-      </div>`).join('');
+        <div style="display:flex;gap:6px;margin-left:auto;">
+          <button class="btn btn-sm" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);" onclick="openTagEdit('${t.id}')">✏ Modifier</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteTag('${t.id}')">✕ Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function openTagEdit(id) {
+    editingTagId = id;
+    renderTagManage();
+  }
+
+  function cancelTagEdit() {
+    editingTagId = null;
+    renderTagManage();
+  }
+
+  function saveTagEdit(id) {
+    const nameEl  = document.getElementById(`tag-edit-name-${id}`);
+    const colorEl = document.getElementById(`tag-edit-color-${id}`);
+    const name = (nameEl ? nameEl.value : '').trim();
+    if (!name) return;
+    const tags = LS.getTags();
+    const idx  = tags.findIndex(t => t.id === id);
+    if (idx === -1) return;
+    if (tags.some((t, i) => i !== idx && t.name.toLowerCase() === name.toLowerCase())) {
+      alert('Ce tag existe déjà.'); return;
+    }
+    tags[idx].name  = name;
+    tags[idx].color = colorEl ? colorEl.value : tags[idx].color;
+    LS.saveTags(tags);
+    editingTagId = null;
+    renderTagManage();
+    renderTagPicker('tag-picker', addSelectedTags);
+    renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
+    renderTagPicker('edit-tag-picker', editSelectedTags);
+    renderAdmin();
   }
 
   function renderTagPicker(containerId, selectedArr) {
@@ -3248,14 +3519,17 @@
 
     document.getElementById('eq-text').value          = q.type === 'joueur' ? '' : (q.text || '');
     document.getElementById('eq-points').value        = q.points || 1;
-    document.getElementById('eq-timer').value         = q.timerDuration || (q.type === 'joueur' ? 45 : 15);
+    document.getElementById('eq-timer').value         = q.timerDuration || (q.type === 'joueur' ? 60 : 15);
     document.getElementById('eq-err').style.display   = 'none';
 
     setEditType(q.type);
 
     if (q.type === 'joueur') {
       document.getElementById('eq-joueur-name').value = q.playerName || '';
-      renderJoueurIndices('eq-joueur-indices', q.indices && q.indices.length >= 5 ? q.indices : Array(5).fill(''));
+      const editInds   = q.indices && q.indices.length >= 5 ? q.indices : Array(5).fill('');
+      const editPts    = q.indicePts   || defaultIndicePts(editInds.length);
+      const editTries  = q.indiceTries || defaultIndiceTries(editInds.length);
+      renderJoueurIndices('eq-joueur-indices', editInds, editPts, editTries);
     } else if (q.type === 'libre') {
       renderLibreAnswers('eq', q.answers || [q.answer]);
     } else if (q.type === 'multi-libre') {
@@ -3302,11 +3576,17 @@
     const isJoueur = t === 'joueur';
     document.getElementById('eq-text-row').style.display    = isJoueur ? 'none' : 'block';
     document.getElementById('eq-type-row').style.display    = isJoueur ? 'none' : 'block';
+    document.getElementById('eq-pts-row').style.display     = isJoueur ? 'none' : '';
     document.getElementById('esec-joueur').style.display    = isJoueur ? 'block' : 'none';
     document.getElementById('eq-bonus-sep').style.display   = isJoueur ? 'none' : 'block';
     document.getElementById('eq-bonus-toggle-row').style.display = isJoueur ? 'none' : 'flex';
     document.getElementById('esec-bonus').style.display     = 'none';
-    if (!isJoueur) {
+    if (isJoueur) {
+      document.getElementById('esec-libre').style.display       = 'none';
+      document.getElementById('esec-qcm').style.display         = 'none';
+      document.getElementById('esec-qcm-multi').style.display   = 'none';
+      document.getElementById('esec-multi-libre').style.display = 'none';
+    } else {
       document.getElementById('eto-libre').classList.toggle('selected', t === 'libre');
       document.getElementById('eto-qcm').classList.toggle('selected', t === 'qcm');
       document.getElementById('eto-qcm-multi').classList.toggle('selected', t === 'qcm-multi');
@@ -3398,12 +3678,19 @@
     if (editCurrentType === 'joueur') {
       const playerName = (document.getElementById('eq-joueur-name').value || '').trim();
       if (!playerName) { errEl.textContent = 'Veuillez saisir le nom du joueur.'; errEl.style.display = 'block'; return; }
-      const indices = getJoueurIndices('eq-joueur-indices').filter(Boolean);
-      if (indices.length < 5) { errEl.textContent = 'Veuillez renseigner au moins 5 indices.'; errEl.style.display = 'block'; return; }
+      const allEditInds   = getJoueurIndices('eq-joueur-indices');
+      const allEditPts    = getJoueurIndicePts('eq-joueur-indices');
+      const allEditTries  = getJoueurIndiceTries('eq-joueur-indices');
+      const editFilled    = allEditInds.reduce((acc, v, i) => { if (v) acc.push({ v, p: allEditPts[i] ?? 1, t: allEditTries[i] ?? 1 }); return acc; }, []);
+      if (editFilled.length < 5) { errEl.textContent = 'Veuillez renseigner au moins 5 indices.'; errEl.style.display = 'block'; return; }
+      const editPlayerVariants = [];
       arr[idx] = {
-        id: editId, type: 'joueur', playerName, indices,
-        points: Math.max(1, parseInt(document.getElementById('eq-points').value) || 1),
-        timerDuration: Math.max(1, parseInt(document.getElementById('eq-timer').value) || 45),
+        id: editId, type: 'joueur', playerName,
+        playerVariants: editPlayerVariants,
+        indices:     editFilled.map(x => x.v),
+        indicePts:   editFilled.map(x => x.p),
+        indiceTries: editFilled.map(x => x.t),
+        timerDuration: Math.max(1, parseInt(document.getElementById('eq-timer').value) || 60),
         tags: editSelectedTags.slice()
       };
       LS.saveQ(arr);
@@ -3415,7 +3702,7 @@
     const text = (document.getElementById('eq-text').value || '').trim();
     if (!text) { errEl.textContent = 'Veuillez saisir la question.'; errEl.style.display = 'block'; return; }
 
-    const q = { id: editId, text, type: editCurrentType, tags: editSelectedTags.slice(), points: Math.max(1, parseInt(document.getElementById('eq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('eq-timer').value) || 15) };
+    const q = { id: editId, text, type: editCurrentType, tags: editSelectedTags.slice(), points: Math.max(0.5, parseFloat(document.getElementById('eq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('eq-timer').value) || 15) };
 
     if (editCurrentType === 'libre') {
       const answers = getLibreAnswers('eq').filter(Boolean);
@@ -3662,7 +3949,7 @@
 
     if (!text) { errEl.textContent = 'Veuillez saisir la question.'; errEl.style.display = 'block'; return; }
 
-    let q = { id: Date.now().toString(), text, type: currentType, active: true, tags: addSelectedTags.slice(), points: Math.max(1, parseInt(document.getElementById('nq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('nq-timer').value) || 15) };
+    let q = { id: Date.now().toString(), text, type: currentType, active: true, tags: addSelectedTags.slice(), points: Math.max(0.5, parseFloat(document.getElementById('nq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('nq-timer').value) || 15) };
 
     if (currentType === 'libre') {
       const answers = getLibreAnswers('nq').filter(Boolean);
@@ -3760,8 +4047,6 @@
   }
 
   function initTestMode() {
-    // Masquer la barre sociale (inutile en mode test)
-    document.querySelector('#app').style.paddingBottom = '24px';
     document.querySelectorAll('body > div').forEach(el => {
       if (el.style.position === 'fixed') el.style.display = 'none';
     });
@@ -3789,9 +4074,10 @@
 
     const isJoueur  = q.type === 'joueur';
     const isMlL     = q.type === 'multi-libre';
-    const tBadge    = isJoueur ? 'Devinez le joueur' : isMlL ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
+    const tBadge    = isJoueur ? 'Qui suis-je ?' : isMlL ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
     document.getElementById('tq-badge').textContent    = tBadge;
-    document.getElementById('tq-question').textContent = isJoueur ? 'Qui suis-je ?' : q.text;
+    document.getElementById('tq-question').textContent = isJoueur ? '' : q.text;
+    document.getElementById('tq-question').style.display = isJoueur ? 'none' : '';
     document.getElementById('tq-feedback').style.display    = 'none';
     document.getElementById('tq-multi-submit').style.display = 'none';
     document.getElementById('tq-bonus').style.display        = 'none';
@@ -3802,12 +4088,10 @@
     const tMlEl      = document.getElementById('tq-ml-board');
 
     if (isJoueur) {
+      testJoueurIndiceIdx = 0;
+      testJoueurTryCount  = 0;
       tIndicesEl.style.display = 'flex';
-      tIndicesEl.innerHTML = (q.indices || []).map((ind, i) => `
-        <div class="joueur-indice-item">
-          <div class="joueur-indice-num">${i + 1}</div>
-          <span>${esc(ind)}</span>
-        </div>`).join('');
+      renderJoueurQuizIndices('tq', q, 0);
       optEl.style.display    = 'none';
       libreEl.style.display  = 'block';
       tMlEl.style.display    = 'none';
@@ -3816,6 +4100,7 @@
       inp.disabled = false;
       inp.placeholder = 'Nom du joueur…';
       document.getElementById('tq-libre-btn').disabled = false;
+      updateJoueurRevealBtn('tq', q, 0);
       setTimeout(() => inp.focus(), 80);
     } else if (isMlL) {
       tIndicesEl.style.display = 'none';
@@ -3872,13 +4157,43 @@
     const inp = document.getElementById('tq-libre-input');
     const val = (inp.value || '').trim();
     if (!val) return;
+    const q  = testState.q;
+    const ok = q.type === 'joueur' ? isJoueurMatch(val, q) : isMatchAny(val, q.answers || [q.answer]);
+
+    if (q.type === 'joueur' && !ok) {
+      testJoueurTryCount++;
+      inp.classList.add('joueur-wrong-flash');
+      setTimeout(() => inp.classList.remove('joueur-wrong-flash'), 400);
+      const maxTries = getJoueurTries(q, testJoueurIndiceIdx);
+      if (testJoueurTryCount >= maxTries) {
+        const nextIdx = testJoueurIndiceIdx + 1;
+        if (nextIdx < (q.indices || []).length) {
+          testJoueurIndiceIdx = nextIdx;
+          testJoueurTryCount  = 0;
+          inp.value = '';
+          renderJoueurQuizIndices('tq', q, testJoueurIndiceIdx);
+          updateJoueurRevealBtn('tq', q, testJoueurIndiceIdx);
+        } else {
+          stopTestTimer();
+          inp.disabled = true;
+          document.getElementById('tq-libre-btn').disabled = true;
+          document.getElementById('tq-joueur-reveal-btn').style.display = 'none';
+          testShowFeedback(false, q.playerName, val);
+          return;
+        }
+      } else {
+        inp.value = '';
+        renderJoueurQuizIndices('tq', q, testJoueurIndiceIdx);
+      }
+      inp.focus();
+      return;
+    }
+
     stopTestTimer();
-    const q       = testState.q;
-    const answers = q.type === 'joueur' ? [q.playerName] : (q.answers || [q.answer]);
-    const ok      = isMatchAny(val, answers);
     inp.disabled = true;
     document.getElementById('tq-libre-btn').disabled = true;
-    const displayAns = answers.length > 1 ? answers.join(' / ') : answers[0];
+    document.getElementById('tq-joueur-reveal-btn').style.display = 'none';
+    const displayAns = q.type === 'joueur' ? q.playerName : (q.answers || [q.answer]).join(' / ');
     testShowFeedback(ok, displayAns, val);
   }
 
@@ -3919,10 +4234,11 @@
     const q = testState.q;
     let inner = '';
     if (ok) {
+      const tPts = q.type === 'joueur' ? getJoueurPts(q, testJoueurIndiceIdx) : (q.points || 1);
       const mlOk = q.type === 'multi-libre'
         ? `<div class="fb-detail" style="color:var(--vert);">${testMlState.found.length} / ${q.mlRequired} réponses trouvées !</div>` : '';
       inner = `<div class="feedback-box fb-correct">
-        <div><div class="fb-title correct">Bonne réponse !</div>${mlOk}</div>
+        <div><div class="fb-title correct">Bonne réponse ! Tu marques ${tPts} point${tPts > 1 ? 's' : ''}</div>${mlOk}</div>
       </div>`;
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong">
@@ -3933,13 +4249,21 @@
       const pa = playerAns ? `<div class="fb-detail">Votre réponse : ${esc(playerAns)}</div>` : '';
       inner = `<div class="feedback-box fb-wrong">
         <div>
-          <div class="fb-title wrong">Mauvaise réponse &mdash; 0 pt</div>
+          <div class="fb-title wrong">Mauvaise réponse ! Zéro pointé !</div>
           ${pa}
           <div class="fb-answer">Bonne réponse : <strong>${esc(ca)}</strong></div>
         </div>
       </div>`;
     }
     document.getElementById('tq-feedback-inner').innerHTML = inner;
+
+    const tPtsMain   = ok ? (q.type === 'joueur' ? getJoueurPts(q, testJoueurIndiceIdx) : (q.points || 1)) : 0;
+    const tHasBonus  = feat('bonusQuestions') && ok && q.bonus && q.bonus.text;
+    const tSummaryEl = document.getElementById('tq-score-summary');
+    const tSummaryHtml = feat('scoreSummary') ? renderQzScoreSummary(ok, tPtsMain, tHasBonus ? 'pending' : null) : '';
+    tSummaryEl.innerHTML    = tSummaryHtml;
+    tSummaryEl.style.display = tSummaryHtml ? 'block' : 'none';
+
     document.getElementById('tq-feedback').style.display = 'block';
 
     const closeBtn = document.getElementById('tq-close-btn');
@@ -4036,9 +4360,10 @@
     document.getElementById('qz-progress').style.width = `${(idx / tot) * 100}%`;
     const isJoueur   = q.type === 'joueur';
     const isMlLibre  = q.type === 'multi-libre';
-    const badgeText  = isJoueur ? 'Devinez le joueur' : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
+    const badgeText  = isJoueur ? 'Qui suis-je ?' : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
     document.getElementById('qz-badge').textContent    = badgeText;
-    document.getElementById('qz-question').textContent = isJoueur ? 'Qui suis-je ?' : q.text;
+    document.getElementById('qz-question').textContent = isJoueur ? '' : q.text;
+    document.getElementById('qz-question').style.display = isJoueur ? 'none' : '';
     document.getElementById('qz-feedback').style.display    = 'none';
     document.getElementById('qz-multi-submit').style.display = 'none';
     document.getElementById('qz-bonus').style.display        = 'none';
@@ -4049,12 +4374,10 @@
     const mlEl      = document.getElementById('qz-ml-board');
 
     if (isJoueur) {
+      quizJoueurIndiceIdx = 0;
+      quizJoueurTryCount  = 0;
       indicesEl.style.display = 'flex';
-      indicesEl.innerHTML = (q.indices || []).map((ind, i) => `
-        <div class="joueur-indice-item">
-          <div class="joueur-indice-num">${i + 1}</div>
-          <span>${esc(ind)}</span>
-        </div>`).join('');
+      renderJoueurQuizIndices('qz', q, 0);
       optEl.style.display   = 'none';
       libreEl.style.display = 'block';
       mlEl.style.display    = 'none';
@@ -4063,6 +4386,7 @@
       inp.disabled = false;
       inp.placeholder = 'Nom du joueur…';
       document.getElementById('qz-libre-btn').disabled = false;
+      updateJoueurRevealBtn('qz', q, 0);
       setTimeout(() => inp.focus(), 80);
     } else if (isMlLibre) {
       indicesEl.style.display = 'none';
@@ -4362,15 +4686,47 @@
     const inp = document.getElementById('qz-libre-input');
     const val = (inp.value || '').trim();
     if (!val) return;
+    const q  = session.questions[session.idx];
+    const ok = q.type === 'joueur' ? isJoueurMatch(val, q) : isMatchAny(val, q.answers || [q.answer]);
+
+    if (q.type === 'joueur' && !ok) {
+      quizJoueurTryCount++;
+      inp.classList.add('joueur-wrong-flash');
+      setTimeout(() => inp.classList.remove('joueur-wrong-flash'), 400);
+      const maxTries = getJoueurTries(q, quizJoueurIndiceIdx);
+      if (quizJoueurTryCount >= maxTries) {
+        const nextIdx = quizJoueurIndiceIdx + 1;
+        if (nextIdx < (q.indices || []).length) {
+          quizJoueurIndiceIdx = nextIdx;
+          quizJoueurTryCount  = 0;
+          inp.value = '';
+          renderJoueurQuizIndices('qz', q, quizJoueurIndiceIdx);
+          updateJoueurRevealBtn('qz', q, quizJoueurIndiceIdx);
+        } else {
+          stopQuizTimer();
+          session.answers.push({ q, playerAns: val, ok: false, type: q.type, ptsEarned: 0 });
+          inp.disabled = true;
+          document.getElementById('qz-libre-btn').disabled = true;
+          document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
+          showFeedback(false, q.playerName, val);
+          return;
+        }
+      } else {
+        inp.value = '';
+        renderJoueurQuizIndices('qz', q, quizJoueurIndiceIdx);
+      }
+      inp.focus();
+      return;
+    }
+
     stopQuizTimer();
-    const q       = session.questions[session.idx];
-    const answers = q.type === 'joueur' ? [q.playerName] : (q.answers || [q.answer]);
-    const ok      = isMatchAny(val, answers);
-    if (ok) session.score += (q.points || 1);
-    session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? (q.points || 1) : 0 });
+    const pts = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
+    if (ok) session.score += pts;
+    session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0 });
     inp.disabled = true;
     document.getElementById('qz-libre-btn').disabled = true;
-    const displayAns = answers.length > 1 ? answers.join(' / ') : answers[0];
+    document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
+    const displayAns = q.type === 'joueur' ? q.playerName : (q.answers || [q.answer]).join(' / ');
     showFeedback(ok, displayAns, val);
   }
 
@@ -4447,11 +4803,11 @@
     let inner    = '';
 
     if (ok) {
-      const pts  = q.points || 1;
+      const pts  = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
       const mlOk = q.type === 'multi-libre'
         ? `<div class="fb-detail" style="color:var(--vert);">${mlState.found.length} / ${q.mlRequired} réponses trouvées !</div>` : '';
       inner = `<div class="feedback-box fb-correct">
-        <div><div class="fb-title correct">Bonne réponse &mdash; +${pts} pt${pts > 1 ? 's' : ''}</div>${mlOk}</div>
+        <div><div class="fb-title correct">Bonne réponse ! Tu marques ${pts} point${pts > 1 ? 's' : ''}</div>${mlOk}</div>
       </div>`;
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong">
@@ -4462,7 +4818,7 @@
       const pa = playerAns ? `<div class="fb-detail">Votre réponse : ${esc(playerAns)}</div>` : '';
       inner = `<div class="feedback-box fb-wrong">
         <div>
-          <div class="fb-title wrong">Mauvaise réponse &mdash; 0 pt</div>
+          <div class="fb-title wrong">Mauvaise réponse ! Zéro pointé !</div>
           ${pa}
           <div class="fb-answer">Bonne réponse : <strong>${esc(ca)}</strong></div>
         </div>
@@ -4471,7 +4827,7 @@
 
     document.getElementById('qz-feedback-inner').innerHTML = inner;
 
-    const mainPts  = ok ? (q.points || 1) : 0;
+    const mainPts  = ok ? (q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1)) : 0;
     const hasBonus = feat('bonusQuestions') && ok && q.bonus && q.bonus.text;
     const summaryEl = document.getElementById('qz-score-summary');
     const summaryHtml = feat('scoreSummary') ? renderQzScoreSummary(ok, mainPts, hasBonus ? 'pending' : null) : '';
@@ -4679,7 +5035,7 @@
     const p    = prefix === 'nq' ? 'nqb' : 'eqb';
     const type = prefix === 'nq' ? bonusType : editBonusType;
     const bpEl = document.getElementById(`${prefix}-bonus-points`);
-    const bonus = { text, type, points: Math.max(1, parseInt(bpEl ? bpEl.value : '1') || 1) };
+    const bonus = { text, type, points: Math.max(0.5, parseFloat(bpEl ? bpEl.value : '1') || 1) };
     if (type === 'libre') {
       const answers = getLibreAnswers(`${prefix}-bonus`).filter(Boolean);
       if (!answers.length) {
@@ -4850,7 +5206,7 @@
     if (ok) {
       const bPts = q.bonus.points || 1;
       inner = `<div class="feedback-box fb-correct" style="margin-top:0;">
-        <div><div class="fb-title correct">Bonus réussi ! <span style="font-size:.85rem;font-weight:600;opacity:.8;">+${bPts} pt${bPts > 1 ? 's' : ''}</span></div></div>
+        <div><div class="fb-title correct">You got the bonus ! Tu rajoutes ${bPts} point${bPts > 1 ? 's' : ''} !</div></div>
       </div>`;
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong" style="margin-top:0;">
@@ -4879,6 +5235,13 @@
         summaryEl.innerHTML     = sh;
         summaryEl.style.display = sh ? 'block' : 'none';
       }
+    } else {
+      const tSummaryEl = document.getElementById('tq-score-summary');
+      if (tSummaryEl && feat('scoreSummary')) {
+        const sh = renderQzScoreSummary(true, testState.q.points || 1, { ok, pts: q.bonus.points || 1 });
+        tSummaryEl.innerHTML     = sh;
+        tSummaryEl.style.display = sh ? 'block' : 'none';
+      }
     }
     document.getElementById(pfx === 'qz' ? 'qz-next-btn' : 'tq-close-btn').style.display = 'block';
     if (pfx === 'qz') updateSidebar();
@@ -4904,7 +5267,7 @@
   function resolveMediaUrl(url) {
     const u = url.trim();
     const gdMatch = u.match(/drive\.google\.com\/file\/d\/([^/?]+)/);
-    if (gdMatch) return { type: 'iframe', src: `https://drive.google.com/file/d/${gdMatch[1]}/preview` };
+    if (gdMatch) return { type: 'image', src: `https://drive.google.com/thumbnail?id=${gdMatch[1]}&sz=w1600` };
     const ytMatch = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
     if (ytMatch) return { type: 'iframe', src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0` };
     if (u.includes('youtube.com/embed/')) return { type: 'iframe', src: u };
@@ -5092,7 +5455,7 @@
 
   function openContactFromQuiz() {
     const q = session.questions && session.questions[session.idx];
-    openContact('error', q ? (q.type === 'joueur' ? `Joueur : ${q.playerName}` : q.text) : '');
+    openContact('error', q ? (q.type === 'joueur' ? `Qui suis-je ? : ${q.playerName}` : q.text) : '');
   }
 
   async function sendContact() {
@@ -5228,7 +5591,7 @@
 
   /* Vérifie si val correspond à au moins une des réponses acceptées */
   function isMatchAny(val, answers) {
-    return answers.some(ans => isMatch(val, ans));
+    return answers.some(ans => isMatchMl(val, ans));
   }
 
   /* Comparaison étendue pour les questions Liste :
@@ -5362,8 +5725,8 @@
     {
       id: 'db-joueurs',
       group: 'Base de données',
-      label: 'Ajouter les premiers joueurs',
-      sub: 'Onglet Ajouter → Joueur',
+      label: 'Ajouter les premières questions "Qui suis-je ?"',
+      sub: 'Onglet Ajouter → Qui suis-je ?',
     },
     /* ── Tests ── */
     {

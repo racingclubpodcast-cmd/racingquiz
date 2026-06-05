@@ -5,6 +5,11 @@
       "id": "1780472277394",
       "name": "1906-1945",
       "color": "#E30613"
+    },
+    {
+      "id": "1780657158448",
+      "name": "Qui suis-je ?",
+      "color": "#ddc52c"
     }
   ],
   "media": [
@@ -148,11 +153,13 @@
     },
     {
       "id": "1780401199079",
-      "text": "Le premier titre de l'Histoire du RC Lens fut",
+      "text": "Quel fut le premier titre de l'Histoire du RC Lens",
       "type": "qcm",
       "tags": [
         "1780472277394"
       ],
+      "points": 1,
+      "timerDuration": 15,
       "options": [
         "La Coupe Drago",
         "La Ligue d'Artois",
@@ -1075,18 +1082,17 @@
       "id": "1780582670863",
       "text": "Dans quelle ville est né Roger Boli ?",
       "type": "qcm",
-      "active": true,
       "tags": [],
       "points": 1,
       "timerDuration": 10,
       "options": [
-        "Douala, Cameroun",
+        "Yaoundé, Cameroun",
         "Dakar, Sénégal",
-        "Abidjan, Côte d'Ivoire",
+        "Adjamé, Côte d'Ivoire",
         "Thiès, Sénégal"
       ],
       "correctIdx": 2,
-      "answer": "Abidjan, Côte d'Ivoire",
+      "answer": "Adjamé, Côte d'Ivoire",
       "bonus": {
         "text": "Dans quel club est formé Roger Boli ?",
         "type": "libre",
@@ -1223,6 +1229,1021 @@
       "mlRequired": 7,
       "mlMaxWrong": 2,
       "answer": "7 réponses sur 7"
+    },
+    {
+      "id": "1780599786748",
+      "text": "Simon Banza a été prêté à plusieurs clubs alors qu'il était sous contrat au RC Lens. Quel est le premier à l'avoir accueilli ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "options": [
+        "UT Pétange",
+        "AS Béziers",
+        "ESTAC"
+      ],
+      "correctIdx": 1,
+      "answer": "AS Béziers"
+    },
+    {
+      "id": "1780599939280",
+      "text": "Patrick Barul signe au RC Lens en 1999. De quel club arrive-t-il ?",
+      "type": "libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "answers": [
+        "AS Cannes",
+        "Cannes"
+      ],
+      "answer": "AS Cannes",
+      "bonus": {
+        "text": "Quel sera son club après le RC Lens ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "OGC Nice",
+          "Nice"
+        ],
+        "answer": "OGC Nice"
+      }
+    },
+    {
+      "id": "1780600070868",
+      "text": "Où est né Ludovic Baal ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "options": [
+        "Paris",
+        "Aux Abymes",
+        "Cayenne",
+        "Saint-Denis (Réunion)"
+      ],
+      "correctIdx": 2,
+      "answer": "Cayenne"
+    },
+    {
+      "id": "1780600367731",
+      "text": "De quel club arrive Chaouki Ben Saada à l'été 2011 ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "options": [
+        "OGC Nice",
+        "SC Bastia",
+        "AC Arles-Avignon",
+        "Grenoble Foot 34"
+      ],
+      "correctIdx": 0,
+      "answer": "OGC Nice"
+    },
+    {
+      "id": "1780600827167",
+      "text": "Cite trois clubs (hors-Lens) pour lesquels Zakarya Bergdich a joué.",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 120,
+      "mlAnswers": [
+        "Real Valladolid",
+        "Genoa",
+        "Charlton",
+        "Cordoue CF",
+        "FC Sochaux-Montbéliard",
+        "Belenenses",
+        "Denizlispor",
+        "Erzurumspor"
+      ],
+      "mlVariants": [
+        [
+          "Valladolid"
+        ],
+        [],
+        [],
+        [
+          "Cordoue"
+        ],
+        [
+          "Sochaux"
+        ],
+        [],
+        [],
+        []
+      ],
+      "mlRequired": 3,
+      "mlMaxWrong": 2,
+      "answer": "3 réponses sur 8",
+      "bonus": {
+        "text": "Quelle était la nationalité sportive de Bergdich ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "Maroc",
+          "marocaine"
+        ],
+        "answer": "Maroc"
+      }
+    },
+    {
+      "id": "1780602340623",
+      "text": "Aboubakar \"Titi\" Camara (attaquant - Guinée) a joué au RC Lens entre 1995 et 1997. De quel club provenait-il ?",
+      "type": "libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "answers": [
+        "AS Saint-Etienne",
+        "Saint-Etienne",
+        "ASSE"
+      ],
+      "answer": "AS Saint-Etienne",
+      "bonus": {
+        "text": "Dans quel club terminera-t-il sa carrière ?",
+        "type": "qcm",
+        "points": 1,
+        "options": [
+          "West Ham",
+          "Amiens SC",
+          "Al-Sailiya"
+        ],
+        "correctIdx": 1,
+        "answer": "Amiens SC"
+      }
+    },
+    {
+      "id": "1780602874517",
+      "text": "Cite au moins 6 clubs de la carrière d'Olivier Dacourt.",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 2,
+      "timerDuration": 45,
+      "mlAnswers": [
+        "RC Strasbourg",
+        "Everton",
+        "RC Lens",
+        "Leeds",
+        "AS Rome",
+        "Inter Milan",
+        "Fulham",
+        "Standard Liège"
+      ],
+      "mlVariants": [
+        [
+          "Strasbourg"
+        ],
+        [],
+        [],
+        [],
+        [],
+        [],
+        [],
+        []
+      ],
+      "mlRequired": 6,
+      "mlMaxWrong": 2,
+      "answer": "6 réponses sur 8"
+    },
+    {
+      "id": "1780603086263",
+      "text": "Eduardo Ribeira Dos Santos arrive au RC Lens en 2009. Quels sont les deux clubs européens pour lesquels il a joué avec d'atterrir en Artois ?",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 2,
+      "timerDuration": 15,
+      "mlAnswers": [
+        "EA Guingamp",
+        "Grasshopper"
+      ],
+      "mlVariants": [
+        [
+          "Guingamp"
+        ],
+        []
+      ],
+      "mlRequired": 2,
+      "mlMaxWrong": 2,
+      "answer": "2 réponses sur 2",
+      "bonus": {
+        "text": "Dans quel grand club brésilien Eduardo a-t-il démarré sa carrière en pro (114 matchs, 73 buts) ?",
+        "type": "qcm",
+        "points": 1,
+        "options": [
+          "Fluminense",
+          "Sao Paulo",
+          "Flamengo"
+        ],
+        "correctIdx": 2,
+        "answer": "Flamengo"
+      }
+    },
+    {
+      "id": "1780603522192",
+      "text": "Esteban Fuertes débarque au RC Lens à l'été 2000. De quel club ?",
+      "type": "qcm",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "options": [
+        "River Plate",
+        "Derby County",
+        "CA Colon",
+        "Universidad Católica"
+      ],
+      "correctIdx": 2,
+      "answer": "CA Colon",
+      "bonus": {
+        "text": "En 2009, près de 10 ans plus tard, Esteban Fuertes vivra quelque chose d'unique. Qu'était-ce ?",
+        "type": "qcm",
+        "points": 2,
+        "options": [
+          "Il marquera 5 buts dans le même match avec le CA Colon",
+          "Il fêtera sa première sélection avec l'Argentine a 36 ans",
+          "Il se produira en concert avec son groupe de rock au Monumental devant 80 000 personnes"
+        ],
+        "correctIdx": 1,
+        "answer": "Il fêtera sa première sélection avec l'Argentine a 36 ans"
+      }
+    },
+    {
+      "id": "1780603636543",
+      "text": "Cite trois clubs de la carrière de Sébastien Dallet",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 120,
+      "mlAnswers": [
+        "RC Lens",
+        "EA Guingamp",
+        "FC Sochaux",
+        "US Créteil",
+        "ESTAC"
+      ],
+      "mlVariants": [
+        [
+          "Lens"
+        ],
+        [
+          "Guingamp"
+        ],
+        [
+          "Sochaux"
+        ],
+        [
+          "Créteil"
+        ],
+        [
+          "Troyes"
+        ]
+      ],
+      "mlRequired": 2,
+      "mlMaxWrong": 1,
+      "answer": "2 réponses sur 5"
+    },
+    {
+      "id": "1780603741443",
+      "text": "Avant d'arriver à Lens en 2005, Yohan Démont connaitra deux clubs. Lesquels ?",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 15,
+      "mlAnswers": [
+        "Beauvais",
+        "Ajaccio"
+      ],
+      "mlVariants": [
+        [],
+        []
+      ],
+      "mlRequired": 2,
+      "mlMaxWrong": 1,
+      "answer": "2 réponses sur 2"
+    },
+    {
+      "id": "1780642343201",
+      "text": "Quel est le parcours de joueur professionnel de Jean-Louis Leca ?",
+      "type": "multi-libre",
+      "tags": [],
+      "points": 1,
+      "timerDuration": 120,
+      "mlAnswers": [
+        "SC Bastia",
+        "Valenciennes",
+        "SC Bastia",
+        "AC Ajaccio",
+        "RC Lens"
+      ],
+      "mlVariants": [
+        [],
+        [
+          "VAFC"
+        ],
+        [],
+        [],
+        []
+      ],
+      "mlRequired": 5,
+      "mlMaxWrong": 1,
+      "answer": "5 réponses sur 5",
+      "bonus": {
+        "text": "Jean-Louis Leca est le président d'honneur d'un club corse. Lequel ?",
+        "type": "libre",
+        "points": 1,
+        "answers": [
+          "AS Furiani Agliani"
+        ],
+        "answer": "AS Furiani Agliani"
+      }
+    },
+    {
+      "id": "1780645384076",
+      "text": "Quel est le parcours de joueur professionnel de Jonathan Gradit ?",
+      "type": "multi-libre",
+      "active": true,
+      "tags": [],
+      "points": 1,
+      "timerDuration": 45,
+      "mlAnswers": [
+        "Aviron Bayonnais",
+        "Tours FC",
+        "SM Caen",
+        "RC Lens"
+      ],
+      "mlVariants": [
+        [
+          "Bayonne"
+        ],
+        [
+          "Tours"
+        ],
+        [
+          "Caen"
+        ],
+        [
+          "Lens"
+        ]
+      ],
+      "mlRequired": 4,
+      "mlMaxWrong": 0,
+      "answer": "4 réponses sur 4"
+    },
+    {
+      "id": "1780645610597",
+      "type": "joueur",
+      "playerName": "Adil Hermach",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Nîmes",
+        "J'ai joué 100 matchs au RC Lens (5 buts)",
+        "En 2010, la Voix du Nord m'élit \"joueur lensois de l'année 2010\"",
+        "En 2011, je pars à Al-Hilal",
+        "Je compte 24 sélections internationales",
+        "Ma nationalité sportive est le Maroc"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        3,
+        3,
+        3,
+        3,
+        3,
+        3
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780650751652",
+      "type": "joueur",
+      "playerName": "Pascal Nouma",
+      "playerVariants": [],
+      "indices": [
+        "Mon premier club est le Paris Saint-Germain",
+        "J'ai joué au LOSC avant de signer à Lens",
+        "Je suis un joueur à vocation offensive",
+        "En deux saisons à Lens, j'ai gagné un trophée",
+        "Avant Lens, je jouais à Strasbourg",
+        "Je suis une star en Turquie (t'es obligé de l'avoir là)"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780652738176",
+      "type": "joueur",
+      "playerName": "Stéphane Ziani",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Nantes",
+        "Je suis champion de France avec deux clubs différents",
+        "Avant Lens, j'évolue aux Girondins de Bordeaux",
+        "Je suis un joueur à vocation offensive",
+        "Numéro 10",
+        "Petit de taille, je ne reste qu'une saison à Lens - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780654348150",
+      "type": "joueur",
+      "playerName": "Nenad Kovacevic",
+      "playerVariants": [],
+      "indices": [
+        "Je n'ai jamais marqué de but au RC Lens (en plus de 150 matchs)",
+        "Je suis un milieu de terrain",
+        "Je compte plus de 20 sélections pour mon pays",
+        "J'ai joué à Nîmes",
+        "Je suis serbe",
+        "J'ai joué aux côtés de Seydou Keita"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780654511654",
+      "type": "joueur",
+      "playerName": "Pierre Laigle",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Béthune",
+        "J'ai joué 182 matchs au RC Lens, mon club formateur",
+        "J'ai fini ma carrière à Montpellier",
+        "Milieu de terrain, j'ai été sélectionné pour mon pays",
+        "Après Lens, je file à Lyon, où je remporte le titre lors de la saison 2001-2002.",
+        "Le 4 mai 2002 m'a fait dire des noms d'oiseau - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780654746625",
+      "type": "joueur",
+      "playerName": "Henri Bedimo",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né au Cameroun",
+        "Je suis formé dans un club français, et n'ai jamais joué ailleurs qu'en France",
+        "Formé à Grenoble, je suis lancé en pro par un club du sud-ouest de la France",
+        "J'arrive à Lens à l'hiver 2010, en provenance de Châteauroux",
+        "Je kiffe le Racing pour Montpellier à l'été 2011",
+        "Latéral gauche surpuissant, je suis je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780654965665",
+      "type": "joueur",
+      "playerName": "Kevin Monnet-Paquet",
+      "playerVariants": [],
+      "indices": [
+        "Je suis un ailier gauche, formé au RC Lens",
+        "J'ai pris ma retraite en 2023, après un dernier contrat à Chypre",
+        "Avant cette dernière pige, j'ai évolué dans deux autres clubs français",
+        "Je quitte le RC Lens à l'été 2011",
+        "Pour Lorient",
+        "Avant de filer à Saint-Etienne - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780655221934",
+      "type": "joueur",
+      "playerName": "Jonathan Lacourt",
+      "playerVariants": [],
+      "indices": [
+        "Je suis un milieu de terrain, né en 1986",
+        "Formé à Lens, je suis pourtant originaire du sud de la France",
+        "En jeunes, j'enchaîne les trophées, avec notamment une victoire lors du Tournoi de Toulon 2006",
+        "Je marque mon premier but en pro en Intertoto (contre Varteks Varazdin)",
+        "J'ai aussi joué à Valenciennes et à Nîmes",
+        "J'ai eu le malheur de croiser la route de Kader Mangane - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780655407334",
+      "type": "joueur",
+      "playerName": "Milan Bisevac",
+      "playerVariants": [],
+      "indices": [
+        "Je suis originaire des Balkans",
+        "Défenseur, j'ai été sélectionné 19 fois pour mon pays",
+        "Je ne suis pas formé à l'Etoile Rouge de Belgrade",
+        "À un moment de ma carrière, j'ai évolué en Italie",
+        "J'ai joué à Valenciennes pendant 3 saisons",
+        "Avant de rejoindre le PSG et l'Olympique Lyonnais - je suis je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780655587725",
+      "type": "joueur",
+      "playerName": "Jacek Bak",
+      "playerVariants": [],
+      "indices": [
+        "Je mesure 1m94",
+        "J'ai été champion de France",
+        "Je compte plus de 90 sélections pour mon pays",
+        "Je suis défenseur central",
+        "Ah oui, mon titre de champion de France, c'était avec l'OL",
+        "En Polonais, mon nom se prononce de la même manière qu'un établissement financier - je suis je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780655815941",
+      "type": "joueur",
+      "playerName": "Ferdinand Coly",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Dakar",
+        "En 2023, je donne une interview pour expliquer ma reconversion dans l'agriculture",
+        "Mon premier club en France est le Stade Poitevin",
+        "J'arrive au RC Lens en provenance du Berry",
+        "Défenseur, j'ai battu la France au Mondial 2002",
+        "Latéral droit pendant 4 saisons au RC Lens - je suis je suis ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780656024711",
+      "type": "joueur",
+      "playerName": "Yannick Gomis",
+      "playerVariants": [],
+      "indices": [
+        "Je suis international sénégalais",
+        "Je suis un attaquant",
+        "Je marque à Lens pour mon premier match, sur la pelouse de mon ancien club",
+        "Je peux aussi jouer sur un côté",
+        "Je suis arrivé à Lens le même été que Jean-Louis Leca",
+        "En France, j'ai joué à Orléans, Lens et Guingamp - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780656311707",
+      "type": "joueur",
+      "playerName": "Kevin Fortuné",
+      "playerVariants": [],
+      "indices": [
+        "Je démarre ma carrière à Luzenac",
+        "Attaquant, droitier, j'ai inscrit vingt buts au RC Lens",
+        "Avant Lens, j'ai écumé les clubs régionaux",
+        "Lors de la saison 2017-2018, je marque 9 buts et délivre 10 passes décisives",
+        "Ma carrière de footballeur m'a emmené jusqu'en Iran",
+        "Un nom de famille riche d'indice, si tu vois ce que je veux dire - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780656702355",
+      "type": "joueur",
+      "playerName": "Mouad Maadri",
+      "playerVariants": [],
+      "indices": [
+        "Je suis originaire de Saint-Pol-sur-Mer",
+        "Et débute en pro à Dunkerque",
+        "Joueur de petite taille, je suis à vocation offensive",
+        "Je joue 5 matchs au RC Lens",
+        "Franco-marocain, j'ai aussi évolué dans un club corse",
+        "Fabien Garcia a ruiné ma carrière - qui suis-je ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780656916941",
+      "type": "joueur",
+      "playerName": "Djimane Koukou",
+      "playerVariants": [],
+      "indices": [
+        "Je suis milieu de terrain",
+        "Franco-béninois, je joue mes premiers matchs en France pour Evian-Thonon-Gaillard",
+        "Je compte 43 sélections pour mon pays",
+        "Rugueux, j'évolue plutôt dans un rôle de récupérateur",
+        "J'arrive à Lens en provenance de Niort",
+        "Pour saluer, j'ai l'habitude de dire ... - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780657131793",
+      "type": "joueur",
+      "playerName": "Pierrick Valdivia",
+      "playerVariants": [],
+      "indices": [
+        "Je suis né à Bron le 18 avril 1988",
+        "Avant Lens, j'ai joué dans un club du quart nord-est de la France",
+        "Je quitte Lens pour la Belgique, après quatre saisons pleines",
+        "A Lens, je marque 19 buts en 121 matchs",
+        "Formé à l'OL, je marque le but égalisateur à Gerland en Coupe de France dans le temps additionnel",
+        "J'arrive  à Lens en 2012 en binôme avec mon capitaine - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780658480446",
+      "type": "joueur",
+      "playerName": "Adama Coulibaly",
+      "playerVariants": [],
+      "indices": [
+        "Je suis défenseur central, pouvant jouer défenseur droit",
+        "Je signe à Lens en 1999",
+        "En 2003, je suis victime d'une grave blessure",
+        "Je suis international, sélectionné 89 fois par mon pays",
+        "Après Lens, je joue dans deux autres clubs français, dont un situé pas très loin de Lens",
+        "On me surnommait Police - tu l'as maintenant ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780659020270",
+      "type": "joueur",
+      "active": true,
+      "playerName": "David Régis",
+      "playerVariants": [],
+      "indices": [
+        "Je suis international étatsunien",
+        "Je suis un joueur à vocation défensive",
+        "Je n'ai jamais joué pour un club de MLS",
+        "Par contre, j'ai joué en France, en Allemagne et en Belgique.",
+        "En France, en plus de Lens, j'ai joué à Strasbourg, à Metz et à Valenciennes",
+        "Je suis d'origine martiniquaise - tu l'as ?"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1,
+        0.5
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
+    },
+    {
+      "id": "1780659278368",
+      "type": "joueur",
+      "active": true,
+      "playerName": "Stéphane Collet",
+      "playerVariants": [],
+      "indices": [
+        "Je suis un milieu offensif franco-malgache, international",
+        "J'ai joué quelques matchs en Espagne, pour la Real Sociedad",
+        "Formé à Nice, je suis ensuite transféré à Strasbourg.",
+        "Je signe à Lens à l'été 1999, où je ne joue que 5 matchs",
+        "Je partage le même nom de famille qu'un célèbre coach de basket français"
+      ],
+      "indicePts": [
+        5,
+        4,
+        3,
+        2,
+        1
+      ],
+      "indiceTries": [
+        2,
+        2,
+        1,
+        1,
+        1
+      ],
+      "timerDuration": 60,
+      "tags": [
+        "1780657158448"
+      ]
     }
   ]
 }
