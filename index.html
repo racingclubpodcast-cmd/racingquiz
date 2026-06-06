@@ -1391,9 +1391,6 @@
           <div id="q-list-actions" style="display:none">
             <div class="sep"></div>
             <button class="btn btn-gold btn-full" onclick="goQuiz()">Lancer le Quiz</button>
-            <button class="btn btn-ghost btn-full" onclick="exportQuestions()">⬇ Exporter les questions (JSON)</button>
-            <button class="btn btn-ghost btn-full" onclick="document.getElementById('import-input').click()">⬆ Importer des questions (JSON)</button>
-            <input type="file" id="import-input" accept=".json" style="display:none" onchange="importQuestions(event)">
             <button class="btn btn-danger btn-full mb0" onclick="clearAll()">Supprimer toutes les questions</button>
           </div>
         </div>
@@ -1658,6 +1655,17 @@
 
       <!-- Tab : settings -->
       <div id="at-settings" style="display:none;width:100%">
+
+        <!-- Import / Export -->
+        <div class="card" style="margin-bottom:16px;">
+          <h3>Base de questions</h3>
+          <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Exportez la base complète en JSON (sauvegarde) ou importez un fichier pour alimenter la base.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <button class="btn btn-ghost btn-full" onclick="exportQuestions()">⬇ Exporter les questions (JSON)</button>
+            <button class="btn btn-ghost btn-full" onclick="document.getElementById('import-input-settings').click()">⬆ Importer des questions (JSON)</button>
+            <input type="file" id="import-input-settings" accept=".json" style="display:none" onchange="importQuestions(event)">
+          </div>
+        </div>
 
         <!-- Catégories de questions -->
         <div class="card" style="margin-bottom:16px;">
@@ -3262,7 +3270,7 @@
     document.getElementById('qcount').textContent = qs.length;
     const actionsEl = document.getElementById('q-list-actions');
     const listEl    = document.getElementById('q-list-container');
-    actionsEl.style.display = qs.length > 0 ? 'block' : 'none';
+    actionsEl.style.display = 'block';
 
     const matchesTag = q => {
       if (dbTagFilter === 'with-tag') return Array.isArray(q.tags) && q.tags.length > 0;
