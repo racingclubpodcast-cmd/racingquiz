@@ -1660,11 +1660,28 @@
         <div class="card" style="margin-bottom:16px;">
           <h3>Base de questions</h3>
           <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Exportez la base complète en JSON (sauvegarde) ou importez un fichier pour alimenter la base.</p>
+
+          <!-- Boutons principaux -->
           <div style="display:flex;flex-direction:column;gap:10px;">
             <button class="btn btn-ghost btn-full" onclick="exportQuestions()">⬇ Exporter les questions (JSON)</button>
             <button class="btn btn-ghost btn-full" onclick="document.getElementById('import-input-settings').click()">⬆ Importer des questions (JSON)</button>
-            <input type="file" id="import-input-settings" accept=".json" style="display:none" onchange="importQuestions(event)">
+            <input type="file" id="import-input-settings" accept=".json" style="display:none" onchange="importQuestionsPreview(event)">
           </div>
+
+          <!-- Aperçu après sélection du fichier -->
+          <div id="import-preview" style="display:none;margin-top:14px;padding:12px 14px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+              <span style="font-size:1.1rem;">📄</span>
+              <div style="flex:1;">
+                <div id="import-preview-filename" style="font-weight:700;font-size:.88rem;"></div>
+                <div id="import-preview-count" style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;"></div>
+              </div>
+            </div>
+            <button class="btn btn-gold btn-full mb0" onclick="saveImport()">💾 Sauvegarder dans la base</button>
+          </div>
+
+          <!-- Confirmation persistante du dernier import -->
+          <div id="import-saved-info"></div>
         </div>
 
         <!-- Catégories de questions -->
@@ -2656,7 +2673,7 @@
     if (!showList) document.getElementById('at-add').style.display = 'none';
     document.getElementById('at-settings').style.display = tab === 'settings' ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
-    if (tab === 'settings') { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); }
+    if (tab === 'settings') { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); renderLastImportInfo(); }
   }
 
   function toggleSettings() {
@@ -3482,6 +3499,100 @@
     if (!confirm('Supprimer TOUTES les questions ? Action irréversible.')) return;
     LS.saveQ([]);
     renderAdmin();
+  }
+
+  /* ── Import : aperçu + sauvegarde en deux étapes ── */
+  let _pendingImport = null;
+
+  function importQuestionsPreview(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      try {
+        const raw = JSON.parse(e.target.result);
+        const questions = Array.isArray(raw) ? raw : (Array.isArray(raw.questions) ? raw.questions : null);
+        if (!questions) throw new Error();
+        const tags  = (!Array.isArray(raw) && Array.isArray(raw.tags))  ? raw.tags  : [];
+        const media = (!Array.isArray(raw) && Array.isArray(raw.media)) ? raw.media : [];
+
+        // Calculer les nouvelles entrées (hors doublons)
+        const existingIds  = new Set(LS.getQ().map(q => q.id));
+        const newQCount    = questions.filter(q => !existingIds.has(q.id)).length;
+
+        _pendingImport = { fileName: file.name, questions, tags, media, newQCount };
+
+        // Afficher l'aperçu
+        document.getElementById('import-preview-filename').textContent = file.name;
+        document.getElementById('import-preview-count').textContent =
+          `${questions.length} question(s) au total · ${newQCount} nouvelle(s) à ajouter · ${tags.length} tag(s)`;
+        document.getElementById('import-preview').style.display = 'block';
+        document.getElementById('import-saved-info').innerHTML  = '';
+      } catch {
+        alert('Fichier JSON invalide ou format non reconnu.');
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+  }
+
+  function saveImport() {
+    if (!_pendingImport) return;
+    const { fileName, questions, tags, media, newQCount } = _pendingImport;
+
+    // Fusion questions
+    const existing    = LS.getQ();
+    const existingIds = new Set(existing.map(q => q.id));
+    LS.saveQ([...existing, ...questions.filter(q => !existingIds.has(q.id))]);
+
+    // Fusion tags
+    const existingTags   = LS.getTags();
+    const existingTagIds = new Set(existingTags.map(t => t.id));
+    const newTags = tags.filter(t => !existingTagIds.has(t.id));
+    if (newTags.length) LS.saveTags([...existingTags, ...newTags]);
+
+    // Fusion médias
+    const existingMedia   = LS.getMedia();
+    const existingMediaIds = new Set(existingMedia.map(m => m.id));
+    const newMedia = media.filter(m => !existingMediaIds.has(m.id));
+    if (newMedia.length) LS.saveMedia([...existingMedia, ...newMedia]);
+
+    // Mémoriser le dernier import (persistant, local à l'admin)
+    const info = {
+      fileName,
+      totalQ : questions.length,
+      newQ   : newQCount,
+      date   : new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }),
+      time   : new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }),
+    };
+    localStorage.setItem('rcLastImport', JSON.stringify(info));
+
+    // Réinitialiser
+    _pendingImport = null;
+    document.getElementById('import-preview').style.display = 'none';
+    renderAdmin();
+    renderLastImportInfo();
+  }
+
+  function renderLastImportInfo() {
+    const el = document.getElementById('import-saved-info');
+    if (!el) return;
+    const raw = localStorage.getItem('rcLastImport');
+    if (!raw) { el.innerHTML = ''; return; }
+    try {
+      const { fileName, totalQ, newQ, date, time } = JSON.parse(raw);
+      el.innerHTML = `
+        <div style="margin-top:12px;padding:11px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+            <span style="color:var(--or,#FFCD00);font-size:.95rem;">✅</span>
+            <span style="font-weight:700;font-size:.85rem;">${fileName}</span>
+          </div>
+          <div style="font-size:.75rem;color:rgba(255,255,255,.4);">
+            ${totalQ} question(s) dans le fichier · ${newQ} nouvelle(s) intégrée(s)<br>
+            Sauvegardé le ${date} à ${time}
+          </div>
+        </div>`;
+    } catch { el.innerHTML = ''; }
   }
 
   function exportQuestions() {
