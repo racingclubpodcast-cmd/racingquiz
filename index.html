@@ -1332,6 +1332,7 @@
           </a>
         </div>
       </div>
+      <p style="margin-top:18px;font-size:.72rem;color:rgba(255,255,255,.3);text-align:center;font-family:monospace;letter-spacing:.04em;">Racing Quiz version 1</p>
     </div>
 
     <!-- ═══════════════════════════════════════ ADMIN LOGIN ═══ -->
@@ -1696,6 +1697,12 @@
           <h3>Fonctionnalités</h3>
           <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez les fonctionnalités du quiz.</p>
           <div id="features-list"></div>
+        </div>
+
+        <!-- Sauvegarder les réglages -->
+        <div style="margin-bottom:16px;">
+          <button class="btn btn-gold btn-full" id="btn-save-settings" onclick="saveSettings()">💾 Sauvegarder les réglages</button>
+          <div id="settings-save-status" style="margin-top:10px;"></div>
         </div>
 
         <!-- Chargement de contenus -->
@@ -2396,17 +2403,24 @@
   /* Cache mémoire — rempli au démarrage par initDB(), lu de façon synchrone ensuite */
   let _db = { questions: [], tags: [], media: [], features: {} };
 
-  /* Pousse une clé du cache vers Supabase (fire-and-forget) */
+  /* Pousse une clé du cache vers Supabase — retourne true si OK, false si erreur */
   async function dbPush(key) {
-    try {
-      await _supa.from('quiz_data').upsert({ key, value: _db[key] }, { onConflict: 'key' });
-    } catch(e) { console.warn('[Supabase] push error (' + key + '):', e); }
+    const { error } = await _supa
+      .from('quiz_data')
+      .upsert({ key, value: _db[key] }, { onConflict: 'key' });
+    if (error) {
+      console.error('[Supabase] push error (' + key + '):', error);
+      return false;
+    }
+    // Backup localStorage (secours local)
+    try { localStorage.setItem('rc_bk_' + key, JSON.stringify(_db[key])); } catch {}
+    return true;
   }
 
   /* Seeding initial : lit le JSON local et l'envoie vers Supabase */
   async function seedFromJson() {
     try {
-      const res  = await fetch('questions-rc-lens.json');
+      const res  = await fetch('Racing Quiz version 1.json');
       if (!res.ok) return;
       const data = await res.json();
       _db.questions = Array.isArray(data) ? data : (Array.isArray(data.questions) ? data.questions : []);
@@ -2417,12 +2431,22 @@
     } catch(e) { console.warn('[Supabase] seed error:', e); }
   }
 
-  /* Chargement principal : Supabase → cache. Si vide, seed depuis JSON local. */
+  /* Chargement principal : Supabase → cache, avec fallback localStorage */
   async function initDB() {
     const { data, error } = await _supa.from('quiz_data').select('key, value');
-    if (error) throw error;
+    if (error) {
+      // Supabase inaccessible → repli sur le backup localStorage
+      console.warn('[Supabase] lecture impossible, repli sur backup local:', error);
+      ['questions','tags','media','features'].forEach(k => {
+        try {
+          const bk = localStorage.getItem('rc_bk_' + k);
+          if (bk) _db[k] = JSON.parse(bk);
+        } catch {}
+      });
+      return;
+    }
     if (data && data.length) {
-      data.forEach(row => { if (row.key in _db) _db[row.key] = row.value; });
+      data.forEach(row => { if (row.key in _db) _db[row.key] = row.value ?? _db[row.key]; });
       if (!_db.questions || !_db.questions.length) await seedFromJson();
     } else {
       await seedFromJson();
@@ -2507,6 +2531,40 @@
     saved[key]  = !feat(key);
     LS.saveFeatures(saved);
     renderCategoriesPanel();
+    resetSettingsSaveStatus();
+  }
+
+  async function saveSettings() {
+    const btn    = document.getElementById('btn-save-settings');
+    const status = document.getElementById('settings-save-status');
+    if (!btn || !status) return;
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ Sauvegarde en cours…';
+    status.innerHTML = '';
+
+    const ok = await dbPush('features');
+
+    btn.disabled    = false;
+    btn.textContent = '💾 Sauvegarder les réglages';
+
+    if (ok) {
+      status.innerHTML = `
+        <div style="padding:10px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);font-size:.8rem;">
+          ✅ <strong>Réglages sauvegardés dans Supabase</strong> — appliqués pour tous les joueurs
+        </div>`;
+      localStorage.setItem('rcSettingsSaved', new Date().toISOString());
+    } else {
+      status.innerHTML = `
+        <div style="padding:10px 13px;border-radius:8px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);font-size:.8rem;">
+          ⚠️ <strong>Erreur Supabase</strong> — réglages actifs en mémoire uniquement. Vérifiez l'URL et la clé dans le code.
+        </div>`;
+    }
+  }
+
+  function resetSettingsSaveStatus() {
+    const status = document.getElementById('settings-save-status');
+    if (status) status.innerHTML = '';
   }
 
   const FEATURES_META = [
@@ -2546,6 +2604,7 @@
     saved[key]  = !feat(key);
     LS.saveFeatures(saved);
     renderFeaturesPanel();
+    resetSettingsSaveStatus();
   }
 
   /* ═══════════════════════════════════════════════════
@@ -3536,38 +3595,45 @@
     event.target.value = '';
   }
 
-  function saveImport() {
+  async function saveImport() {
     if (!_pendingImport) return;
     const { fileName, questions, tags, media, newQCount } = _pendingImport;
 
-    // Fusion questions
-    const existing    = LS.getQ();
-    const existingIds = new Set(existing.map(q => q.id));
-    LS.saveQ([...existing, ...questions.filter(q => !existingIds.has(q.id))]);
+    // Désactiver le bouton pendant l'envoi
+    const btn = document.querySelector('#import-preview .btn-gold');
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Sauvegarde en cours…'; }
 
-    // Fusion tags
-    const existingTags   = LS.getTags();
-    const existingTagIds = new Set(existingTags.map(t => t.id));
-    const newTags = tags.filter(t => !existingTagIds.has(t.id));
-    if (newTags.length) LS.saveTags([...existingTags, ...newTags]);
+    // Fusion dans le cache mémoire
+    const existing     = LS.getQ();
+    const existingIds  = new Set(existing.map(q => q.id));
+    const mergedQ      = [...existing, ...questions.filter(q => !existingIds.has(q.id))];
+    _db.questions      = mergedQ;
 
-    // Fusion médias
+    const existingTags    = LS.getTags();
+    const existingTagIds  = new Set(existingTags.map(t => t.id));
+    const newTags         = tags.filter(t => !existingTagIds.has(t.id));
+    _db.tags              = newTags.length ? [...existingTags, ...newTags] : existingTags;
+
     const existingMedia   = LS.getMedia();
     const existingMediaIds = new Set(existingMedia.map(m => m.id));
-    const newMedia = media.filter(m => !existingMediaIds.has(m.id));
-    if (newMedia.length) LS.saveMedia([...existingMedia, ...newMedia]);
+    const newMedia        = media.filter(m => !existingMediaIds.has(m.id));
+    _db.media             = newMedia.length ? [...existingMedia, ...newMedia] : existingMedia;
 
-    // Mémoriser le dernier import (persistant, local à l'admin)
+    // Push vers Supabase (attendu — on vérifie le succès réel)
+    const results = await Promise.all(['questions','tags','media'].map(k => dbPush(k)));
+    const ok = results.every(r => r === true);
+
+    // Mémoriser le dernier import
     const info = {
       fileName,
-      totalQ : questions.length,
-      newQ   : newQCount,
-      date   : new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }),
-      time   : new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }),
+      totalQ  : questions.length,
+      newQ    : newQCount,
+      date    : new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }),
+      time    : new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }),
+      supabaseOk: ok,
     };
     localStorage.setItem('rcLastImport', JSON.stringify(info));
 
-    // Réinitialiser
     _pendingImport = null;
     document.getElementById('import-preview').style.display = 'none';
     renderAdmin();
@@ -3580,16 +3646,23 @@
     const raw = localStorage.getItem('rcLastImport');
     if (!raw) { el.innerHTML = ''; return; }
     try {
-      const { fileName, totalQ, newQ, date, time } = JSON.parse(raw);
+      const { fileName, totalQ, newQ, date, time, supabaseOk } = JSON.parse(raw);
+      const ok    = supabaseOk !== false;
+      const color = ok ? 'rgba(255,205,0,.07)' : 'rgba(192,57,43,.1)';
+      const border= ok ? 'rgba(255,205,0,.18)'  : 'rgba(192,57,43,.4)';
+      const icon  = ok ? '✅' : '⚠️';
+      const status= ok
+        ? `Sauvegardé dans Supabase le ${date} à ${time} — visible par tous les joueurs`
+        : `Erreur Supabase — données en mémoire locale uniquement (vérifiez l'URL et la clé dans le code)`;
       el.innerHTML = `
-        <div style="margin-top:12px;padding:11px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);">
+        <div style="margin-top:12px;padding:11px 13px;border-radius:8px;background:${color};border:1px solid ${border};">
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
-            <span style="color:var(--or,#FFCD00);font-size:.95rem;">✅</span>
+            <span style="font-size:.95rem;">${icon}</span>
             <span style="font-weight:700;font-size:.85rem;">${fileName}</span>
           </div>
           <div style="font-size:.75rem;color:rgba(255,255,255,.4);">
             ${totalQ} question(s) dans le fichier · ${newQ} nouvelle(s) intégrée(s)<br>
-            Sauvegardé le ${date} à ${time}
+            ${status}
           </div>
         </div>`;
     } catch { el.innerHTML = ''; }
@@ -3602,7 +3675,7 @@
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'questions-rc-lens.json';
+    a.download = 'Racing Quiz version 1.json';
     a.click();
     URL.revokeObjectURL(a.href);
   }
