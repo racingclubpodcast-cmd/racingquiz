@@ -286,6 +286,82 @@
     .tab-btn + .tab-btn { border-left: 1px solid rgba(255,205,0,.18); }
     .tab-btn.active { background: var(--or); color: var(--noir); }
 
+    /* ── Joueurs tab ── */
+    .joueur-search-bar { margin-bottom:12px; }
+    .joueur-search-bar input { width:100%; }
+    .joueur-row { display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.07); margin-bottom:6px; cursor:pointer; transition:background .12s,border-color .12s; background:rgba(255,255,255,.02); user-select:none; }
+    .joueur-row:hover { background:rgba(255,205,0,.06); border-color:rgba(255,205,0,.22); }
+    .joueur-rank { font-size:.95rem; min-width:28px; text-align:center; flex-shrink:0; }
+    .joueur-avatar { width:36px; height:36px; border-radius:50%; background:var(--rouge); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.95rem; color:#fff; flex-shrink:0; letter-spacing:0; }
+    .joueur-pseudo { font-weight:700; font-size:.92rem; color:var(--or); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .joueur-meta { font-size:.72rem; color:rgba(255,255,255,.35); margin-top:2px; }
+    .joueur-score-val { font-size:1.15rem; font-weight:800; color:var(--or); flex-shrink:0; }
+
+    /* ── Player Card overlay ── */
+    .pcard-overlay { position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.75); backdrop-filter:blur(5px); display:flex; align-items:flex-end; justify-content:center; }
+    .pcard-panel { background:#161616; border:1px solid rgba(255,205,0,.2); border-bottom:none; border-radius:20px 20px 0 0; width:100%; max-width:520px; padding:8px 20px 36px; max-height:88vh; overflow-y:auto; animation:pcardUp .22s ease; }
+    @keyframes pcardUp { from { transform:translateY(60px); opacity:0; } to { transform:translateY(0); opacity:1; } }
+    .pcard-drag-handle { width:40px; height:4px; background:rgba(255,255,255,.15); border-radius:2px; margin:12px auto 20px; }
+    .pcard-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
+    .pcard-avatar { width:54px; height:54px; border-radius:50%; background:var(--rouge); display:flex; align-items:center; justify-content:center; font-size:1.4rem; font-weight:900; color:#fff; flex-shrink:0; }
+    .pcard-name { font-size:1.15rem; font-weight:800; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+    .pcard-close { background:rgba(255,255,255,.08); border:none; color:rgba(255,255,255,.55); border-radius:50%; width:34px; height:34px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .12s; }
+    .pcard-close:hover { background:rgba(255,255,255,.15); color:#fff; }
+    .pcard-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
+    .pcard-stat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:12px 14px; }
+    .pcard-stat-val { font-size:1.15rem; font-weight:800; color:var(--or); }
+    .pcard-stat-label { font-size:.7rem; color:rgba(255,255,255,.38); margin-top:3px; text-transform:uppercase; letter-spacing:.3px; }
+    .pcard-section-title { font-size:.73rem; font-weight:700; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
+    .pcard-game-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+    .pcard-game-score { font-weight:800; color:var(--or); min-width:28px; font-size:.95rem; }
+    .pcard-game-date { font-size:.75rem; color:rgba(255,255,255,.4); flex:1; }
+    .pcard-coming-soon { margin-top:24px; padding:12px 16px; border-radius:10px; background:rgba(100,180,255,.06); border:1px solid rgba(100,180,255,.18); font-size:.8rem; color:rgba(100,180,255,.7); text-align:center; }
+
+    /* ── Générateur ── */
+    .gen-search-bar { display:flex; gap:8px; align-items:center; margin-bottom:14px; }
+    .gen-search-bar input { flex:1; background:rgba(26,26,26,.92) !important; border-color:rgba(255,205,0,.3) !important; }
+    .gen-stats { font-size:.75rem; color:rgba(255,255,255,.55); white-space:nowrap; font-weight:600; }
+    .gen-alpha-bar { display:flex; flex-wrap:wrap; gap:3px; margin-bottom:12px; }
+    .gen-alpha-btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1); color:rgba(255,255,255,.55); border-radius:5px; padding:4px 7px; font-size:.72rem; font-weight:700; cursor:pointer; transition:background .12s,color .12s,border-color .12s; min-width:26px; text-align:center; line-height:1.2; }
+    .gen-alpha-btn:hover { background:rgba(255,205,0,.15); color:var(--or); border-color:rgba(255,205,0,.3); }
+    .gen-alpha-btn.active { background:var(--or); color:var(--noir); border-color:var(--or); }
+    .gen-alpha-btn.gen-alpha-all { padding:4px 10px; }
+    .gen-player-card { background:rgba(26,26,26,.92); border:1px solid rgba(255,205,0,.13); border-radius:10px; margin-bottom:6px; overflow:hidden; transition:border-color .15s; }
+    .gen-player-card.gen-card-open { border-color:rgba(255,205,0,.45); }
+    .gen-player-header { display:flex; align-items:center; gap:10px; padding:11px 14px; cursor:pointer; user-select:none; }
+    .gen-player-header:hover { background:rgba(255,255,255,.04); }
+    .gen-player-name { font-weight:600; font-size:.88rem; flex:1; }
+    .gen-player-idx  { font-size:.7rem; color:rgba(255,255,255,.25); flex-shrink:0; min-width:28px; }
+    .gen-status-badge { font-size:.62rem; font-weight:700; padding:2px 7px; border-radius:99px; white-space:nowrap; flex-shrink:0; }
+    .gen-status-empty { background:rgba(255,255,255,.07); color:rgba(255,255,255,.35); }
+    .gen-status-wip   { background:rgba(255,165,0,.15); color:#ffa500; }
+    .gen-status-done  { background:rgba(46,204,113,.15); color:#2ecc71; }
+    .gen-toggle-icon  { font-size:.8rem; color:rgba(255,205,0,.5); flex-shrink:0; transition:transform .2s; }
+    .gen-card-open .gen-toggle-icon { transform:rotate(90deg); }
+    .gen-player-form  { padding:14px 14px 16px; border-top:1px solid rgba(255,205,0,.1); }
+    .gen-form-actions { display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+    .gen-form-hint    { font-size:.73rem; color:rgba(255,255,255,.35); margin-top:6px; }
+    .gen-transfer-btn { background:var(--vert); color:#0d0d0d; font-weight:700; border:none; border-radius:8px; padding:9px 18px; cursor:pointer; font-size:.85rem; transition:opacity .15s; }
+    .gen-transfer-btn:hover { opacity:.88; }
+    .gen-transfer-btn:disabled { opacity:.4; cursor:default; }
+    /* ── Planning ── */
+    .planning-day { background: rgba(26,26,26,.92); border: 1px solid rgba(255,205,0,.18); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; }
+    .planning-day.planning-today { border-color: rgba(255,205,0,.6); background: rgba(26,26,16,.97); box-shadow: 0 0 0 1px rgba(255,205,0,.18) inset; }
+    .planning-used-badge { display:inline-flex;align-items:center;gap:3px;font-size:.63rem;font-weight:700;padding:1px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0; }
+    .planning-used-badge.badge-planning { background:rgba(255,205,0,.13);color:var(--or); }
+    .planning-used-badge.badge-game     { background:rgba(46,204,113,.13);color:#2ecc71; }
+    .planning-used-badge.badge-beta     { background:rgba(100,180,255,.13);color:#64b4ff; }
+    .planning-day-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .planning-day-name { font-weight: 700; font-size: .88rem; color: var(--or); min-width: 34px; }
+    .planning-day-date { font-size: .82rem; color: rgba(255,255,255,.6); flex: 1; }
+    .planning-today-badge { font-size: .7rem; font-weight: 700; background: var(--or); color: var(--noir); padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+    .planning-slot { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: background .15s; }
+    .planning-slot:hover { background: rgba(255,255,255,.06); }
+    .planning-slot-label { font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.35); min-width: 98px; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0; }
+    .planning-slot-value { font-size: .83rem; flex: 1; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .planning-empty { color: rgba(255,255,255,.22) !important; font-style: italic; }
+    .planning-slot-edit { font-size: .7rem; color: rgba(255,205,0,.4); flex-shrink: 0; }
+
     /* ── Alerts ── */
     .alert { padding: 11px 15px; border-radius: 9px; font-size: .88rem; margin-bottom: 14px; width: 100%; line-height: 1.4; }
     .alert-error   { background: rgba(227,6,19,.13);  border: 1px solid rgba(227,6,19,.38);  color: #ff7070; }
@@ -332,11 +408,53 @@
     .q-meta { font-size: .77rem; color: var(--or); text-transform: uppercase; letter-spacing: .3px; }
     .q-answer { font-size: .78rem; color: rgba(255,255,255,.45); margin-top: 3px; }
     .q-answer strong { color: var(--vert); }
+    .q-badge-new {
+      display: inline-block;
+      background: var(--vert);
+      color: #0d0d0d;
+      font-size: .58rem;
+      font-weight: 900;
+      letter-spacing: .6px;
+      padding: 1px 5px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      line-height: 1.5;
+    }
     .empty-state { text-align: center; padding: 44px 20px; color: rgba(255,255,255,.35); }
     .empty-icon { font-size: 3rem; display: block; margin-bottom: 12px; }
     .btn-edit { background: transparent; color: var(--or); border: 1px solid rgba(255,205,0,.4); padding: 8px 14px; font-size: .82rem; }
     .btn-edit:hover { background: rgba(255,205,0,.12); }
     .q-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+    /* ── DB filter dropdown ── */
+    .db-filter-menu {
+      position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+      background: #1e1e2a; border: 1px solid rgba(255,255,255,.12); border-radius: 10px;
+      padding: 8px; min-width: 190px; box-shadow: 0 8px 24px rgba(0,0,0,.55);
+    }
+    .db-filter-section-label {
+      font-size: .68rem; font-weight: 700; color: rgba(255,255,255,.3);
+      text-transform: uppercase; letter-spacing: .5px; padding: 4px 8px 6px;
+    }
+    .db-filter-option {
+      display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 7px;
+      cursor: pointer; font-size: .8rem; color: rgba(255,255,255,.7);
+      transition: background .15s; user-select: none;
+    }
+    .db-filter-option:hover { background: rgba(255,255,255,.06); }
+    .db-filter-check { font-size: .9rem; color: rgba(255,255,255,.28); transition: color .15s; flex-shrink: 0; }
+    .db-filter-check.on { color: var(--or); }
+    .db-filter-sep { height: 1px; background: rgba(255,255,255,.08); margin: 6px 0; }
+    .db-filter-chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: rgba(255,205,0,.13); border: 1px solid rgba(255,205,0,.38); color: var(--or);
+      border-radius: 99px; font-size: .71rem; font-weight: 600; padding: 2px 8px;
+    }
+    .db-filter-chip-x {
+      background: none; border: none; color: var(--or); cursor: pointer;
+      padding: 0; font-size: .72rem; line-height: 1; opacity: .65;
+    }
+    .db-filter-chip-x:hover { opacity: 1; }
 
     /* ── Edit modal ── */
     .modal-overlay {
@@ -859,6 +977,35 @@
     .btn-settings-icon:hover { background: rgba(255,205,0,.12); border-color: rgba(255,205,0,.4); color: var(--or); }
     .btn-settings-icon.active { background: rgba(255,205,0,.15); border-color: var(--or); color: var(--or); }
 
+    /* ── Settings sidebar layout ── */
+    .settings-layout { display: flex; gap: 20px; align-items: flex-start; }
+    .settings-sidebar {
+      width: 210px; flex-shrink: 0;
+      background: rgba(26,26,26,.92);
+      border: 1px solid rgba(255,205,0,.18);
+      border-radius: 16px;
+      padding: 8px 6px 12px;
+      backdrop-filter: blur(12px);
+    }
+    .settings-cat-header {
+      font-size: .7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .08em; color: rgba(255,255,255,.35);
+      padding: 10px 12px 5px; margin-bottom: 2px;
+    }
+    .settings-cat-header:not(:first-child) { margin-top: 18px; }
+    .settings-nav { display: flex; flex-direction: column; gap: 2px; }
+    .settings-nav-item {
+      display: block; width: 100%; text-align: left;
+      background: transparent; border: none; border-radius: 8px;
+      padding: 9px 12px; font-size: .84rem;
+      color: rgba(255,255,255,.6); cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .settings-nav-item:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+    .settings-nav-item.active { background: rgba(255,205,0,.12); color: var(--or); font-weight: 600; }
+    .settings-panel { display: none; }
+    .settings-panel.active { display: block; }
+
     /* ── Separator ── */
     .sep { width: 100%; height: 1px; background: rgba(255,205,0,.15); margin: 18px 0; }
 
@@ -1305,6 +1452,37 @@
       .quiz-question-text { font-size: .98rem; }
       .tab-btn { font-size: .68rem; padding: 9px 4px; }
     }
+
+    /* ── Auth view ── */
+    .auth-toggle { display:flex;gap:0;margin-bottom:18px;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden; }
+    .auth-toggle-btn { flex:1;padding:10px;font-size:.85rem;font-weight:700;background:transparent;color:rgba(255,255,255,.45);border:none;cursor:pointer;transition:all .2s; }
+    .auth-toggle-btn.active { background:var(--or);color:var(--noir); }
+    .auth-divider { display:flex;align-items:center;gap:10px;margin:16px 0;color:rgba(255,255,255,.35);font-size:.8rem; }
+    .auth-divider::before, .auth-divider::after { content:'';flex:1;height:1px;background:rgba(255,255,255,.12); }
+    .btn-oauth { display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 16px;border-radius:12px;font-size:.88rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);transition:all .2s;background:rgba(255,255,255,.04);color:#fff;margin-bottom:10px; }
+    .btn-oauth:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3); }
+    .btn-oauth-icon { width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.82rem;flex-shrink:0; }
+    .auth-anon-link { text-align:center;margin-top:10px;font-size:.78rem;color:rgba(255,255,255,.35);cursor:pointer;text-decoration:underline; }
+    .auth-anon-link:hover { color:rgba(255,255,255,.6); }
+    .captcha-box { display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px; }
+    .captcha-challenge { font-size:.95rem;font-weight:700;color:var(--or);flex:1;white-space:nowrap; }
+    .captcha-input { width:72px;text-align:center;font-size:1rem;font-weight:700;padding:7px 6px;border-radius:8px; }
+    .captcha-refresh { background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1.2rem;padding:4px 6px;line-height:1;transition:color .15s;flex-shrink:0; }
+    .captcha-refresh:hover { color:var(--or); }
+
+    /* ── Player card ── */
+    .player-card-avatar { width:80px;height:80px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;margin:0 auto 14px;border:3px solid var(--or);overflow:hidden;flex-shrink:0; }
+    .player-card-avatar img { width:100%;height:100%;object-fit:cover; }
+    .player-stats-grid { display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0; }
+    .player-stat-box { background:rgba(255,255,255,.05);border-radius:10px;padding:12px;text-align:center;border:1px solid rgba(255,255,255,.08); }
+    .player-stat-val { font-size:1.5rem;font-weight:700;color:var(--or); }
+    .player-stat-lbl { font-size:.72rem;color:rgba(255,255,255,.45);margin-top:2px; }
+    .player-history-item { display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.06); }
+    .player-history-item:last-child { border-bottom:none; }
+    .player-history-info { flex:1;min-width:0; }
+    .player-history-score { font-weight:700;color:var(--or);font-size:.9rem; }
+    .player-history-date { font-size:.72rem;color:rgba(255,255,255,.35); }
+    .player-badge-chip { display:inline-flex;align-items:center;gap:6px;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:5px 12px;font-size:.78rem;color:var(--or);font-weight:600; }
   </style>
 </head>
 <body>
@@ -1330,7 +1508,17 @@
       <h1 style="font-family:'Calleo',sans-serif;">Le Racing Quiz</h1>
       <p class="subtitle" style="font-family:'Calleo',sans-serif;">Développé par l'équipe du Racing Club Podcast</p>
       <div class="card" style="max-width:380px;">
-        <button class="btn btn-gold btn-full mb0" onclick="nav('player-name')">Jouer</button>
+        <button class="btn btn-gold btn-full" onclick="nav('player-name')">Jouer</button>
+        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:0;">
+          <button id="home-login-btn" class="btn btn-ghost btn-full mb0" onclick="nav('auth')" style="font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:8px;">
+            <span>👤</span> Créer mon compte / Me connecter
+          </button>
+          <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
+            <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
+            <span id="home-display-name" style="flex:1;text-align:left;"></span>
+            <span style="font-size:.7rem;opacity:.45;">Ma carte →</span>
+          </button>
+        </div>
       </div>
       <p style="text-align:center;font-size:clamp(1.8rem,5vw,2.6rem);color:#ffffff;margin-top:12px;font-family:'CalleoHairline',sans-serif;">Votre révision estivale</p>
 
@@ -1388,6 +1576,9 @@
 
       <div class="tabs">
         <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database (<span id="qcount">0</span>)</button>
+        <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur <span class="planning-used-badge badge-beta" style="margin-left:4px;">BÊTA</span></button>
+        <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
+        <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs</button>
       </div>
 
       <!-- Tab : list -->
@@ -1400,15 +1591,41 @@
             </div>
             <button class="btn btn-red btn-sm" id="btn-creer" onclick="toggleAddForm()" style="white-space:nowrap;flex-shrink:0;">+ Créer une entrée</button>
           </div>
-          <div id="db-tag-filter" style="display:flex;gap:6px;margin-bottom:14px;">
-            <button id="dbf-all"      onclick="dbSetTagFilter('all')"      class="btn btn-sm" style="flex:1;font-size:.78rem;padding:6px 8px;background:rgba(255,205,0,.18);border:1px solid var(--or);color:var(--or);">Toutes</button>
-            <button id="dbf-with-tag" onclick="dbSetTagFilter('with-tag')" class="btn btn-sm" style="flex:1;font-size:.78rem;padding:6px 8px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);">🏷 Avec tag</button>
-            <button id="dbf-no-tag"   onclick="dbSetTagFilter('no-tag')"   class="btn btn-sm" style="flex:1;font-size:.78rem;padding:6px 8px;background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);">Sans tag</button>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+            <div style="position:relative;">
+              <button id="db-filter-btn" onclick="toggleFilterDropdown(event)" class="btn btn-sm" style="font-size:.78rem;padding:6px 12px;background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);display:flex;align-items:center;gap:6px;">
+                Filtres
+                <span id="db-filter-count" style="display:none;background:var(--or);color:#1a1a1a;border-radius:99px;font-size:.66rem;font-weight:800;padding:1px 6px;line-height:1.4;"></span>
+                <span style="font-size:.65rem;opacity:.6;">▾</span>
+              </button>
+              <div id="db-filter-menu" class="db-filter-menu" style="display:none;">
+                <div class="db-filter-section-label">Type</div>
+                <div class="db-filter-option" onclick="dbToggleFilter('joueur')">
+                  <span class="db-filter-check" id="dbfc-joueur">○</span> 🎽 Qui suis-je ?
+                </div>
+                <div class="db-filter-option" onclick="dbToggleFilter('bonus')">
+                  <span class="db-filter-check" id="dbfc-bonus">○</span> ⭐ Avec bonus
+                </div>
+                <div class="db-filter-sep"></div>
+                <div class="db-filter-section-label">Tags</div>
+                <div class="db-filter-option" onclick="dbToggleFilter('with-tag')">
+                  <span class="db-filter-check" id="dbfc-with-tag">○</span> 🏷 Avec tag
+                </div>
+                <div class="db-filter-option" onclick="dbToggleFilter('no-tag')">
+                  <span class="db-filter-check" id="dbfc-no-tag">○</span> Sans tag
+                </div>
+                <div class="db-filter-option" onclick="dbToggleFilter('new')">
+                  <span class="db-filter-check" id="dbfc-new">○</span> 🆕 NEW
+                </div>
+                <div class="db-filter-sep"></div>
+                <button class="btn btn-ghost btn-sm" onclick="dbClearFilters()" style="width:100%;font-size:.74rem;">✕ Effacer les filtres</button>
+              </div>
+            </div>
+            <div id="db-filter-chips" style="display:flex;flex-wrap:wrap;gap:4px;"></div>
           </div>
           <div id="q-list-container"></div>
           <div id="q-list-actions" style="display:none">
             <div class="sep"></div>
-            <button class="btn btn-gold btn-full" onclick="goQuiz()">Lancer le Quiz</button>
             <button class="btn btn-danger btn-full mb0" onclick="clearAll()">Supprimer toutes les questions</button>
           </div>
         </div>
@@ -1532,91 +1749,6 @@
               </div>
             </div>
 
-            <!-- Bonus -->
-            <div class="sep" style="margin:14px 0;"></div>
-            <label class="bonus-toggle-row" for="bonus-toggle">
-              <input type="checkbox" id="bonus-toggle" onchange="toggleBonus()">
-              <span style="font-weight:600;font-size:.88rem;color:var(--or);">Question bonus</span>
-              <span style="font-size:.78rem;color:rgba(255,255,255,.4);">Posée uniquement si la bonne réponse est trouvée</span>
-            </label>
-            <div id="sec-bonus" class="bonus-section" style="display:none;">
-              <div class="form-group">
-                <label class="field-label">Question bonus</label>
-                <textarea id="nq-bonus-text" placeholder="Question bonus à poser si la réponse est correcte…"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="field-label">Points bonus</label>
-                <input type="number" id="nq-bonus-points" min="0.5" max="999" step="0.5" value="1" style="max-width:110px;">
-              </div>
-              <div class="form-group">
-                <label class="field-label">Type de réponse</label>
-                <div class="type-group" style="gap:8px;">
-                  <div class="type-option selected" id="nqb-to-libre" onclick="setBonusType('nq','libre')" style="font-size:.82rem;padding:9px 6px;">
-                    <input type="radio" name="nqbtype" value="libre" checked>Libre
-                  </div>
-                  <div class="type-option" id="nqb-to-qcm" onclick="setBonusType('nq','qcm')" style="font-size:.82rem;padding:9px 6px;">
-                    <input type="radio" name="nqbtype" value="qcm">QCM
-                  </div>
-                  <div class="type-option" id="nqb-to-qcm-multi" onclick="setBonusType('nq','qcm-multi')" style="font-size:.82rem;padding:9px 6px;">
-                    <input type="radio" name="nqbtype" value="qcm-multi">QCM Multi
-                  </div>
-                  <div class="type-option" id="nqb-to-multi-libre" onclick="setBonusType('nq','multi-libre')" style="font-size:.82rem;padding:9px 6px;">
-                    <input type="radio" name="nqbtype" value="multi-libre">Liste
-                  </div>
-                </div>
-              </div>
-              <div id="nqb-sec-libre" class="form-group mb0">
-                <label class="field-label">Réponse(s) attendue(s)</label>
-                <div id="nq-bonus-libre-answers">
-                  <div class="libre-answer-row" id="nq-bonus-lar-0">
-                    <input type="text" id="nq-bonus-libre-0" placeholder="Réponse acceptée…">
-                  </div>
-                </div>
-                <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addLibreAnswer('nq-bonus')">+ Variante</button>
-              </div>
-              <div id="nqb-sec-qcm" style="display:none;">
-                <div class="form-group">
-                  <label class="field-label">Nombre de choix</label>
-                  <select id="nqb-count" onchange="buildBonusOptions('nq')">
-                    <option value="2">2 choix</option><option value="3" selected>3 choix</option><option value="4">4 choix</option>
-                  </select>
-                </div>
-                <div class="form-group mb0">
-                  <label class="field-label">Réponses — ✓ pour la bonne réponse</label>
-                  <div id="nqb-builder"></div>
-                </div>
-              </div>
-              <div id="nqb-sec-qcm-multi" style="display:none;">
-                <div class="form-group">
-                  <label class="field-label">Nombre de choix</label>
-                  <select id="nqb-count-multi" onchange="buildBonusMultiOptions('nq')">
-                    <option value="2">2 choix</option><option value="3" selected>3 choix</option><option value="4">4 choix</option>
-                  </select>
-                </div>
-                <div class="form-group mb0">
-                  <label class="field-label">Réponses — ✓ pour les bonnes réponses</label>
-                  <div id="nqb-multi-builder"></div>
-                </div>
-              </div>
-              <div id="nqb-sec-multi-libre" style="display:none;">
-                <div class="form-group">
-                  <label class="field-label">Réponses à trouver *</label>
-                  <div id="nq-bonus-ml-answers"></div>
-                  <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addBonusMlAnswer('nq')">+ Ajouter une réponse</button>
-                  <p class="field-hint">La comparaison ignore la casse et les accents.</p>
-                </div>
-                <div class="form-group">
-                  <label class="field-label">Nombre de réponses requises pour valider</label>
-                  <input type="number" id="nq-bonus-ml-required" min="1" style="max-width:110px;">
-                  <p class="field-hint">Par défaut : toutes les réponses.</p>
-                </div>
-                <div class="form-group mb0">
-                  <label class="field-label">Tentatives incorrectes autorisées</label>
-                  <input type="number" id="nq-bonus-ml-max-wrong" min="0" max="99" value="0" style="max-width:110px;">
-                  <p class="field-hint"><strong>0 = illimité.</strong></p>
-                </div>
-              </div>
-            </div>
             <div class="sep" style="margin:14px 0;"></div>
 
             <div class="form-group">
@@ -1673,107 +1805,183 @@
 
       <!-- Tab : settings -->
       <div id="at-settings" style="display:none;width:100%">
+        <div class="settings-layout">
 
-        <!-- Import / Export -->
-        <div class="card" style="margin-bottom:16px;">
-          <h3>Base de questions</h3>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Exportez la base complète en JSON (sauvegarde) ou importez un fichier pour alimenter la base.</p>
-
-          <!-- Boutons principaux -->
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            <button class="btn btn-ghost btn-full" onclick="exportQuestions()">⬇ Exporter les questions (JSON)</button>
-            <button class="btn btn-ghost btn-full" onclick="document.getElementById('import-input-settings').click()">⬆ Importer des questions (JSON)</button>
-            <input type="file" id="import-input-settings" accept=".json" style="display:none" onchange="importQuestionsPreview(event)">
+          <!-- ── Sidebar navigation ── -->
+          <div class="settings-sidebar">
+            <div class="settings-cat-header">Base de données</div>
+            <nav class="settings-nav">
+              <button class="settings-nav-item" id="snav-db-questions"  onclick="showSettingsPanel('db-questions')">Base de questions</button>
+              <button class="settings-nav-item" id="snav-db-categories" onclick="showSettingsPanel('db-categories')">Catégories de questions</button>
+              <button class="settings-nav-item" id="snav-db-features"   onclick="showSettingsPanel('db-features')">Fonctionnalités</button>
+              <button class="settings-nav-item" id="snav-db-tags"       onclick="showSettingsPanel('db-tags')">Tags</button>
+            </nav>
+            <div class="settings-cat-header">Sécurité</div>
+            <nav class="settings-nav">
+              <button class="settings-nav-item" id="snav-sec-password"  onclick="showSettingsPanel('sec-password')">Changer le mot de passe</button>
+            </nav>
           </div>
 
-          <!-- Aperçu après sélection du fichier -->
-          <div id="import-preview" style="display:none;margin-top:14px;padding:12px 14px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-              <span style="font-size:1.1rem;">📄</span>
-              <div style="flex:1;">
-                <div id="import-preview-filename" style="font-weight:700;font-size:.88rem;"></div>
-                <div id="import-preview-count" style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;"></div>
+          <!-- ── Content area ── -->
+          <div style="flex:1;min-width:0;">
+
+            <!-- Panel : Base de questions -->
+            <div id="settings-panel-db-questions" class="settings-panel">
+              <div class="card" style="margin-bottom:16px;">
+                <h3>Base de questions</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Exportez la base complète en JSON (sauvegarde) ou importez un fichier pour alimenter la base.</p>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <button class="btn btn-ghost btn-full" onclick="exportQuestions()">⬇ Exporter les questions (JSON)</button>
+                  <button class="btn btn-ghost btn-full" onclick="document.getElementById('import-input-settings').click()">⬆ Importer des questions (JSON)</button>
+                  <input type="file" id="import-input-settings" accept=".json" style="display:none" onchange="importQuestionsPreview(event)">
+                </div>
+                <div id="import-preview" style="display:none;margin-top:14px;padding:12px 14px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);">
+                  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <span style="font-size:1.1rem;">📄</span>
+                    <div style="flex:1;">
+                      <div id="import-preview-filename" style="font-weight:700;font-size:.88rem;"></div>
+                      <div id="import-preview-count" style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;"></div>
+                    </div>
+                  </div>
+                  <button class="btn btn-gold btn-full mb0" onclick="saveImport()">💾 Sauvegarder dans la base</button>
+                </div>
+                <div id="import-saved-info"></div>
+              </div>
+
+              <div class="card">
+                <h3>Chargement de contenus</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:16px;">Ces contenus sont affichés aléatoirement sur l'écran de mi-parcours. Supporte les liens Google Drive, YouTube et images en ligne.</p>
+                <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.15);margin-bottom:14px;">
+                  <div class="form-group">
+                    <label class="field-label">Nom du contenu</label>
+                    <input type="text" id="media-new-name" placeholder="Ex : Photo de la finale de saison" maxlength="60">
+                  </div>
+                  <div class="form-group">
+                    <label class="field-label">URL</label>
+                    <input type="text" id="media-new-url" placeholder="https://drive.google.com/file/d/… ou lien YouTube">
+                    <div class="field-hint">Google Drive, YouTube, ou toute URL d'image en ligne.</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="field-label">Légende <span style="color:rgba(255,255,255,.35);font-weight:400;">(optionnelle)</span></label>
+                    <input type="text" id="media-new-caption" placeholder="Ex : Le livre d'histoire du RC Lens" maxlength="140">
+                  </div>
+                  <div id="media-add-err" class="alert alert-error" style="display:none;"></div>
+                  <button class="btn btn-gold mb0" onclick="addMedia()">+ Ajouter ce contenu</button>
+                </div>
+                <div id="media-list"></div>
               </div>
             </div>
-            <button class="btn btn-gold btn-full mb0" onclick="saveImport()">💾 Sauvegarder dans la base</button>
-          </div>
 
-          <!-- Confirmation persistante du dernier import -->
-          <div id="import-saved-info"></div>
-        </div>
-
-        <!-- Catégories de questions -->
-        <div class="card" style="margin-bottom:16px;">
-          <h3>Catégories de questions</h3>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez une catégorie entière. Les catégories désactivées sont exclues lors du lancement d'une partie.</p>
-          <div id="categories-list"></div>
-        </div>
-
-        <!-- Fonctionnalités -->
-        <div class="card" style="margin-bottom:16px;">
-          <h3>Fonctionnalités</h3>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez les fonctionnalités du quiz.</p>
-          <div id="features-list"></div>
-        </div>
-
-        <!-- Sauvegarder les réglages -->
-        <div style="margin-bottom:16px;">
-          <button class="btn btn-gold btn-full" id="btn-save-settings" onclick="saveSettings()">💾 Sauvegarder les réglages</button>
-          <div id="settings-save-status" style="margin-top:10px;"></div>
-        </div>
-
-        <!-- Chargement de contenus -->
-        <div class="card" style="margin-bottom:16px;">
-          <h3>Chargement de contenus</h3>
-          <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:16px;">Ces contenus sont affichés aléatoirement sur l'écran de mi-parcours. Supporte les liens Google Drive, YouTube et images en ligne.</p>
-
-          <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.15);margin-bottom:14px;">
-            <div class="form-group">
-              <label class="field-label">Nom du contenu</label>
-              <input type="text" id="media-new-name" placeholder="Ex : Photo de la finale de saison" maxlength="60">
+            <!-- Panel : Catégories de questions -->
+            <div id="settings-panel-db-categories" class="settings-panel">
+              <div class="card">
+                <h3>Catégories de questions</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez une catégorie entière. Les catégories désactivées sont exclues lors du lancement d'une partie.</p>
+                <div id="categories-list"></div>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="field-label">URL</label>
-              <input type="text" id="media-new-url" placeholder="https://drive.google.com/file/d/… ou lien YouTube">
-              <div class="field-hint">Google Drive, YouTube, ou toute URL d'image en ligne.</div>
+
+            <!-- Panel : Fonctionnalités -->
+            <div id="settings-panel-db-features" class="settings-panel">
+              <div class="card" style="margin-bottom:16px;">
+                <h3>Fonctionnalités</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez les fonctionnalités du quiz.</p>
+                <div id="features-list"></div>
+              </div>
+              <div style="margin-bottom:16px;">
+                <button class="btn btn-gold btn-full" id="btn-save-settings" onclick="saveSettings()">💾 Sauvegarder les réglages</button>
+                <div id="settings-save-status" style="margin-top:10px;"></div>
+              </div>
             </div>
-            <div class="form-group">
-              <label class="field-label">Légende <span style="color:rgba(255,255,255,.35);font-weight:400;">(optionnelle)</span></label>
-              <input type="text" id="media-new-caption" placeholder="Ex : Le livre d'histoire du RC Lens" maxlength="140">
+
+            <!-- Panel : Tags -->
+            <div id="settings-panel-db-tags" class="settings-panel">
+              <div class="card">
+                <h3>Tags</h3>
+                <div class="flex-row" style="margin-bottom:12px;gap:8px;">
+                  <input type="color" id="tag-new-color" value="#FFCD00"
+                         style="width:38px;height:38px;padding:2px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:none;cursor:pointer;flex-shrink:0;">
+                  <input type="text" id="tag-new-name" placeholder="Nom du tag…" style="flex:1;" maxlength="30"
+                         onkeydown="if(event.key==='Enter')createTag()">
+                  <button class="btn btn-gold btn-sm" style="flex-shrink:0;" onclick="createTag()">+ Créer</button>
+                </div>
+                <div id="tag-err" class="alert alert-error" style="display:none;"></div>
+                <div id="tag-list-manage"></div>
+              </div>
             </div>
-            <div id="media-add-err" class="alert alert-error" style="display:none;"></div>
-            <button class="btn btn-gold mb0" onclick="addMedia()">+ Ajouter ce contenu</button>
-          </div>
 
-          <div id="media-list"></div>
+            <!-- Panel : Changer le mot de passe -->
+            <div id="settings-panel-sec-password" class="settings-panel">
+              <div class="card">
+                <h3>Changer le mot de passe admin</h3>
+                <div class="form-group">
+                  <label class="field-label">Nouveau mot de passe</label>
+                  <input type="password" id="pwd-new" placeholder="Minimum 4 caractères">
+                </div>
+                <div class="form-group">
+                  <label class="field-label">Confirmer le mot de passe</label>
+                  <input type="password" id="pwd-confirm" placeholder="Répétez le mot de passe">
+                </div>
+                <div id="pwd-err" class="alert alert-error"   style="display:none"></div>
+                <div id="pwd-ok"  class="alert alert-success" style="display:none">Mot de passe modifié !</div>
+                <button class="btn btn-red mb0" onclick="changePwd()">Modifier le mot de passe</button>
+              </div>
+            </div>
+
+          </div><!-- /content area -->
+        </div><!-- /settings-layout -->
+      </div>
+
+      <!-- Tab : planning -->
+      <!-- ══ Tab : generator ══ -->
+      <div id="at-generator" style="display:none;width:100%">
+        <div style="padding:16px 0 0;">
+          <div class="gen-search-bar">
+            <input type="text" id="gen-search" placeholder="Rechercher un joueur RC Lens…" oninput="genSetLetter('');renderGeneratorList()" autocomplete="off">
+            <span class="gen-stats" id="gen-stats"></span>
+          </div>
+          <div class="gen-alpha-bar" id="gen-alpha-bar"></div>
+          <div id="gen-player-list"></div>
         </div>
+      </div>
 
-        <div class="card" style="margin-bottom:16px;">
-          <h3>Tags</h3>
-          <div class="flex-row" style="margin-bottom:12px;gap:8px;">
-            <input type="color" id="tag-new-color" value="#FFCD00"
-                   style="width:38px;height:38px;padding:2px;border-radius:8px;border:1px solid rgba(255,255,255,.2);background:none;cursor:pointer;flex-shrink:0;">
-            <input type="text" id="tag-new-name" placeholder="Nom du tag…" style="flex:1;" maxlength="30"
-                   onkeydown="if(event.key==='Enter')createTag()">
-            <button class="btn btn-gold btn-sm" style="flex-shrink:0;" onclick="createTag()">+ Créer</button>
+      <div id="at-planning" style="display:none;width:100%">
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+            <button class="btn btn-ghost btn-sm" onclick="planningNavWeek(-1)">◀</button>
+            <span id="planning-week-label" style="flex:1;text-align:center;font-weight:700;font-size:.88rem;color:var(--or);"></span>
+            <button class="btn btn-ghost btn-sm" onclick="planningNavWeek(1)">▶</button>
           </div>
-          <div id="tag-err" class="alert alert-error" style="display:none;"></div>
-          <div id="tag-list-manage"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-gold btn-sm" onclick="generatePlanning()">Générer 4 sem.</button>
+            <button class="btn btn-ghost btn-sm" onclick="planningGoToday()">Aujourd'hui</button>
+            <button class="btn btn-ghost btn-sm" onclick="resetUsedInGame()" title="Réinitialiser les marqueurs ✓ joué">↺ Réinit. joués</button>
+            <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearPlanningAll()">Effacer tout</button>
+          </div>
+          <div id="planning-beta-banner" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(100,180,255,.1);border:1px solid rgba(100,180,255,.3);font-size:.78rem;color:#64b4ff;font-weight:600;">
+            🔵 Mode bêta test actif — les parties jouées ne marquent pas les questions comme utilisées
+          </div>
         </div>
+        <div id="planning-grid"></div>
+      </div>
 
-        <div class="card">
-          <h3>Changer le mot de passe admin</h3>
-          <div class="form-group">
-            <label class="field-label">Nouveau mot de passe</label>
-            <input type="password" id="pwd-new" placeholder="Minimum 4 caractères">
+      <!-- Tab : joueurs -->
+      <div id="at-joueurs" style="display:none;width:100%">
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
+            <span id="joueurs-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
+            <button class="btn btn-danger btn-sm" onclick="clearAllJoueurs()">Tout effacer</button>
           </div>
-          <div class="form-group">
-            <label class="field-label">Confirmer le mot de passe</label>
-            <input type="password" id="pwd-confirm" placeholder="Répétez le mot de passe">
+          <div class="joueur-search-bar">
+            <input type="text" id="joueur-search" placeholder="Rechercher un pseudo…" oninput="renderJoueurs()" autocomplete="off">
           </div>
-          <div id="pwd-err" class="alert alert-error"   style="display:none"></div>
-          <div id="pwd-ok"  class="alert alert-success" style="display:none">Mot de passe modifié !</div>
-          <button class="btn btn-red mb0" onclick="changePwd()">Modifier le mot de passe</button>
+          <div id="joueurs-sort-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <button class="btn btn-sm" id="jsort-score" onclick="setJoueurSort('score')" style="font-size:.75rem;padding:5px 10px;">Score ▾</button>
+            <button class="btn btn-ghost btn-sm" id="jsort-date" onclick="setJoueurSort('date')" style="font-size:.75rem;padding:5px 10px;">Date</button>
+            <button class="btn btn-ghost btn-sm" id="jsort-name" onclick="setJoueurSort('name')" style="font-size:.75rem;padding:5px 10px;">Nom A→Z</button>
+          </div>
+          <div id="joueurs-list"></div>
         </div>
       </div>
     </div>
@@ -2188,90 +2396,6 @@
           </div>
         </div>
 
-        <div id="eq-bonus-sep" class="sep" style="margin:14px 0;"></div>
-        <label id="eq-bonus-toggle-row" class="bonus-toggle-row" for="e-bonus-toggle">
-          <input type="checkbox" id="e-bonus-toggle" onchange="toggleEditBonus()">
-          <span style="font-weight:600;font-size:.88rem;color:var(--or);">Question bonus</span>
-          <span style="font-size:.78rem;color:rgba(255,255,255,.4);">Posée uniquement si la bonne réponse est trouvée</span>
-        </label>
-        <div id="esec-bonus" class="bonus-section" style="display:none;">
-          <div class="form-group">
-            <label class="field-label">Question bonus</label>
-            <textarea id="eq-bonus-text" placeholder="Question bonus…"></textarea>
-          </div>
-          <div class="form-group">
-            <label class="field-label">Points bonus</label>
-            <input type="number" id="eq-bonus-points" min="0.5" max="999" step="0.5" style="max-width:110px;">
-          </div>
-          <div class="form-group">
-            <label class="field-label">Type de réponse</label>
-            <div class="type-group" style="gap:8px;">
-              <div class="type-option selected" id="eqb-to-libre" onclick="setBonusType('eq','libre')" style="font-size:.82rem;padding:9px 6px;">
-                <input type="radio" name="eqbtype" value="libre" checked>Libre
-              </div>
-              <div class="type-option" id="eqb-to-qcm" onclick="setBonusType('eq','qcm')" style="font-size:.82rem;padding:9px 6px;">
-                <input type="radio" name="eqbtype" value="qcm">QCM
-              </div>
-              <div class="type-option" id="eqb-to-qcm-multi" onclick="setBonusType('eq','qcm-multi')" style="font-size:.82rem;padding:9px 6px;">
-                <input type="radio" name="eqbtype" value="qcm-multi">QCM Multi
-              </div>
-              <div class="type-option" id="eqb-to-multi-libre" onclick="setBonusType('eq','multi-libre')" style="font-size:.82rem;padding:9px 6px;">
-                <input type="radio" name="eqbtype" value="multi-libre">Liste
-              </div>
-            </div>
-          </div>
-          <div id="eqb-sec-libre" class="form-group mb0">
-            <label class="field-label">Réponse(s) attendue(s)</label>
-            <div id="eq-bonus-libre-answers">
-              <div class="libre-answer-row" id="eq-bonus-lar-0">
-                <input type="text" id="eq-bonus-libre-0" placeholder="Réponse acceptée…">
-              </div>
-            </div>
-            <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addLibreAnswer('eq-bonus')">+ Variante</button>
-          </div>
-          <div id="eqb-sec-qcm" style="display:none;">
-            <div class="form-group">
-              <label class="field-label">Nombre de choix</label>
-              <select id="eqb-count" onchange="buildBonusOptions('eq')">
-                <option value="2">2 choix</option><option value="3" selected>3 choix</option><option value="4">4 choix</option>
-              </select>
-            </div>
-            <div class="form-group mb0">
-              <label class="field-label">Réponses — ✓ pour la bonne réponse</label>
-              <div id="eqb-builder"></div>
-            </div>
-          </div>
-          <div id="eqb-sec-qcm-multi" style="display:none;">
-            <div class="form-group">
-              <label class="field-label">Nombre de choix</label>
-              <select id="eqb-count-multi" onchange="buildBonusMultiOptions('eq')">
-                <option value="2">2 choix</option><option value="3" selected>3 choix</option><option value="4">4 choix</option>
-              </select>
-            </div>
-            <div class="form-group mb0">
-              <label class="field-label">Réponses — ✓ pour les bonnes réponses</label>
-              <div id="eqb-multi-builder"></div>
-            </div>
-          </div>
-          <div id="eqb-sec-multi-libre" style="display:none;">
-            <div class="form-group">
-              <label class="field-label">Réponses à trouver *</label>
-              <div id="eq-bonus-ml-answers"></div>
-              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addBonusMlAnswer('eq')">+ Ajouter une réponse</button>
-              <p class="field-hint">La comparaison ignore la casse et les accents.</p>
-            </div>
-            <div class="form-group">
-              <label class="field-label">Nombre de réponses requises pour valider</label>
-              <input type="number" id="eq-bonus-ml-required" min="1" style="max-width:110px;">
-              <p class="field-hint">Par défaut : toutes les réponses.</p>
-            </div>
-            <div class="form-group mb0">
-              <label class="field-label">Tentatives incorrectes autorisées</label>
-              <input type="number" id="eq-bonus-ml-max-wrong" min="0" max="99" value="0" style="max-width:110px;">
-              <p class="field-hint"><strong>0 = illimité.</strong></p>
-            </div>
-          </div>
-        </div>
         <div class="sep" style="margin:14px 0;"></div>
 
         <div class="form-group">
@@ -2337,6 +2461,113 @@
         <button id="contact-send-btn" class="btn btn-red btn-full mb0" style="margin-top:12px;" onclick="sendContact()">✉ Envoyer</button>
       </div>
     </div>
+
+    <!-- ════════════════════════════════════════ AUTH ═══ -->
+    <div class="view" id="view-auth">
+      <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
+      <h1>Mon Compte</h1>
+      <div class="card" style="max-width:400px;width:100%;">
+
+        <div class="auth-toggle">
+          <button class="auth-toggle-btn active" id="auth-tab-login" onclick="authSetMode('login')">Connexion</button>
+          <button class="auth-toggle-btn" id="auth-tab-signup" onclick="authSetMode('signup')">Créer un compte</button>
+        </div>
+
+        <div id="auth-name-group" class="form-group" style="display:none;">
+          <label class="field-label">Pseudo</label>
+          <input type="text" id="auth-display-name" placeholder="Ex: Sang et Or Forever" maxlength="30">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Email</label>
+          <input type="email" id="auth-email" placeholder="ton@email.fr">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Mot de passe</label>
+          <input type="password" id="auth-password" placeholder="Minimum 6 caractères"
+                 onkeydown="if(event.key==='Enter')authSubmit()">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="field-label">Vérification anti-robot</label>
+          <div class="captcha-box">
+            <span class="captcha-challenge" id="auth-captcha-question">…</span>
+            <input type="number" id="auth-captcha-answer" class="captcha-input" placeholder="?" autocomplete="off"
+                   onkeydown="if(event.key==='Enter')authSubmit()">
+            <button type="button" class="captcha-refresh" onclick="generateCaptcha()" title="Nouvelle question">↻</button>
+          </div>
+        </div>
+
+        <div id="auth-error"   class="alert alert-error"   style="display:none;margin-bottom:12px;"></div>
+        <div id="auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
+
+        <button id="auth-submit-btn" class="btn btn-red btn-full" data-mode="login" onclick="authSubmit()">Se connecter</button>
+
+        <div class="auth-divider">ou</div>
+
+        <button class="btn-oauth" onclick="signInGoogle()">
+          <span class="btn-oauth-icon" style="background:#fff;color:#4285F4;">G</span>
+          Continuer avec Google
+        </button>
+        <button class="btn-oauth" onclick="signInX()">
+          <img src="X.png" alt="X" style="width:18px;height:18px;object-fit:contain;">
+          Continuer avec X
+        </button>
+
+        <p class="auth-anon-link" onclick="nav('player-name')">Continuer sans compte →</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="nav('home')">← Retour</button>
+    </div>
+
+    <!-- ══════════════════════════════════ PLAYER CARD ═══ -->
+    <div class="view" id="view-player-card">
+      <div style="width:100%;max-width:480px;padding-bottom:80px;">
+
+        <div class="card tc" style="margin-bottom:12px;">
+          <div class="player-card-avatar" id="pc-avatar"></div>
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:2px;" id="pc-name">Joueur</div>
+          <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:14px;" id="pc-email"></div>
+
+          <div class="player-stats-grid">
+            <div class="player-stat-box">
+              <div class="player-stat-val" id="pc-games">0</div>
+              <div class="player-stat-lbl">Parties jouées</div>
+            </div>
+            <div class="player-stat-box">
+              <div class="player-stat-val" id="pc-best">0</div>
+              <div class="player-stat-lbl">Meilleur score</div>
+            </div>
+          </div>
+
+          <div id="pc-badge-wrap" style="display:none;margin-bottom:14px;">
+            <div class="player-badge-chip">
+              <span id="pc-badge-icon"></span>
+              <span id="pc-badge-name"></span>
+            </div>
+          </div>
+
+          <button class="btn btn-gold btn-full" onclick="nav('player-name')">▶ Jouer</button>
+          <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
+        </div>
+
+        <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
+          <h3 style="margin-bottom:12px;">Historique des parties</h3>
+          <div id="pc-history-list"></div>
+        </div>
+
+        <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════ PLANNING PICKER ═══ -->
+  <div id="planning-picker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:900;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:rgba(26,26,26,.97);border:1px solid rgba(255,205,0,.25);border-radius:16px;padding:20px;width:min(94vw,440px);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.6);">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;">
+        <span id="picker-title" style="flex:1;font-weight:700;font-size:.88rem;color:var(--or);"></span>
+        <button class="btn btn-ghost btn-sm" onclick="closePlanningPicker()">✕ Fermer</button>
+      </div>
+      <div id="picker-list" style="overflow-y:auto;flex:1;"></div>
+    </div>
   </div>
 
   <script>
@@ -2354,6 +2585,7 @@
   const TAG_PALETTE  = ['#E30613','#1565C0','#2E7D32','#6A1B9A','#E65100','#00695C','#AD1457','#37474F'];
 
   let adminLogged = sessionStorage.getItem('rcAdminLogged') === '1';
+  let _authUser   = null;  // Supabase Auth — utilisateur connecté
   let addMode     = 'question';
   let currentType = 'libre';
   let correctIdx  = 0;
@@ -2482,6 +2714,12 @@
     saveFeatures : (obj) => { _db.features = obj; dbPush('features'); },
     getRotation  : ()    => JSON.parse(localStorage.getItem('rcRotation') || '[]'),
     saveRotation : (arr) => localStorage.setItem('rcRotation', JSON.stringify(arr)),
+    getPlanning   : ()    => JSON.parse(localStorage.getItem('rcPlanning') || '{}'),
+    savePlanning  : (obj) => localStorage.setItem('rcPlanning', JSON.stringify(obj)),
+    getUsedInGame   : ()    => new Set(JSON.parse(localStorage.getItem('rcUsedInGame') || '[]')),
+    saveUsedInGame  : (set) => localStorage.setItem('rcUsedInGame', JSON.stringify([...set])),
+    getLeaderboard  : ()    => JSON.parse(localStorage.getItem('rcLeaderboard') || '[]'),
+    saveLeaderboard : (arr) => localStorage.setItem('rcLeaderboard', JSON.stringify(arr)),
   };
 
   /* ═══════════════════════════════════════════════════
@@ -2498,6 +2736,7 @@
     contact       : true,
     catQuestions  : true,
     catJoueur     : true,
+    betaTest      : false,
   };
 
   function feat(key) {
@@ -2506,8 +2745,8 @@
   }
 
   const CATEGORIES_META = [
-    { key: 'catQuestions', label: 'Questions',     desc: 'Questions classiques (Libre, QCM, Liste…)', typeFilter: q => q.type !== 'joueur' },
     { key: 'catJoueur',    label: 'Qui suis-je ?', desc: 'Questions de type "Qui suis-je ?"',          typeFilter: q => q.type === 'joueur' },
+    { key: 'catQuestions', label: 'Bonus',          desc: 'Questions classiques (Libre, QCM, Liste…)', typeFilter: q => q.type !== 'joueur' },
   ];
 
   function getActiveQ() {
@@ -2592,6 +2831,7 @@
     { key: 'scoreSummary',   label: 'Récapitulatif de score',   desc: 'Points gagnés affichés après chaque réponse' },
     { key: 'bonusQuestions', label: 'Questions bonus',          desc: 'Posées après une bonne réponse' },
     { key: 'contact',        label: 'Contactez-nous',           desc: 'Formulaire de signalement et proposition' },
+    { key: 'betaTest',       label: '🔵 Mode bêta test',        desc: 'Les parties jouées ne marquent pas les questions/joueurs comme utilisés — pratique pour les tests' },
   ];
 
   function renderFeaturesPanel() {
@@ -2640,9 +2880,17 @@
       viewName === 'midbreak'
         ? "url('background_black.png')"
         : "url('background_emission_rouge_2.png')";
-    if (viewName === 'admin')       { renderAdmin(); renderAdminDashboard(); }
-    if (viewName === 'midbreak')    { showMidbreakContent(); }
-    if (viewName === 'player-name') initPlayerName();
+    if (viewName === 'admin')        { renderAdmin(); renderAdminDashboard(); }
+    if (viewName === 'midbreak')     { showMidbreakContent(); }
+    if (viewName === 'player-name')  initPlayerName();
+    if (viewName === 'player-card')  renderPlayerCard();
+    if (viewName === 'auth') {
+      authSetMode('login');
+      ['auth-email','auth-password','auth-display-name'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      generateCaptcha();
+    }
   }
 
   function updateSidebar() {
@@ -2653,16 +2901,22 @@
     if (!questions || !questions.length) return;
 
     const isFinished = idx >= questions.length;
-    let scoresHtml = isFinished
-      ? `<div class="qs-title">Récapitulatif final</div>`
-      : `<div class="qs-title">Question ${idx + 1} sur ${questions.length}</div>`;
+    let currentLabel;
+    if (isFinished) {
+      currentLabel = 'Récapitulatif final';
+    } else {
+      const q = questions[idx];
+      currentLabel = q._isBonusJoueur ? '⭐ Bonus' : `Joueur ${idx + 1} / 2`;
+    }
+    let scoresHtml = `<div class="qs-title">${currentLabel}</div>`;
     if (answers.length > 0) {
       scoresHtml += '<div class="qs-list">';
       answers.forEach((a, i) => {
         const pts   = a.ptsEarned || 0;
         const color = pts > 0 ? 'var(--vert)' : 'rgba(255,255,255,.35)';
+        const label = a.q._isBonusJoueur ? 'Bonus' : (i === 0 ? 'Joueur 1' : 'Joueur 2');
         scoresHtml += `<div class="qs-row">
-          <span class="qs-label">Question ${i + 1}</span>
+          <span class="qs-label">${label}</span>
           <span style="color:${color};font-weight:700;">${pts} pt${pts > 1 ? 's' : ''}</span>
         </div>`;
       });
@@ -2736,24 +2990,333 @@
   ═══════════════════════════════════════════════════ */
   let dbPageQ = 0;
   let dbPageJ = 0;
-  let dbSearchTerm = '';
-  let dbTagFilter  = 'all'; // 'all' | 'with-tag' | 'no-tag'
+  let dbSearchTerm   = '';
+  let dbActiveFilters = new Set(); // 'joueur' | 'bonus' | 'with-tag' | 'no-tag' | 'new'
   const DB_PAGE_SIZE = 10;
 
   function adminTab(tab) {
     const showList = tab === 'list';
+    document.getElementById('t-list').classList.toggle('active', tab === 'list');
+    document.getElementById('t-generator').classList.toggle('active', tab === 'generator');
+    document.getElementById('t-planning').classList.toggle('active', tab === 'planning');
     document.getElementById('t-settings').classList.toggle('active', tab === 'settings');
-    document.querySelector('#view-admin .tabs').style.display = showList ? 'flex' : 'none';
-    document.getElementById('at-list').style.display     = showList ? 'block' : 'none';
+    document.getElementById('t-joueurs').classList.toggle('active', tab === 'joueurs');
+    document.querySelector('#view-admin .tabs').style.display = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs') ? 'flex' : 'none';
+    document.getElementById('at-list').style.display      = showList ? 'block' : 'none';
     if (!showList) document.getElementById('at-add').style.display = 'none';
-    document.getElementById('at-settings').style.display = tab === 'settings' ? 'block' : 'none';
+    document.getElementById('at-settings').style.display  = tab === 'settings'  ? 'block' : 'none';
+    document.getElementById('at-planning').style.display  = tab === 'planning'  ? 'block' : 'none';
+    document.getElementById('at-generator').style.display = tab === 'generator' ? 'block' : 'none';
+    document.getElementById('at-joueurs').style.display   = tab === 'joueurs'   ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
-    if (tab === 'settings') { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); renderLastImportInfo(); }
+    if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); renderLastImportInfo(); showSettingsPanel('db-questions'); }
+    if (tab === 'planning')  renderPlanning();
+    if (tab === 'generator') renderGeneratorList();
+    if (tab === 'joueurs')   renderJoueurs();
   }
 
   function toggleSettings() {
     const current = sessionStorage.getItem('rcAdminTab') || 'list';
     adminTab(current === 'settings' ? 'list' : 'settings');
+  }
+
+  function showSettingsPanel(id) {
+    document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
+    const panel = document.getElementById('settings-panel-' + id);
+    if (panel) panel.classList.add('active');
+    const nav = document.getElementById('snav-' + id);
+    if (nav) nav.classList.add('active');
+  }
+
+  /* ═══════════════════════════════════════════════════
+     PLANNING
+  ═══════════════════════════════════════════════════ */
+  let planningWeekOffset = 0;
+
+  const PLANNING_DAY_NAMES   = ['Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.','Dim.'];
+  const PLANNING_MONTH_NAMES = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+
+  function planningGetWeekStart(offset) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dow = today.getDay();
+    const monday = new Date(today);
+    monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
+    return monday;
+  }
+
+  function planningDateStr(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+  function planningTodayStr() { const d = new Date(); return planningDateStr(d); }
+
+  function planningNavWeek(dir) { planningWeekOffset += dir; renderPlanning(); }
+  function planningGoToday()    { planningWeekOffset = 0;    renderPlanning(); }
+
+  function planningTrunc(str, n) {
+    if (!str) return '';
+    return str.length > n ? str.slice(0, n) + '…' : str;
+  }
+
+  function renderPlanning() {
+    const betaBanner = document.getElementById('planning-beta-banner');
+    if (betaBanner) betaBanner.style.display = feat('betaTest') ? 'block' : 'none';
+
+    const weekStart = planningGetWeekStart(planningWeekOffset);
+    const weekEnd   = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+
+    const labelEl = document.getElementById('planning-week-label');
+    if (labelEl) {
+      const fmt = d => `${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
+      labelEl.textContent = `${fmt(weekStart)} – ${fmt(weekEnd)}`;
+    }
+
+    const plan        = LS.getPlanning();
+    const allQ        = LS.getQ().filter(q => q.active !== false);
+    const today       = planningTodayStr();
+    const grid        = document.getElementById('planning-grid');
+    if (!grid) return;
+    const usedInGame  = LS.getUsedInGame();
+
+    let html = '';
+    for (let i = 0; i < 7; i++) {
+      const d       = new Date(weekStart);
+      d.setDate(weekStart.getDate() + i);
+      const ds      = planningDateStr(d);
+      const isToday = ds === today;
+      const dp      = plan[ds] || {};
+
+      if (dp._deleted) {
+        html += `<div class="planning-day${isToday ? ' planning-today' : ''}" style="opacity:.7;border-style:dashed;">
+          <div class="planning-day-header">
+            <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
+            <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
+            ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
+          </div>
+          <div style="text-align:center;color:rgba(255,255,255,.4);font-size:.8rem;padding:6px 0 10px;">Jour de planning supprimé</div>
+          <button class="btn btn-ghost btn-full mb0" onclick="restoreDayPlan('${ds}')">↩ Restaurer</button>
+        </div>`;
+        continue;
+      }
+
+      const j1Q    = dp.j1    ? allQ.find(q => q.id === dp.j1)    : null;
+      const j2Q    = dp.j2    ? allQ.find(q => q.id === dp.j2)    : null;
+      const bonusQ = dp.bonus ? allQ.find(q => q.id === dp.bonus) : null;
+
+      const usedBadge = q => q && usedInGame.has(q.id)
+        ? `<span class="planning-used-badge badge-game">✓ joué</span>`
+        : '';
+
+      const slotHtml = (label, q, slot) => {
+        const val = q
+          ? `<span class="planning-slot-value">👤 ${planningTrunc(q.playerName || q.text || q.id, 38)}</span>`
+          : `<span class="planning-slot-value planning-empty">— non planifié —</span>`;
+        return `<div class="planning-slot" onclick="openPlanningPicker('${ds}','${slot}')">
+          <span class="planning-slot-label">${label}</span>${val}
+          ${usedBadge(q)}
+          <span class="planning-slot-edit">✎</span>
+        </div>`;
+      };
+
+      const bonusHtml = (() => {
+        const val = bonusQ
+          ? `<span class="planning-slot-value">${planningTrunc(bonusQ.text || bonusQ.playerName || bonusQ.id, 38)}</span>`
+          : `<span class="planning-slot-value planning-empty">— non planifié —</span>`;
+        return `<div class="planning-slot" onclick="openPlanningPicker('${ds}','bonus')">
+          <span class="planning-slot-label">Bonus</span>${val}
+          ${usedBadge(bonusQ)}
+          <span class="planning-slot-edit">✎</span>
+        </div>`;
+      })();
+
+      html += `<div class="planning-day${isToday ? ' planning-today' : ''}">
+        <div class="planning-day-header">
+          <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
+          <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
+          ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
+          <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;margin-left:auto;" onclick="event.stopPropagation();clearDayPlan('${ds}')" title="Effacer ce jour">✕</button>
+        </div>
+        ${slotHtml('Qui suis-je 1', j1Q, 'j1')}
+        ${slotHtml('Qui suis-je 2', j2Q, 'j2')}
+        ${bonusHtml}
+      </div>`;
+    }
+    grid.innerHTML = html;
+  }
+
+  let pickerDate = null;
+  let pickerSlot = null;
+
+  function openPlanningPicker(dateStr, slot) {
+    pickerDate = dateStr;
+    pickerSlot = slot;
+
+    const overlay  = document.getElementById('planning-picker-overlay');
+    const titleEl  = document.getElementById('picker-title');
+    const listEl   = document.getElementById('picker-list');
+    const labels   = { j1: 'Qui suis-je 1', j2: 'Qui suis-je 2', bonus: 'Question bonus' };
+    titleEl.textContent = labels[slot] || slot;
+
+    const allQ       = getActiveQ();
+    const isJoueur   = slot === 'j1' || slot === 'j2';
+    const pool       = isJoueur ? allQ.filter(q => q.type === 'joueur') : allQ.filter(q => q.type !== 'joueur');
+    const currentId  = (LS.getPlanning()[dateStr] || {})[slot];
+
+    // Calculer les IDs déjà planifiés sur d'autres jours
+    const planAll    = LS.getPlanning();
+    const planUsed   = new Set();
+    for (const [dk, dp] of Object.entries(planAll)) {
+      if (dk === dateStr) continue;
+      if (dp.j1)    planUsed.add(dp.j1);
+      if (dp.j2)    planUsed.add(dp.j2);
+      if (dp.bonus) planUsed.add(dp.bonus);
+    }
+    const gameUsed   = LS.getUsedInGame();
+    const isBeta     = feat('betaTest');
+
+    if (!pool.length) {
+      listEl.innerHTML = '<p style="color:rgba(255,255,255,.4);font-size:.84rem;padding:8px 0;">Aucune question disponible.</p>';
+    } else {
+      // Trier : non-utilisés en premier, utilisés (planning ou jeu) ensuite
+      const sorted = [...pool].sort((a, b) => {
+        const scoreA = (planUsed.has(a.id) ? 2 : 0) + (gameUsed.has(a.id) ? 1 : 0);
+        const scoreB = (planUsed.has(b.id) ? 2 : 0) + (gameUsed.has(b.id) ? 1 : 0);
+        return scoreA - scoreB;
+      });
+      listEl.innerHTML = sorted.map(q => {
+        const label      = q.type === 'joueur' ? `👤 ${q.playerName || q.id}` : planningTrunc(q.text || q.id, 54);
+        const sel        = q.id === currentId;
+        const inPlan     = planUsed.has(q.id);
+        const inGame     = !isBeta && gameUsed.has(q.id);
+        const badges     = [
+          inPlan ? `<span class="planning-used-badge badge-planning">📅 planifié</span>` : '',
+          inGame ? `<span class="planning-used-badge badge-game">✓ joué</span>`          : '',
+        ].join('');
+        const dimmed     = (inPlan || inGame) && !sel;
+        return `<div onclick="setPlanningSlot('${q.id}')"
+          style="padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid ${sel ? 'rgba(255,205,0,.5)' : 'rgba(255,255,255,.07)'};background:${sel ? 'rgba(255,205,0,.07)' : 'transparent'};margin-bottom:6px;font-size:.84rem;display:flex;align-items:center;gap:6px;opacity:${dimmed ? '.55' : '1'};"
+          onmouseover="this.style.background='rgba(255,255,255,.07)';this.style.opacity='1'" onmouseout="this.style.background='${sel ? 'rgba(255,205,0,.07)' : 'transparent'}';this.style.opacity='${dimmed ? '.55' : '1'}'">
+          <span style="flex:1;color:${sel ? 'var(--or)' : 'inherit'}">${sel ? '✓ ' : ''}${label}</span>
+          <span style="display:flex;gap:4px;align-items:center;">${badges}</span>
+          <span style="font-size:.7rem;color:rgba(255,255,255,.28);">${q.id}</span>
+        </div>`;
+      }).join('');
+    }
+    overlay.style.display = 'flex';
+  }
+
+  function setPlanningSlot(qId) {
+    const plan = LS.getPlanning();
+    if (!plan[pickerDate]) plan[pickerDate] = {};
+    plan[pickerDate][pickerSlot] = qId;
+    LS.savePlanning(plan);
+    closePlanningPicker();
+    renderPlanning();
+  }
+
+  function closePlanningPicker() {
+    document.getElementById('planning-picker-overlay').style.display = 'none';
+    pickerDate = null; pickerSlot = null;
+  }
+
+  function resetUsedInGame() {
+    if (!confirm('Réinitialiser tous les marqueurs "joué" ? Les questions pourront être sélectionnées à nouveau sans badge.')) return;
+    LS.saveUsedInGame(new Set());
+    renderPlanning();
+  }
+
+  function clearDayPlan(dateStr) {
+    const plan = LS.getPlanning();
+    const dp   = plan[dateStr] || {};
+    const saved = {};
+    if (dp.j1)    saved.j1    = dp.j1;
+    if (dp.j2)    saved.j2    = dp.j2;
+    if (dp.bonus) saved.bonus = dp.bonus;
+    plan[dateStr] = { _deleted: true, ...saved };
+    LS.savePlanning(plan);
+    renderPlanning();
+  }
+
+  function restoreDayPlan(dateStr) {
+    const plan = LS.getPlanning();
+    const dp   = plan[dateStr] || {};
+    const restored = {};
+    if (dp.j1)    restored.j1    = dp.j1;
+    if (dp.j2)    restored.j2    = dp.j2;
+    if (dp.bonus) restored.bonus = dp.bonus;
+    if (Object.keys(restored).length) {
+      plan[dateStr] = restored;
+    } else {
+      delete plan[dateStr];
+    }
+    LS.savePlanning(plan);
+    renderPlanning();
+  }
+
+  function clearPlanningAll() {
+    if (!confirm('Effacer tout le planning ? Cette action est irréversible.')) return;
+    LS.savePlanning({});
+    renderPlanning();
+  }
+
+  function buildRotationQueue(qs, n) {
+    if (!qs.length) return Array(n).fill(null);
+    const queue = [];
+    let pool = fisherYates([...qs]);
+    let idx  = 0;
+    for (let i = 0; i < n; i++) {
+      if (idx >= pool.length) { pool = fisherYates([...qs]); idx = 0; }
+      queue.push(pool[idx++]);
+    }
+    return queue;
+  }
+
+  function generatePlanning() {
+    const allQ     = getActiveQ();
+    const joueurs  = allQ.filter(q => q.type === 'joueur');
+    const regulars = allQ.filter(q => q.type !== 'joueur');
+
+    if (joueurs.length < 2) {
+      alert('Il faut au moins 2 questions "Qui suis-je ?" actives pour générer un planning.');
+      return;
+    }
+
+    const plan  = LS.getPlanning();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const daysToFill = [];
+    for (let i = 0; i < 28; i++) {
+      const d  = new Date(today);
+      d.setDate(today.getDate() + i);
+      const ds = planningDateStr(d);
+      if (!plan[ds] || (!plan[ds].j1 && !plan[ds].j2)) daysToFill.push(ds);
+    }
+
+    if (!daysToFill.length) {
+      alert('Les 4 prochaines semaines sont déjà entièrement planifiées.');
+      return;
+    }
+
+    const n            = daysToFill.length;
+    const joueurQueue  = buildRotationQueue(joueurs, n * 2);
+    const regularQueue = regulars.length ? buildRotationQueue(regulars, n) : Array(n).fill(null);
+
+    daysToFill.forEach((ds, i) => {
+      if (!plan[ds]) plan[ds] = {};
+      if (!plan[ds].j1)    plan[ds].j1    = joueurQueue[i * 2]?.id     || null;
+      if (!plan[ds].j2)    plan[ds].j2    = joueurQueue[i * 2 + 1]?.id || null;
+      if (!plan[ds].bonus) plan[ds].bonus = regularQueue[i]?.id        || null;
+    });
+
+    LS.savePlanning(plan);
+    planningWeekOffset = 0;
+    renderPlanning();
   }
 
   function toggleAddForm() {
@@ -2947,6 +3510,661 @@
     renderJoueurIndices('eq-joueur-indices', values, pts, tries);
   }
 
+  /* ── Badge NEW : vrai si la question a moins de 3 jours ── */
+  function isNew(q) {
+    return q.createdAt && (Date.now() - q.createdAt) < 3 * 24 * 60 * 60 * 1000;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     GÉNÉRATEUR — onglet bêta
+  ══════════════════════════════════════════════════════════ */
+  const GEN_PLAYERS = [
+    // A
+    "Abdesselam Ahmed","Abdul Samed Salis","Abdulhamid Saud","Achoub","Adamski Paul",
+    "Adjovi-Boco Jimmy","Agbonifo Jeremy","Agostini Sauveur","Aguilar Ruben","Aguillo Ignacio",
+    "Ajorque Jean-Noël","Akalé Kanga","Alberto Daniel","Allix","Ambrose Thierry",
+    "Andreani","Andrejezack François","Anési Marino","Antonio Kyllian","Areola Alphonse",
+    "Arghirudis Romain","Arphexad Pegguy","Arravit Édouard","Arribart Jean-Luc","Arribi Mokhtar",
+    "Arsène Hervé","Assadourian Eric","Assou-Ekotto Benoît","Atamaniuk Henri","Atrous Samuel",
+    "Aubey Lucien","Aubry M.","Aurednik Lucas","Aurier Serge","Autret Mathias","Avenet Philippe",
+    // B
+    "Ba Abdoul","Ba El Hadji","Baal Ludovic","Bachortz Marc","Bade Jean-Pierre","Badé Loïc",
+    "Baert","Bah Juma","Baidoo Samson","Baïocco Christophe","Bak Jacek","Bakari Dagui",
+    "Balavoine Roland","Baldé Ibrahima","Bane Sidi","Banza Simon","Baouia Nadjib","Baranek",
+    "Bardaille Albert","Bari Bilal","Barrault Claude","Barul Patrick","Basset","Bastel Jacky",
+    "Basti Jules","Battut Eugène","Baudry Olivier","Baujard André","Bayala Cyrille",
+    "Beaucourt Georges","Bedimo Henri","Begue Jean-Claude","Beghin Guillaume","Beiline",
+    "Bejbl Radek","Bekamenga Christian","Bela Jérémie","Belhadj Nadir","Bellegarde Jean Ricner",
+    "Belon Valentin","Ben Ahmed","Ben Saada Chaouki","Ben Tahar Madani","Bencharki Achraf",
+    "Berenguer Pascal","Berg Patrick","Bergdich Zakarya","Bergues Patrice","Berl","Berlinski",
+    "Bermont Anthony","Bernardi","Berquin","Berthelin Cédric","Besle Stéphane","Bianda William",
+    "Bieganski Guillaume","Bieliki","Bigot Eugène","Bigot Jules","Bijotat Dominique",
+    "Bisevac Milan","Blaczyk Junior","Blanchard Jocelyn","Blanco","Bocandé Jules",
+    "Bocquillon Pascal","Bogaczyk Olivier","Boin Jean","Boli Charles","Boli Roger",
+    "Bölöni Laszlo","Bonne Rémy","Bonnet Lucien","Bonte Nolan","Bonvin Gilbert",
+    "Bostock John","Bouden Bouabid","Bouisset Guillaume","Boukari Razak","Boulenger Benjamin",
+    "Boura Ismaël","Bourigeau Benjamin","Bourloton Yannick","Bourrier Marc","Boury Roger",
+    "Bousdira Farès","Bozovic Boban","Brisson François","Brocard Arnaud","Brunel Philippe",
+    "Bucher Mathieu","Budzinski Robert","Buksa Adam","Bulatovic Andrija",
+    // C
+    "Cabot Jimmy","Cahuzac Yannick","Cal Corentin","Calinski Marian","Camara Aboubacar",
+    "Camara Mamadou","Camara Zoumana","Camille Samuel","Cannon Joe","Canosi Jacky",
+    "Capuano Gabin","Caraux Nicolas","Carlier Joseph","Carlier Maxence","Carré René",
+    "Carré Roger","Carreno Daniel","Carrière Éric","Casanova Alain","Catalano Michel",
+    "Cavaré Dimitri","Celik Nidal","Centonze Fabien","Chabbert Sébastien","Chantôme Clément",
+    "Chavarria Pablo","Chávez Jhoanner","Chebel Fahti","Chelle Éric","Cherreau Guillaume",
+    "Chevalier Teddy","Chiarelli Bernard","Chomlafel Sylvain","Chouiar Mounir","Chouya Léandre",
+    "Cichero Gabriel","Claude-Maurice Alexis","Clauss Jonathan","Clauws Roland","Clément Yvon",
+    "Coeff Alexandre","Colinet Anthony","Collado Francis","Collet Stéphane","Coly Ferdinand",
+    "Coly Matar","Coridon Charles-Edouard","Cortés Oscar","Costa de Brito Vitor",
+    "Coulibaly Adama","Coulibaly Adamo","Courbis Rolland","Courtin Jean-Marie","Courtin Paul",
+    "Cousin Daniel","Coustillet Jean-Louis","Cubilier Éric","Cuperly Dominique","Cuvelier Charles",
+    "Cuvillier Alexandre","Cvetinovic Dusan","Cyprien Wylan",
+    // D
+    "Da Sylva René","Dablemont Xavier","Dabrowski Théodore","Dacourt Olivier","Dako",
+    "Dallet Sébastien","Dalmat Stéphane","Damen Alain","Danjo Imrai","Dankler","Danso Kevin",
+    "Darnault Frédéric","Daumin","Dautheribes André","Dayan Luc","De Oliveira Valériano",
+    "Debève Mikaël","Déhu Frédéric","Delle Joris","Delmotte Christophe","Deloffre Jean",
+    "Delporte Ludovic","Delplanque Emile","Dembicki Stéphan","Demont Yohan","Denquin David",
+    "Deplanche Claude","Dequéant Bernard","Dereuddre René","Desgranges Jean","Desprez Didier",
+    "Devlaminck Fernand","Dewilder Éric","Diagne-Faye Abdoulaye","Diakité Adama",
+    "Diallo Zakaria","Diane Mounir","Diarra Alou","Diarra Souleymane","Didier Roland",
+    "Diliwidi Kembo","Dindane Aruna","Diop Bouba","Diop Pape","Diouf Andy","Diouf El Hadji",
+    "Dja Djédjé Brice","Djébali Moncef","Dobat Marcellin","Doucouré Cheick","Doré Serge",
+    "Dos Santos Arnaud","Douchez Nicolas","Doumeng Geoffrey","Douterlungne Carlos","Doye André",
+    "Dréossi Pierre","Drobnjak Anton","Dubois Didier","Ducasse Pierre","Ducrocq Tom",
+    "Duffuler Georges","Dumas Franck","Duplus Frédéric","Dupont Tony","Durpes Philippe",
+    "Duverne Jean-Kévin","Duville Georges","Dzierzynski Yvan",
+    // E
+    "Ebosse Enzo","Edom Frantz","Édouard Odsonne","Eduardo Ribeiro Dos Santos","Edwige Etienne",
+    "Ehrlacher Yves","Ekani Martin","El Adoua Issam","El Aynaoui Neil","El Haddaoui Mustapha",
+    "El Jadeyaoui Alharbi","El Ouardi Redouane","Elie Jean-Marie","Elise Jean-Marie",
+    "Eloi Wagneau","Ephestion Thomas","Erasmus Kermit","Etchi Oben Ernest","Ettorre Michel",
+    // F
+    "Faber Eugeniusz","Fabre Michaël","Fanni Rod","Faríñez Wuilker","Fatoux René",
+    "Feindouno Simon","Fiori Raymond","Flak Hervé","Flak Simon","Foé Marc Vivien",
+    "Fofana Mohamed","Fofana Rayan","Fofana Seko","Fortes Steven","Fortuné Kévin",
+    "Fradj Patrick","François Raymond","Françoise Pascal","Frankowski Przemysław",
+    "Frau Pierre-Alain","Fruchart Elie","Fuchs Daniel","Fuertès Esteban Oscar",
+    "Fulgini Angelo","Furlan Jean-Marc","Furtado Alessandro",
+    // G
+    "G'Bala Gnato","Gaillard Frédéric","Gallou Gilles","Ganago Ignatius","Ganczarczyk Roger",
+    "Ganiou Ismaëlo","Garande Patrice","Garcia Jean-Louis","Gardié Christophe","Garnier Erawan",
+    "Gbamin Jean-Philippe","Gérard Abdelrafik","Gerencseri Kalman","Gersbach Alex",
+    "Gerval Denis","Gianessi Lazare","Gilet Stéphane","Gillet Guillaume","Gillet Nicolas",
+    "Gillot Francis","Godel Patrice","Goeman Kévin","Gomel Benjamin","Gomis Arthur",
+    "Gorczewski Léon","Gorgelin Mathieu","Goudal Serge","Gouillard René","Gradit Jonathan",
+    "Grévin Eugène","Gruchala Ignacy","Grzegorczyk Ryszard","Grozdic Nenad",
+    "Guilavogui Morgan","Guillaume Baptiste","Guira Adama","Gurtner Régis",
+    // H
+    "Habibou Habib","Habitzl Erich","Hafez Karim","Haidara Amadou","Haïdara Massadio",
+    "Haise Franck","Hamel Sébastien","Hanini Hassan","Harabasz Freyddie","Harmatallah Hassan",
+    "Hassouna Kassen","Hazard Thorgan","Hédé Daniel","Hédoire Francis","Héréson Bernard",
+    "Hermach Adil","Hilton Vitorino","Hochard Laurent","Hopquin Alain","Houiller Gérard",
+    "Huard Gaëtan","Hus Albert Charles","Husson Marcel","Hutteau Emmanuel",
+    // I
+    "Ikoko Jordan","Iskierka Oscar","Ismaël Valérien","Itandje Charles-Hubert",
+    // J
+    "Jabi Daouda","Jackstell Renhold","Jandeau Georges","Janiszewski Michel","Jankovic Slobodan",
+    "Januzzi Olivier","Jasmin","Jean Charles","Jean Corentin","Jemaa Issam","Jensse",
+    "Job Joseph-désiré","John","Joly Michel","Joly Raymond","Jonsson Egon","Joos A.",
+    "Joseph-Monrose Steven","Juskowiak André","Jussiê Ferreira Vieira",
+    // K
+    "Kaiser Alfred","Kakuta Gaël","Kaisi Yazid","Kalek Daniel","Kalimuendo Arnaud",
+    "Kalou Bonaventure","Kantari Ahmed","Kasraoui Hamdi","Kébé Jimmy","Keita Jules",
+    "Keita Seydou","Keita Sidi","Khiter Seïd","Khusanov Abdukodir","Klonaridis Viktor",
+    "Koffi Hervé","Koïta Bengali-Fodé","Kombouaré Antoine","Kominek Friedrich",
+    "Kondogbia Geoffrey","Koukou Djeman","Kovacevic Nenad","Kowalczyk Ignace",
+    "Koyalipou Goduine","Kozakiewicz Casimir","Krawczyk Daniel","Krawczyk Richard",
+    "Kula Édouard","Kyei Grejohn",
+    // L
+    "Labeau-Lascary Rémy","Lachor Yoann","Lacombe Guy","Lacourt Jonathan",
+    "Lafranceschina Michel","Lagrange Christophe","Laigle Pierre","Lala Kenny","Lama Bernard",
+    "Lamarche Jean-Luc","Landre Loïck","Lannoy André","Laspalles Nicolas","Laurenti Fabien",
+    "Lauricella Jean-Pierre","Le Bohec Ronan","Le Cardinal Julien","Le Crom Ronan",
+    "Le Magueresse Jean-Luc","Le Moigne Jérôme","Le Provost Pascal","Leca Jean-Louis",
+    "Lech Bernard","Lech Georges","Lechantre Pierre","Leclercq Daniel","Leclercq Dominique",
+    "Lecoeuche Quentin","Lecoeur Jean-Yves","Lefebvre Dominique","Lefebvre Francis",
+    "Lefebvre Philippe","Leghait Julien","Lemaire Corentin","Lemerre Roger","Lemos Alvaro",
+    "Lendrić Ivan","Leprovost Pascal","Leroy Jérôme","Leroy Paul","Lesieur Valentino",
+    "Levandowski Jean","Lewandowski Michel","Lhote Eric","Ljuoja Danijel","Llorens Robert",
+    "Locatelli Bruno","Lopez Cristian","Louis Xercès","Louveau Adrien","Ludo François",
+    // M
+    "M'Pelé François","Maazou Moussa","Machado Deiver","Macquart Jean-Bernard",
+    "Maculewicz Henryk","Madiani Aristote","Madri Mouaad","Mäenpää Niki","Magnier Cyrille",
+    "Makanaky Cyril","Malm Robert","Malouda Lesly","Mammadov Hafiz","Mangane Abdou Kader",
+    "Manic Jacky","Mankowski Jean","Mankowski Pierre","Maouassa Faitout","Maoulida Toifilou",
+    "Marek Anton","Margottin Michel","Marichez Christophe","Marie Jacques","Markovic Filip",
+    "Marlot Colbert","Marquet Patrice","Marresch","Marsiglia René","Martel Gervais",
+    "Martins-Pereira Jonathan","Martins Silvia Armando","Marx Joachim","Mastroianni Vittorio",
+    "Masuaku Arthur","Mathlouthi Ali-Azouz","Maufroy Marc","Maurice Jean-Eudes","Mauricio Tony",
+    "Mawéné Youl Alidor","Medina Facundo","Melul Elias","Mendy Arial","Mendy Nampalys",
+    "Méride Xavier","Mesloub Mezian","Mesloub Walid","Meyrieu Frédéric","Michelin Clément",
+    "Michlowski Karel","Migné Sébastien","Milovanovic Dejan","Milville Marvin","Mionnet David",
+    "Moine Cyril","Monchiet Hervé","Monnet-Paquet Kévin","Montanier Philippe",
+    "Monterrubio Olivier","Montheil Patrice","Moore Taylor","Moreira Daniel","Moreira Joseph",
+    "Moskala Henri","Mottet Jean-Pierre","Moukandjo Benjamin","Mugrabi Firas","Mujica Juan Martin",
+    "Muller Joël","Muslin Slavoljub",
+    // N
+    "N'Daw Guirane","N'Diaye Dème","N'Diaye Ibrahima","N'Diefi Pius","N'Jo-Léa William",
+    "Nadon Jean-Claude","Nanizayamo Jonathan","Nomenjanahary Lalaina","Notheaux Didier",
+    "Novicki Edmond","Nouma Pascal","Nyarko Alex","Nzola M'Bala",
+    // O
+    "Ogaza Roman","Ojediran Hamzat","Olsen Patrick","Omam-Biyik François","Omrani Abdelhakim",
+    "Onana Jean","Oparé Daniel","Openda Loïs","Oruma Wilson","Oudjani Ahmed","Oudjani Chérif",
+    "Oughourlian Joseph","Oulmers Abdelmajid","Ourdouillié Marcel",
+    // P
+    "Pachurka Marian","Pagal Jean-Claude","Pagès Lucien","Papin Jean-Pierre","Parisseaux Jean",
+    "Parrot Benjamin","Pédron Stéphane","Peltier Francis","Peltier Pascal","Pereira Brayann",
+    "Pereira Da Costa David","Perez Manuel","Péron Jean-François","Petric Denis","Pieroni Luigi",
+    "Pierre-Fanfan José Karl","Piette Philippe","Pitau Romain","Piturca Victor","Placzek Bernard",
+    "Plessis Guillaume","Plet Louis","Plumain Ange Freddy","Polak Tadensz","Pollet David",
+    "Polonia Louis","Poreba Lukasz","Pouille Arnaud","Pouilly Tom","Prou Joël",
+    // Q
+    "Quaino Charles","Querel Xavier","Quéry Claude","Queste","Queudrue Franck",
+    // R
+    "Rabat Thierry","Rabier Jean-Paul","Radovanovic Aleksandar","Ramos Marco","Ramos Venancio",
+    "Randria Tahina","Raspotnik Maurice","Redon Philippe","Régis David","Rémy Loïc",
+    "Rémy William","Riou Rudy","Risser Robin","Robail Gaëtan","Robert Hugo","Rodriguez Bruno",
+    "Rodríguez Guillermo","Rogié Anthony","Rojas Arístides","Rool Cyril","Rosario Emelson",
+    "Rosenfelder Marco","Rosset William","Roudet Sébastien","Roux Guy","Roux Nolan","Roy Eric",
+    "Runje Vedran","Ryan Mathew","Rychkov Alexander",
+    // S
+    "Sab Robert","Sablé Julien","Sage Pierre","Sagnan Modibo","Saïd Wesley",
+    "Saint-Maximin Allan","Saint-Ruf Nicolas","Sakho Lamine","Salli Edgar","Samba Brice",
+    "Sangaré Mamadou","Sankharé Aboubacar","Santini Jacques","Sarr Malang","Sarr Pape",
+    "Sartre Romain","Satriano Martin","Saussé Anicet","Sauty Fernand","Scaramozzino Anthony",
+    "Seck Malick","Sénac Didier","Sénac Guy","Sene Cheikh Cory","Séraffin Jean",
+    "Sertic Grégory","Sibierski Antoine","Siklo","Sikora Eric","Sillou René","Sima Abdallah",
+    "Simon Nsana","Sirakov Nasko","Sishuba Ayanda","Situ Darnel","Six Didier",
+    "Skudlapski Théo","Slater Robbie","Sliskovic Blaz","Smicer Vladimir","Song Rigobert",
+    "Sotoca Florian","Souto José","Sow Ansou","Sow Samba","Sowinski Arnold","Spechtl Viktor",
+    "Spierings Stijn","Stanis","Stassiévitch Alexandre","Stievenard Michel","Still Will",
+    "Stoïca Tudore","Stopyra Julien","Sylla Boubacar","Sylla Fodé","Sylla Issiaga",
+    "Sylla Moussa","Szymczak Stephan",
+    // T
+    "Taarabt Adel","Tahrat Mehdi","Taillandier Jean","Tarko Laurent","Tasoulis Christos",
+    "Tempet Jean-Pierre","Templin Jean","Thans Benoît","Thauvin Florian","Théo",
+    "Thomasson Adrien","Thomert Olivier","Thordarson Teitur","Tiéhi Joël","Tikva Shalom",
+    "Tirloit Alain","Tisserand Marcel","Tixier Damien","Tka Saïf","Tobollik Césary",
+    "Toffard Franck","Tomazewski Michel","Tomczak Gérard","Toudic Julien","Touré Alassane",
+    "Tournay Georges","Touzghar Yoann","Traché Jean","Trannin Henri","Traoré Cheick",
+    "Traoré Djimi","Trassard Olivier","Turci Jean Pierre",
+    // U
+    "Udol Matthieu","Unser Franz","Utaka John",
+    // V
+    "Vachoux Jérém","Vairelles Tony","Valdivia Pierrick","Valencia Jader",
+    "Van Den Weghe Jules A.","Van den Weghe Jules J.","Van Holme Michel","Van Lent Wilhelm",
+    "Varane Jonathan","Varane Raphaël","Vasselle Jacques","Vercruysse Philippe",
+    "Vernier Cédric","Verstaete Gérard","Veselinovic Dalibor","Vignal Grégory",
+    "Vincencini Thomas",
+    // W
+    "Wabinski André","Wahi Elye","Wallemme Jean-Guy","Warmuz Guillaume","Wattecamp Roland",
+    "Weens Éric","Westerloppe Marc","Wicke Roger (père)","Wicke Roger (fils)",
+    "Winkler Walter Jerzy","Wisniewski Maryan","Wisnieski Stanislas","Wognin Otchonou (dit Ignace)",
+    "Wojtkowiak Valentin","Wooh Christopher",
+    // X
+    "Xuereb Daniel",
+    // Y
+    "Yahia Alaeddine",
+    // Z
+    "Zajakowski Christian","Zamparini Enzo","Zaremba Pascal","Zaremba Stanislas",
+    "Zaroury Anass","Zawada Patrick","Zayatte Kamil","Zedadka Akim","Zéré Patrice",
+    "Ziani Stéphane","Ziemczak Stephan","Zlatarić Nebojša","Zoubir Abdellah",
+    "Zukanović Miloš","Zuraczek Casimir"
+  ];
+
+  /* ── Filtre alphabet ── */
+  let _genLetter = '';
+
+  function genSetLetter(l) {
+    _genLetter = l;
+    document.querySelectorAll('.gen-alpha-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.letter === l);
+    });
+    if (l) document.getElementById('gen-search').value = '';
+    renderGeneratorList();
+  }
+
+  function genInitAlphaBar() {
+    const bar = document.getElementById('gen-alpha-bar');
+    if (!bar) return;
+    const letters = [...new Set(
+      GEN_PLAYERS.map(n => n.normalize('NFD').replace(/[̀-ͯ]/g,'').charAt(0).toUpperCase())
+    )].sort();
+    bar.innerHTML =
+      `<button class="gen-alpha-btn gen-alpha-all active" data-letter="" onclick="genSetLetter('')">Tous</button>` +
+      letters.map(l =>
+        `<button class="gen-alpha-btn" data-letter="${l}" onclick="genSetLetter('${l}')">${l}</button>`
+      ).join('');
+  }
+
+  /* Persistent generator state — one entry per player name */
+  function genLoadState() {
+    try { return JSON.parse(localStorage.getItem('rcGeneratorState') || '{}'); } catch(e) { return {}; }
+  }
+  function genSaveState(st) {
+    localStorage.setItem('rcGeneratorState', JSON.stringify(st));
+  }
+
+  /* Determine a player's status */
+  function genPlayerStatus(name) {
+    const db = LS.getQ();
+    const st = genLoadState()[name];
+    const effectiveName = (st && st.customName && st.customName.trim()) ? st.customName.trim() : name;
+    if (db.some(q => q.type === 'joueur' && (q.playerName || '').toLowerCase() === effectiveName.toLowerCase()))
+      return 'done';
+    if (st && st.indices && st.indices.some(v => v && v.trim())) return 'wip';
+    return 'empty';
+  }
+
+  /* ═══════════════════════════════════════════════════
+     JOUEURS — leaderboard
+  ═══════════════════════════════════════════════════ */
+  let joueurSortKey = 'score';
+
+  function setJoueurSort(key) {
+    joueurSortKey = key;
+    ['score','date','name'].forEach(k => {
+      const btn = document.getElementById('jsort-' + k);
+      if (!btn) return;
+      btn.className = k === key ? 'btn btn-sm' : 'btn btn-ghost btn-sm';
+      btn.style.fontSize = '.75rem';
+      btn.style.padding  = '5px 10px';
+    });
+    renderJoueurs();
+  }
+
+  function deleteJoueur(idx) {
+    const lb = LS.getLeaderboard();
+    lb.splice(idx, 1);
+    LS.saveLeaderboard(lb);
+    renderJoueurs();
+  }
+
+  function clearAllJoueurs() {
+    if (!confirm('Supprimer tous les scores ? Cette action est irréversible.')) return;
+    LS.saveLeaderboard([]);
+    renderJoueurs();
+  }
+
+  function renderJoueurs() {
+    const lb     = LS.getLeaderboard();
+    const listEl = document.getElementById('joueurs-list');
+    const countEl = document.getElementById('joueurs-count');
+    if (!listEl) return;
+
+    if (!lb.length) {
+      countEl.textContent = '';
+      listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun joueur pour l\'instant.<br>Les scores apparaîtront ici après chaque partie.</p>';
+      return;
+    }
+
+    // Grouper par pseudo
+    const map = {};
+    lb.forEach(e => {
+      if (!map[e.name]) map[e.name] = { name: e.name, games: [] };
+      map[e.name].games.push(e);
+    });
+
+    let players = Object.values(map).map(p => {
+      const timestamps = p.games.map(g => new Date(g.date).getTime());
+      const firstDate  = new Date(Math.min(...timestamps));
+      const lastDate   = new Date(Math.max(...timestamps));
+      const bestScore  = Math.max(...p.games.map(g => g.score));
+      const bestRatio  = (() => {
+        const best = p.games.reduce((b, g) => (g.maxScore > 0 && g.score / g.maxScore > b) ? g.score / g.maxScore : b, 0);
+        return best;
+      })();
+      return { ...p, firstDate, lastDate, bestScore, bestRatio };
+    });
+
+    // Filtrer par recherche
+    const search = (document.getElementById('joueur-search')?.value || '').trim().toLowerCase();
+    if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
+
+    countEl.textContent = players.length
+      ? `${players.length} joueur${players.length > 1 ? 's' : ''}`
+      : '';
+
+    if (!players.length) {
+      listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun joueur trouvé.</p>';
+      return;
+    }
+
+    // Trier
+    players.sort((a, b) => {
+      if (joueurSortKey === 'score') return b.bestRatio - a.bestRatio;
+      if (joueurSortKey === 'date')  return b.lastDate - a.lastDate;
+      if (joueurSortKey === 'name')  return a.name.localeCompare(b.name, 'fr');
+      return 0;
+    });
+
+    const fmtDate = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+    listEl.innerHTML = players.map((p, rank) => {
+      const rankLabel = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `#${rank + 1}`;
+      const initial   = p.name.charAt(0).toUpperCase();
+      const nGames    = p.games.length;
+      return `<div class="joueur-row" onclick="openPlayerCard(${JSON.stringify(p.name)})">
+        <span class="joueur-rank">${rankLabel}</span>
+        <div class="joueur-avatar">${initial}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="joueur-pseudo">${esc(p.name)}</div>
+          <div class="joueur-meta">${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}</div>
+        </div>
+        <div class="joueur-score-val">${p.bestScore}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function openPlayerCard(name) {
+    const lb    = LS.getLeaderboard();
+    const games = lb.filter(e => e.name === name).sort((a, b) => new Date(b.date) - new Date(a.date));
+    if (!games.length) return;
+
+    const timestamps = games.map(g => new Date(g.date).getTime());
+    const firstDate  = new Date(Math.min(...timestamps));
+    const bestScore  = Math.max(...games.map(g => g.score));
+    const avgScore   = (games.reduce((s, g) => s + g.score, 0) / games.length).toFixed(1);
+    const initial    = name.charAt(0).toUpperCase();
+
+    const fmtFull = iso => {
+      const d = new Date(iso);
+      return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' })
+           + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    };
+    const fmtShort = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+    const historyRows = games.map(g => `
+      <div class="pcard-game-row">
+        <span class="pcard-game-score">${g.score}</span>
+        <span class="pcard-game-date">${fmtFull(g.date)}</span>
+      </div>`).join('');
+
+    document.getElementById('pcard-content').innerHTML = `
+      <div class="pcard-drag-handle"></div>
+      <div class="pcard-header">
+        <div class="pcard-avatar">${initial}</div>
+        <div class="pcard-name">${esc(name)}</div>
+        <button class="pcard-close" onclick="closePlayerCard()">✕</button>
+      </div>
+      <div class="pcard-stats">
+        <div class="pcard-stat">
+          <div class="pcard-stat-val">${games.length}</div>
+          <div class="pcard-stat-label">Partie${games.length > 1 ? 's' : ''} jouée${games.length > 1 ? 's' : ''}</div>
+        </div>
+        <div class="pcard-stat">
+          <div class="pcard-stat-val">${bestScore}</div>
+          <div class="pcard-stat-label">Meilleur score</div>
+        </div>
+        <div class="pcard-stat">
+          <div class="pcard-stat-val">${avgScore}</div>
+          <div class="pcard-stat-label">Score moyen</div>
+        </div>
+        <div class="pcard-stat">
+          <div class="pcard-stat-val">${fmtShort(firstDate)}</div>
+          <div class="pcard-stat-label">Première partie</div>
+        </div>
+      </div>
+      <div class="pcard-section-title">Historique des parties</div>
+      ${historyRows}
+      <div class="pcard-coming-soon">🔧 Fonctionnalités à venir</div>
+    `;
+    document.getElementById('pcard-overlay').style.display = 'flex';
+  }
+
+  function closePlayerCard() {
+    document.getElementById('pcard-overlay').style.display = 'none';
+  }
+
+  /* Render the full player list (filtered by search or letter) */
+  function renderGeneratorList() {
+    const bar = document.getElementById('gen-alpha-bar');
+    if (bar && !bar.children.length) genInitAlphaBar();
+
+    const search  = (document.getElementById('gen-search')?.value || '').trim().toLowerCase();
+    const list    = document.getElementById('gen-player-list');
+    const statsEl = document.getElementById('gen-stats');
+    if (!list) return;
+
+    const filtered = GEN_PLAYERS
+      .map((name, idx) => ({ name, idx }))
+      .filter(({ name }) => {
+        if (search) return name.toLowerCase().includes(search);
+        if (_genLetter) {
+          const first = name.normalize('NFD').replace(/[̀-ͯ]/g,'').charAt(0).toUpperCase();
+          return first === _genLetter;
+        }
+        return true;
+      });
+
+    const total = GEN_PLAYERS.length;
+    const done  = GEN_PLAYERS.filter(n => genPlayerStatus(n) === 'done').length;
+    if (statsEl) statsEl.textContent = `${done} / ${total} transférés`;
+
+    if (!filtered.length) {
+      list.innerHTML = '<p style="color:rgba(255,255,255,.35);font-style:italic;padding:20px 0;">Aucun joueur trouvé.</p>';
+      return;
+    }
+
+    list.innerHTML = filtered.map(({ name, idx }) => {
+      const status = genPlayerStatus(name);
+      const badgeClass = status === 'done' ? 'gen-status-done' : status === 'wip' ? 'gen-status-wip' : 'gen-status-empty';
+      const badgeLabel = status === 'done' ? '✓ Transféré' : status === 'wip' ? '✏ En cours' : '— Vide';
+      return `
+      <div class="gen-player-card" id="gen-card-${idx}">
+        <div class="gen-player-header" onclick="genToggle(${idx})">
+          <span class="gen-player-idx">J${idx + 1}</span>
+          <span class="gen-player-name">${esc(name)}</span>
+          <span class="gen-status-badge ${badgeClass}">${badgeLabel}</span>
+          <span class="gen-toggle-icon">▸</span>
+        </div>
+        <div class="gen-player-form" id="gen-form-${idx}" style="display:none;"></div>
+      </div>`;
+    }).join('');
+  }
+
+  /* Toggle expand/collapse of a player card */
+  function genToggle(idx) {
+    const card = document.getElementById(`gen-card-${idx}`);
+    const form = document.getElementById(`gen-form-${idx}`);
+    if (!card || !form) return;
+    const isOpen = card.classList.contains('gen-card-open');
+    if (isOpen) {
+      genSaveForm(idx);
+      card.classList.remove('gen-card-open');
+      form.style.display = 'none';
+    } else {
+      card.classList.add('gen-card-open');
+      form.style.display = 'block';
+      genRenderForm(idx);
+    }
+  }
+
+  /* Build the form HTML for a given player index */
+  function genRenderForm(idx) {
+    const name  = GEN_PLAYERS[idx];
+    const st    = genLoadState()[name] || {};
+    const n     = Math.max(5, (st.indices || []).length);
+    const vals  = st.indices  || Array(n).fill('');
+    const pts   = st.pts      || defaultIndicePts(n);
+    const tries = st.tries    || defaultIndiceTries(n);
+    const timer = st.timer    !== undefined ? st.timer : 60;
+    const status = genPlayerStatus(name);
+    const isDone = status === 'done';
+
+    const form = document.getElementById(`gen-form-${idx}`);
+    if (!form) return;
+
+    const indiceRows = vals.map((v, i) => `
+      <div class="indice-row" id="gen-indices-${idx}-row-${i}">
+        <div class="indice-row-top">
+          <span class="indice-num">${i + 1}</span>
+          <input type="text" class="indice-text" id="gen-i-${idx}-${i}" value="${esc(v)}" placeholder="Indice ${i + 1}…" maxlength="300" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})">
+          ${vals.length > 5 ? `<button type="button" class="indice-remove-btn" onclick="genRemoveIndice(${idx},${i})" ${isDone ? 'disabled' : ''}>✕</button>` : ''}
+        </div>
+        <div class="indice-row-sub">
+          <span class="indice-pts-label">Pts</span>
+          <input type="number" class="indice-pts-input" id="gen-p-${idx}-${i}" value="${pts[i] ?? 1}" min="0" max="99" step="0.5" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})">
+          <span class="indice-pts-label">Ess.</span>
+          <input type="number" class="indice-tries-input" id="gen-t-${idx}-${i}" value="${tries[i] ?? 1}" min="1" max="99" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})">
+        </div>
+      </div>`).join('');
+
+    form.innerHTML = `
+      <div style="margin-bottom:10px;">
+        <label class="field-label">Nom du joueur <span style="font-weight:400;color:rgba(255,255,255,.35);font-size:.72rem;">(modifiable)</span></label>
+        <input type="text" id="gen-name-${idx}" value="${esc(st.customName || name)}" placeholder="${esc(name)}" maxlength="100" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})" style="${isDone ? 'background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);' : ''}">
+      </div>
+      <div class="form-group">
+        <label class="field-label">Indices (5 à 10)</label>
+        <div id="gen-indices-${idx}">${indiceRows}</div>
+        ${!isDone && vals.length < 10 ? `<button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="genAddIndice(${idx})">+ Ajouter un indice</button>` : ''}
+        <p class="field-hint">Renseignez au moins 5 indices pour identifier ce joueur.</p>
+      </div>
+      <div class="form-group">
+        <label class="field-label">Durée du timer (s)</label>
+        <input type="number" id="gen-timer-${idx}" value="${timer}" min="10" max="300" style="max-width:100px;" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})">
+      </div>
+      ${isDone
+        ? `<div class="alert alert-success" style="margin-top:10px;">✓ Déjà présent dans la Database.</div>`
+        : `<div class="gen-form-actions">
+            <button class="gen-transfer-btn" onclick="genTransfer(${idx})">⬆ Transférer à Database</button>
+            <button class="btn btn-ghost btn-sm" onclick="genClearForm(${idx})">Réinitialiser</button>
+           </div>
+           <div id="gen-err-${idx}" class="alert alert-error" style="display:none;margin-top:8px;"></div>`
+      }`;
+  }
+
+  /* Read current form values and save to localStorage */
+  function genAutoSave(idx) {
+    const name = GEN_PLAYERS[idx];
+    const n = document.getElementById(`gen-indices-${idx}`)?.querySelectorAll('input[type="text"]').length || 0;
+    const indices = [], pts = [], tries = [];
+    for (let i = 0; i < n; i++) {
+      indices.push((document.getElementById(`gen-i-${idx}-${i}`)?.value || '').trim());
+      pts.push(parseFloat(document.getElementById(`gen-p-${idx}-${i}`)?.value) || 1);
+      tries.push(parseInt(document.getElementById(`gen-t-${idx}-${i}`)?.value) || 1);
+    }
+    const timer = parseInt(document.getElementById(`gen-timer-${idx}`)?.value) || 60;
+    const customName = (document.getElementById(`gen-name-${idx}`)?.value || '').trim();
+    const st = genLoadState();
+    st[name] = { indices, pts, tries, timer, ...(customName && customName !== name ? { customName } : {}) };
+    genSaveState(st);
+  }
+
+  /* Save before collapsing (same as autoSave) */
+  function genSaveForm(idx) { genAutoSave(idx); }
+
+  /* Add one more indice row */
+  function genAddIndice(idx) {
+    genAutoSave(idx);
+    const name = GEN_PLAYERS[idx];
+    const st   = genLoadState()[name] || {};
+    const vals  = st.indices || Array(5).fill('');
+    const pts   = st.pts    || defaultIndicePts(vals.length);
+    const tries = st.tries  || defaultIndiceTries(vals.length);
+    if (vals.length >= 10) return;
+    const st2 = genLoadState();
+    st2[name] = {
+      indices: [...vals, ''],
+      pts:     [...pts, Math.max(0.5, (pts[pts.length - 1] || 0.5) - 1)],
+      tries:   [...tries, tries[tries.length - 1] ?? 1],
+      timer:   st.timer !== undefined ? st.timer : 60
+    };
+    genSaveState(st2);
+    genRenderForm(idx);
+  }
+
+  /* Remove one indice row */
+  function genRemoveIndice(idx, rowIdx) {
+    genAutoSave(idx);
+    const name = GEN_PLAYERS[idx];
+    const st   = genLoadState()[name] || {};
+    const vals  = [...(st.indices || [])];
+    const pts   = [...(st.pts || [])];
+    const tries = [...(st.tries || [])];
+    if (vals.length <= 5) return;
+    vals.splice(rowIdx, 1); pts.splice(rowIdx, 1); tries.splice(rowIdx, 1);
+    const st2 = genLoadState();
+    st2[name] = { indices: vals, pts, tries, timer: st.timer !== undefined ? st.timer : 60 };
+    genSaveState(st2);
+    genRenderForm(idx);
+  }
+
+  /* Clear a player's form */
+  function genClearForm(idx) {
+    const name = GEN_PLAYERS[idx];
+    const st   = genLoadState();
+    delete st[name];
+    genSaveState(st);
+    genRenderForm(idx);
+    genRefreshCardStatus(idx);
+  }
+
+  /* Refresh just the status badge of a card without full re-render */
+  function genRefreshCardStatus(idx) {
+    const name   = GEN_PLAYERS[idx];
+    const status = genPlayerStatus(name);
+    const badgeClass = status === 'done' ? 'gen-status-done' : status === 'wip' ? 'gen-status-wip' : 'gen-status-empty';
+    const badgeLabel = status === 'done' ? '✓ Transféré' : status === 'wip' ? '✏ En cours' : '— Vide';
+    const card = document.getElementById(`gen-card-${idx}`);
+    if (!card) return;
+    const badge = card.querySelector('.gen-status-badge');
+    if (badge) { badge.className = `gen-status-badge ${badgeClass}`; badge.textContent = badgeLabel; }
+    const statsEl = document.getElementById('gen-stats');
+    if (statsEl) {
+      const done = GEN_PLAYERS.filter(n => genPlayerStatus(n) === 'done').length;
+      statsEl.textContent = `${done} / ${GEN_PLAYERS.length} transférés`;
+    }
+  }
+
+  /* Validate and transfer a player entry to the database */
+  function genTransfer(idx) {
+    const name   = GEN_PLAYERS[idx];
+    const errEl  = document.getElementById(`gen-err-${idx}`);
+    genAutoSave(idx);
+    const st     = genLoadState()[name] || {};
+    const effectiveName = (st.customName && st.customName.trim()) ? st.customName.trim() : name;
+    const vals   = st.indices || [];
+    const pts    = st.pts     || [];
+    const tries  = st.tries   || [];
+    const timer  = Math.max(10, st.timer || 60);
+
+    const filled = vals.reduce((acc, v, i) => {
+      if (v && v.trim()) acc.push({ v: v.trim(), p: pts[i] ?? 1, t: tries[i] ?? 1 });
+      return acc;
+    }, []);
+
+    if (filled.length < 5) {
+      if (errEl) { errEl.textContent = 'Veuillez renseigner au moins 5 indices.'; errEl.style.display = 'block'; }
+      return;
+    }
+    if (errEl) errEl.style.display = 'none';
+
+    const arr = LS.getQ();
+    const q = {
+      id: nextJoueurCode(arr),
+      type: 'joueur',
+      active: true,
+      playerName: effectiveName,
+      playerVariants: [],
+      indices:      filled.map(x => x.v),
+      indicePts:    filled.map(x => x.p),
+      indiceTries:  filled.map(x => x.t),
+      timerDuration: timer,
+      tags: [],
+      createdAt: Date.now()
+    };
+    arr.push(q);
+    LS.saveQ(arr);
+    document.getElementById('qcount').textContent = arr.length;
+
+    genRenderForm(idx);
+    genRefreshCardStatus(idx);
+  }
+
   /* ── Générateurs de codes Q / J ── */
   function nextQuestionCode(arr) {
     const nums = arr
@@ -2978,6 +4196,38 @@
     LS.saveRotation([]);
   }
 
+  /* Migration one-shot : transforme chaque champ "bonus" en question-mère autonome */
+  function migratePromoteBonus() {
+    const arr = LS.getQ();
+    if (!arr.some(q => q.bonus)) return;
+
+    const promoted   = [];
+    const now        = Date.now();
+    const cleaned    = arr.map(q => {
+      if (!q.bonus) return q;
+      const b   = { ...q.bonus };
+      delete q.bonus;
+
+      if (!b.type) b.type = 'libre';
+      if (!b.tags) b.tags = [];
+      if (b.type === 'libre' && !b.answers && b.answer) b.answers = [b.answer];
+      if (!b.createdAt) b.createdAt = now;
+
+      promoted.push(b);
+      return { ...q };
+    });
+
+    // Attribuer des codes Q aux questions promues
+    let working = [...cleaned];
+    promoted.forEach(b => {
+      b.id = nextQuestionCode(working);
+      working.push(b);
+    });
+
+    LS.saveQ([...cleaned, ...promoted]);
+    console.log(`[migratePromoteBonus] ${promoted.length} question(s) bonus promues en question-mère.`);
+  }
+
   /* ── Add joueur ── */
   function addJoueur() {
     const name   = (document.getElementById('nj-name').value || '').trim();
@@ -3006,7 +4256,8 @@
       indicePts:  filled.map(x => x.p),
       indiceTries: filled.map(x => x.t),
       timerDuration: Math.max(1, parseInt(document.getElementById('nj-timer').value) || 60),
-      tags: addJoueurSelectedTags.slice()
+      tags: addJoueurSelectedTags.slice(),
+      createdAt: Date.now()
     };
 
     arr.push(q);
@@ -3395,13 +4646,21 @@
     const listEl    = document.getElementById('q-list-container');
     actionsEl.style.display = 'block';
 
-    const matchesTag = q => {
-      if (dbTagFilter === 'with-tag') return Array.isArray(q.tags) && q.tags.length > 0;
-      if (dbTagFilter === 'no-tag')   return !Array.isArray(q.tags) || q.tags.length === 0;
+    const matchesFilters = q => {
+      if (dbActiveFilters.has('with-tag') && !(Array.isArray(q.tags) && q.tags.length > 0)) return false;
+      if (dbActiveFilters.has('no-tag')   &&  (Array.isArray(q.tags) && q.tags.length > 0)) return false;
+      if (dbActiveFilters.has('new')      && !isNew(q))                                      return false;
+      if (dbActiveFilters.has('bonus')    && !(q.bonus && q.bonus.text))                     return false;
       return true;
     };
-    const questions = qs.filter(q => q.type !== 'joueur' && matchesSearch(q, dbSearchTerm) && matchesTag(q));
-    const joueurs   = qs.filter(q => q.type === 'joueur'  && matchesSearch(q, dbSearchTerm) && matchesTag(q));
+    const showJoueurs   = !dbActiveFilters.has('bonus');
+    const showQuestions = !dbActiveFilters.has('joueur');
+    const questions = showQuestions
+      ? qs.filter(q => q.type !== 'joueur' && matchesSearch(q, dbSearchTerm) && matchesFilters(q))
+      : [];
+    const joueurs = showJoueurs
+      ? qs.filter(q => q.type === 'joueur' && matchesSearch(q, dbSearchTerm) && matchesFilters(q))
+      : [];
 
     function renderItem(q, i) {
       const typeLabel = q.type === 'qcm'         ? `QCM — ${q.options.length} choix`
@@ -3445,9 +4704,13 @@
             </div>`;
       }
       const isActive = q.active !== false;
+      const newBadge = isNew(q) ? '<span class="q-badge-new">NEW</span>' : '';
       return `
         <div class="q-item${isActive ? '' : ' q-inactive'}">
-          <div class="q-num${isActive ? ' active' : ''}" onclick="toggleActive('${q.id}')" title="${isActive ? 'Désactiver' : 'Activer'} la question">${q.id}</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;">
+            <div class="q-num${isActive ? ' active' : ''}" onclick="toggleActive('${q.id}')" title="${isActive ? 'Désactiver' : 'Activer'} la question">${q.id}</div>
+            ${newBadge}
+          </div>
           <div class="q-body">
             <div class="q-text">${q.type === 'joueur' ? '🎽 ' + esc(q.playerName) : esc(q.text)}</div>
             <div class="q-meta">${typeLabel} &nbsp;·&nbsp; <span style="color:var(--or);">${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''}</span> &nbsp;·&nbsp; ⏱ ${q.timerDuration || 15} s</div>
@@ -3515,16 +4778,16 @@
 
     listEl.innerHTML = `
       <div>
-        <h3 style="margin-bottom:12px;">Questions <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${questions.length})</span></h3>
-        ${questionsHtml}
+        <h3 style="margin-bottom:12px;">Qui suis-je ? <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${joueurs.length})</span></h3>
+        ${joueursHtml}
       </div>
       <div class="sep"></div>
       <div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <h3 style="margin:0;">Qui suis-je ? <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${joueurs.length})</span></h3>
+          <h3 style="margin:0;">Bonus <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${questions.length})</span></h3>
           <button class="btn btn-red btn-sm" onclick="openAddJoueur()" style="white-space:nowrap;flex-shrink:0;">+ Créer une entrée</button>
         </div>
-        ${joueursHtml}
+        ${questionsHtml}
       </div>`;
   }
 
@@ -3543,19 +4806,69 @@
     renderAdmin();
   }
 
-  function dbSetTagFilter(val) {
-    dbTagFilter = val;
-    dbPageQ = 0;
-    dbPageJ = 0;
-    ['all','with-tag','no-tag'].forEach(k => {
-      const btn = document.getElementById('dbf-' + k);
-      if (!btn) return;
-      const active = k === val;
-      btn.style.background = active ? 'rgba(255,205,0,.18)' : 'transparent';
-      btn.style.border     = active ? '1px solid var(--or)' : '1px solid rgba(255,255,255,.15)';
-      btn.style.color      = active ? 'var(--or)' : 'rgba(255,255,255,.5)';
+  const DB_FILTER_LABELS = {
+    'joueur':   '🎽 Qui suis-je ?',
+    'bonus':    '⭐ Bonus',
+    'with-tag': '🏷 Avec tag',
+    'no-tag':   'Sans tag',
+    'new':      '🆕 NEW',
+  };
+
+  function renderFilterUI() {
+    ['joueur','bonus','with-tag','no-tag','new'].forEach(k => {
+      const el = document.getElementById('dbfc-' + k);
+      if (!el) return;
+      const on = dbActiveFilters.has(k);
+      el.textContent = on ? '●' : '○';
+      el.classList.toggle('on', on);
     });
+    const countEl = document.getElementById('db-filter-count');
+    if (countEl) {
+      const n = dbActiveFilters.size;
+      countEl.textContent = n;
+      countEl.style.display = n > 0 ? 'inline' : 'none';
+    }
+    const chipsEl = document.getElementById('db-filter-chips');
+    if (chipsEl) {
+      chipsEl.innerHTML = [...dbActiveFilters].map(f =>
+        `<span class="db-filter-chip">${DB_FILTER_LABELS[f] || f
+        }<button class="db-filter-chip-x" onclick="dbToggleFilter('${f}')">✕</button></span>`
+      ).join('');
+    }
+  }
+
+  function dbToggleFilter(val) {
+    if (dbActiveFilters.has(val)) dbActiveFilters.delete(val);
+    else dbActiveFilters.add(val);
+    dbPageQ = 0; dbPageJ = 0;
+    renderFilterUI();
     renderAdmin();
+  }
+
+  function dbClearFilters() {
+    dbActiveFilters.clear();
+    dbPageQ = 0; dbPageJ = 0;
+    renderFilterUI();
+    renderAdmin();
+  }
+
+  function toggleFilterDropdown(e) {
+    e.stopPropagation();
+    const menu = document.getElementById('db-filter-menu');
+    if (!menu) return;
+    const isOpen = menu.style.display !== 'none';
+    menu.style.display = isOpen ? 'none' : 'block';
+    if (!isOpen) {
+      const close = ev => {
+        const btn  = document.getElementById('db-filter-btn');
+        const m    = document.getElementById('db-filter-menu');
+        if (m && !m.contains(ev.target) && btn && !btn.contains(ev.target)) {
+          m.style.display = 'none';
+          document.removeEventListener('click', close);
+        }
+      };
+      setTimeout(() => document.addEventListener('click', close), 0);
+    }
   }
 
   function dbClearSearch() {
@@ -3602,6 +4915,9 @@
   }
 
   function clearAll() {
+    const pwd = prompt('Mot de passe administrateur :');
+    if (pwd === null) return;
+    if (pwd !== LS.getPwd()) { alert('Mot de passe incorrect.'); return; }
     if (!confirm('Supprimer TOUTES les questions ? Action irréversible.')) return;
     LS.saveQ([]);
     renderAdmin();
@@ -3653,7 +4969,8 @@
     // Fusion dans le cache mémoire
     const existing     = LS.getQ();
     const existingIds  = new Set(existing.map(q => q.id));
-    const mergedQ      = [...existing, ...questions.filter(q => !existingIds.has(q.id))];
+    const now          = Date.now();
+    const mergedQ      = [...existing, ...questions.filter(q => !existingIds.has(q.id)).map(q => ({ ...q, createdAt: q.createdAt ?? now }))];
     _db.questions      = mergedQ;
 
     const existingTags    = LS.getTags();
@@ -3959,20 +5276,6 @@
       buildEditMultiOptions(q.options, q.correctIdxs || []);
     }
 
-    const hasBonus = !!(q.bonus && q.bonus.text) && q.type !== 'joueur';
-    document.getElementById('e-bonus-toggle').checked = hasBonus;
-    if (q.type !== 'joueur') {
-      document.getElementById('esec-bonus').style.display = hasBonus ? 'block' : 'none';
-      document.getElementById('eq-bonus-text').value   = hasBonus ? q.bonus.text : '';
-      document.getElementById('eq-bonus-points').value = hasBonus ? (q.bonus.points || 1) : 1;
-      if (hasBonus) {
-        populateBonus('eq', q.bonus);
-      } else {
-        setBonusType('eq', 'libre');
-        renderLibreAnswers('eq-bonus', ['']);
-      }
-    }
-
     renderTagPicker('edit-tag-picker', editSelectedTags);
     document.getElementById('edit-modal').style.display = 'flex';
     if (q.type === 'joueur') document.getElementById('eq-joueur-name').focus();
@@ -3991,9 +5294,6 @@
     document.getElementById('eq-type-row').style.display    = isJoueur ? 'none' : 'block';
     document.getElementById('eq-pts-row').style.display     = isJoueur ? 'none' : '';
     document.getElementById('esec-joueur').style.display    = isJoueur ? 'block' : 'none';
-    document.getElementById('eq-bonus-sep').style.display   = isJoueur ? 'none' : 'block';
-    document.getElementById('eq-bonus-toggle-row').style.display = isJoueur ? 'none' : 'flex';
-    document.getElementById('esec-bonus').style.display     = 'none';
     if (isJoueur) {
       document.getElementById('esec-libre').style.display       = 'none';
       document.getElementById('esec-qcm').style.display         = 'none';
@@ -4075,10 +5375,6 @@
     }
   }
 
-  function toggleEditBonus() {
-    document.getElementById('esec-bonus').style.display =
-      document.getElementById('e-bonus-toggle').checked ? 'block' : 'none';
-  }
 
   function saveEdit() {
     const errEl = document.getElementById('eq-err');
@@ -4161,18 +5457,8 @@
       q.answer      = editCorrectIdxsMulti.map(i => opts[i]).join(' · ');
     }
 
-    if (document.getElementById('e-bonus-toggle').checked) {
-      const bt = (document.getElementById('eq-bonus-text').value || '').trim();
-      if (bt) {
-        const bonus = collectBonusData('eq', bt, errEl);
-        if (bonus === null) return;
-        q.bonus = bonus;
-      } else {
-        q.bonus = undefined;
-      }
-    } else {
-      q.bonus = undefined;
-    }
+    const origQ = arr[idx];
+    if (origQ && origQ.bonus) q.bonus = origQ.bonus;
 
     arr[idx] = q;
     LS.saveQ(arr);
@@ -4349,11 +5635,6 @@
     }
   }
 
-  function toggleBonus() {
-    document.getElementById('sec-bonus').style.display =
-      document.getElementById('bonus-toggle').checked ? 'block' : 'none';
-  }
-
   function addQuestion() {
     const text  = (document.getElementById('nq-text').value || '').trim();
     const errEl = document.getElementById('add-err');
@@ -4363,7 +5644,7 @@
     if (!text) { errEl.textContent = 'Veuillez saisir la question.'; errEl.style.display = 'block'; return; }
 
     const arr = LS.getQ();
-    let q = { id: nextQuestionCode(arr), text, type: currentType, active: true, tags: addSelectedTags.slice(), points: Math.max(0.5, parseFloat(document.getElementById('nq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('nq-timer').value) || 15) };
+    let q = { id: nextQuestionCode(arr), text, type: currentType, active: true, tags: addSelectedTags.slice(), points: Math.max(0.5, parseFloat(document.getElementById('nq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('nq-timer').value) || 15), createdAt: Date.now() };
 
     if (currentType === 'libre') {
       const answers = getLibreAnswers('nq').filter(Boolean);
@@ -4409,15 +5690,6 @@
       q.answer      = `${mlRequired} réponse${mlRequired > 1 ? 's' : ''} sur ${mlAnswers.length}`;
     }
 
-    if (document.getElementById('bonus-toggle').checked) {
-      const bt = (document.getElementById('nq-bonus-text').value || '').trim();
-      if (bt) {
-        const bonus = collectBonusData('nq', bt, errEl);
-        if (bonus === null) return;
-        q.bonus = bonus;
-      }
-    }
-
     arr.push(q);
     LS.saveQ(arr);
 
@@ -4428,11 +5700,6 @@
     renderLibreAnswers('nq', ['']);
     renderMlAnswers('nq', ['', ''], []);
     document.getElementById('nq-ml-max-wrong').value = '0';
-    document.getElementById('bonus-toggle').checked = false;
-    document.getElementById('nq-bonus-text').value = '';
-    document.getElementById('sec-bonus').style.display = 'none';
-    setBonusType('nq', 'libre');
-    renderLibreAnswers('nq-bonus', ['']);
     buildOptions();
     buildMultiOptions();
     correctIdxsMulti = [];
@@ -4696,7 +5963,10 @@
   function initPlayerName() {
     const qs = getActiveQ().filter(q => q.type === 'joueur');
     document.getElementById('no-q-alert').style.display = qs.length < 2 ? 'block' : 'none';
-    document.getElementById('player-name').value = '';
+    const _meta = _authUser?.user_metadata;
+    document.getElementById('player-name').value = _meta
+      ? (_meta.display_name || _meta.full_name || _meta.name || _authUser.email?.split('@')[0] || '')
+      : '';
     setTimeout(() => document.getElementById('player-name').focus(), 80);
   }
 
@@ -4737,11 +6007,30 @@
     const allJoueur = getActiveQ().filter(q => q.type === 'joueur');
     if (allJoueur.length < 2) { document.getElementById('no-q-alert').style.display = 'block'; return; }
 
-    // Sélectionner 3 questions joueur avec rotation : J(x), J(y) + bonus potentiel Q(x)
-    const joueurPool = feat('shuffle') ? rotationSelect(allJoueur, 3) : allJoueur.slice(0, 3);
-    const [jX, jY, qX] = joueurPool;
+    const allRegular = getActiveQ().filter(q => q.type !== 'joueur');
 
-    const calcMax = q => (q.indicePts ? q.indicePts[0] : 5) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0);
+    // Utiliser le planning du jour si disponible
+    let jX, jY, qX;
+    const todayPlan = LS.getPlanning()[planningDateStr(new Date())] || {};
+    if (todayPlan.j1 && todayPlan.j2) {
+      const pj1 = allJoueur.find(q => q.id === todayPlan.j1);
+      const pj2 = allJoueur.find(q => q.id === todayPlan.j2);
+      if (pj1 && pj2) {
+        jX = pj1; jY = pj2;
+        qX = todayPlan.bonus ? (allRegular.find(q => q.id === todayPlan.bonus) || null) : null;
+      }
+    }
+
+    // Fallback : rotation automatique
+    if (!jX || !jY) {
+      const joueurPool = feat('shuffle') ? rotationSelect(allJoueur, 2) : allJoueur.slice(0, 2);
+      [jX, jY] = joueurPool;
+      qX = allRegular.length ? (feat('shuffle') ? fisherYates([...allRegular])[0] : allRegular[0]) : null;
+    }
+
+    const calcMax = q => q.type === 'joueur'
+      ? (q.indicePts ? q.indicePts[0] : 5) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0)
+      : (q.points || 1) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0);
     const maxScore = calcMax(jX) + calcMax(jY) + (qX ? calcMax(qX) : 0);
 
     session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore };
@@ -5808,8 +7097,23 @@
   function showResults() {
     nav('results');
     updateSidebar();
+
+    // Marquer les questions/joueurs comme utilisés (sauf en mode bêta test)
+    if (!feat('betaTest')) {
+      const used = LS.getUsedInGame();
+      session.questions.forEach(q => used.add(q.id));
+      if (session.bonusJoueur) used.add(session.bonusJoueur.id);
+      LS.saveUsedInGame(used);
+    }
+
     const { name, score, maxScore, answers, questions } = session;
     const ratio = maxScore > 0 ? score / maxScore : 0;
+
+    // Persister le score dans le leaderboard
+    const lb = LS.getLeaderboard();
+    const badgeLevel = ratio === 1 ? 'Légende de Bollaert' : ratio >= 0.7 ? 'Fidèle des Sang et Or' : ratio >= 0.4 ? 'Supporter du virage' : 'Touriste à Bollaert';
+    lb.push({ name, score, maxScore, date: new Date().toISOString(), userId: _authUser?.id, badgeLevel });
+    LS.saveLeaderboard(lb);
 
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
     document.getElementById('res-score').textContent = score;
@@ -6073,15 +7377,244 @@
     renderLibreAnswers(prefix, answers.length ? answers : ['']);
   }
 
+  /* ═══════════════════════════════════════════════════
+     AUTHENTIFICATION — Supabase Auth
+  ═══════════════════════════════════════════════════ */
+  function initAuth() {
+    _supa.auth.onAuthStateChange((event, session) => {
+      _authUser = session?.user ?? null;
+      updateHomeAuthArea();
+      if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        nav('player-card');
+      }
+    });
+    _supa.auth.getSession().then(({ data: { session } }) => {
+      _authUser = session?.user ?? null;
+      updateHomeAuthArea();
+    });
+  }
+
+  let _captchaAnswer = 0;
+
+  function generateCaptcha() {
+    const useAdd = Math.random() < 0.5;
+    let a, b;
+    if (useAdd) {
+      a = Math.floor(Math.random() * 15) + 2;
+      b = Math.floor(Math.random() * 15) + 2;
+      _captchaAnswer = a + b;
+      document.getElementById('auth-captcha-question').textContent = `Combien font ${a} + ${b} ?`;
+    } else {
+      a = Math.floor(Math.random() * 15) + 6;
+      b = Math.floor(Math.random() * (a - 2)) + 1;
+      _captchaAnswer = a - b;
+      document.getElementById('auth-captcha-question').textContent = `Combien font ${a} − ${b} ?`;
+    }
+    const inp = document.getElementById('auth-captcha-answer');
+    if (inp) inp.value = '';
+  }
+
+  function authSetMode(mode) {
+    const isSignup = mode === 'signup';
+    document.getElementById('auth-tab-login').classList.toggle('active', !isSignup);
+    document.getElementById('auth-tab-signup').classList.toggle('active', isSignup);
+    document.getElementById('auth-name-group').style.display = isSignup ? 'block' : 'none';
+    const btn = document.getElementById('auth-submit-btn');
+    btn.textContent    = isSignup ? 'Créer mon compte' : 'Se connecter';
+    btn.dataset.mode   = mode;
+    btn.disabled       = false;
+    document.getElementById('auth-error').style.display   = 'none';
+    document.getElementById('auth-success').style.display = 'none';
+  }
+
+  async function authSubmit() {
+    const btn      = document.getElementById('auth-submit-btn');
+    const mode     = btn.dataset.mode || 'login';
+    const email    = (document.getElementById('auth-email').value || '').trim();
+    const password = document.getElementById('auth-password').value;
+    const pseudo   = (document.getElementById('auth-display-name').value || '').trim();
+    const errEl    = document.getElementById('auth-error');
+    const okEl     = document.getElementById('auth-success');
+    errEl.style.display = 'none';
+    okEl.style.display  = 'none';
+
+    if (!email || !password) {
+      errEl.textContent = 'Remplis tous les champs.'; errEl.style.display = 'block'; return;
+    }
+    if (mode === 'signup' && password.length < 6) {
+      errEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.'; errEl.style.display = 'block'; return;
+    }
+    const captchaVal = parseInt(document.getElementById('auth-captcha-answer').value, 10);
+    if (isNaN(captchaVal) || captchaVal !== _captchaAnswer) {
+      errEl.textContent = 'Réponse incorrecte à la vérification anti-robot.'; errEl.style.display = 'block';
+      generateCaptcha(); return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = '…';
+
+    try {
+      if (mode === 'signup') {
+        const { error } = await _supa.auth.signUp({
+          email, password,
+          options: { data: { display_name: pseudo || email.split('@')[0] } }
+        });
+        if (error) throw error;
+        okEl.textContent    = '✅ Compte créé ! Vérifie tes emails pour confirmer ton inscription.';
+        okEl.style.display  = 'block';
+        btn.disabled        = false;
+        btn.textContent     = 'Créer mon compte';
+      } else {
+        const { error } = await _supa.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        nav('player-card');
+      }
+    } catch(e) {
+      const MAP = {
+        'Invalid login credentials':  'Email ou mot de passe incorrect.',
+        'Email not confirmed':         'Confirme ton email avant de te connecter.',
+        'User already registered':     'Cet email est déjà utilisé.',
+        'Password should be at least 6 characters': 'Le mot de passe doit faire au moins 6 caractères.',
+      };
+      errEl.textContent  = MAP[e.message] || e.message || 'Erreur inconnue.';
+      errEl.style.display = 'block';
+      btn.disabled        = false;
+      btn.textContent     = mode === 'signup' ? 'Créer mon compte' : 'Se connecter';
+    }
+  }
+
+  async function signInGoogle() {
+    const { error } = await _supa.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.href.split('#')[0] }
+    });
+    if (error) {
+      const el = document.getElementById('auth-error');
+      el.textContent = 'Erreur Google : ' + error.message; el.style.display = 'block';
+    }
+  }
+
+  async function signInX() {
+    const { error } = await _supa.auth.signInWithOAuth({
+      provider: 'twitter',
+      options: { redirectTo: window.location.href.split('#')[0] }
+    });
+    if (error) {
+      const el = document.getElementById('auth-error');
+      el.textContent = 'Erreur X : ' + error.message; el.style.display = 'block';
+    }
+  }
+
+  async function authSignOut() {
+    await _supa.auth.signOut();
+    _authUser = null;
+    updateHomeAuthArea();
+    nav('home');
+  }
+
+  function updateHomeAuthArea() {
+    const loginBtn   = document.getElementById('home-login-btn');
+    const profileBtn = document.getElementById('home-profile-btn');
+    if (!loginBtn || !profileBtn) return;
+
+    if (_authUser) {
+      loginBtn.style.display   = 'none';
+      profileBtn.style.display = 'flex';
+      const meta = _authUser.user_metadata || {};
+      const name = meta.display_name || meta.full_name || meta.name || _authUser.email?.split('@')[0] || 'Joueur';
+      document.getElementById('home-display-name').textContent = name;
+      const avatarEl = document.getElementById('home-avatar-mini');
+      const pic = meta.avatar_url || meta.picture;
+      avatarEl.innerHTML = pic
+        ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`
+        : name[0].toUpperCase();
+    } else {
+      loginBtn.style.display   = 'flex';
+      profileBtn.style.display = 'none';
+    }
+  }
+
+  const _BADGE_ICONS = {
+    'Légende de Bollaert': '🏆',
+    'Fidèle des Sang et Or': '⭐',
+    'Supporter du virage': '👏',
+    'Touriste à Bollaert': '🎟️'
+  };
+  const _BADGE_ORDER = ['Légende de Bollaert','Fidèle des Sang et Or','Supporter du virage','Touriste à Bollaert'];
+
+  function renderPlayerCard() {
+    if (!_authUser) { nav('auth'); return; }
+
+    const meta  = _authUser.user_metadata || {};
+    const name  = meta.display_name || meta.full_name || meta.name || _authUser.email?.split('@')[0] || 'Joueur';
+    const email = _authUser.email || '';
+
+    const avatarEl = document.getElementById('pc-avatar');
+    const pic      = meta.avatar_url || meta.picture;
+    if (pic) {
+      avatarEl.innerHTML   = `<img src="${pic}" alt="${name}">`;
+    } else {
+      avatarEl.textContent = name[0].toUpperCase();
+      avatarEl.style.fontSize = '2rem';
+    }
+    document.getElementById('pc-name').textContent  = name;
+    document.getElementById('pc-email').textContent = email;
+
+    const lb     = LS.getLeaderboard().filter(e => e.userId === _authUser.id || e.name === name);
+    const games  = lb.length;
+    const best   = games ? Math.max(...lb.map(e => Number(e.score) || 0)) : 0;
+    document.getElementById('pc-games').textContent = games;
+    document.getElementById('pc-best').textContent  = best;
+
+    let bestBadge = null;
+    for (const badge of _BADGE_ORDER) {
+      if (lb.some(e => e.badgeLevel === badge)) { bestBadge = badge; break; }
+    }
+    const badgeWrap = document.getElementById('pc-badge-wrap');
+    if (bestBadge) {
+      document.getElementById('pc-badge-icon').textContent = _BADGE_ICONS[bestBadge] || '🏅';
+      document.getElementById('pc-badge-name').textContent = bestBadge;
+      badgeWrap.style.display = 'block';
+    } else {
+      badgeWrap.style.display = 'none';
+    }
+
+    const historyCard = document.getElementById('pc-history-card');
+    const historyList = document.getElementById('pc-history-list');
+    if (lb.length > 0) {
+      const sorted = [...lb].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0)).slice(0, 10);
+      historyList.innerHTML = sorted.map(e => {
+        const d       = e.date ? new Date(e.date) : null;
+        const dateStr = d ? d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }) : '';
+        const icon    = _BADGE_ICONS[e.badgeLevel] || '🎯';
+        const scoreStr = e.maxScore ? `${e.score} / ${e.maxScore} pts` : `${e.score} pts`;
+        return `<div class="player-history-item">
+          <div style="font-size:1.4rem;">${icon}</div>
+          <div class="player-history-info">
+            <div class="player-history-score">${scoreStr}</div>
+            ${e.badgeLevel ? `<div style="font-size:.75rem;color:rgba(255,255,255,.45);">${e.badgeLevel}</div>` : ''}
+          </div>
+          ${dateStr ? `<div class="player-history-date">${dateStr}</div>` : ''}
+        </div>`;
+      }).join('');
+      historyCard.style.display = 'block';
+    } else {
+      historyCard.style.display = 'none';
+    }
+  }
+
   /* ── Init ── */
   buildOptions();
   buildMultiOptions();
 
   (async function appInit() {
+    initAuth();
     const loadingEl = document.getElementById('db-loading-overlay');
     try {
       await initDB();
       migrateCodesLegacy();
+      migratePromoteBonus();
     } catch(e) {
       console.error('[Supabase] initDB échoué :', e);
     } finally {
@@ -6144,6 +7677,51 @@
       group: 'Base de données',
       label: 'Ajouter les premières questions "Qui suis-je ?"',
       sub: 'Onglet Ajouter → Qui suis-je ?',
+    },
+    /* ── Comptes joueurs (Auth) ── */
+    {
+      id: 'auth-google-project',
+      group: 'Comptes joueurs (Auth)',
+      label: 'Créer un projet Google Cloud',
+      sub: 'console.cloud.google.com → APIs & Services → Credentials',
+      link: 'https://console.cloud.google.com/apis/credentials',
+      linkLabel: 'Google Cloud Console →',
+    },
+    {
+      id: 'auth-google-enable',
+      group: 'Comptes joueurs (Auth)',
+      label: 'Activer le provider Google dans Supabase',
+      sub: 'Authentication → Providers → Google · coller Client ID + Secret',
+      link: 'https://supabase.com/dashboard/project/wxkvgilseonwcgrbryug/auth/providers',
+      linkLabel: 'Supabase Auth Providers →',
+    },
+    {
+      id: 'auth-x-enable',
+      group: 'Comptes joueurs (Auth)',
+      label: 'Activer le provider X (Twitter) dans Supabase',
+      sub: 'Authentication → Providers → Twitter · coller API Key + Secret',
+      link: 'https://developer.twitter.com/en/portal/dashboard',
+      linkLabel: 'Twitter Developer Portal →',
+    },
+    {
+      id: 'auth-redirect',
+      group: 'Comptes joueurs (Auth)',
+      label: 'Ajouter l\'URL du quiz dans les Redirect URLs',
+      sub: 'Authentication → URL Configuration → Redirect URLs',
+      link: 'https://supabase.com/dashboard/project/wxkvgilseonwcgrbryug/auth/url-configuration',
+      linkLabel: 'Supabase URL Config →',
+    },
+    {
+      id: 'auth-test-email',
+      group: 'Comptes joueurs (Auth)',
+      label: 'Tester la création de compte par email',
+      sub: 'Créer un compte de test et vérifier l\'email de confirmation',
+    },
+    {
+      id: 'auth-test-oauth',
+      group: 'Comptes joueurs (Auth)',
+      label: 'Tester la connexion Google et X',
+      sub: 'Vérifier le redirect OAuth et l\'affichage de la player card',
     },
     /* ── Tests ── */
     {
@@ -6226,5 +7804,10 @@
 
   /* ── Restauration de session admin : gérée dans appInit() ci-dessus ── */
   </script>
+
+  <!-- ══ Player Card overlay ══ -->
+  <div id="pcard-overlay" class="pcard-overlay" style="display:none;" onclick="if(event.target===this)closePlayerCard()">
+    <div class="pcard-panel" id="pcard-content"></div>
+  </div>
 </body>
 </html>
