@@ -1517,7 +1517,7 @@
     <div class="view active" id="view-home">
       <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
       <h1 style="font-family:'Calleo',sans-serif;">Le Racing Quiz</h1>
-      <p class="subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
+      <p class="subtitle app-subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
       <div class="card" style="max-width:380px;">
         <button class="btn btn-gold btn-full" onclick="nav('player-name')">Jouer</button>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:0;">
@@ -1827,6 +1827,10 @@
               <button class="settings-nav-item" id="snav-db-features"   onclick="showSettingsPanel('db-features')">Fonctionnalités</button>
               <button class="settings-nav-item" id="snav-db-tags"       onclick="showSettingsPanel('db-tags')">Tags</button>
             </nav>
+            <div class="settings-cat-header">Apparence</div>
+            <nav class="settings-nav">
+              <button class="settings-nav-item" id="snav-app-subtitle" onclick="showSettingsPanel('app-subtitle')">Texte personnalisé</button>
+            </nav>
             <div class="settings-cat-header">Sécurité</div>
             <nav class="settings-nav">
               <button class="settings-nav-item" id="snav-sec-password"  onclick="showSettingsPanel('sec-password')">Changer le mot de passe</button>
@@ -1921,6 +1925,20 @@
               </div>
             </div>
 
+            <!-- Panel : Texte personnalisé -->
+            <div id="settings-panel-app-subtitle" class="settings-panel">
+              <div class="card">
+                <h3>Texte personnalisé</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Texte affiché sous "Le Racing Quiz" sur la page d'accueil et la page d'identification.</p>
+                <div class="form-group">
+                  <label class="field-label">Sous-titre</label>
+                  <input type="text" id="subtitle-text-input" maxlength="80" placeholder="Ex : Votre révision estivale">
+                </div>
+                <button class="btn btn-gold btn-full" id="btn-save-subtitle" onclick="saveSubtitle()">💾 Sauvegarder</button>
+                <div id="subtitle-save-status" style="margin-top:10px;"></div>
+              </div>
+            </div>
+
             <!-- Panel : Changer le mot de passe -->
             <div id="settings-panel-sec-password" class="settings-panel">
               <div class="card">
@@ -2000,7 +2018,8 @@
     <!-- ════════════════════════════════════ PLAYER NAME ═══ -->
     <div class="view" id="view-player-name">
       <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
-      <h1>Le Racing Quiz</h1>
+      <h1 style="font-family:'Calleo',sans-serif;">Le Racing Quiz</h1>
+      <p class="subtitle app-subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
       <div class="card" style="max-width:380px;">
         <div id="no-q-alert" class="alert alert-error" style="display:none">Aucune question disponible. Contactez l'administrateur.</div>
         <div class="form-group">
@@ -2011,6 +2030,8 @@
         <button class="btn btn-gold btn-full" onclick="startQuiz()">Commencer</button>
         <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Retour</button>
       </div>
+      <p style="margin-top:18px;font-size:.72rem;color:rgba(255,255,255,.3);text-align:center;font-family:monospace;letter-spacing:.04em;">Racing Quiz version 1</p>
+      <p style="margin-top:8px;font-size:.68rem;color:rgba(255,255,255,.25);text-align:center;">by <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" style="color:rgba(255,255,255,.35);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Racing Club Podcast</a></p>
     </div>
 
     <!-- ══════════════════════════════════════════ QUIZ ═══ -->
@@ -3042,6 +3063,44 @@
     adminTab(current === 'settings' ? 'list' : 'settings');
   }
 
+  const DEFAULT_SUBTITLE = 'Votre révision estivale';
+
+  function applySubtitle() {
+    const text = (LS.getFeatures().subtitleText ?? DEFAULT_SUBTITLE).trim() || DEFAULT_SUBTITLE;
+    document.querySelectorAll('.app-subtitle').forEach(el => el.textContent = text);
+  }
+
+  async function saveSubtitle() {
+    const input  = document.getElementById('subtitle-text-input');
+    const btn    = document.getElementById('btn-save-subtitle');
+    const status = document.getElementById('subtitle-save-status');
+    if (!input || !btn || !status) return;
+
+    const text = input.value.trim() || DEFAULT_SUBTITLE;
+    input.value = text;
+
+    const features = LS.getFeatures();
+    features.subtitleText = text;
+    _db.features = features;
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ Sauvegarde en cours…';
+    status.innerHTML = '';
+
+    const ok = await dbPush('features');
+
+    btn.disabled    = false;
+    btn.textContent = '💾 Sauvegarder';
+
+    if (ok) {
+      status.innerHTML = `<div style="padding:10px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);font-size:.8rem;">✅ <strong>Sous-titre sauvegardé</strong> — appliqué pour tous les joueurs</div>`;
+    } else {
+      status.innerHTML = `<div style="padding:10px 13px;border-radius:8px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);font-size:.8rem;">⚠️ <strong>Erreur Supabase</strong> — modifié en mémoire uniquement.</div>`;
+    }
+
+    applySubtitle();
+  }
+
   function showSettingsPanel(id) {
     document.querySelectorAll('.settings-panel').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.settings-nav-item').forEach(b => b.classList.remove('active'));
@@ -3049,6 +3108,12 @@
     if (panel) panel.classList.add('active');
     const nav = document.getElementById('snav-' + id);
     if (nav) nav.classList.add('active');
+    if (id === 'app-subtitle') {
+      const inp = document.getElementById('subtitle-text-input');
+      if (inp) inp.value = LS.getFeatures().subtitleText ?? DEFAULT_SUBTITLE;
+      const st = document.getElementById('subtitle-save-status');
+      if (st) st.innerHTML = '';
+    }
   }
 
   /* ═══════════════════════════════════════════════════
@@ -7606,6 +7671,7 @@
     const loadingEl = document.getElementById('db-loading-overlay');
     try {
       await initDB();
+      applySubtitle();
       migrateCodesLegacy();
       migratePromoteBonus();
     } catch(e) {
