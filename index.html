@@ -312,14 +312,16 @@
     .q-item.q-inactive:hover { opacity: .65; border-color: rgba(255,255,255,.18); }
 
     .q-num {
-      width: 28px; height: 28px;
-      border-radius: 50%;
+      min-width: 32px; height: 22px;
+      padding: 0 5px;
+      border-radius: 99px;
       background: var(--rouge);
       color: #fff;
       font-weight: 800;
-      font-size: .8rem;
+      font-size: .68rem;
+      letter-spacing: .3px;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; margin-top: 1px;
+      flex-shrink: 0; margin-top: 2px;
       cursor: pointer;
       transition: opacity .15s, transform .1s;
     }
@@ -1274,6 +1276,21 @@
       /* Bannière mode test */
       .test-banner { padding: 8px 12px; font-size: .76rem; }
 
+      /* Bannière réseaux sociaux */
+      .home-social {
+        flex-direction: column;
+        gap: 6px;
+        padding: 8px 14px;
+      }
+      .home-social-label {
+        white-space: normal;
+        text-align: center;
+        font-size: .62rem;
+        letter-spacing: .3px;
+      }
+      .home-social-logos { gap: 16px; }
+      .home-social-logos a img { height: 22px; }
+
       /* Formulaire d'ajout / édition : champs numériques côte à côte */
       .add-subtab { font-size: .82rem; padding: 9px 10px; }
     }
@@ -1908,7 +1925,6 @@
           <div class="score-wrap" style="margin:0 0 12px;">
             <div class="score-circle" style="width:110px;height:110px;">
               <div class="score-num" id="res-score" style="font-size:2.5rem;"></div>
-              <div class="score-denom" id="res-total"></div>
             </div>
           </div>
           <div class="badge-wrap" style="padding:0;margin-bottom:18px;">
@@ -1924,7 +1940,7 @@
           <h3 style="margin-bottom:12px;">Partager mes résultats</h3>
           <div style="display:flex;gap:10px;">
             <button class="btn btn-ghost mb0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="shareOnX()">
-              <img src="X.png" alt="X" style="height:16px;width:auto;filter:invert(1);"> Sur X
+              <img src="X.png" alt="X" style="height:16px;width:auto;"> Sur X
             </button>
             <button class="btn btn-ghost mb0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="shareOnInstagram()">
               <img src="Insta.png" alt="Instagram" style="height:16px;width:auto;"> Sur Instagram
@@ -2403,14 +2419,14 @@
   /* Cache mémoire — rempli au démarrage par initDB(), lu de façon synchrone ensuite */
   let _db = { questions: [], tags: [], media: [], features: {} };
 
-  /* Pousse une clé du cache vers Supabase — retourne true si OK, false si erreur */
+  /* Pousse une clé du cache vers Supabase — retourne true si OK, message d'erreur sinon */
   async function dbPush(key) {
     const { error } = await _supa
       .from('quiz_data')
       .upsert({ key, value: _db[key] }, { onConflict: 'key' });
     if (error) {
       console.error('[Supabase] push error (' + key + '):', error);
-      return false;
+      return error.message || error.code || 'erreur inconnue';
     }
     // Backup localStorage (secours local)
     try { localStorage.setItem('rc_bk_' + key, JSON.stringify(_db[key])); } catch {}
@@ -2931,6 +2947,37 @@
     renderJoueurIndices('eq-joueur-indices', values, pts, tries);
   }
 
+  /* ── Générateurs de codes Q / J ── */
+  function nextQuestionCode(arr) {
+    const nums = arr
+      .filter(q => q.type !== 'joueur' && /^Q\d+$/.test(q.id))
+      .map(q => parseInt(q.id.slice(1)));
+    return 'Q' + ((nums.length ? Math.max(...nums) : 0) + 1);
+  }
+
+  function nextJoueurCode(arr) {
+    const nums = arr
+      .filter(q => q.type === 'joueur' && /^J\d+$/.test(q.id))
+      .map(q => parseInt(q.id.slice(1)));
+    return 'J' + ((nums.length ? Math.max(...nums) : 0) + 1);
+  }
+
+  /* Migration one-shot : IDs numériques "1","2"… → "Q1","Q2"… / "J1","J2"… */
+  function migrateCodesLegacy() {
+    const arr = LS.getQ();
+    if (!arr.some(q => /^\d+$/.test(q.id))) return;
+
+    const questions = arr.filter(q => q.type !== 'joueur').sort((a, b) => (parseInt(a.id) || 0) - (parseInt(b.id) || 0));
+    const joueurs   = arr.filter(q => q.type === 'joueur').sort((a, b) => (parseInt(a.id) || 0) - (parseInt(b.id) || 0));
+
+    const idMap = new Map();
+    questions.forEach((q, i) => idMap.set(q.id, `Q${i + 1}`));
+    joueurs.forEach((q, i)   => idMap.set(q.id, `J${i + 1}`));
+
+    LS.saveQ(arr.map(q => idMap.has(q.id) ? { ...q, id: idMap.get(q.id) } : q));
+    LS.saveRotation([]);
+  }
+
   /* ── Add joueur ── */
   function addJoueur() {
     const name   = (document.getElementById('nj-name').value || '').trim();
@@ -2948,8 +2995,9 @@
 
     const playerVariants = [];
 
+    const arr = LS.getQ();
     const q = {
-      id: Date.now().toString(),
+      id: nextJoueurCode(arr),
       type: 'joueur',
       active: true,
       playerName: name,
@@ -2961,7 +3009,6 @@
       tags: addJoueurSelectedTags.slice()
     };
 
-    const arr = LS.getQ();
     arr.push(q);
     LS.saveQ(arr);
 
@@ -3400,7 +3447,7 @@
       const isActive = q.active !== false;
       return `
         <div class="q-item${isActive ? '' : ' q-inactive'}">
-          <div class="q-num${isActive ? ' active' : ''}" onclick="toggleActive('${q.id}')" title="${isActive ? 'Désactiver' : 'Activer'} la question">${i+1}</div>
+          <div class="q-num${isActive ? ' active' : ''}" onclick="toggleActive('${q.id}')" title="${isActive ? 'Désactiver' : 'Activer'} la question">${q.id}</div>
           <div class="q-body">
             <div class="q-text">${q.type === 'joueur' ? '🎽 ' + esc(q.playerName) : esc(q.text)}</div>
             <div class="q-meta">${typeLabel} &nbsp;·&nbsp; <span style="color:var(--or);">${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''}</span> &nbsp;·&nbsp; ⏱ ${q.timerDuration || 15} s</div>
@@ -3622,6 +3669,7 @@
     // Push vers Supabase (attendu — on vérifie le succès réel)
     const results = await Promise.all(['questions','tags','media'].map(k => dbPush(k)));
     const ok = results.every(r => r === true);
+    const supabaseError = ok ? null : results.find(r => r !== true) || 'erreur inconnue';
 
     // Mémoriser le dernier import
     const info = {
@@ -3631,6 +3679,7 @@
       date    : new Date().toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }),
       time    : new Date().toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }),
       supabaseOk: ok,
+      supabaseError,
     };
     localStorage.setItem('rcLastImport', JSON.stringify(info));
 
@@ -3646,14 +3695,15 @@
     const raw = localStorage.getItem('rcLastImport');
     if (!raw) { el.innerHTML = ''; return; }
     try {
-      const { fileName, totalQ, newQ, date, time, supabaseOk } = JSON.parse(raw);
+      const { fileName, totalQ, newQ, date, time, supabaseOk, supabaseError } = JSON.parse(raw);
       const ok    = supabaseOk !== false;
       const color = ok ? 'rgba(255,205,0,.07)' : 'rgba(192,57,43,.1)';
       const border= ok ? 'rgba(255,205,0,.18)'  : 'rgba(192,57,43,.4)';
       const icon  = ok ? '✅' : '⚠️';
+      const errDetail = supabaseError ? ` — <code style="font-size:.7rem;opacity:.8;">${supabaseError}</code>` : '';
       const status= ok
         ? `Sauvegardé dans Supabase le ${date} à ${time} — visible par tous les joueurs`
-        : `Erreur Supabase — données en mémoire locale uniquement (vérifiez l'URL et la clé dans le code)`;
+        : `Erreur Supabase — données en mémoire locale uniquement${errDetail}`;
       el.innerHTML = `
         <div style="margin-top:12px;padding:11px 13px;border-radius:8px;background:${color};border:1px solid ${border};">
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
@@ -4312,7 +4362,8 @@
 
     if (!text) { errEl.textContent = 'Veuillez saisir la question.'; errEl.style.display = 'block'; return; }
 
-    let q = { id: Date.now().toString(), text, type: currentType, active: true, tags: addSelectedTags.slice(), points: Math.max(0.5, parseFloat(document.getElementById('nq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('nq-timer').value) || 15) };
+    const arr = LS.getQ();
+    let q = { id: nextQuestionCode(arr), text, type: currentType, active: true, tags: addSelectedTags.slice(), points: Math.max(0.5, parseFloat(document.getElementById('nq-points').value) || 1), timerDuration: Math.max(1, parseInt(document.getElementById('nq-timer').value) || 15) };
 
     if (currentType === 'libre') {
       const answers = getLibreAnswers('nq').filter(Boolean);
@@ -4367,7 +4418,6 @@
       }
     }
 
-    const arr = LS.getQ();
     arr.push(q);
     LS.saveQ(arr);
 
@@ -4644,8 +4694,8 @@
      PLAYER NAME
   ═══════════════════════════════════════════════════ */
   function initPlayerName() {
-    const qs = getActiveQ();
-    document.getElementById('no-q-alert').style.display = qs.length === 0 ? 'block' : 'none';
+    const qs = getActiveQ().filter(q => q.type === 'joueur');
+    document.getElementById('no-q-alert').style.display = qs.length < 2 ? 'block' : 'none';
     document.getElementById('player-name').value = '';
     setTimeout(() => document.getElementById('player-name').focus(), 80);
   }
@@ -4682,23 +4732,25 @@
 
   function startQuiz() {
     const name = (document.getElementById('player-name').value || '').trim();
-    const qs   = getActiveQ();
     if (!name) { document.getElementById('player-name').focus(); return; }
-    if (qs.length === 0) { document.getElementById('no-q-alert').style.display = 'block'; return; }
 
-    // Sélection avec rotation anti-répétition (shuffle activé) ou ordre fixe
-    const selected = feat('shuffle') ? rotationSelect(qs, 10) : qs.slice(0, 10);
+    const allJoueur = getActiveQ().filter(q => q.type === 'joueur');
+    if (allJoueur.length < 2) { document.getElementById('no-q-alert').style.display = 'block'; return; }
 
-    const maxScore = selected.reduce((sum, q) => {
-      return sum + (q.points || 1) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0);
-    }, 0);
-    session = { name, questions: selected, idx: 0, answers: [], score: 0, maxScore };
+    // Sélectionner 3 questions joueur avec rotation : J(x), J(y) + bonus potentiel Q(x)
+    const joueurPool = feat('shuffle') ? rotationSelect(allJoueur, 3) : allJoueur.slice(0, 3);
+    const [jX, jY, qX] = joueurPool;
+
+    const calcMax = q => (q.indicePts ? q.indicePts[0] : 5) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0);
+    const maxScore = calcMax(jX) + calcMax(jY) + (qX ? calcMax(qX) : 0);
+
+    session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore };
     nav('quiz');
     renderQ(true);
     if (feat('launchOverlay')) {
       const overlay = document.getElementById('quiz-launch-overlay');
       document.getElementById('ql-title').textContent = `Prêt, ${name} ?`;
-      document.getElementById('ql-sub').textContent   = `Tu vas répondre à ${selected.length} questions sur le RC Lens. Quand tu veux !`;
+      document.getElementById('ql-sub').textContent   = `2 questions "Qui suis-je ?" t'attendent. Bonne chance !`;
       overlay.style.display = 'flex';
     } else {
       launchQuiz();
@@ -4719,11 +4771,12 @@
     const tot = questions.length;
 
     stopQuizTimer();
-    document.getElementById('qz-counter').textContent  = `Question ${idx + 1} / ${tot}`;
-    document.getElementById('qz-progress').style.width = `${(idx / tot) * 100}%`;
+    const isBonusJoueur = !!q._isBonusJoueur;
+    document.getElementById('qz-counter').textContent  = isBonusJoueur ? '⭐ Bonus !' : `Question ${idx + 1} / ${tot}`;
+    document.getElementById('qz-progress').style.width = isBonusJoueur ? '100%' : `${(idx / tot) * 100}%`;
     const isJoueur   = q.type === 'joueur';
     const isMlLibre  = q.type === 'multi-libre';
-    const badgeText  = isJoueur ? 'Qui suis-je ?' : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
+    const badgeText  = isJoueur ? (isBonusJoueur ? 'Qui suis-je ? — Bonus' : 'Qui suis-je ?') : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
     document.getElementById('qz-badge').textContent    = badgeText;
     document.getElementById('qz-question').textContent = isJoueur ? '' : q.text;
     document.getElementById('qz-question').style.display = isJoueur ? 'none' : '';
@@ -5153,7 +5206,11 @@
 
   function showFeedback(ok, correctAns, playerAns, fromTimer = false) {
     const q      = session.questions[session.idx];
-    const isLast = session.idx === session.questions.length - 1;
+    // isLast normalement vrai pour J(y), mais si le bonus joueur va se déclencher → pas encore la fin
+    let isLast = session.idx === session.questions.length - 1;
+    if (isLast && session.bonusJoueur && ok && session.answers.length >= 1 && session.answers[0].ok) {
+      isLast = false;
+    }
     let inner    = '';
 
     if (ok) {
@@ -5603,9 +5660,22 @@
 
   function nextQ() {
     session.idx++;
-    if (session.idx >= session.questions.length) { showResults(); return; }
-    const half = Math.floor(session.questions.length / 2);
-    if (feat('midbreak') && session.idx === half) { nav('midbreak'); return; }
+    if (session.idx >= session.questions.length) {
+      // Après J(y) : déclencher Q(x) si les deux joueur sont corrects
+      const j0ok = session.answers.length >= 1 && session.answers[0].ok;
+      const j1ok = session.answers.length >= 2 && session.answers[1].ok;
+      if (j0ok && j1ok && session.bonusJoueur) {
+        const bonusQ = Object.assign({}, session.bonusJoueur, { _isBonusJoueur: true });
+        session.questions.push(bonusQ);
+        session.bonusJoueur = null;
+        renderQ();
+      } else {
+        showResults();
+      }
+      return;
+    }
+    // Écran mi-quiz toujours entre J(x) et J(y)
+    if (session.idx === 1) { nav('midbreak'); return; }
     renderQ();
   }
 
@@ -5743,7 +5813,6 @@
 
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
     document.getElementById('res-score').textContent = score;
-    document.getElementById('res-total').textContent = `/ ${maxScore} pts`;
 
     let icon, bname, bsub;
     if (ratio === 1)        { icon = ''; bname = 'Légende de Bollaert !';  bsub = 'Score parfait — tu es un vrai Sang et Or !'; }
@@ -6012,6 +6081,7 @@
     const loadingEl = document.getElementById('db-loading-overlay');
     try {
       await initDB();
+      migrateCodesLegacy();
     } catch(e) {
       console.error('[Supabase] initDB échoué :', e);
     } finally {
