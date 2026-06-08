@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -170,6 +170,7 @@
       letter-spacing: .3px;
     }
     input[type="text"],
+    input[type="email"],
     input[type="password"],
     input[type="number"],
     textarea,
@@ -720,6 +721,25 @@
       flex-shrink: 0;
     }
     .indice-remove-btn:hover { color: var(--rouge); }
+    .indice-move-col {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      flex-shrink: 0;
+    }
+    .indice-move-btn {
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.28);
+      cursor: pointer;
+      font-size: .65rem;
+      line-height: 1;
+      padding: 2px 4px;
+      border-radius: 3px;
+      transition: color .15s, background .15s;
+    }
+    .indice-move-btn:hover:not(:disabled) { color: var(--or); background: rgba(255,205,0,.1); }
+    .indice-move-btn:disabled { opacity: .18; cursor: default; }
 
     .joueur-pts-badge {
       margin-top: 6px;
@@ -1352,6 +1372,7 @@
     /* iOS : empêche le zoom au focus sur les champs (< 16px déclenche le zoom) */
     @media (max-width: 768px) {
       input[type="text"],
+      input[type="email"],
       input[type="password"],
       input[type="number"],
       textarea,
@@ -1457,18 +1478,8 @@
     .auth-toggle { display:flex;gap:0;margin-bottom:18px;border:1px solid rgba(255,255,255,.12);border-radius:10px;overflow:hidden; }
     .auth-toggle-btn { flex:1;padding:10px;font-size:.85rem;font-weight:700;background:transparent;color:rgba(255,255,255,.45);border:none;cursor:pointer;transition:all .2s; }
     .auth-toggle-btn.active { background:var(--or);color:var(--noir); }
-    .auth-divider { display:flex;align-items:center;gap:10px;margin:16px 0;color:rgba(255,255,255,.35);font-size:.8rem; }
-    .auth-divider::before, .auth-divider::after { content:'';flex:1;height:1px;background:rgba(255,255,255,.12); }
-    .btn-oauth { display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px 16px;border-radius:12px;font-size:.88rem;font-weight:600;cursor:pointer;border:1px solid rgba(255,255,255,.15);transition:all .2s;background:rgba(255,255,255,.04);color:#fff;margin-bottom:10px; }
-    .btn-oauth:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3); }
-    .btn-oauth-icon { width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:.82rem;flex-shrink:0; }
     .auth-anon-link { text-align:center;margin-top:10px;font-size:.78rem;color:rgba(255,255,255,.35);cursor:pointer;text-decoration:underline; }
     .auth-anon-link:hover { color:rgba(255,255,255,.6); }
-    .captcha-box { display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:12px 14px; }
-    .captcha-challenge { font-size:.95rem;font-weight:700;color:var(--or);flex:1;white-space:nowrap; }
-    .captcha-input { width:72px;text-align:center;font-size:1rem;font-weight:700;padding:7px 6px;border-radius:8px; }
-    .captcha-refresh { background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1.2rem;padding:4px 6px;line-height:1;transition:color .15s;flex-shrink:0; }
-    .captcha-refresh:hover { color:var(--or); }
 
     /* ── Player card ── */
     .player-card-avatar { width:80px;height:80px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;margin:0 auto 14px;border:3px solid var(--or);overflow:hidden;flex-shrink:0; }
@@ -1510,8 +1521,8 @@
       <div class="card" style="max-width:380px;">
         <button class="btn btn-gold btn-full" onclick="nav('player-name')">Jouer</button>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:0;">
-          <button id="home-login-btn" class="btn btn-ghost btn-full mb0" onclick="nav('auth')" style="font-size:.82rem;display:flex;align-items:center;justify-content:center;gap:8px;">
-            <span>👤</span> Créer mon compte / Me connecter
+          <button id="home-login-btn" class="btn btn-ghost btn-full mb0" onclick="nav('auth')" style="font-size:.82rem;">
+            Créer mon compte / Me connecter
           </button>
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
@@ -2010,8 +2021,32 @@
         <div style="background:rgba(26,26,26,.97);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:36px 28px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.6);">
           <img src="logo_700x700.png" style="width:72px;height:72px;object-fit:contain;margin-bottom:20px;filter:drop-shadow(0 0 16px rgba(255,205,0,.3));" alt="">
           <h2 id="ql-title" style="margin-bottom:8px;"></h2>
-          <p id="ql-sub" style="color:rgba(255,255,255,.55);font-size:.9rem;margin-bottom:28px;"></p>
-          <button class="btn btn-gold btn-full mb0" onclick="launchQuiz()">▶ Lancer le quiz</button>
+          <p id="ql-sub" style="color:rgba(255,255,255,.55);font-size:.9rem;margin-bottom:16px;"></p>
+
+          <div style="display:inline-flex;align-items:center;gap:7px;background:rgba(255,205,0,.10);border:1px solid rgba(255,205,0,.25);border-radius:20px;padding:6px 14px;margin-bottom:24px;font-size:.82rem;color:rgba(255,205,0,.9);font-weight:600;">
+            Quiz chronométré
+          </div>
+          <button class="btn btn-gold btn-full" onclick="launchQuiz()">▶ Lancer le quiz</button>
+          <button class="btn btn-ghost btn-full" onclick="showRules()">Voir les règles du jeu</button>
+          <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+        </div>
+      </div>
+
+      <!-- Modale règles du jeu -->
+      <div id="rules-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+        <div style="background:rgba(22,22,22,.99);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:32px 24px;max-width:420px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.7);position:relative;">
+          <button onclick="closeRules()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
+          <div style="text-align:center;margin-bottom:22px;">
+            <h2 style="margin-bottom:2px;">Règles du jeu</h2>
+            <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin:0;">Quiz RC Lens</p>
+          </div>
+
+          <!-- Timer -->
+          <div style="background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:14px 16px;margin-bottom:22px;">
+            <p style="color:rgba(255,255,255,.7);font-size:.84rem;margin:0;line-height:1.55;">Les questions « Qui suis-je ? » sont chronométrées à <strong style="color:#fff;">60 secondes</strong>. Si les deux joueurs sont trouvés, une <strong style="color:#fff;">question bonus</strong> est débloquée.</p>
+          </div>
+
+          <button class="btn btn-gold btn-full mb0" onclick="closeRules()">Compris — Bonne chance !</button>
         </div>
       </div>
 
@@ -2140,7 +2175,6 @@
             <div class="badge-name" id="res-badge-name" style="font-size:1rem;"></div>
             <div class="badge-sub"  id="res-badge-sub"></div>
           </div>
-          <button class="btn btn-gold btn-full mb0" onclick="nav('player-name')">Rejouer</button>
         </div>
 
         <!-- Partager -->
@@ -2155,12 +2189,6 @@
             </button>
           </div>
           <div id="share-feedback" style="display:none;margin-top:10px;font-size:.82rem;color:rgba(255,255,255,.5);text-align:center;"></div>
-        </div>
-
-        <!-- Récapitulatif -->
-        <div class="card" style="margin-bottom:12px;">
-          <h3>Récapitulatif</h3>
-          <div id="res-list"></div>
         </div>
 
         <!-- Accueil -->
@@ -2283,52 +2311,36 @@
     <div class="view" id="view-auth">
       <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
       <h1>Mon Compte</h1>
-      <div class="card" style="max-width:400px;width:100%;">
+      <div class="card" style="max-width:400px;width:100%;margin-top:48px;">
 
         <div class="auth-toggle">
           <button class="auth-toggle-btn active" id="auth-tab-login" onclick="authSetMode('login')">Connexion</button>
           <button class="auth-toggle-btn" id="auth-tab-signup" onclick="authSetMode('signup')">Créer un compte</button>
         </div>
 
-        <div id="auth-name-group" class="form-group" style="display:none;">
-          <label class="field-label">Pseudo</label>
-          <input type="text" id="auth-display-name" placeholder="Ex: Sang et Or Forever" maxlength="30">
-        </div>
         <div class="form-group">
-          <label class="field-label">Email</label>
-          <input type="email" id="auth-email" placeholder="ton@email.fr">
+          <label class="field-label">Pseudo</label>
+          <input type="text" id="auth-pseudo" placeholder="Ex: Sang et Or Forever" maxlength="30"
+                 onkeydown="if(event.key==='Enter')authSubmit()">
+          <p id="auth-pseudo-hint" style="display:none;margin:6px 0 0;font-size:.75rem;color:rgba(255,255,255,.38);line-height:1.4;">
+            Choisis un pseudo qui ne révèle pas ton identité réelle — n'utilise pas ton vrai nom.
+          </p>
         </div>
         <div class="form-group">
           <label class="field-label">Mot de passe</label>
-          <input type="password" id="auth-password" placeholder="Minimum 6 caractères"
+          <input type="password" id="auth-password" placeholder="Minimum 4 caractères"
                  onkeydown="if(event.key==='Enter')authSubmit()">
         </div>
-
-        <div class="form-group" style="margin-bottom:14px;">
-          <label class="field-label">Vérification anti-robot</label>
-          <div class="captcha-box">
-            <span class="captcha-challenge" id="auth-captcha-question">…</span>
-            <input type="number" id="auth-captcha-answer" class="captcha-input" placeholder="?" autocomplete="off"
-                   onkeydown="if(event.key==='Enter')authSubmit()">
-            <button type="button" class="captcha-refresh" onclick="generateCaptcha()" title="Nouvelle question">↻</button>
-          </div>
+        <div id="auth-confirm-group" class="form-group" style="display:none;">
+          <label class="field-label">Confirmer le mot de passe</label>
+          <input type="password" id="auth-password-confirm" placeholder="Répéter le mot de passe"
+                 onkeydown="if(event.key==='Enter')authSubmit()">
         </div>
 
         <div id="auth-error"   class="alert alert-error"   style="display:none;margin-bottom:12px;"></div>
         <div id="auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
 
         <button id="auth-submit-btn" class="btn btn-red btn-full" data-mode="login" onclick="authSubmit()">Se connecter</button>
-
-        <div class="auth-divider">ou</div>
-
-        <button class="btn-oauth" onclick="signInGoogle()">
-          <span class="btn-oauth-icon" style="background:#fff;color:#4285F4;">G</span>
-          Continuer avec Google
-        </button>
-        <button class="btn-oauth" onclick="signInX()">
-          <img src="X.png" alt="X" style="width:18px;height:18px;object-fit:contain;">
-          Continuer avec X
-        </button>
 
         <p class="auth-anon-link" onclick="nav('player-name')">Continuer sans compte →</p>
       </div>
@@ -2341,8 +2353,7 @@
 
         <div class="card tc" style="margin-bottom:12px;">
           <div class="player-card-avatar" id="pc-avatar"></div>
-          <div style="font-size:1.1rem;font-weight:700;margin-bottom:2px;" id="pc-name">Joueur</div>
-          <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:14px;" id="pc-email"></div>
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:14px;" id="pc-name">Joueur</div>
 
           <div class="player-stats-grid">
             <div class="player-stat-box">
@@ -2492,6 +2503,15 @@
           </div>
         </div>
 
+        <div id="eq-bonus-row" style="display:none;">
+          <div class="sep" style="margin:14px 0;"></div>
+          <div class="form-group" style="max-width:160px;">
+            <label class="field-label">⭐ Points du bonus</label>
+            <input type="number" id="eq-bonus-points" min="0.5" max="99" step="0.5" value="1">
+            <p class="field-hint">Points accordés si le bonus est réussi.</p>
+          </div>
+        </div>
+
         <div class="sep" style="margin:14px 0;"></div>
 
         <div class="form-group">
@@ -2579,14 +2599,14 @@
   const CONTACT_EMAIL = 'racingclubpodcast@gmail.com';
 
   /* ── EmailJS config ── À remplir avec vos identifiants emailjs.com ── */
-  const EMAILJS_PUBLIC_KEY  = 'VOTRE_CLE_PUBLIQUE';   // Account > API Keys
-  const EMAILJS_SERVICE_ID  = 'VOTRE_SERVICE_ID';     // Email Services > Service ID
-  const EMAILJS_TEMPLATE_ID = 'VOTRE_TEMPLATE_ID';    // Email Templates > Template ID
+  const EMAILJS_PUBLIC_KEY  = 'VOTRE_CLE_PUBLIQUE';
+  const EMAILJS_SERVICE_ID  = 'VOTRE_SERVICE_ID';
+  const EMAILJS_TEMPLATE_ID = 'VOTRE_TEMPLATE_ID';
   emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
   const TAG_PALETTE  = ['#E30613','#1565C0','#2E7D32','#6A1B9A','#E65100','#00695C','#AD1457','#37474F'];
 
   let adminLogged = sessionStorage.getItem('rcAdminLogged') === '1';
-  let _authUser   = null;  // Supabase Auth — utilisateur connecté
+  let _localUser  = null;  // Utilisateur connecté localement { pseudo }
   let addMode     = 'question';
   let currentType = 'libre';
   let correctIdx  = 0;
@@ -2640,12 +2660,10 @@
      STORAGE
   ═══════════════════════════════════════════════════ */
   /* ═══════════════════════════════════════════════════
-     SUPABASE — Configuration
-     ▸ Remplacer les deux valeurs ci-dessous par vos identifiants
-       (Settings → API dans le dashboard Supabase)
+     SUPABASE — Configuration (données quiz uniquement)
   ═══════════════════════════════════════════════════ */
-  const SUPABASE_URL  = 'https://wxkvgilseonwcgrbryug.supabase.co';    // ex : https://xxxx.supabase.co
-  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4a3ZnaWxzZW9ud2NncmJyeXVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NjM5OTksImV4cCI6MjA5NjIzOTk5OX0.x_ZqBE__hy2WY6q10imZ9eT8IJNxlQGOk5wgnwWBH2k';       // anon public key
+  const SUPABASE_URL  = 'https://wxkvgilseonwcgrbryug.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4a3ZnaWxzZW9ud2NncmJyeXVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NjM5OTksImV4cCI6MjA5NjIzOTk5OX0.x_ZqBE__hy2WY6q10imZ9eT8IJNxlQGOk5wgnwWBH2k';
 
   const _supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
 
@@ -2721,6 +2739,10 @@
     saveUsedInGame  : (set) => localStorage.setItem('rcUsedInGame', JSON.stringify([...set])),
     getLeaderboard  : ()    => JSON.parse(localStorage.getItem('rcLeaderboard') || '[]'),
     saveLeaderboard : (arr) => localStorage.setItem('rcLeaderboard', JSON.stringify(arr)),
+    getAccounts     : ()    => JSON.parse(localStorage.getItem('rcAccounts') || '{}'),
+    saveAccounts    : (obj) => localStorage.setItem('rcAccounts', JSON.stringify(obj)),
+    getLoggedPseudo : ()    => localStorage.getItem('rcLoggedPseudo') || null,
+    setLoggedPseudo : (p)   => p ? localStorage.setItem('rcLoggedPseudo', p) : localStorage.removeItem('rcLoggedPseudo'),
   };
 
   /* ═══════════════════════════════════════════════════
@@ -2887,10 +2909,9 @@
     if (viewName === 'player-card')  renderPlayerCard();
     if (viewName === 'auth') {
       authSetMode('login');
-      ['auth-email','auth-password','auth-display-name'].forEach(id => {
+      ['auth-pseudo','auth-password','auth-password-confirm'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
-      generateCaptcha();
     }
   }
 
@@ -3451,20 +3472,25 @@
     const container = document.getElementById(containerId);
     const isEdit    = containerId === 'eq-joueur-indices';
     const max = 10, min = 5;
+    const cid = containerId;
     container.innerHTML = values.map((v, i) => `
-      <div class="indice-row" id="${containerId}-row-${i}">
+      <div class="indice-row" id="${cid}-row-${i}">
         <div class="indice-row-top">
           <div class="indice-num">${i + 1}</div>
-          <input type="text" class="indice-text" id="${containerId}-${i}" value="${esc(v)}" placeholder="Indice ${i + 1}…" maxlength="200">
+          <input type="text" class="indice-text" id="${cid}-${i}" value="${esc(v)}" placeholder="Indice ${i + 1}…" maxlength="200">
+          <div class="indice-move-col">
+            <button type="button" class="indice-move-btn" title="Monter" onclick="moveJoueurIndice('${cid}',${i},-1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+            <button type="button" class="indice-move-btn" title="Descendre" onclick="moveJoueurIndice('${cid}',${i},1)" ${i === values.length - 1 ? 'disabled' : ''}>▼</button>
+          </div>
           ${values.length > min
             ? `<button type="button" class="indice-remove-btn" title="Supprimer" onclick="${isEdit ? 'removeEditJoueurIndice' : 'removeJoueurIndice'}(${i})">✕</button>`
             : '<span style="width:28px;flex-shrink:0;"></span>'}
         </div>
         <div class="indice-row-sub">
           <span class="indice-pts-label">Pts</span>
-          <input type="number" class="indice-pts-input" id="${containerId}-pts-${i}" value="${pts[i] ?? 1}" min="0" max="999" step="0.5">
+          <input type="number" class="indice-pts-input" id="${cid}-pts-${i}" value="${pts[i] ?? 1}" min="0" max="999" step="0.5">
           <span class="indice-pts-label">Ess.</span>
-          <input type="number" class="indice-tries-input" id="${containerId}-tries-${i}" value="${tries[i] ?? 1}" min="1" max="99">
+          <input type="number" class="indice-tries-input" id="${cid}-tries-${i}" value="${tries[i] ?? 1}" min="1" max="99">
         </div>
       </div>`).join('');
     const addBtn = document.getElementById(isEdit ? 'eq-add-indice-btn' : 'nj-add-indice-btn');
@@ -3509,6 +3535,18 @@
     if (values.length <= 5) return;
     values.splice(idx, 1); pts.splice(idx, 1); tries.splice(idx, 1);
     renderJoueurIndices('eq-joueur-indices', values, pts, tries);
+  }
+
+  function moveJoueurIndice(containerId, idx, dir) {
+    const values = getJoueurIndices(containerId);
+    const pts    = getJoueurIndicePts(containerId);
+    const tries  = getJoueurIndiceTries(containerId);
+    const target = idx + dir;
+    if (target < 0 || target >= values.length) return;
+    [values[idx], values[target]] = [values[target], values[idx]];
+    [pts[idx],    pts[target]]    = [pts[target],    pts[idx]];
+    [tries[idx],  tries[target]]  = [tries[target],  tries[idx]];
+    renderJoueurIndices(containerId, values, pts, tries);
   }
 
   /* ── Badge NEW : vrai si la question a moins de 3 jours ── */
@@ -3733,10 +3771,15 @@
     const letters = [...new Set(
       GEN_PLAYERS.map(n => n.normalize('NFD').replace(/[̀-ͯ]/g,'').charAt(0).toUpperCase())
     )].sort();
+    // Group letters into pairs (A-B, C-D, …)
+    const pairs = [];
+    for (let i = 0; i < letters.length; i += 2) {
+      pairs.push(letters[i + 1] ? `${letters[i]}-${letters[i + 1]}` : letters[i]);
+    }
     bar.innerHTML =
       `<button class="gen-alpha-btn gen-alpha-all active" data-letter="" onclick="genSetLetter('')">Tous</button>` +
-      letters.map(l =>
-        `<button class="gen-alpha-btn" data-letter="${l}" onclick="genSetLetter('${l}')">${l}</button>`
+      pairs.map(p =>
+        `<button class="gen-alpha-btn" data-letter="${p}" onclick="genSetLetter('${p}')">${p}</button>`
       ).join('');
   }
 
@@ -3935,7 +3978,7 @@
         if (search) return name.toLowerCase().includes(search);
         if (_genLetter) {
           const first = name.normalize('NFD').replace(/[̀-ͯ]/g,'').charAt(0).toUpperCase();
-          return first === _genLetter;
+          return _genLetter.split('-').includes(first);
         }
         return true;
       });
@@ -5278,6 +5321,13 @@
     }
 
     renderTagPicker('edit-tag-picker', editSelectedTags);
+    const bonusRow = document.getElementById('eq-bonus-row');
+    if (q.bonus && q.bonus.text) {
+      document.getElementById('eq-bonus-points').value = q.bonus.points || 1;
+      bonusRow.style.display = 'block';
+    } else {
+      bonusRow.style.display = 'none';
+    }
     document.getElementById('edit-modal').style.display = 'flex';
     if (q.type === 'joueur') document.getElementById('eq-joueur-name').focus();
     else document.getElementById('eq-text').focus();
@@ -5459,7 +5509,11 @@
     }
 
     const origQ = arr[idx];
-    if (origQ && origQ.bonus) q.bonus = origQ.bonus;
+    if (origQ && origQ.bonus) {
+      q.bonus = Object.assign({}, origQ.bonus);
+      const bpEl = document.getElementById('eq-bonus-points');
+      if (bpEl) q.bonus.points = Math.max(0.5, parseFloat(bpEl.value) || 1);
+    }
 
     arr[idx] = q;
     LS.saveQ(arr);
@@ -5964,10 +6018,7 @@
   function initPlayerName() {
     const qs = getActiveQ().filter(q => q.type === 'joueur');
     document.getElementById('no-q-alert').style.display = qs.length < 2 ? 'block' : 'none';
-    const _meta = _authUser?.user_metadata;
-    document.getElementById('player-name').value = _meta
-      ? (_meta.display_name || _meta.full_name || _meta.name || _authUser.email?.split('@')[0] || '')
-      : '';
+    document.getElementById('player-name').value = _localUser ? _localUser.pseudo : '';
     setTimeout(() => document.getElementById('player-name').focus(), 80);
   }
 
@@ -6040,7 +6091,7 @@
     if (feat('launchOverlay')) {
       const overlay = document.getElementById('quiz-launch-overlay');
       document.getElementById('ql-title').textContent = `Prêt, ${name} ?`;
-      document.getElementById('ql-sub').textContent   = `2 questions "Qui suis-je ?" t'attendent. Bonne chance !`;
+      document.getElementById('ql-sub').textContent   = '';
       overlay.style.display = 'flex';
     } else {
       launchQuiz();
@@ -6050,6 +6101,15 @@
   function launchQuiz() {
     document.getElementById('quiz-launch-overlay').style.display = 'none';
     startQuizTimer();
+  }
+
+  function showRules() {
+    const modal = document.getElementById('rules-modal');
+    modal.style.display = 'flex';
+  }
+
+  function closeRules() {
+    document.getElementById('rules-modal').style.display = 'none';
   }
 
   /* ═══════════════════════════════════════════════════
@@ -7113,7 +7173,7 @@
     // Persister le score dans le leaderboard
     const lb = LS.getLeaderboard();
     const badgeLevel = ratio === 1 ? 'Légende de Bollaert' : ratio >= 0.7 ? 'Fidèle des Sang et Or' : ratio >= 0.4 ? 'Supporter du virage' : 'Touriste à Bollaert';
-    lb.push({ name, score, maxScore, date: new Date().toISOString(), userId: _authUser?.id, badgeLevel });
+    lb.push({ name, score, maxScore, date: new Date().toISOString(), badgeLevel });
     LS.saveLeaderboard(lb);
 
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
@@ -7379,137 +7439,84 @@
   }
 
   /* ═══════════════════════════════════════════════════
-     AUTHENTIFICATION — Supabase Auth
+     AUTHENTIFICATION — Locale (pseudo + mot de passe)
   ═══════════════════════════════════════════════════ */
-  function initAuth() {
-    _supa.auth.onAuthStateChange((event, session) => {
-      _authUser = session?.user ?? null;
-      updateHomeAuthArea();
-      if (event === 'SIGNED_IN' && window.location.hash.includes('access_token')) {
-        history.replaceState(null, '', window.location.pathname + window.location.search);
-        nav('player-card');
-      }
-    });
-    _supa.auth.getSession().then(({ data: { session } }) => {
-      _authUser = session?.user ?? null;
-      updateHomeAuthArea();
-    });
+
+  function _hashPwd(pwd) {
+    /* Hash simple côté client — suffisant pour un usage amateur/local */
+    let h = 0;
+    for (let i = 0; i < pwd.length; i++) { h = (Math.imul(31, h) + pwd.charCodeAt(i)) | 0; }
+    return h.toString(36);
   }
 
-  let _captchaAnswer = 0;
-
-  function generateCaptcha() {
-    const useAdd = Math.random() < 0.5;
-    let a, b;
-    if (useAdd) {
-      a = Math.floor(Math.random() * 15) + 2;
-      b = Math.floor(Math.random() * 15) + 2;
-      _captchaAnswer = a + b;
-      document.getElementById('auth-captcha-question').textContent = `Combien font ${a} + ${b} ?`;
-    } else {
-      a = Math.floor(Math.random() * 15) + 6;
-      b = Math.floor(Math.random() * (a - 2)) + 1;
-      _captchaAnswer = a - b;
-      document.getElementById('auth-captcha-question').textContent = `Combien font ${a} − ${b} ?`;
-    }
-    const inp = document.getElementById('auth-captcha-answer');
-    if (inp) inp.value = '';
+  function initAuth() {
+    const saved = LS.getLoggedPseudo();
+    if (saved) { _localUser = { pseudo: saved }; }
+    updateHomeAuthArea();
   }
 
   function authSetMode(mode) {
     const isSignup = mode === 'signup';
     document.getElementById('auth-tab-login').classList.toggle('active', !isSignup);
     document.getElementById('auth-tab-signup').classList.toggle('active', isSignup);
-    document.getElementById('auth-name-group').style.display = isSignup ? 'block' : 'none';
+    document.getElementById('auth-confirm-group').style.display  = isSignup ? 'block' : 'none';
+    document.getElementById('auth-pseudo-hint').style.display    = isSignup ? 'block' : 'none';
     const btn = document.getElementById('auth-submit-btn');
-    btn.textContent    = isSignup ? 'Créer mon compte' : 'Se connecter';
-    btn.dataset.mode   = mode;
-    btn.disabled       = false;
+    btn.textContent  = isSignup ? 'Créer mon compte' : 'Se connecter';
+    btn.dataset.mode = mode;
+    btn.disabled     = false;
     document.getElementById('auth-error').style.display   = 'none';
     document.getElementById('auth-success').style.display = 'none';
   }
 
-  async function authSubmit() {
-    const btn      = document.getElementById('auth-submit-btn');
-    const mode     = btn.dataset.mode || 'login';
-    const email    = (document.getElementById('auth-email').value || '').trim();
-    const password = document.getElementById('auth-password').value;
-    const pseudo   = (document.getElementById('auth-display-name').value || '').trim();
-    const errEl    = document.getElementById('auth-error');
-    const okEl     = document.getElementById('auth-success');
+  function authSubmit() {
+    const btn     = document.getElementById('auth-submit-btn');
+    const mode    = btn.dataset.mode || 'login';
+    const pseudo  = (document.getElementById('auth-pseudo').value || '').trim();
+    const pwd     = document.getElementById('auth-password').value;
+    const errEl   = document.getElementById('auth-error');
+    const okEl    = document.getElementById('auth-success');
     errEl.style.display = 'none';
     okEl.style.display  = 'none';
 
-    if (!email || !password) {
+    if (!pseudo || !pwd) {
       errEl.textContent = 'Remplis tous les champs.'; errEl.style.display = 'block'; return;
     }
-    if (mode === 'signup' && password.length < 6) {
-      errEl.textContent = 'Le mot de passe doit faire au moins 6 caractères.'; errEl.style.display = 'block'; return;
-    }
-    const captchaVal = parseInt(document.getElementById('auth-captcha-answer').value, 10);
-    if (isNaN(captchaVal) || captchaVal !== _captchaAnswer) {
-      errEl.textContent = 'Réponse incorrecte à la vérification anti-robot.'; errEl.style.display = 'block';
-      generateCaptcha(); return;
+    if (pwd.length < 4) {
+      errEl.textContent = 'Le mot de passe doit faire au moins 4 caractères.'; errEl.style.display = 'block'; return;
     }
 
-    btn.disabled    = true;
-    btn.textContent = '…';
+    const accounts = LS.getAccounts();
 
-    try {
-      if (mode === 'signup') {
-        const { error } = await _supa.auth.signUp({
-          email, password,
-          options: { data: { display_name: pseudo || email.split('@')[0] } }
-        });
-        if (error) throw error;
-        okEl.textContent    = '✅ Compte créé ! Vérifie tes emails pour confirmer ton inscription.';
-        okEl.style.display  = 'block';
-        btn.disabled        = false;
-        btn.textContent     = 'Créer mon compte';
-      } else {
-        const { error } = await _supa.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        nav('player-card');
+    if (mode === 'signup') {
+      const confirm = document.getElementById('auth-password-confirm').value;
+      if (pwd !== confirm) {
+        errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.style.display = 'block'; return;
       }
-    } catch(e) {
-      const MAP = {
-        'Invalid login credentials':  'Email ou mot de passe incorrect.',
-        'Email not confirmed':         'Confirme ton email avant de te connecter.',
-        'User already registered':     'Cet email est déjà utilisé.',
-        'Password should be at least 6 characters': 'Le mot de passe doit faire au moins 6 caractères.',
-      };
-      errEl.textContent  = MAP[e.message] || e.message || 'Erreur inconnue.';
-      errEl.style.display = 'block';
-      btn.disabled        = false;
-      btn.textContent     = mode === 'signup' ? 'Créer mon compte' : 'Se connecter';
+      if (accounts[pseudo.toLowerCase()]) {
+        errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; return;
+      }
+      accounts[pseudo.toLowerCase()] = { pseudo, hash: _hashPwd(pwd) };
+      LS.saveAccounts(accounts);
+      _localUser = { pseudo };
+      LS.setLoggedPseudo(pseudo);
+      updateHomeAuthArea();
+      nav('player-card');
+    } else {
+      const entry = accounts[pseudo.toLowerCase()];
+      if (!entry || entry.hash !== _hashPwd(pwd)) {
+        errEl.textContent = 'Pseudo ou mot de passe incorrect.'; errEl.style.display = 'block'; return;
+      }
+      _localUser = { pseudo: entry.pseudo };
+      LS.setLoggedPseudo(entry.pseudo);
+      updateHomeAuthArea();
+      nav('player-card');
     }
   }
 
-  async function signInGoogle() {
-    const { error } = await _supa.auth.signInWithOAuth({
-      provider: 'google',
-      options: { redirectTo: window.location.href.split('#')[0] }
-    });
-    if (error) {
-      const el = document.getElementById('auth-error');
-      el.textContent = 'Erreur Google : ' + error.message; el.style.display = 'block';
-    }
-  }
-
-  async function signInX() {
-    const { error } = await _supa.auth.signInWithOAuth({
-      provider: 'twitter',
-      options: { redirectTo: window.location.href.split('#')[0] }
-    });
-    if (error) {
-      const el = document.getElementById('auth-error');
-      el.textContent = 'Erreur X : ' + error.message; el.style.display = 'block';
-    }
-  }
-
-  async function authSignOut() {
-    await _supa.auth.signOut();
-    _authUser = null;
+  function authSignOut() {
+    _localUser = null;
+    LS.setLoggedPseudo(null);
     updateHomeAuthArea();
     nav('home');
   }
@@ -7519,17 +7526,11 @@
     const profileBtn = document.getElementById('home-profile-btn');
     if (!loginBtn || !profileBtn) return;
 
-    if (_authUser) {
+    if (_localUser) {
       loginBtn.style.display   = 'none';
       profileBtn.style.display = 'flex';
-      const meta = _authUser.user_metadata || {};
-      const name = meta.display_name || meta.full_name || meta.name || _authUser.email?.split('@')[0] || 'Joueur';
-      document.getElementById('home-display-name').textContent = name;
-      const avatarEl = document.getElementById('home-avatar-mini');
-      const pic = meta.avatar_url || meta.picture;
-      avatarEl.innerHTML = pic
-        ? `<img src="${pic}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="">`
-        : name[0].toUpperCase();
+      document.getElementById('home-display-name').textContent = _localUser.pseudo;
+      document.getElementById('home-avatar-mini').textContent  = _localUser.pseudo[0].toUpperCase();
     } else {
       loginBtn.style.display   = 'flex';
       profileBtn.style.display = 'none';
@@ -7545,24 +7546,15 @@
   const _BADGE_ORDER = ['Légende de Bollaert','Fidèle des Sang et Or','Supporter du virage','Touriste à Bollaert'];
 
   function renderPlayerCard() {
-    if (!_authUser) { nav('auth'); return; }
+    if (!_localUser) { nav('auth'); return; }
 
-    const meta  = _authUser.user_metadata || {};
-    const name  = meta.display_name || meta.full_name || meta.name || _authUser.email?.split('@')[0] || 'Joueur';
-    const email = _authUser.email || '';
-
+    const name     = _localUser.pseudo;
     const avatarEl = document.getElementById('pc-avatar');
-    const pic      = meta.avatar_url || meta.picture;
-    if (pic) {
-      avatarEl.innerHTML   = `<img src="${pic}" alt="${name}">`;
-    } else {
-      avatarEl.textContent = name[0].toUpperCase();
-      avatarEl.style.fontSize = '2rem';
-    }
-    document.getElementById('pc-name').textContent  = name;
-    document.getElementById('pc-email').textContent = email;
+    avatarEl.textContent    = name[0].toUpperCase();
+    avatarEl.style.fontSize = '2rem';
+    document.getElementById('pc-name').textContent = name;
 
-    const lb     = LS.getLeaderboard().filter(e => e.userId === _authUser.id || e.name === name);
+    const lb = LS.getLeaderboard().filter(e => e.name === name);
     const games  = lb.length;
     const best   = games ? Math.max(...lb.map(e => Number(e.score) || 0)) : 0;
     document.getElementById('pc-games').textContent = games;
