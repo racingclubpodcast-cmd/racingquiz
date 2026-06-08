@@ -2279,6 +2279,102 @@
       </div>
     </div>
 
+    <!-- ════════════════════════════════════════ AUTH ═══ -->
+    <div class="view" id="view-auth">
+      <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
+      <h1>Mon Compte</h1>
+      <div class="card" style="max-width:400px;width:100%;">
+
+        <div class="auth-toggle">
+          <button class="auth-toggle-btn active" id="auth-tab-login" onclick="authSetMode('login')">Connexion</button>
+          <button class="auth-toggle-btn" id="auth-tab-signup" onclick="authSetMode('signup')">Créer un compte</button>
+        </div>
+
+        <div id="auth-name-group" class="form-group" style="display:none;">
+          <label class="field-label">Pseudo</label>
+          <input type="text" id="auth-display-name" placeholder="Ex: Sang et Or Forever" maxlength="30">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Email</label>
+          <input type="email" id="auth-email" placeholder="ton@email.fr">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Mot de passe</label>
+          <input type="password" id="auth-password" placeholder="Minimum 6 caractères"
+                 onkeydown="if(event.key==='Enter')authSubmit()">
+        </div>
+
+        <div class="form-group" style="margin-bottom:14px;">
+          <label class="field-label">Vérification anti-robot</label>
+          <div class="captcha-box">
+            <span class="captcha-challenge" id="auth-captcha-question">…</span>
+            <input type="number" id="auth-captcha-answer" class="captcha-input" placeholder="?" autocomplete="off"
+                   onkeydown="if(event.key==='Enter')authSubmit()">
+            <button type="button" class="captcha-refresh" onclick="generateCaptcha()" title="Nouvelle question">↻</button>
+          </div>
+        </div>
+
+        <div id="auth-error"   class="alert alert-error"   style="display:none;margin-bottom:12px;"></div>
+        <div id="auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
+
+        <button id="auth-submit-btn" class="btn btn-red btn-full" data-mode="login" onclick="authSubmit()">Se connecter</button>
+
+        <div class="auth-divider">ou</div>
+
+        <button class="btn-oauth" onclick="signInGoogle()">
+          <span class="btn-oauth-icon" style="background:#fff;color:#4285F4;">G</span>
+          Continuer avec Google
+        </button>
+        <button class="btn-oauth" onclick="signInX()">
+          <img src="X.png" alt="X" style="width:18px;height:18px;object-fit:contain;">
+          Continuer avec X
+        </button>
+
+        <p class="auth-anon-link" onclick="nav('player-name')">Continuer sans compte →</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="nav('home')">← Retour</button>
+    </div>
+
+    <!-- ══════════════════════════════════ PLAYER CARD ═══ -->
+    <div class="view" id="view-player-card">
+      <div style="width:100%;max-width:480px;padding-bottom:80px;">
+
+        <div class="card tc" style="margin-bottom:12px;">
+          <div class="player-card-avatar" id="pc-avatar"></div>
+          <div style="font-size:1.1rem;font-weight:700;margin-bottom:2px;" id="pc-name">Joueur</div>
+          <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:14px;" id="pc-email"></div>
+
+          <div class="player-stats-grid">
+            <div class="player-stat-box">
+              <div class="player-stat-val" id="pc-games">0</div>
+              <div class="player-stat-lbl">Parties jouées</div>
+            </div>
+            <div class="player-stat-box">
+              <div class="player-stat-val" id="pc-best">0</div>
+              <div class="player-stat-lbl">Meilleur score</div>
+            </div>
+          </div>
+
+          <div id="pc-badge-wrap" style="display:none;margin-bottom:14px;">
+            <div class="player-badge-chip">
+              <span id="pc-badge-icon"></span>
+              <span id="pc-badge-name"></span>
+            </div>
+          </div>
+
+          <button class="btn btn-gold btn-full" onclick="nav('player-name')">▶ Jouer</button>
+          <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
+        </div>
+
+        <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
+          <h3 style="margin-bottom:12px;">Historique des parties</h3>
+          <div id="pc-history-list"></div>
+        </div>
+
+        <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+      </div>
+    </div>
+
   </div><!-- /app -->
 
   <!-- ── Quiz Sidebar ── -->
@@ -2461,103 +2557,8 @@
         <button id="contact-send-btn" class="btn btn-red btn-full mb0" style="margin-top:12px;" onclick="sendContact()">✉ Envoyer</button>
       </div>
     </div>
-
-    <!-- ════════════════════════════════════════ AUTH ═══ -->
-    <div class="view" id="view-auth">
-      <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
-      <h1>Mon Compte</h1>
-      <div class="card" style="max-width:400px;width:100%;">
-
-        <div class="auth-toggle">
-          <button class="auth-toggle-btn active" id="auth-tab-login" onclick="authSetMode('login')">Connexion</button>
-          <button class="auth-toggle-btn" id="auth-tab-signup" onclick="authSetMode('signup')">Créer un compte</button>
-        </div>
-
-        <div id="auth-name-group" class="form-group" style="display:none;">
-          <label class="field-label">Pseudo</label>
-          <input type="text" id="auth-display-name" placeholder="Ex: Sang et Or Forever" maxlength="30">
-        </div>
-        <div class="form-group">
-          <label class="field-label">Email</label>
-          <input type="email" id="auth-email" placeholder="ton@email.fr">
-        </div>
-        <div class="form-group">
-          <label class="field-label">Mot de passe</label>
-          <input type="password" id="auth-password" placeholder="Minimum 6 caractères"
-                 onkeydown="if(event.key==='Enter')authSubmit()">
-        </div>
-
-        <div class="form-group" style="margin-bottom:14px;">
-          <label class="field-label">Vérification anti-robot</label>
-          <div class="captcha-box">
-            <span class="captcha-challenge" id="auth-captcha-question">…</span>
-            <input type="number" id="auth-captcha-answer" class="captcha-input" placeholder="?" autocomplete="off"
-                   onkeydown="if(event.key==='Enter')authSubmit()">
-            <button type="button" class="captcha-refresh" onclick="generateCaptcha()" title="Nouvelle question">↻</button>
-          </div>
-        </div>
-
-        <div id="auth-error"   class="alert alert-error"   style="display:none;margin-bottom:12px;"></div>
-        <div id="auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
-
-        <button id="auth-submit-btn" class="btn btn-red btn-full" data-mode="login" onclick="authSubmit()">Se connecter</button>
-
-        <div class="auth-divider">ou</div>
-
-        <button class="btn-oauth" onclick="signInGoogle()">
-          <span class="btn-oauth-icon" style="background:#fff;color:#4285F4;">G</span>
-          Continuer avec Google
-        </button>
-        <button class="btn-oauth" onclick="signInX()">
-          <img src="X.png" alt="X" style="width:18px;height:18px;object-fit:contain;">
-          Continuer avec X
-        </button>
-
-        <p class="auth-anon-link" onclick="nav('player-name')">Continuer sans compte →</p>
-      </div>
-      <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="nav('home')">← Retour</button>
-    </div>
-
-    <!-- ══════════════════════════════════ PLAYER CARD ═══ -->
-    <div class="view" id="view-player-card">
-      <div style="width:100%;max-width:480px;padding-bottom:80px;">
-
-        <div class="card tc" style="margin-bottom:12px;">
-          <div class="player-card-avatar" id="pc-avatar"></div>
-          <div style="font-size:1.1rem;font-weight:700;margin-bottom:2px;" id="pc-name">Joueur</div>
-          <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:14px;" id="pc-email"></div>
-
-          <div class="player-stats-grid">
-            <div class="player-stat-box">
-              <div class="player-stat-val" id="pc-games">0</div>
-              <div class="player-stat-lbl">Parties jouées</div>
-            </div>
-            <div class="player-stat-box">
-              <div class="player-stat-val" id="pc-best">0</div>
-              <div class="player-stat-lbl">Meilleur score</div>
-            </div>
-          </div>
-
-          <div id="pc-badge-wrap" style="display:none;margin-bottom:14px;">
-            <div class="player-badge-chip">
-              <span id="pc-badge-icon"></span>
-              <span id="pc-badge-name"></span>
-            </div>
-          </div>
-
-          <button class="btn btn-gold btn-full" onclick="nav('player-name')">▶ Jouer</button>
-          <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
-        </div>
-
-        <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
-          <h3 style="margin-bottom:12px;">Historique des parties</h3>
-          <div id="pc-history-list"></div>
-        </div>
-
-        <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
-      </div>
-    </div>
   </div>
+
 
   <!-- ════════════════════════════════════ PLANNING PICKER ═══ -->
   <div id="planning-picker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:900;align-items:center;justify-content:center;padding:16px;">
