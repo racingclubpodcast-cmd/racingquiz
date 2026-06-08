@@ -1518,17 +1518,46 @@
       <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
       <h1 style="font-family:'Calleo',sans-serif;">Le Racing Quiz</h1>
       <p class="subtitle app-subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
-      <div class="card" style="max-width:380px;">
+      <!-- Section auth (cachée si déjà connecté) -->
+      <div class="card" id="home-auth-section" style="max-width:400px;width:100%;">
+        <div class="auth-toggle">
+          <button class="auth-toggle-btn active" id="home-tab-login" onclick="homeAuthSetMode('login')">Connexion</button>
+          <button class="auth-toggle-btn" id="home-tab-signup" onclick="homeAuthSetMode('signup')">Créer un compte</button>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Pseudo</label>
+          <input type="text" id="home-pseudo" placeholder="Ex: Sang et Or Forever" maxlength="30"
+                 onkeydown="if(event.key==='Enter')homeAuthSubmit()">
+          <p id="home-pseudo-hint" style="display:none;margin:6px 0 0;font-size:.75rem;color:rgba(255,255,255,.38);line-height:1.4;">
+            Choisis un pseudo qui ne révèle pas ton identité réelle — n'utilise pas ton vrai nom.
+          </p>
+        </div>
+        <div class="form-group">
+          <label class="field-label">Mot de passe</label>
+          <input type="password" id="home-password" placeholder="Minimum 4 caractères"
+                 onkeydown="if(event.key==='Enter')homeAuthSubmit()">
+        </div>
+        <div id="home-confirm-group" class="form-group" style="display:none;">
+          <label class="field-label">Confirmer le mot de passe</label>
+          <input type="password" id="home-password-confirm" placeholder="Répéter le mot de passe"
+                 onkeydown="if(event.key==='Enter')homeAuthSubmit()">
+        </div>
+        <div id="home-auth-error" class="alert alert-error" style="display:none;margin-bottom:12px;"></div>
+        <div id="home-auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
+        <button id="home-auth-btn" class="btn btn-red btn-full" data-mode="login" onclick="homeAuthSubmit()">Se connecter</button>
+        <p class="auth-anon-link" onclick="homePlayAnon()">Jouer sans se connecter →</p>
+      </div>
+
+      <!-- Section jouer (affichée après auth ou mode anonyme) -->
+      <div class="card" id="home-play-section" style="max-width:380px;display:none;">
         <button class="btn btn-gold btn-full" onclick="nav('player-name')">Jouer</button>
-        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:0;">
-          <button id="home-login-btn" class="btn btn-ghost btn-full mb0" onclick="nav('auth')" style="font-size:.82rem;">
-            Créer mon compte / Me connecter
-          </button>
+        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
             <span id="home-display-name" style="flex:1;text-align:left;"></span>
             <span style="font-size:.7rem;opacity:.45;">Ma carte →</span>
           </button>
+          <button id="home-logout-btn" class="btn btn-ghost btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
         </div>
       </div>
 
@@ -2928,6 +2957,7 @@
     if (viewName === 'midbreak')     { showMidbreakContent(); }
     if (viewName === 'player-name')  initPlayerName();
     if (viewName === 'player-card')  renderPlayerCard();
+    if (viewName === 'home')  updateHomeAuthArea();
     if (viewName === 'auth') {
       authSetMode('login');
       ['auth-pseudo','auth-password','auth-password-confirm'].forEach(id => {
@@ -7587,19 +7617,111 @@
   }
 
   function updateHomeAuthArea() {
-    const loginBtn   = document.getElementById('home-login-btn');
-    const profileBtn = document.getElementById('home-profile-btn');
-    if (!loginBtn || !profileBtn) return;
+    const authSection = document.getElementById('home-auth-section');
+    const playSection = document.getElementById('home-play-section');
+    const profileBtn  = document.getElementById('home-profile-btn');
+    const logoutBtn   = document.getElementById('home-logout-btn');
+    if (!authSection || !playSection) return;
 
     if (_localUser) {
-      loginBtn.style.display   = 'none';
-      profileBtn.style.display = 'flex';
+      authSection.style.display = 'none';
+      playSection.style.display = 'block';
+      if (profileBtn) { profileBtn.style.display = 'flex'; }
+      if (logoutBtn)  { logoutBtn.style.display  = 'block'; }
       document.getElementById('home-display-name').textContent = _localUser.pseudo;
       document.getElementById('home-avatar-mini').textContent  = _localUser.pseudo[0].toUpperCase();
     } else {
-      loginBtn.style.display   = 'flex';
-      profileBtn.style.display = 'none';
+      authSection.style.display = 'block';
+      playSection.style.display = 'none';
+      if (profileBtn) profileBtn.style.display = 'none';
+      if (logoutBtn)  logoutBtn.style.display  = 'none';
+      homeAuthSetMode('login');
+      ['home-pseudo','home-password','home-password-confirm'].forEach(function(id) {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
     }
+  }
+
+  function homeAuthSetMode(mode) {
+    const isSignup = mode === 'signup';
+    const tabLogin  = document.getElementById('home-tab-login');
+    const tabSignup = document.getElementById('home-tab-signup');
+    if (tabLogin)  tabLogin.classList.toggle('active', !isSignup);
+    if (tabSignup) tabSignup.classList.toggle('active', isSignup);
+    const confirmGroup = document.getElementById('home-confirm-group');
+    const pseudoHint   = document.getElementById('home-pseudo-hint');
+    if (confirmGroup) confirmGroup.style.display = isSignup ? 'block' : 'none';
+    if (pseudoHint)   pseudoHint.style.display   = isSignup ? 'block' : 'none';
+    const btn = document.getElementById('home-auth-btn');
+    if (btn) {
+      btn.textContent  = isSignup ? 'Créer mon compte' : 'Se connecter';
+      btn.dataset.mode = mode;
+      btn.disabled     = false;
+    }
+    const errEl = document.getElementById('home-auth-error');
+    const okEl  = document.getElementById('home-auth-success');
+    if (errEl) errEl.style.display = 'none';
+    if (okEl)  okEl.style.display  = 'none';
+  }
+
+  function homeAuthSubmit() {
+    const btn    = document.getElementById('home-auth-btn');
+    const mode   = btn ? (btn.dataset.mode || 'login') : 'login';
+    const pseudo = (document.getElementById('home-pseudo').value || '').trim();
+    const pwd    = document.getElementById('home-password').value;
+    const errEl  = document.getElementById('home-auth-error');
+    const okEl   = document.getElementById('home-auth-success');
+    if (errEl) errEl.style.display = 'none';
+    if (okEl)  okEl.style.display  = 'none';
+
+    if (!pseudo || !pwd) {
+      if (errEl) { errEl.textContent = 'Remplis tous les champs.'; errEl.style.display = 'block'; }
+      return;
+    }
+    if (pwd.length < 4) {
+      if (errEl) { errEl.textContent = 'Le mot de passe doit faire au moins 4 caractères.'; errEl.style.display = 'block'; }
+      return;
+    }
+
+    const accounts = LS.getAccounts();
+
+    if (mode === 'signup') {
+      const confirmEl = document.getElementById('home-password-confirm');
+      const confirm   = confirmEl ? confirmEl.value : '';
+      if (pwd !== confirm) {
+        if (errEl) { errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.style.display = 'block'; }
+        return;
+      }
+      if (accounts[pseudo.toLowerCase()]) {
+        if (errEl) { errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; }
+        return;
+      }
+      accounts[pseudo.toLowerCase()] = { pseudo, hash: _hashPwd(pwd) };
+      LS.saveAccounts(accounts);
+      _localUser = { pseudo };
+      LS.setLoggedPseudo(pseudo);
+      updateHomeAuthArea();
+    } else {
+      const entry = accounts[pseudo.toLowerCase()];
+      if (!entry || entry.hash !== _hashPwd(pwd)) {
+        if (errEl) { errEl.textContent = 'Pseudo ou mot de passe incorrect.'; errEl.style.display = 'block'; }
+        return;
+      }
+      _localUser = { pseudo: entry.pseudo };
+      LS.setLoggedPseudo(entry.pseudo);
+      updateHomeAuthArea();
+    }
+  }
+
+  function homePlayAnon() {
+    const authSection = document.getElementById('home-auth-section');
+    const playSection = document.getElementById('home-play-section');
+    const profileBtn  = document.getElementById('home-profile-btn');
+    const logoutBtn   = document.getElementById('home-logout-btn');
+    if (authSection) authSection.style.display = 'none';
+    if (playSection) playSection.style.display = 'block';
+    if (profileBtn)  profileBtn.style.display  = 'none';
+    if (logoutBtn)   logoutBtn.style.display   = 'none';
   }
 
   const _BADGE_ICONS = {
