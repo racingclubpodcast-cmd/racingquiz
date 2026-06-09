@@ -405,7 +405,9 @@
     .q-num:hover { opacity: .78; transform: scale(1.1); }
     .q-num.active { background: var(--vert); }
     .q-body { flex: 1; min-width: 0; }
-    .q-text { font-weight: 600; font-size: .92rem; margin-bottom: 4px; word-break: break-word; }
+    .q-text { font-weight: 600; font-size: .92rem; margin-bottom: 4px; word-break: break-word; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+    .q-del-inline { flex-shrink: 0; font-size: .72rem; font-weight: 900; color: var(--rouge); opacity: .55; cursor: pointer; line-height: 1; padding: 1px 4px; border-radius: 4px; transition: opacity .15s, background .15s; user-select: none; }
+    .q-del-inline:hover { opacity: 1; background: rgba(192,57,43,.15); }
     .q-meta { font-size: .77rem; color: var(--or); text-transform: uppercase; letter-spacing: .3px; }
     .q-answer { font-size: .78rem; color: rgba(255,255,255,.45); margin-top: 3px; }
     .q-answer strong { color: var(--vert); }
@@ -1497,6 +1499,24 @@
     .player-history-score { font-weight:700;color:var(--or);font-size:.9rem; }
     .player-history-date { font-size:.72rem;color:rgba(255,255,255,.35); }
     .player-badge-chip { display:inline-flex;align-items:center;gap:6px;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:5px 12px;font-size:.78rem;color:var(--or);font-weight:600; }
+
+    /* ── Activity grid (player card) ── */
+    .pc-act-section { margin:14px 0 10px; }
+    .pc-act-title { font-size:.7rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px; }
+    .pc-act-scroll { overflow-x:auto;padding-bottom:4px; }
+    .pc-act-grid { display:flex;gap:3px;width:max-content; }
+    .pc-act-col { display:flex;flex-direction:column;gap:3px; }
+    .pc-act-cell { width:12px;height:12px;border-radius:2px;flex-shrink:0;cursor:default;transition:opacity .1s; }
+    .pc-act-cell:hover { opacity:.75; }
+    .pac-empty  { background:rgba(255,255,255,.07); }
+    .pac-red    { background:#c0392b; }
+    .pac-yellow { background:#c99b10; }
+    .pac-green  { background:#27ae60; }
+    .pac-dgreen { background:#0d6e35; }
+    .pc-act-legend { display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;justify-content:flex-end; }
+    .pc-act-legend-item { display:flex;align-items:center;gap:4px;font-size:.63rem;color:rgba(255,255,255,.3); }
+    .pc-act-legend-cell { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
+    #pc-act-tip { position:fixed;z-index:9999;display:none;pointer-events:none;background:rgba(20,20,20,.97);border:1px solid rgba(255,205,0,.22);border-radius:6px;padding:5px 10px;font-size:.72rem;color:rgba(255,255,255,.85);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.5); }
   </style>
 </head>
 <body>
@@ -1897,7 +1917,7 @@
 
               <div class="card">
                 <h3>Chargement de contenus</h3>
-                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:16px;">Ces contenus sont affichés aléatoirement sur l'écran de mi-parcours. Supporte les liens Google Drive, YouTube et images en ligne.</p>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:16px;">Ces contenus sont affichés aléatoirement sur la Pause fraîcheur. Supporte les liens Google Drive, YouTube et images en ligne.</p>
                 <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.15);margin-bottom:14px;">
                   <div class="form-group">
                     <label class="field-label">Nom du contenu</label>
@@ -2262,9 +2282,9 @@
 
     <!-- ══════════════════════════════════════ TEST MODE ═══ -->
     <div class="view" id="view-test">
-      <div class="test-banner">
-        <span>⚗ MODE TEST — Aperçu joueur</span>
-        <span style="font-size:.76rem;font-weight:400;opacity:.7;">Cette question n'est pas enregistrée</span>
+      <div class="test-banner" id="test-banner">
+        <span id="test-banner-title">⚗ MODE TEST — Aperçu joueur</span>
+        <span id="test-banner-sub" style="font-size:.76rem;font-weight:400;opacity:.7;">Cette question n'est pas enregistrée</span>
       </div>
       <div style="width:100%;max-width:680px;">
         <div style="display:flex;justify-content:center;margin-bottom:10px;">
@@ -2354,7 +2374,7 @@
               </div>
             </div>
 
-            <button class="btn btn-ghost btn-full mt16 mb0" id="tq-close-btn" onclick="window.close()" style="display:none;">Fermer l'onglet</button>
+            <button class="btn btn-ghost btn-full mt16 mb0" id="tq-close-btn" onclick="closeTestView()" style="display:none;">Fermer l'onglet</button>
           </div>
         </div>
       </div>
@@ -2422,6 +2442,28 @@
               <div class="player-stat-val" id="pc-best">0</div>
               <div class="player-stat-lbl">Meilleur score</div>
             </div>
+            <div class="player-stat-box" id="pc-avg-box" style="display:none;">
+              <div class="player-stat-val" id="pc-avg">—</div>
+              <div class="player-stat-lbl">Score moyen</div>
+            </div>
+            <div class="player-stat-box" id="pc-first-box" style="display:none;">
+              <div class="player-stat-val" id="pc-first" style="font-size:.85rem;">—</div>
+              <div class="player-stat-lbl">Première partie</div>
+            </div>
+          </div>
+
+          <!-- Activity grid -->
+          <div class="pc-act-section" id="pc-act-section" style="display:none;">
+            <div class="pc-act-scroll">
+              <div class="pc-act-grid" id="pc-act-grid"></div>
+            </div>
+            <div class="pc-act-legend">
+              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-empty"></div>Aucune partie</div>
+              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-red"></div>0 joueur</div>
+              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-yellow"></div>1 joueur</div>
+              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-green"></div>2 joueurs</div>
+              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-dgreen"></div>2 + bonus</div>
+            </div>
           </div>
 
           <div id="pc-badge-wrap" style="display:none;margin-bottom:14px;">
@@ -2436,7 +2478,6 @@
         </div>
 
         <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
-          <h3 style="margin-bottom:12px;">Historique des parties</h3>
           <div id="pc-history-list" style="max-height:320px;overflow-y:auto;"></div>
         </div>
 
@@ -2445,6 +2486,9 @@
     </div>
 
   </div><!-- /app -->
+
+  <!-- Activity tooltip -->
+  <div id="pc-act-tip"></div>
 
   <!-- ── Quiz Sidebar ── -->
   <div id="quiz-sidebar"></div>
@@ -2638,6 +2682,31 @@
   </div>
 
 
+  <!-- ════════════════════════════════════ SHARE TEST MODAL ═══ -->
+  <div id="share-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeShareModal()">
+    <div class="modal-inner">
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:18px;">
+          <h3 style="margin:0;font-size:1rem;font-weight:800;">🔗 Partager pour test</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeShareModal()">✕</button>
+        </div>
+        <p style="color:rgba(255,255,255,.55);font-size:.82rem;margin:0 0 16px;line-height:1.55;">
+          Envoyez ce lien à une personne pour qu'elle joue la question en mode test et valide son niveau de difficulté.
+          Le lien n'expire pas.
+        </p>
+        <div style="display:flex;gap:8px;margin-bottom:6px;">
+          <input type="text" id="share-url-input" readonly onclick="this.select()"
+                 style="flex:1;font-size:.73rem;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.04);color:rgba(255,255,255,.8);cursor:text;min-width:0;">
+          <button class="btn btn-red btn-sm" id="share-copy-btn" onclick="copyShareUrl()" style="flex-shrink:0;">Copier</button>
+        </div>
+        <p style="color:rgba(255,255,255,.3);font-size:.72rem;margin:0 0 18px;">
+          Cliquez sur le champ pour sélectionner · Compatible mobile et desktop
+        </p>
+        <button class="btn btn-ghost btn-full mb0" onclick="closeShareModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════════════════════════════════ PLANNING PICKER ═══ -->
   <div id="planning-picker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:900;align-items:center;justify-content:center;padding:16px;">
     <div style="background:rgba(26,26,26,.97);border:1px solid rgba(255,205,0,.25);border-radius:16px;padding:20px;width:min(94vw,440px);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.6);">
@@ -2691,7 +2760,7 @@
   let editBonusType              = 'libre';
   let editBonusCorrectIdx        = 0;
   let editBonusCorrectIdxsMulti  = [];
-  let testState = { q: null, multiSelected: [], bonusMultiSelected: [] };
+  let testState = { q: null, multiSelected: [], bonusMultiSelected: [], isShared: false };
   let mlState          = { found: [], wrongCount: 0 };
   let testMlState      = { found: [], wrongCount: 0 };
   let bonusMlState     = { found: [], wrongCount: 0 };
@@ -2906,7 +2975,7 @@
   const FEATURES_META = [
     { key: 'timer',          label: 'Compte à rebours',         desc: 'Chronomètre sur chaque question' },
     { key: 'launchOverlay',  label: 'Écran de lancement',       desc: 'Écran "Prêt ?" avant de commencer' },
-    { key: 'midbreak',       label: 'Écran de mi-parcours',     desc: 'Pause à mi-chemin avec contenu média' },
+    { key: 'midbreak',       label: 'Pause fraîcheur',          desc: 'Pause à mi-chemin avec contenu média' },
     { key: 'scoreSidebar',   label: 'Barre de scores latérale', desc: 'Récapitulatif des points (grand écran)' },
     { key: 'shuffle',        label: 'Mélange des questions',    desc: 'Ordre aléatoire à chaque partie' },
     { key: 'scoreSummary',   label: 'Récapitulatif de score',   desc: 'Points gagnés affichés après chaque réponse' },
@@ -3647,8 +3716,6 @@
     const target = idx + dir;
     if (target < 0 || target >= values.length) return;
     [values[idx], values[target]] = [values[target], values[idx]];
-    [pts[idx],    pts[target]]    = [pts[target],    pts[idx]];
-    [tries[idx],  tries[target]]  = [tries[target],  tries[idx]];
     renderJoueurIndices(containerId, values, pts, tries);
   }
 
@@ -3993,7 +4060,7 @@
       const rankLabel = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `#${rank + 1}`;
       const initial   = p.name.charAt(0).toUpperCase();
       const nGames    = p.games.length;
-      return `<div class="joueur-row" onclick="openPlayerCard(${JSON.stringify(p.name)})">
+      return `<div class="joueur-row" data-pname="${esc(p.name)}" onclick="openPlayerCard(this.dataset.pname)">
         <span class="joueur-rank">${rankLabel}</span>
         <div class="joueur-avatar">${initial}</div>
         <div style="flex:1;min-width:0;">
@@ -4005,7 +4072,10 @@
     }).join('');
   }
 
+  let _pcardName = '';
+
   function openPlayerCard(name) {
+    _pcardName = name;
     const lb    = LS.getLeaderboard();
     const games = lb.filter(e => e.name === name).sort((a, b) => new Date(b.date) - new Date(a.date));
     if (!games.length) return;
@@ -4015,6 +4085,20 @@
     const bestScore  = Math.max(...games.map(g => g.score));
     const avgScore   = (games.reduce((s, g) => s + g.score, 0) / games.length).toFixed(1);
     const initial    = name.charAt(0).toUpperCase();
+
+    // Compute global ranking by best score
+    const allMap = {};
+    lb.forEach(e => {
+      if (!allMap[e.name]) allMap[e.name] = 0;
+      if (e.score > allMap[e.name]) allMap[e.name] = e.score;
+    });
+    const allSorted = Object.entries(allMap).sort((a, b) => b[1] - a[1]);
+    const totalPlayers = allSorted.length;
+    const rankIdx = allSorted.findIndex(([n]) => n === name);
+    const rankPos = rankIdx + 1;
+    const rankEmoji = rankPos === 1 ? '🥇' : rankPos === 2 ? '🥈' : rankPos === 3 ? '🥉' : null;
+    const rankLabel = rankEmoji ? `${rankEmoji} ${rankPos === 1 ? '1er' : `${rankPos}e`}` : `#${rankPos}`;
+    const rankHtml = `<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,205,0,.08);border:1px solid rgba(255,205,0,.22);border-radius:20px;padding:3px 10px;font-size:.75rem;color:var(--or);font-weight:700;margin-top:4px;">${rankLabel} sur ${totalPlayers} joueur${totalPlayers > 1 ? 's' : ''}</div>`;
 
     const fmtFull = iso => {
       const d = new Date(iso);
@@ -4033,7 +4117,10 @@
       <div class="pcard-drag-handle"></div>
       <div class="pcard-header">
         <div class="pcard-avatar">${initial}</div>
-        <div class="pcard-name">${esc(name)}</div>
+        <div style="flex:1;min-width:0;">
+          <div class="pcard-name" style="margin-bottom:0;">${esc(name)}</div>
+          ${rankHtml}
+        </div>
         <button class="pcard-close" onclick="closePlayerCard()">✕</button>
       </div>
       <div class="pcard-stats">
@@ -4056,13 +4143,48 @@
       </div>
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
-      <div class="pcard-coming-soon">🔧 Fonctionnalités à venir</div>
+      <div class="pcard-section-title">Compte</div>
+      <div style="padding:0 0 8px;">
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Réinitialiser le mot de passe de ce joueur</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (min. 4 car.)"
+                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
+                 onkeydown="if(event.key==='Enter')adminResetPwd()">
+          <button class="btn btn-ghost btn-sm" onclick="adminResetPwd()" style="white-space:nowrap;">Réinitialiser</button>
+        </div>
+        <div id="pcard-pwd-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
+      </div>
     `;
     document.getElementById('pcard-overlay').style.display = 'flex';
   }
 
   function closePlayerCard() {
     document.getElementById('pcard-overlay').style.display = 'none';
+  }
+
+  function adminResetPwd() {
+    const name   = _pcardName;
+    const input  = document.getElementById('pcard-new-pwd');
+    const msgEl  = document.getElementById('pcard-pwd-msg');
+    const pwd    = input ? input.value : '';
+
+    const show = (text, ok) => {
+      msgEl.textContent   = text;
+      msgEl.style.color   = ok ? '#2ecc71' : '#e74c3c';
+      msgEl.style.display = 'block';
+    };
+
+    if (!pwd || pwd.length < 4) { show('Le mot de passe doit faire au moins 4 caractères.', false); return; }
+
+    const accounts = LS.getAccounts();
+    const key      = name.toLowerCase();
+    if (!accounts[key]) accounts[key] = { pseudo: name };
+    accounts[key].hash = _hashPwd(pwd);
+    LS.saveAccounts(accounts);
+
+    input.value = '';
+    show(`Mot de passe de ${name} réinitialisé avec succès.`, true);
+    setTimeout(() => { if (msgEl) msgEl.style.display = 'none'; }, 3000);
   }
 
   /* Render the full player list (filtered by search or letter) */
@@ -4859,7 +4981,7 @@
             ${newBadge}
           </div>
           <div class="q-body">
-            <div class="q-text">${q.type === 'joueur' ? '🎽 ' + esc(q.playerName) : esc(q.text)}</div>
+            <div class="q-text"><span>${q.type === 'joueur' ? '🎽 ' + esc(q.playerName) : esc(q.text)}</span><span class="q-del-inline" onclick="deleteQ('${q.id}')" title="Supprimer">✕</span></div>
             <div class="q-meta">${typeLabel} &nbsp;·&nbsp; <span style="color:var(--or);">${q.points || 1} pt${(q.points || 1) > 1 ? 's' : ''}</span> &nbsp;·&nbsp; ⏱ ${q.timerDuration || 15} s</div>
             <div class="q-answer">${answerLabel}</div>
             ${bonusHtml}
@@ -4869,7 +4991,7 @@
 
             <button class="btn btn-edit btn-sm" onclick="openEditModal('${q.id}')">Modifier</button>
             <button class="btn btn-edit btn-sm" onclick="testQuestion('${q.id}')" title="Tester dans la peau du joueur">⚗</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteQ('${q.id}')">✕</button>
+            <button class="btn btn-ghost btn-sm" onclick="shareTestQuestion('${q.id}')" title="Partager pour test de difficulté">🔗</button>
           </div>
         </div>`;
     }
@@ -5875,6 +5997,45 @@
   }
 
   /* ═══════════════════════════════════════════════════
+     SHARE TEST
+  ═══════════════════════════════════════════════════ */
+  function shareTestQuestion(id) {
+    const q = LS.getQ().find(x => x.id === id);
+    if (!q) return;
+    try {
+      const encoded = btoa(encodeURIComponent(JSON.stringify(q)))
+        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+      const url = window.location.href.split('?')[0] + '?sharetest=' + encoded;
+      document.getElementById('share-url-input').value = url;
+      document.getElementById('share-copy-btn').textContent = 'Copier';
+      document.getElementById('share-modal').style.display = 'flex';
+    } catch(e) {
+      alert('Impossible de générer le lien de partage.');
+    }
+  }
+
+  function closeShareModal() {
+    document.getElementById('share-modal').style.display = 'none';
+  }
+
+  function copyShareUrl() {
+    const url = document.getElementById('share-url-input').value;
+    const btn = document.getElementById('share-copy-btn');
+    const finish = () => { btn.textContent = '✓ Copié !'; setTimeout(() => { btn.textContent = 'Copier'; }, 2200); };
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(finish).catch(() => {
+        document.getElementById('share-url-input').select();
+        document.execCommand('copy');
+        finish();
+      });
+    } else {
+      document.getElementById('share-url-input').select();
+      document.execCommand('copy');
+      finish();
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════
      TEST MODE
   ═══════════════════════════════════════════════════ */
   function testQuestion(id) {
@@ -5903,6 +6064,34 @@
       testRenderQ();
     } catch {
       document.getElementById('tq-question').textContent = 'Données de test invalides.';
+    }
+  }
+
+  function initSharedTestMode(encoded) {
+    document.querySelectorAll('body > div').forEach(el => {
+      if (el.style.position === 'fixed') el.style.display = 'none';
+    });
+    nav('test');
+    document.getElementById('test-banner-title').textContent = '⚗ TEST DE DIFFICULTÉ';
+    document.getElementById('test-banner-sub').textContent   = 'Jouez et faites part de votre avis !';
+    document.getElementById('tq-close-btn').textContent      = 'Terminé !';
+    try {
+      const b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+      const pad = (4 - b64.length % 4) % 4;
+      const q   = JSON.parse(decodeURIComponent(atob(b64 + '='.repeat(pad))));
+      testState.q        = q;
+      testState.isShared = true;
+      testRenderQ();
+    } catch(e) {
+      document.getElementById('tq-question').textContent = 'Lien invalide ou corrompu. Demandez un nouveau lien à l\'administrateur.';
+    }
+  }
+
+  function closeTestView() {
+    if (testState.isShared) {
+      window.location.href = window.location.href.split('?')[0];
+    } else {
+      window.close();
     }
   }
 
@@ -7231,8 +7420,8 @@
      PARTAGE
   ═══════════════════════════════════════════════════ */
   function buildShareText() {
-    const { name, score, maxScore } = session;
-    return `${name} a obtenu ${score}/${maxScore} au Quiz RC Lens ! ⚽🏆 #RCLens #SangEtOr`;
+    const { name, score } = session;
+    return `${name} a obtenu ${score} pts au Quiz RC Lens ! ⚽🏆 #RCLens #SangEtOr`;
   }
 
   function shareOnX() {
@@ -7276,7 +7465,11 @@
     // Persister le score dans le leaderboard
     const lb = LS.getLeaderboard();
     const badgeLevel = ratio === 1 ? 'Légende de Bollaert' : ratio >= 0.7 ? 'Fidèle des Sang et Or' : ratio >= 0.4 ? 'Supporter du virage' : 'Touriste à Bollaert';
-    lb.push({ name, score, maxScore, date: new Date().toISOString(), badgeLevel });
+    const j0ok = answers.length >= 1 && answers[0].ok && answers[0].q && answers[0].q.type === 'joueur';
+    const j1ok = answers.length >= 2 && answers[1].ok && answers[1].q && answers[1].q.type === 'joueur';
+    const joueurAnswered = (j0ok ? 1 : 0) + (j1ok ? 1 : 0);
+    const bonusGot = answers.some(a => a.q && a.q._isBonusJoueur && a.ok);
+    lb.push({ name, score, maxScore, date: new Date().toISOString(), badgeLevel, joueurAnswered, bonusGot });
     LS.saveLeaderboard(lb);
 
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
@@ -7308,7 +7501,7 @@
       const pts    = a.q.points || 1;
       const ptsLbl = a.ok
         ? `<span style="font-size:.75rem;font-weight:700;color:var(--vert);margin-left:6px;">+${pts} pt${pts > 1 ? 's' : ''}</span>`
-        : `<span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.3);margin-left:6px;">0 / ${pts} pt${pts > 1 ? 's' : ''}</span>`;
+        : `<span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.3);margin-left:6px;">0 pt${pts > 1 ? 's' : ''}</span>`;
       const qLabel = isJoueur ? `🎽 ${esc(a.q.playerName)}` : esc(a.q.text);
       return `<div class="result-item ${cls}">
         <span class="r-icon">${icon}</span>
@@ -7796,6 +7989,98 @@
     document.getElementById('pc-games').textContent = games;
     document.getElementById('pc-best').textContent  = best;
 
+    const avgBox   = document.getElementById('pc-avg-box');
+    const firstBox = document.getElementById('pc-first-box');
+    if (games > 0) {
+      const avg = (lb.reduce((s, e) => s + (Number(e.score) || 0), 0) / games).toFixed(1);
+      const timestamps = lb.map(e => new Date(e.date).getTime()).filter(t => !isNaN(t));
+      const firstDate  = timestamps.length ? new Date(Math.min(...timestamps)) : null;
+      const firstStr   = firstDate ? firstDate.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }) : '—';
+      document.getElementById('pc-avg').textContent   = avg;
+      document.getElementById('pc-first').textContent = firstStr;
+      if (avgBox)   avgBox.style.display   = '';
+      if (firstBox) firstBox.style.display = '';
+    } else {
+      if (avgBox)   avgBox.style.display   = 'none';
+      if (firstBox) firstBox.style.display = 'none';
+    }
+
+    // ── Activity grid ──
+    const actSection = document.getElementById('pc-act-section');
+    const actGrid    = document.getElementById('pc-act-grid');
+    if (actSection && actGrid) {
+      const WEEKS = 26;
+      // Build day → best-performance map from leaderboard
+      const dayMap = {};
+      lb.forEach(e => {
+        if (!e.date) return;
+        const key = e.date.slice(0, 10); // YYYY-MM-DD
+        if (!dayMap[key]) dayMap[key] = { ja: 0, bonus: false, pts: 0 };
+        const ja = e.joueurAnswered != null ? e.joueurAnswered : 0;
+        if (ja > dayMap[key].ja) dayMap[key].ja = ja;
+        if (e.bonusGot) dayMap[key].bonus = true;
+        dayMap[key].pts += Number(e.score) || 0;
+      });
+
+      // Grid starts on the Monday of (today - WEEKS*7 + 1) days ago
+      const now = new Date();
+      const todayKey = now.toISOString().slice(0, 10);
+      const refDate  = new Date(now);
+      refDate.setDate(now.getDate() - WEEKS * 7 + 1);
+      refDate.setHours(0, 0, 0, 0);
+      const dow = (refDate.getDay() + 6) % 7; // 0=Mon
+      const gridStart = new Date(refDate);
+      gridStart.setDate(refDate.getDate() - dow);
+
+      let html = '';
+      const cur = new Date(gridStart);
+      for (let w = 0; w < WEEKS; w++) {
+        html += '<div class="pc-act-col">';
+        for (let d = 0; d < 7; d++) {
+          const key    = cur.toISOString().slice(0, 10);
+          const entry  = dayMap[key];
+          const future = key > todayKey;
+          let cls = 'pac-empty';
+          let tip = '';
+          if (!future && entry) {
+            cls = entry.ja >= 2 && entry.bonus ? 'pac-dgreen'
+                : entry.ja >= 2               ? 'pac-green'
+                : entry.ja === 1              ? 'pac-yellow'
+                :                               'pac-red';
+            const fmtD = cur.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' });
+            const bonusTxt = entry.bonus ? ' + bonus' : '';
+            tip = `${fmtD} — ${entry.ja}/2 joueur${bonusTxt} — ${entry.pts} pts`;
+          } else if (!future) {
+            const fmtD = cur.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' });
+            tip = `${fmtD} — pas de partie`;
+          }
+          html += `<div class="pc-act-cell ${cls}" data-tip="${tip}"></div>`;
+          cur.setDate(cur.getDate() + 1);
+        }
+        html += '</div>';
+      }
+      actGrid.innerHTML = html;
+      actSection.style.display = 'block';
+
+      // Tooltip events
+      const tip = document.getElementById('pc-act-tip');
+      actGrid.querySelectorAll('.pc-act-cell').forEach(cell => {
+        cell.addEventListener('mouseenter', ev => {
+          const t = cell.dataset.tip;
+          if (!t) return;
+          tip.textContent   = t;
+          tip.style.display = 'block';
+          tip.style.left    = (ev.clientX + 14) + 'px';
+          tip.style.top     = (ev.clientY - 34) + 'px';
+        });
+        cell.addEventListener('mousemove', ev => {
+          tip.style.left = (ev.clientX + 14) + 'px';
+          tip.style.top  = (ev.clientY - 34) + 'px';
+        });
+        cell.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+      });
+    }
+
     let bestBadge = null;
     for (const badge of _BADGE_ORDER) {
       if (lb.some(e => e.badgeLevel === badge)) { bestBadge = badge; break; }
@@ -7817,12 +8102,11 @@
         const d       = e.date ? new Date(e.date) : null;
         const dateStr = d ? d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }) : '';
         const icon    = _BADGE_ICONS[e.badgeLevel] || '🎯';
-        const scoreStr = e.maxScore ? `${e.score} / ${e.maxScore} pts` : `${e.score} pts`;
-        const pct = e.maxScore ? Math.round(e.score / e.maxScore * 100) : null;
+        const scoreStr = `${e.score} pts`;
         return `<div class="player-history-item">
           <div style="font-size:1.3rem;min-width:26px;text-align:center;">${icon}</div>
           <div class="player-history-info">
-            <div class="player-history-score">${scoreStr}${pct !== null ? `<span style="font-size:.7rem;color:rgba(255,255,255,.4);margin-left:5px;">(${pct}%)</span>` : ''}</div>
+            <div class="player-history-score">${scoreStr}</div>
             ${e.badgeLevel ? `<div style="font-size:.72rem;color:rgba(255,255,255,.4);">${e.badgeLevel}</div>` : ''}
           </div>
           ${dateStr ? `<div class="player-history-date">${dateStr}</div>` : ''}
@@ -7874,6 +8158,8 @@
     const _params = new URLSearchParams(window.location.search);
     if (_params.has('testmode')) {
       initTestMode();
+    } else if (_params.has('sharetest')) {
+      initSharedTestMode(_params.get('sharetest'));
     } else if (_params.has('admin')) {
       nav('admin-login');
     } else if (adminLogged) {
