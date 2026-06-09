@@ -5999,13 +5999,18 @@
   /* ═══════════════════════════════════════════════════
      SHARE TEST
   ═══════════════════════════════════════════════════ */
-  function shareTestQuestion(id) {
+  async function shareTestQuestion(id) {
     const q = LS.getQ().find(x => x.id === id);
     if (!q) return;
     try {
-      const encoded = btoa(encodeURIComponent(JSON.stringify(q)))
-        .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
-      const url = window.location.href.split('?')[0] + '?sharetest=' + encoded;
+      const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+      let code = '';
+      for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
+      const { error } = await _supa
+        .from('quiz_data')
+        .upsert({ key: 'st_' + code, value: q }, { onConflict: 'key' });
+      if (error) throw error;
+      const url = window.location.href.split('?')[0] + '?sharetest=' + code;
       document.getElementById('share-url-input').value = url;
       document.getElementById('share-copy-btn').textContent = 'Copier';
       document.getElementById('share-modal').style.display = 'flex';
@@ -6067,7 +6072,7 @@
     }
   }
 
-  function initSharedTestMode(encoded) {
+  async function initSharedTestMode(encoded) {
     document.querySelectorAll('body > div').forEach(el => {
       if (el.style.position === 'fixed') el.style.display = 'none';
     });
@@ -6075,15 +6080,33 @@
     document.getElementById('test-banner-title').textContent = '⚗ TEST DE DIFFICULTÉ';
     document.getElementById('test-banner-sub').textContent   = 'Jouez et faites part de votre avis !';
     document.getElementById('tq-close-btn').textContent      = 'Terminé !';
-    try {
-      const b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
-      const pad = (4 - b64.length % 4) % 4;
-      const q   = JSON.parse(decodeURIComponent(atob(b64 + '='.repeat(pad))));
-      testState.q        = q;
-      testState.isShared = true;
-      testRenderQ();
-    } catch(e) {
-      document.getElementById('tq-question').textContent = 'Lien invalide ou corrompu. Demandez un nouveau lien à l\'administrateur.';
+    if (encoded.length <= 8) {
+      // Nouveau format court — récupère depuis Supabase
+      try {
+        const { data, error } = await _supa
+          .from('quiz_data')
+          .select('value')
+          .eq('key', 'st_' + encoded)
+          .single();
+        if (error || !data) throw new Error('not found');
+        testState.q        = data.value;
+        testState.isShared = true;
+        testRenderQ();
+      } catch(e) {
+        document.getElementById('tq-question').textContent = 'Lien invalide ou expiré. Demandez un nouveau lien à l\'administrateur.';
+      }
+    } else {
+      // Ancien format base64 — rétrocompatibilité
+      try {
+        const b64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+        const pad = (4 - b64.length % 4) % 4;
+        const q   = JSON.parse(decodeURIComponent(atob(b64 + '='.repeat(pad))));
+        testState.q        = q;
+        testState.isShared = true;
+        testRenderQ();
+      } catch(e) {
+        document.getElementById('tq-question').textContent = 'Lien invalide ou corrompu. Demandez un nouveau lien à l\'administrateur.';
+      }
     }
   }
 
