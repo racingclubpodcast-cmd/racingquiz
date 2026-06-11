@@ -362,6 +362,11 @@
     .planning-slot-value { font-size: .83rem; flex: 1; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .planning-empty { color: rgba(255,255,255,.22) !important; font-style: italic; }
     .planning-slot-edit { font-size: .7rem; color: rgba(255,205,0,.4); flex-shrink: 0; }
+    .planning-day-mid { border-left: 3px solid rgba(255,205,0,.45); }
+    .planning-range-badge { font-size:.68rem;font-weight:700;color:var(--or);background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:6px;padding:2px 8px;white-space:nowrap;flex-shrink:0; }
+    .planning-slot input[type="date"] { background:transparent;border:none;color:rgba(255,255,255,.85);font-size:.83rem;flex:1;cursor:pointer;font-family:inherit;outline:none;min-width:0;width:100%; }
+    .planning-slot input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(.5) sepia(1) saturate(5) hue-rotate(10deg);cursor:pointer; }
+    .planning-mid-info { font-size:.74rem;color:rgba(255,205,0,.65);padding:3px 8px 8px;display:flex;align-items:center;gap:6px; }
 
     /* ── Alerts ── */
     .alert { padding: 11px 15px; border-radius: 9px; font-size: .88rem; margin-bottom: 14px; width: 100%; line-height: 1.4; }
@@ -782,6 +787,22 @@
       animation: joueur-shake .35s ease;
       border-color: var(--rouge) !important;
       box-shadow: 0 0 0 2px rgba(220,38,38,.25) !important;
+    }
+    @keyframes bonne-reponse-pop {
+      0%   { transform: translate(-50%,-50%) scale(.4); opacity: 1; }
+      60%  { opacity: 1; }
+      100% { transform: translate(-50%,-50%) scale(2.2); opacity: 0; }
+    }
+    .answer-popup {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%,-50%) scale(.4);
+      font-family: 'Calleo', sans-serif;
+      font-size: clamp(2.4rem, 9vw, 4.5rem);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 9999;
+      animation: bonne-reponse-pop 2s cubic-bezier(.22,.68,0,1.2) forwards;
     }
 
     /* ── Joueur quiz indices list ── */
@@ -1513,11 +1534,30 @@
     .pac-yellow { background:#c99b10; }
     .pac-green  { background:#27ae60; }
     .pac-dgreen { background:#0d6e35; }
-    .pc-act-legend { display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;justify-content:flex-end; }
+    .pc-act-legend { display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;justify-content:center; }
     .pc-act-legend-item { display:flex;align-items:center;gap:4px;font-size:.63rem;color:rgba(255,255,255,.3); }
     .pc-act-legend-cell { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
     #pc-act-tip { position:fixed;z-index:9999;display:none;pointer-events:none;background:rgba(20,20,20,.97);border:1px solid rgba(255,205,0,.22);border-radius:6px;padding:5px 10px;font-size:.72rem;color:rgba(255,255,255,.85);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.5); }
+    /* ── Classement public ── */
+    .lb-tab-btn { flex:1;padding:9px 4px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);border-radius:8px;cursor:pointer;font-size:.82rem;font-family:inherit;transition:background .15s,color .15s; }
+    .lb-tab-active { background:var(--rouge);border-color:var(--rouge);color:#fff;font-weight:700; }
+    .lb-entry { display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07); }
+    .lb-entry:last-child { border-bottom:none; }
+    .lb-rank { width:32px;text-align:center;font-weight:700;font-size:.9rem;color:rgba(255,255,255,.38);flex-shrink:0; }
+    .lb-rank-1 { color:#FFCD00;font-size:1.2rem; }
+    .lb-rank-2 { color:#c8c8c8;font-size:1.1rem; }
+    .lb-rank-3 { color:#cd7f32;font-size:1.05rem; }
+    .lb-name { flex:1;font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .lb-right { display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0; }
+    .lb-score { font-weight:700;color:var(--or);font-size:.95rem; }
+    .lb-badge-txt { font-size:.68rem;color:rgba(255,255,255,.38);white-space:nowrap; }
   </style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#E30613">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Racing Quiz">
 </head>
 <body>
   <div id="bg"></div>
@@ -1549,7 +1589,7 @@
         </div>
         <div class="form-group">
           <label class="field-label">Pseudo</label>
-          <input type="text" id="home-pseudo" placeholder="Ex: Sang et Or Forever" maxlength="30"
+          <input type="text" id="home-pseudo" placeholder="Ex: Tigui" maxlength="30"
                  onkeydown="if(event.key==='Enter')homeAuthSubmit()">
           <p id="home-pseudo-hint" style="display:none;margin:6px 0 0;font-size:.75rem;color:rgba(255,255,255,.38);line-height:1.4;">
             Choisis un pseudo qui ne révèle pas ton identité réelle — n'utilise pas ton vrai nom.
@@ -1557,8 +1597,13 @@
         </div>
         <div class="form-group">
           <label class="field-label">Mot de passe</label>
-          <input type="password" id="home-password" placeholder="Minimum 4 caractères"
+          <input type="password" id="home-password" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
                  onkeydown="if(event.key==='Enter')homeAuthSubmit()">
+          <div id="home-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.45;padding:9px 12px;">
+            ⚠️ <strong>Choisis un mot de passe unique, juste pour ce quiz.</strong>
+            N'utilise jamais un mot de passe que tu emploies ailleurs (email, banque, réseaux sociaux…) :
+            ce compte est protégé de façon simple, pas comme un site sécurisé.
+          </div>
         </div>
         <div id="home-confirm-group" class="form-group" style="display:none;">
           <label class="field-label">Confirmer le mot de passe</label>
@@ -1573,7 +1618,8 @@
 
       <!-- Section jouer (affichée après auth ou mode anonyme) -->
       <div class="card" id="home-play-section" style="max-width:380px;display:none;">
-        <button class="btn btn-gold btn-full" onclick="nav('player-name')">Jouer</button>
+        <button id="home-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">Jouer</button>
+        <div id="home-already-played-msg" class="alert alert-error" style="display:none;margin-top:10px;">Tu as déjà joué ta partie du jour ! Rendez-vous à la prochaine session.</div>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
@@ -1583,6 +1629,10 @@
           <button id="home-logout-btn" class="btn btn-ghost btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
         </div>
       </div>
+
+      <!-- Règles du jeu -->
+      <button class="btn btn-ghost btn-full" style="max-width:380px;margin-bottom:8px;" onclick="showRules()">Règles du jeu</button>
+      <button class="btn btn-ghost btn-full" style="max-width:380px;margin-bottom:8px;" onclick="nav('leaderboard')">🏆 Classement</button>
 
       <!-- Bandeau réseaux sociaux -->
       <div class="home-social">
@@ -1601,6 +1651,23 @@
       </div>
       <p style="margin-top:18px;font-size:.72rem;color:rgba(255,255,255,.3);text-align:center;font-family:monospace;letter-spacing:.04em;">Racing Quiz version 1</p>
       <p style="margin-top:8px;font-size:.68rem;color:rgba(255,255,255,.25);text-align:center;">by <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" style="color:rgba(255,255,255,.35);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Racing Club Podcast</a></p>
+    </div>
+
+    <!-- ══════════════════════════════════════ CLASSEMENT PUBLIC ═══ -->
+    <div class="view" id="view-leaderboard">
+      <div style="width:100%;max-width:520px;padding-bottom:80px;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
+          <button class="btn btn-ghost btn-sm mb0" onclick="nav('home')" style="padding:8px 14px;flex-shrink:0;">← Retour</button>
+          <h2 style="margin:0;font-size:1.3rem;font-family:'Calleo',sans-serif;">🏆 Classement</h2>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:14px;">
+          <button id="lb-tab-today" class="lb-tab-btn lb-tab-active" onclick="lbSetTab('today')">Aujourd'hui</button>
+          <button id="lb-tab-week"  class="lb-tab-btn" onclick="lbSetTab('week')">Cette semaine</button>
+          <button id="lb-tab-all"   class="lb-tab-btn" onclick="lbSetTab('all')">Tout temps</button>
+        </div>
+        <div id="lb-list" class="card" style="padding:4px 16px;min-height:60px;"></div>
+        <p id="lb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:32px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
+      </div>
     </div>
 
     <!-- ═══════════════════════════════════════ ADMIN LOGIN ═══ -->
@@ -1639,9 +1706,10 @@
 
       <div class="tabs">
         <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database (<span id="qcount">0</span>)</button>
-        <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur <span class="planning-used-badge badge-beta" style="margin-left:4px;">BÊTA</span></button>
+        <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur</button>
         <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
         <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs</button>
+        <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
       </div>
 
       <!-- Tab : list -->
@@ -1667,7 +1735,7 @@
                   <span class="db-filter-check" id="dbfc-joueur">○</span> 🎽 Qui suis-je ?
                 </div>
                 <div class="db-filter-option" onclick="dbToggleFilter('bonus')">
-                  <span class="db-filter-check" id="dbfc-bonus">○</span> ⭐ Avec bonus
+                  <span class="db-filter-check" id="dbfc-bonus">○</span> ⭐ Bonus
                 </div>
                 <div class="db-filter-sep"></div>
                 <div class="db-filter-section-label">Tags</div>
@@ -1898,6 +1966,7 @@
                 <h3>Base de questions</h3>
                 <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Exportez la base complète en JSON (sauvegarde) ou importez un fichier pour alimenter la base.</p>
                 <div style="display:flex;flex-direction:column;gap:10px;">
+                  <button class="btn btn-gold btn-full" onclick="backupNow()">💾 Backup horodaté</button>
                   <button class="btn btn-ghost btn-full" onclick="exportQuestions()">⬇ Exporter les questions (JSON)</button>
                   <button class="btn btn-ghost btn-full" onclick="document.getElementById('import-input-settings').click()">⬆ Importer des questions (JSON)</button>
                   <input type="file" id="import-input-settings" accept=".json" style="display:none" onchange="importQuestionsPreview(event)">
@@ -1936,6 +2005,7 @@
                   <button class="btn btn-gold mb0" onclick="addMedia()">+ Ajouter ce contenu</button>
                 </div>
                 <div id="media-list"></div>
+                <button class="btn btn-ghost btn-full mb0" style="margin-top:14px;" onclick="openMidbreakPreview()">👁 Visualiser la pause fraîcheur</button>
               </div>
             </div>
 
@@ -1997,11 +2067,17 @@
                 <h3>Changer le mot de passe admin</h3>
                 <div class="form-group">
                   <label class="field-label">Nouveau mot de passe</label>
-                  <input type="password" id="pwd-new" placeholder="Minimum 4 caractères">
+                  <input type="password" id="pwd-new" placeholder="Minimum 7 car., maj., chiffre, ponctuation">
                 </div>
                 <div class="form-group">
                   <label class="field-label">Confirmer le mot de passe</label>
                   <input type="password" id="pwd-confirm" placeholder="Répétez le mot de passe">
+                </div>
+                <div class="alert alert-info" style="font-size:.75rem;line-height:1.45;padding:9px 12px;">
+                  ⚠️ N'utilisez pas un mot de passe personnel employé ailleurs.
+                  Ce mot de passe vaut pour <strong>tous les appareils</strong> (compte Supabase Auth
+                  + hash de repli partagé). Changez-le dès la première utilisation, sinon le mot de
+                  passe par défaut (visible dans le code) reste accepté.
                 </div>
                 <div id="pwd-err" class="alert alert-error"   style="display:none"></div>
                 <div id="pwd-ok"  class="alert alert-success" style="display:none">Mot de passe modifié !</div>
@@ -2065,6 +2141,17 @@
           <div id="joueurs-list"></div>
         </div>
       </div>
+
+      <!-- Tab : stats -->
+      <div id="at-stats" style="display:none;width:100%">
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Statistiques par question</span>
+            <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="resetQStats()">Réinitialiser</button>
+          </div>
+          <div id="qstats-content"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ════════════════════════════════════ PLAYER NAME ═══ -->
@@ -2074,6 +2161,7 @@
       <p class="subtitle app-subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
       <div class="card" style="max-width:380px;">
         <div id="no-q-alert" class="alert alert-error" style="display:none">Aucune question disponible. Contactez l'administrateur.</div>
+        <div id="already-played-alert" class="alert alert-error" style="display:none">Vous avez déjà participé à la session d'aujourd'hui. Rendez-vous à la prochaine !</div>
         <div class="form-group">
           <label class="field-label" for="player-name">Votre prénom</label>
           <input type="text" id="player-name" placeholder="Ex: Tigui" maxlength="30"
@@ -2105,23 +2193,6 @@
         </div>
       </div>
 
-      <!-- Modale règles du jeu -->
-      <div id="rules-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
-        <div style="background:rgba(22,22,22,.99);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:32px 24px;max-width:420px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.7);position:relative;">
-          <button onclick="closeRules()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
-          <div style="text-align:center;margin-bottom:22px;">
-            <h2 style="margin-bottom:2px;">Règles du jeu</h2>
-            <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin:0;">Quiz RC Lens</p>
-          </div>
-
-          <!-- Timer -->
-          <div style="background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:14px 16px;margin-bottom:22px;">
-            <p style="color:rgba(255,255,255,.7);font-size:.84rem;margin:0;line-height:1.55;">Les questions « Qui suis-je ? » sont chronométrées à <strong style="color:#fff;">60 secondes</strong>. Si les deux joueurs sont trouvés, une <strong style="color:#fff;">question bonus</strong> est débloquée.</p>
-          </div>
-
-          <button class="btn btn-gold btn-full mb0" onclick="closeRules()">Compris — Bonne chance !</button>
-        </div>
-      </div>
 
       <div style="width:100%;max-width:680px;">
         <button class="btn btn-ghost btn-sm" style="align-self:flex-start;margin-bottom:10px;" onclick="nav('home')">← Accueil</button>
@@ -2225,8 +2296,8 @@
               </div>
             </div>
 
-            <button class="btn btn-gold btn-full mt16 mb0" id="qz-next-btn" onclick="nextQ()" style="display:none;"></button>
           </div>
+          <button class="btn btn-gold btn-full mt16 mb0" id="qz-next-btn" onclick="nextQ()" style="display:none;"></button>
         </div>
       </div>
     </div>
@@ -2253,7 +2324,7 @@
         <!-- Partager -->
         <div class="card" style="margin-bottom:12px;">
           <h3 style="margin-bottom:12px;">Partager mes résultats</h3>
-          <div style="display:flex;gap:10px;">
+          <div style="display:flex;gap:10px;margin-bottom:8px;">
             <button class="btn btn-ghost mb0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="shareOnX()">
               <img src="X.png" alt="X" style="height:16px;width:auto;"> Sur X
             </button>
@@ -2261,7 +2332,23 @@
               <img src="Insta.png" alt="Instagram" style="height:16px;width:auto;"> Sur Instagram
             </button>
           </div>
+          <button class="btn btn-ghost btn-full mb0" style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:.85rem;" onclick="downloadShareImage()">
+            📷 Télécharger en image (Insta / X)
+          </button>
           <div id="share-feedback" style="display:none;margin-top:10px;font-size:.82rem;color:rgba(255,255,255,.5);text-align:center;"></div>
+        </div>
+
+        <!-- Classement -->
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+            <h3 style="margin:0;">🏆 Classement</h3>
+            <div style="display:flex;gap:4px;">
+              <button id="rlb-tab-today" class="lb-tab-btn lb-tab-active" onclick="rlbSetTab('today')" style="flex:none;padding:5px 10px;font-size:.75rem;">Aujourd'hui</button>
+              <button id="rlb-tab-all"   class="lb-tab-btn" onclick="rlbSetTab('all')"   style="flex:none;padding:5px 10px;font-size:.75rem;">Tout temps</button>
+            </div>
+          </div>
+          <div id="res-lb-list"></div>
+          <p id="res-lb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;margin:8px 0 0;">Aucun score pour cette période.</p>
         </div>
 
         <!-- Accueil -->
@@ -2393,7 +2480,7 @@
 
         <div class="form-group">
           <label class="field-label">Pseudo</label>
-          <input type="text" id="auth-pseudo" placeholder="Ex: Sang et Or Forever" maxlength="30"
+          <input type="text" id="auth-pseudo" placeholder="Ex: Tigui" maxlength="30"
                  onkeydown="if(event.key==='Enter')authSubmit()">
           <p id="auth-pseudo-hint" style="display:none;margin:6px 0 0;font-size:.75rem;color:rgba(255,255,255,.38);line-height:1.4;">
             Choisis un pseudo qui ne révèle pas ton identité réelle — n'utilise pas ton vrai nom.
@@ -2401,8 +2488,13 @@
         </div>
         <div class="form-group">
           <label class="field-label">Mot de passe</label>
-          <input type="password" id="auth-password" placeholder="Minimum 4 caractères"
+          <input type="password" id="auth-password" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
                  onkeydown="if(event.key==='Enter')authSubmit()">
+          <div id="auth-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.45;padding:9px 12px;">
+            ⚠️ <strong>Choisis un mot de passe unique, juste pour ce quiz.</strong>
+            N'utilise jamais un mot de passe que tu emploies ailleurs (email, banque, réseaux sociaux…) :
+            ce compte est protégé de façon simple, pas comme un site sécurisé.
+          </div>
         </div>
         <div id="auth-confirm-group" class="form-group" style="display:none;">
           <label class="field-label">Confirmer le mot de passe</label>
@@ -2473,7 +2565,8 @@
             </div>
           </div>
 
-          <button class="btn btn-gold btn-full" onclick="nav('player-name')">▶ Jouer</button>
+          <button id="pc-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">▶ Jouer</button>
+          <div id="pc-already-played-msg" class="alert alert-error" style="display:none;margin-top:8px;">Tu as déjà joué ta partie du jour ! Rendez-vous à la prochaine session.</div>
           <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
         </div>
 
@@ -2497,11 +2590,72 @@
   <div id="admin-dashboard"></div>
 
 
+  <!-- ════════════════════════════════════ RULES MODAL ═══ -->
+  <div id="rules-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;padding:16px;overflow-y:auto;" onclick="if(event.target===this)closeRules()">
+    <div style="background:rgba(22,22,22,.99);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:32px 24px;max-width:460px;width:100%;box-shadow:0 24px 64px rgba(0,0,0,.7);position:relative;">
+      <button onclick="closeRules()" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,.4);font-size:1.3rem;cursor:pointer;line-height:1;">✕</button>
+      <div style="text-align:center;margin-bottom:24px;">
+        <h2 style="margin-bottom:4px;">Règles du jeu</h2>
+        <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin:0;">Le Racing Quiz</p>
+      </div>
+
+      <p style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.6;margin-bottom:20px;">Prouve que tu es le plus grand supporter du Racing Club de Lens en accumulant le maximum de points chaque semaine !</p>
+
+      <div style="background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:16px;margin-bottom:16px;">
+        <p style="color:var(--or);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Comment ça marche ?</p>
+        <p style="color:rgba(255,255,255,.8);font-size:.84rem;line-height:1.6;margin-bottom:10px;">Chaque semaine, <strong style="color:#fff;">deux joueurs RC Lens</strong> te sont proposés à deviner. Des indices se dévoilent progressivement : à toi de trouver de qui il s'agit le plus tôt possible.</p>
+        <ul style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.7;padding-left:18px;margin:0;">
+          <li>Tu disposes de <strong style="color:#fff;">jusqu'à 6 indices</strong> par joueur.</li>
+          <li><strong style="color:#fff;">Plus tu dévoiles d'indices, moins tu marques de points</strong> — chaque indice révélé diminue le gain potentiel.</li>
+          <li>Si tu identifies les <strong style="color:#fff;">deux joueurs de la semaine</strong>, une <strong style="color:#fff;">question bonus</strong> se débloque pour remporter des points supplémentaires.</li>
+        </ul>
+      </div>
+
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Chronomètre</p>
+        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.55;margin:0;">Chaque question dispose d'un compte à rebours.</p>
+      </div>
+
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:24px;">
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">Les 4 thématiques</p>
+        <div style="display:grid;gap:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
+            <span style="color:#fff;font-weight:600;">Moderne</span>
+            <span style="color:rgba(255,255,255,.45);">1990 à aujourd'hui</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
+            <span style="color:#fff;font-weight:600;">Vintage</span>
+            <span style="color:rgba(255,255,255,.45);">1970 à 1990</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
+            <span style="color:#fff;font-weight:600;">Historique</span>
+            <span style="color:rgba(255,255,255,.45);">1906 à 1969</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
+            <span style="color:#fff;font-weight:600;">Difficile</span>
+            <span style="color:rgba(255,255,255,.45);">Questions pointues, toutes époques</span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-gold btn-full mb0" onclick="closeRules()">Compris — Bonne chance !</button>
+    </div>
+  </div>
+
   <!-- ════════════════════════════════════ EDIT MODAL ═══ -->
   <div id="edit-modal" class="modal-overlay" style="display:none;">
     <div class="modal-inner">
       <div class="card">
-        <h3 style="margin-bottom:20px;">Modifier la question</h3>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <span id="eq-code" style="font-size:.82rem;font-weight:700;background:rgba(255,205,0,.18);color:var(--or);border-radius:6px;padding:3px 10px;letter-spacing:.5px;flex-shrink:0;font-family:monospace;">—</span>
+            <h3 style="margin:0;">Modifier la question</h3>
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0;">
+            <button id="eq-nav-prev" class="btn btn-ghost btn-sm" onclick="navEditQuestion(-1)" title="Question précédente" style="padding:7px 11px;">◀</button>
+            <button id="eq-nav-next" class="btn btn-ghost btn-sm" onclick="navEditQuestion(1)" title="Question suivante" style="padding:7px 11px;">▶</button>
+          </div>
+        </div>
         <div id="eq-text-row" class="form-group">
           <label class="field-label">Question *</label>
           <textarea id="eq-text"></textarea>
@@ -2707,14 +2861,36 @@
     </div>
   </div>
 
+  <!-- ════════════════════════════════════ MIDBREAK PREVIEW MODAL ═══ -->
+  <div id="midbreak-preview-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeMidbreakPreview()">
+    <div class="modal-inner">
+      <div class="card" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="margin:0;">Aperçu — Pause fraîcheur</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeMidbreakPreview()">✕</button>
+        </div>
+        <div id="midbreak-preview-content" style="width:100%;"></div>
+        <p id="midbreak-preview-empty" style="display:none;font-size:.85rem;color:rgba(255,255,255,.4);text-align:center;padding:24px 0;">Aucun contenu actif. Ajoutez des médias ci-dessus pour les voir apparaître ici.</p>
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button class="btn btn-ghost btn-sm" onclick="openMidbreakPreview()" style="flex:1;">🔀 Autre contenu</button>
+          <button class="btn btn-ghost btn-sm" onclick="closeMidbreakPreview()" style="flex:1;">Fermer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════════════════════════════════ PLANNING PICKER ═══ -->
   <div id="planning-picker-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:900;align-items:center;justify-content:center;padding:16px;">
     <div style="background:rgba(26,26,26,.97);border:1px solid rgba(255,205,0,.25);border-radius:16px;padding:20px;width:min(94vw,440px);max-height:82vh;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.6);">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-shrink:0;">
         <span id="picker-title" style="flex:1;font-weight:700;font-size:.88rem;color:var(--or);"></span>
-        <button class="btn btn-ghost btn-sm" onclick="closePlanningPicker()">✕ Fermer</button>
+        <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="closePlanningPicker()" title="Fermer">✕</button>
       </div>
       <div id="picker-list" style="overflow-y:auto;flex:1;"></div>
+      <div style="flex-shrink:0;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);margin-top:10px;display:flex;gap:8px;justify-content:flex-end;">
+        <button class="btn btn-ghost btn-sm" onclick="closePlanningPicker()">Annuler</button>
+        <button class="btn btn-red" id="picker-save-btn" disabled onclick="confirmPlanningSlot()" style="min-width:130px;">Sauvegarder</button>
+      </div>
     </div>
   </div>
 
@@ -2729,7 +2905,13 @@
   const EMAILJS_PUBLIC_KEY  = 'VOTRE_CLE_PUBLIQUE';
   const EMAILJS_SERVICE_ID  = 'VOTRE_SERVICE_ID';
   const EMAILJS_TEMPLATE_ID = 'VOTRE_TEMPLATE_ID';
-  emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+  if (window.emailjs) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  /* ── Compte admin Supabase Auth (v3) ── créer cet utilisateur dans le dashboard
+     Supabase → Authentication → Users → "Add user" (cocher "Auto Confirm User").
+     Le mot de passe saisi sur l'écran admin est celui de ce compte. */
+  const ADMIN_EMAIL = 'racingclubpodcast@gmail.com';
+
   const TAG_PALETTE  = ['#E30613','#1565C0','#2E7D32','#6A1B9A','#E65100','#00695C','#AD1457','#37474F'];
 
   let adminLogged = sessionStorage.getItem('rcAdminLogged') === '1';
@@ -2792,13 +2974,28 @@
   const SUPABASE_URL  = 'https://wxkvgilseonwcgrbryug.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind4a3ZnaWxzZW9ud2NncmJyeXVnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NjM5OTksImV4cCI6MjA5NjIzOTk5OX0.x_ZqBE__hy2WY6q10imZ9eT8IJNxlQGOk5wgnwWBH2k';
 
-  const _supa = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+  const _supa = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON) : null;
 
-  /* Cache mémoire — rempli au démarrage par initDB(), lu de façon synchrone ensuite */
-  let _db = { questions: [], tags: [], media: [], features: {} };
+  /* Cache mémoire — rempli au démarrage par initDB(), lu de façon synchrone ensuite.
+     v3 : le contenu (questions, tags, media, réglages, planning) vit dans la table
+     clé/valeur quiz_data (écriture réservée à l'admin authentifié — RLS), tandis que
+     les scores et les comptes joueurs ont leurs propres tables (voir supabase-v3-setup.sql). */
+  const QUIZ_DATA_KEYS = ['questions', 'tags', 'media', 'features', 'planning'];
+  let _db = {
+    questions: [], tags: [], media: [], features: {}, planning: {},
+    scores: [], accounts: {}
+  };
+  let adminSupaAuthed = false; // session Supabase Auth active (écritures contenu autorisées par RLS)
 
   /* Pousse une clé du cache vers Supabase — retourne true si OK, message d'erreur sinon */
   async function dbPush(key) {
+    // Backup localStorage d'abord (secours local, même hors-ligne)
+    try { localStorage.setItem('rc_bk_' + key, JSON.stringify(_db[key])); } catch {}
+    if (!QUIZ_DATA_KEYS.includes(key)) {
+      console.error('[Supabase] dbPush: clé hors quiz_data :', key);
+      return 'clé invalide';
+    }
+    if (!_supa) return 'Librairie Supabase non chargée';
     const { error } = await _supa
       .from('quiz_data')
       .upsert({ key, value: _db[key] }, { onConflict: 'key' });
@@ -2806,9 +3003,148 @@
       console.error('[Supabase] push error (' + key + '):', error);
       return error.message || error.code || 'erreur inconnue';
     }
-    // Backup localStorage (secours local)
-    try { localStorage.setItem('rc_bk_' + key, JSON.stringify(_db[key])); } catch {}
     return true;
+  }
+
+  /* Recharge une seule clé quiz_data depuis Supabase avant une mutation
+     (limite les écrasements quand plusieurs appareils écrivent la même clé) */
+  async function dbPull(key) {
+    if (!_supa || !QUIZ_DATA_KEYS.includes(key)) return false;
+    try {
+      const { data, error } = await _supa
+        .from('quiz_data')
+        .select('value')
+        .eq('key', key)
+        .maybeSingle();
+      if (!error && data && data.value != null) _db[key] = data.value;
+      return !error;
+    } catch { return false; }
+  }
+
+  /* ═══ Table scores (v3) : une ligne par partie jouée, INSERT public ═══ */
+  const _scoreFromRow = r => ({
+    id: r.id, name: r.name, score: Number(r.score),
+    maxScore: r.max_score != null ? Number(r.max_score) : 0,
+    date: r.created_at, badgeLevel: r.badge_level,
+    joueurAnswered: r.joueur_answered, bonusGot: r.bonus_got,
+    plannedDate: r.planned_date, questionIds: r.question_ids || [],
+    details: r.details || [], beta: !!r.beta
+  });
+
+  function _backupScores()   { try { localStorage.setItem('rc_bk_scores',   JSON.stringify(_db.scores));   } catch {} }
+  function _backupAccounts() { try { localStorage.setItem('rc_bk_accounts', JSON.stringify(_db.accounts)); } catch {} }
+
+  async function scoresFetch() {
+    if (!_supa) return false;
+    try {
+      const { data, error } = await _supa.from('scores').select('*').order('created_at', { ascending: true });
+      if (error) { console.warn('[Supabase] lecture scores impossible:', error); return false; }
+      _db.scores = (data || []).map(_scoreFromRow);
+      _backupScores();
+      return true;
+    } catch { return false; }
+  }
+
+  async function scoreInsert(e) {
+    _db.scores.push(e);
+    _backupScores();
+    if (!_supa) return false;
+    const { error } = await _supa.from('scores').insert({
+      name: e.name, score: e.score, max_score: e.maxScore,
+      badge_level: e.badgeLevel, joueur_answered: e.joueurAnswered, bonus_got: !!e.bonusGot,
+      planned_date: e.plannedDate || null, question_ids: e.questionIds || [],
+      details: e.details || [], beta: !!e.beta
+    });
+    if (error) { console.error('[Supabase] insertion score:', error); return false; }
+    return true;
+  }
+
+  async function scoresDeleteByName(name) {
+    _db.scores = _db.scores.filter(s => s.name !== name);
+    _backupScores();
+    if (!_supa) return;
+    const { error } = await _supa.from('scores').delete().eq('name', name);
+    if (error) {
+      console.error('[Supabase] suppression scores:', error);
+      alert('Suppression refusée par Supabase — connexion admin (Supabase Auth) requise.');
+      scoresFetch().then(() => renderJoueurs());
+    }
+  }
+
+  async function scoresDeleteAll() {
+    _db.scores = [];
+    _backupScores();
+    if (!_supa) return;
+    const { error } = await _supa.from('scores').delete().gte('id', 0);
+    if (error) {
+      console.error('[Supabase] suppression scores:', error);
+      alert('Suppression refusée par Supabase — connexion admin (Supabase Auth) requise.');
+      scoresFetch().then(() => renderJoueurs());
+    }
+  }
+
+  /* ═══ Table accounts (v3) : comptes joueurs ═══ */
+  async function accountsFetch() {
+    if (!_supa) return false;
+    try {
+      const { data, error } = await _supa.from('accounts').select('*');
+      if (error) { console.warn('[Supabase] lecture accounts impossible:', error); return false; }
+      const map = {};
+      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, hash: r.hash || undefined, avatar: r.avatar || undefined }; });
+      _db.accounts = map;
+      _backupAccounts();
+      return true;
+    } catch { return false; }
+  }
+
+  async function accountSave(key) {
+    const a = _db.accounts[key];
+    _backupAccounts();
+    if (!_supa || !a) return false;
+    const { error } = await _supa.from('accounts').upsert({
+      key, pseudo: a.pseudo, hash: a.hash || null, avatar: a.avatar || null
+    }, { onConflict: 'key' });
+    if (error) { console.error('[Supabase] sauvegarde compte:', error); return false; }
+    return true;
+  }
+
+  /* usedInGame (v3) : dérivé des parties non-bêta enregistrées depuis le dernier reset
+     (+ marqueurs hérités des versions précédentes, stockés dans features.usedLegacyIds) */
+  function computeUsedInGame() {
+    const f       = (_db.features && typeof _db.features === 'object') ? _db.features : {};
+    const resetAt = f.usedResetAt || 0;
+    const used    = new Set(Array.isArray(f.usedLegacyIds) ? f.usedLegacyIds : []);
+    (_db.scores || []).forEach(s => {
+      if (s.beta) return;
+      if (resetAt && new Date(s.date).getTime() < resetAt) return;
+      (s.questionIds || []).forEach(id => used.add(id));
+    });
+    return used;
+  }
+
+  /* Stats par question (v3) : agrégées depuis le détail des parties (table scores),
+     complétées par les stats locales héritées tant qu'aucun reset n'a eu lieu */
+  function computeQStats() {
+    const f       = (_db.features && typeof _db.features === 'object') ? _db.features : {};
+    const resetAt = f.statsResetAt || 0;
+    const qstats  = {};
+    if (!resetAt) {
+      const legacy = LS.getQStats();
+      Object.entries(legacy).forEach(([id, s]) => { qstats[id] = { ...s }; });
+    }
+    (_db.scores || []).forEach(sc => {
+      if (sc.beta) return;
+      if (resetAt && new Date(sc.date).getTime() < resetAt) return;
+      (sc.details || []).forEach(d => {
+        if (!d || !d.id) return;
+        const id = String(d.id);
+        if (!qstats[id]) qstats[id] = { attempts: 0, successes: 0, indiceIdxSum: 0, indiceIdxCount: 0 };
+        qstats[id].attempts++;
+        if (d.ok) qstats[id].successes++;
+        if (d.indiceIdx != null) { qstats[id].indiceIdxSum += d.indiceIdx; qstats[id].indiceIdxCount++; }
+      });
+    });
+    return qstats;
   }
 
   /* Seeding initial : lit le JSON local et l'envoie vers Supabase */
@@ -2827,31 +3163,114 @@
 
   /* Chargement principal : Supabase → cache, avec fallback localStorage */
   async function initDB() {
+    const loadLocalBackups = () => Object.keys(_db).forEach(k => {
+      try {
+        const bk = localStorage.getItem('rc_bk_' + k);
+        if (bk) _db[k] = JSON.parse(bk);
+      } catch {}
+    });
+    if (!_supa) { loadLocalBackups(); return; }
     const { data, error } = await _supa.from('quiz_data').select('key, value');
     if (error) {
       // Supabase inaccessible → repli sur le backup localStorage
       console.warn('[Supabase] lecture impossible, repli sur backup local:', error);
-      ['questions','tags','media','features'].forEach(k => {
-        try {
-          const bk = localStorage.getItem('rc_bk_' + k);
-          if (bk) _db[k] = JSON.parse(bk);
-        } catch {}
-      });
+      loadLocalBackups();
       return;
     }
     if (data && data.length) {
-      data.forEach(row => { if (row.key in _db) _db[row.key] = row.value ?? _db[row.key]; });
+      data.forEach(row => { if (QUIZ_DATA_KEYS.includes(row.key)) _db[row.key] = row.value ?? _db[row.key]; });
       if (!_db.questions || !_db.questions.length) await seedFromJson();
     } else {
       await seedFromJson();
     }
+    await Promise.all([scoresFetch(), accountsFetch()]);
+  }
+
+  /* Migration one-shot v3 : déplace les données des anciennes versions
+     (localStorage v1 / clés quiz_data v2) vers Supabase et les nouvelles tables. */
+  async function migrateLocalStateToSupabase() {
+    let allOk = true;
+    // Planning : v1 le stockait en localStorage
+    if (!Object.keys(_db.planning || {}).length) {
+      try {
+        const raw = localStorage.getItem('rcPlanning');
+        if (raw) {
+          const val = JSON.parse(raw);
+          if (Object.keys(val).length) { _db.planning = val; if (await dbPush('planning') !== true) allOk = false; }
+        }
+      } catch {}
+    }
+    // Mot de passe admin : migre l'ancien rcPwd local (en clair) vers un hash partagé
+    if (!(_db.features || {}).adminPwdHash) {
+      const legacyPwd = localStorage.getItem('rcPwd');
+      if (legacyPwd) {
+        _db.features = Object.assign({}, _db.features, { adminPwdHash: _hashPwd(legacyPwd) });
+        if (await dbPush('features') === true) {
+          try { localStorage.removeItem('rcPwd'); } catch {}
+        } else allOk = false;
+      }
+    }
+    if (!_supa || localStorage.getItem('rcV3Migrated') === '1') return;
+
+    // Anciennes clés partagées (v2) encore dans quiz_data, ou localStorage (v1)
+    let legacyLb = [], legacyAcc = {}, legacyUsed = [];
+    try {
+      const { data } = await _supa.from('quiz_data').select('key, value')
+        .in('key', ['leaderboard', 'accounts', 'usedInGame']);
+      (data || []).forEach(r => {
+        if (r.key === 'leaderboard' && Array.isArray(r.value)) legacyLb   = r.value;
+        if (r.key === 'accounts'    && r.value)                legacyAcc  = r.value;
+        if (r.key === 'usedInGame'  && Array.isArray(r.value)) legacyUsed = r.value;
+      });
+    } catch {}
+    try { if (!legacyLb.length)               legacyLb   = JSON.parse(localStorage.getItem('rcLeaderboard') || '[]'); } catch {}
+    try { if (!Object.keys(legacyAcc).length) legacyAcc  = JSON.parse(localStorage.getItem('rcAccounts')    || '{}'); } catch {}
+    try { if (!legacyUsed.length)             legacyUsed = JSON.parse(localStorage.getItem('rcUsedInGame')  || '[]'); } catch {}
+
+    // Scores → table scores
+    if (legacyLb.length && !_db.scores.length) {
+      const rows = legacyLb.map(e => ({
+        name: e.name, score: e.score, max_score: e.maxScore ?? null,
+        badge_level: e.badgeLevel ?? null, joueur_answered: e.joueurAnswered ?? null,
+        bonus_got: !!e.bonusGot, planned_date: null, question_ids: [], details: [],
+        beta: false, created_at: e.date || new Date().toISOString()
+      }));
+      const { error } = await _supa.from('scores').insert(rows);
+      if (error) { console.warn('[Migration v3] scores:', error); allOk = false; }
+      else await scoresFetch();
+    }
+    // Comptes → table accounts
+    for (const [key, a] of Object.entries(legacyAcc)) {
+      if (!_db.accounts[key]) {
+        _db.accounts[key] = a;
+        if (await accountSave(key) !== true) allOk = false;
+      }
+    }
+    // Marqueurs "joué" hérités → features.usedLegacyIds
+    if (legacyUsed.length && !Array.isArray((_db.features || {}).usedLegacyIds)) {
+      _db.features = Object.assign({}, _db.features, { usedLegacyIds: legacyUsed });
+      if (await dbPush('features') !== true) allOk = false;
+    }
+    if (allOk) localStorage.setItem('rcV3Migrated', '1');
   }
 
   const LS = {
     getQ         : ()    => Array.isArray(_db.questions)                          ? _db.questions : [],
     saveQ        : (arr) => { _db.questions = arr; dbPush('questions'); },
-    getPwd       : ()    => localStorage.getItem('rcPwd') || DEFAULT_PWD,
-    setPwd       : (p)   => localStorage.setItem('rcPwd', p),
+    /* v2/v3 : le mot de passe admin est stocké sous forme de hash dans Supabase
+       (clé "features") et sert de repli quand le compte Supabase Auth n'est pas
+       encore configuré. L'ancien rcPwd local n'est lu que pour la migration. */
+    checkPwd : (p) => {
+      const h = (LS.getFeatures() || {}).adminPwdHash;
+      if (h) return _hashPwd(p) === h;
+      return p === (localStorage.getItem('rcPwd') || DEFAULT_PWD);
+    },
+    setPwd : (p) => {
+      const f = LS.getFeatures();
+      f.adminPwdHash = _hashPwd(p);
+      LS.saveFeatures(f);
+      try { localStorage.removeItem('rcPwd'); } catch {}
+    },
     getTags      : ()    => Array.isArray(_db.tags)                               ? _db.tags      : [],
     saveTags     : (arr) => { _db.tags  = arr; dbPush('tags'); },
     getMedia     : ()    => Array.isArray(_db.media)                              ? _db.media     : [],
@@ -2860,16 +3279,16 @@
     saveFeatures : (obj) => { _db.features = obj; dbPush('features'); },
     getRotation  : ()    => JSON.parse(localStorage.getItem('rcRotation') || '[]'),
     saveRotation : (arr) => localStorage.setItem('rcRotation', JSON.stringify(arr)),
-    getPlanning   : ()    => JSON.parse(localStorage.getItem('rcPlanning') || '{}'),
-    savePlanning  : (obj) => localStorage.setItem('rcPlanning', JSON.stringify(obj)),
-    getUsedInGame   : ()    => new Set(JSON.parse(localStorage.getItem('rcUsedInGame') || '[]')),
-    saveUsedInGame  : (set) => localStorage.setItem('rcUsedInGame', JSON.stringify([...set])),
-    getLeaderboard  : ()    => JSON.parse(localStorage.getItem('rcLeaderboard') || '[]'),
-    saveLeaderboard : (arr) => localStorage.setItem('rcLeaderboard', JSON.stringify(arr)),
-    getAccounts     : ()    => JSON.parse(localStorage.getItem('rcAccounts') || '{}'),
-    saveAccounts    : (obj) => localStorage.setItem('rcAccounts', JSON.stringify(obj)),
+    getPlanning   : ()    => (_db.planning && typeof _db.planning === 'object')   ? _db.planning : {},
+    savePlanning  : (obj) => { _db.planning = obj; dbPush('planning'); },
+    /* v3 : usedInGame est dérivé des parties enregistrées (table scores) */
+    getUsedInGame   : ()    => computeUsedInGame(),
+    getLeaderboard      : ()    => Array.isArray(_db.scores) ? _db.scores : [],
+    getAccounts     : ()    => (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {},
     getLoggedPseudo : ()    => localStorage.getItem('rcLoggedPseudo') || null,
     setLoggedPseudo : (p)   => p ? localStorage.setItem('rcLoggedPseudo', p) : localStorage.removeItem('rcLoggedPseudo'),
+    /* v3 : stats héritées des anciennes versions (lecture seule, voir computeQStats) */
+    getQStats  : ()    => JSON.parse(localStorage.getItem('rcQStats') || '{}'),
   };
 
   /* ═══════════════════════════════════════════════════
@@ -3033,8 +3452,9 @@
     if (viewName === 'admin')        { renderAdmin(); renderAdminDashboard(); }
     if (viewName === 'midbreak')     { showMidbreakContent(); }
     if (viewName === 'player-name')  initPlayerName();
-    if (viewName === 'player-card')  renderPlayerCard();
+    if (viewName === 'player-card')  { renderPlayerCard(); scoresFetch().then(() => renderPlayerCard()); }
     if (viewName === 'home')  updateHomeAuthArea();
+    if (viewName === 'leaderboard') { renderLeaderboardPublic(); scoresFetch().then(() => renderLeaderboardPublic()); }
     if (viewName === 'auth') {
       authSetMode('login');
       ['auth-pseudo','auth-password','auth-password-confirm'].forEach(id => {
@@ -3099,15 +3519,42 @@
   /* ═══════════════════════════════════════════════════
      ADMIN AUTH
   ═══════════════════════════════════════════════════ */
-  function adminLogin() {
+  async function adminLogin() {
     const pwd  = document.getElementById('admin-pwd').value;
     const errEl = document.getElementById('login-err');
-    if (pwd === LS.getPwd()) {
+    let authOk = false;
+    // 1) Connexion Supabase Auth — donne le droit d'écriture sur le contenu (RLS)
+    if (_supa) {
+      try {
+        const { error } = await _supa.auth.signInWithPassword({ email: ADMIN_EMAIL, password: pwd });
+        if (!error) { authOk = true; adminSupaAuthed = true; }
+      } catch {}
+    }
+    // 2) Repli : hash partagé / mot de passe local (tant que le compte Auth n'existe pas)
+    if (!authOk) {
+      await dbPull('features');
+      if (LS.checkPwd(pwd)) {
+        authOk = true;
+        console.warn('[Auth] Connexion admin en mode repli — créez le compte Supabase Auth (voir supabase-v3-setup.sql) pour autoriser les écritures une fois la RLS activée.');
+      }
+    }
+    if (authOk) {
       adminLogged = true;
       sessionStorage.setItem('rcAdminLogged', '1');
       errEl.style.display = 'none';
       document.getElementById('admin-pwd').value = '';
       nav('admin');
+      // Rappel hebdomadaire de backup
+      const lastBackup = localStorage.getItem('rc_last_backup');
+      const sevenDays = 7 * 24 * 60 * 60 * 1000;
+      if (!lastBackup || (Date.now() - new Date(lastBackup).getTime()) > sevenDays) {
+        const since = lastBackup
+          ? `Dernier backup : ${new Date(lastBackup).toLocaleDateString('fr-FR')}.`
+          : 'Aucun backup enregistré.';
+        if (confirm(`⚠️ Rappel sauvegarde\n\n${since}\nVoulez-vous faire un backup maintenant ?`)) {
+          backupNow();
+        }
+      }
     } else {
       errEl.style.display = 'block';
       document.getElementById('admin-pwd').value = '';
@@ -3116,18 +3563,30 @@
 
   function adminLogout() {
     adminLogged = false;
+    adminSupaAuthed = false;
+    if (_supa) { try { _supa.auth.signOut(); } catch {} }
     sessionStorage.removeItem('rcAdminLogged');
     nav('home');
   }
 
-  function changePwd() {
+  async function changePwd() {
     const n  = document.getElementById('pwd-new').value;
     const c  = document.getElementById('pwd-confirm').value;
     const er = document.getElementById('pwd-err');
     const ok = document.getElementById('pwd-ok');
     er.style.display = 'none'; ok.style.display = 'none';
-    if (!n || n.length < 4) { er.textContent = 'Minimum 4 caractères.'; er.style.display = 'block'; return; }
+    const pwdErr = _validatePwd(n || '');
+    if (!n || pwdErr) { er.textContent = pwdErr || 'Mot de passe invalide.'; er.style.display = 'block'; return; }
     if (n !== c) { er.textContent = 'Les mots de passe ne correspondent pas.'; er.style.display = 'block'; return; }
+    // Compte Supabase Auth (si connecté) + hash de repli, gardés synchronisés
+    if (adminSupaAuthed && _supa) {
+      const { error } = await _supa.auth.updateUser({ password: n });
+      if (error) {
+        er.textContent = 'Erreur Supabase Auth : ' + (error.message || 'inconnue');
+        er.style.display = 'block';
+        return;
+      }
+    }
     LS.setPwd(n);
     document.getElementById('pwd-new').value = '';
     document.getElementById('pwd-confirm').value = '';
@@ -3151,18 +3610,21 @@
     document.getElementById('t-planning').classList.toggle('active', tab === 'planning');
     document.getElementById('t-settings').classList.toggle('active', tab === 'settings');
     document.getElementById('t-joueurs').classList.toggle('active', tab === 'joueurs');
-    document.querySelector('#view-admin .tabs').style.display = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs') ? 'flex' : 'none';
+    document.getElementById('t-stats').classList.toggle('active', tab === 'stats');
+    document.querySelector('#view-admin .tabs').style.display = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs' || tab === 'stats') ? 'flex' : 'none';
     document.getElementById('at-list').style.display      = showList ? 'block' : 'none';
     if (!showList) document.getElementById('at-add').style.display = 'none';
     document.getElementById('at-settings').style.display  = tab === 'settings'  ? 'block' : 'none';
     document.getElementById('at-planning').style.display  = tab === 'planning'  ? 'block' : 'none';
     document.getElementById('at-generator').style.display = tab === 'generator' ? 'block' : 'none';
     document.getElementById('at-joueurs').style.display   = tab === 'joueurs'   ? 'block' : 'none';
+    document.getElementById('at-stats').style.display     = tab === 'stats'     ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
     if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); renderLastImportInfo(); showSettingsPanel('db-questions'); }
-    if (tab === 'planning')  renderPlanning();
+    if (tab === 'planning')  { renderPlanning(); Promise.all([dbPull('planning'), scoresFetch()]).then(renderPlanning); }
     if (tab === 'generator') renderGeneratorList();
-    if (tab === 'joueurs')   renderJoueurs();
+    if (tab === 'joueurs')   { renderJoueurs(); scoresFetch().then(() => renderJoueurs()); }
+    if (tab === 'stats')     { renderQStats(); scoresFetch().then(() => renderQStats()); }
   }
 
   function toggleSettings() {
@@ -3248,6 +3710,44 @@
   }
   function planningTodayStr() { const d = new Date(); return planningDateStr(d); }
 
+  // Retourne la session du planning qui couvre dateStr (startDate <= dateStr <= endDate).
+  // En cas de chevauchement, privilégie la session avec la startDate la plus récente.
+  function getActivePlanForDate(dateStr) {
+    const plan = LS.getPlanning();
+    let result = null;
+    for (const [startDs, dp] of Object.entries(plan)) {
+      if (dp._deleted) continue;
+      const endDs = dp.endDate || startDs;
+      if (startDs <= dateStr && dateStr <= endDs) {
+        if (!result || startDs > result._startDate) result = { _startDate: startDs, ...dp };
+      }
+    }
+    return result;
+  }
+
+  // Marque automatiquement comme "utilisées" les questions des sessions expirées.
+  function markExpiredSessionsAsUsed() {
+    if (feat('betaTest')) return;
+    const plan  = LS.getPlanning();
+    const today = planningTodayStr();
+    // v3 : usedInGame est dérivé des parties — les sessions expirées jamais jouées
+    // sont ajoutées aux marqueurs complémentaires stockés dans les réglages
+    const used  = LS.getUsedInGame();
+    const f     = LS.getFeatures();
+    const extra = new Set(Array.isArray(f.usedLegacyIds) ? f.usedLegacyIds : []);
+    let changed = false;
+    for (const [startDs, dp] of Object.entries(plan)) {
+      if (dp._deleted) continue;
+      const endDs = dp.endDate || startDs;
+      if (endDs < today) {
+        [dp.j1, dp.j2, dp.bonus].forEach(id => {
+          if (id && !used.has(id) && !extra.has(id)) { extra.add(id); changed = true; }
+        });
+      }
+    }
+    if (changed) { f.usedLegacyIds = [...extra]; LS.saveFeatures(f); }
+  }
+
   function planningNavWeek(dir) { planningWeekOffset += dir; renderPlanning(); }
   function planningGoToday()    { planningWeekOffset = 0;    renderPlanning(); }
 
@@ -3257,6 +3757,7 @@
   }
 
   function renderPlanning() {
+    markExpiredSessionsAsUsed();
     const betaBanner = document.getElementById('planning-beta-banner');
     if (betaBanner) betaBanner.style.display = feat('betaTest') ? 'block' : 'none';
 
@@ -3270,12 +3771,32 @@
       labelEl.textContent = `${fmt(weekStart)} – ${fmt(weekEnd)}`;
     }
 
-    const plan        = LS.getPlanning();
-    const allQ        = LS.getQ().filter(q => q.active !== false);
-    const today       = planningTodayStr();
-    const grid        = document.getElementById('planning-grid');
+    const allQ       = LS.getQ().filter(q => q.active !== false);
+    const today      = planningTodayStr();
+    const grid       = document.getElementById('planning-grid');
     if (!grid) return;
-    const usedInGame  = LS.getUsedInGame();
+    const usedInGame = LS.getUsedInGame();
+
+    const usedBadge = q => q && usedInGame.has(q.id)
+      ? `<span class="planning-used-badge badge-game">✓ joué</span>` : '';
+
+    // Formate une date YYYY-MM-DD en "Lun. 11 juin"
+    const fmtDs = ds => {
+      const dd = new Date(ds + 'T00:00:00');
+      const dow = dd.getDay() === 0 ? 6 : dd.getDay() - 1;
+      return `${PLANNING_DAY_NAMES[dow]} ${dd.getDate()} ${PLANNING_MONTH_NAMES[dd.getMonth()]}`;
+    };
+
+    const makeSlotHtml = (label, q, slot, pickDs, isJoueur) => {
+      const val = q
+        ? `<span class="planning-slot-value">${isJoueur ? '👤 ' : ''}${planningTrunc(q.playerName || q.text || q.id, 38)}</span>`
+        : `<span class="planning-slot-value planning-empty">— non planifié —</span>`;
+      return `<div class="planning-slot" onclick="openPlanningPicker('${pickDs}','${slot}')">
+        <span class="planning-slot-label">${label}</span>${val}
+        ${usedBadge(q)}
+        <span class="planning-slot-edit">✎</span>
+      </div>`;
+    };
 
     let html = '';
     for (let i = 0; i < 7; i++) {
@@ -3283,16 +3804,22 @@
       d.setDate(weekStart.getDate() + i);
       const ds      = planningDateStr(d);
       const isToday = ds === today;
-      const dp      = plan[ds] || {};
 
-      if (dp._deleted) {
+      // Cherche la session active pour ce jour
+      const activePlan    = getActivePlanForDate(ds);
+      const isSessionStart = activePlan && activePlan._startDate === ds;
+      const isCoveredMid   = activePlan && activePlan._startDate !== ds;
+      const dp             = activePlan || {};
+
+      // Cas : session supprimée (soft-delete sur le startDate)
+      if (dp._deleted && isSessionStart) {
         html += `<div class="planning-day${isToday ? ' planning-today' : ''}" style="opacity:.7;border-style:dashed;">
           <div class="planning-day-header">
             <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
             <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
             ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
           </div>
-          <div style="text-align:center;color:rgba(255,255,255,.4);font-size:.8rem;padding:6px 0 10px;">Jour de planning supprimé</div>
+          <div style="text-align:center;color:rgba(255,255,255,.4);font-size:.8rem;padding:6px 0 10px;">Session supprimée</div>
           <button class="btn btn-ghost btn-full mb0" onclick="restoreDayPlan('${ds}')">↩ Restaurer</button>
         </div>`;
         continue;
@@ -3302,52 +3829,109 @@
       const j2Q    = dp.j2    ? allQ.find(q => q.id === dp.j2)    : null;
       const bonusQ = dp.bonus ? allQ.find(q => q.id === dp.bonus) : null;
 
-      const usedBadge = q => q && usedInGame.has(q.id)
-        ? `<span class="planning-used-badge badge-game">✓ joué</span>`
-        : '';
-
-      const slotHtml = (label, q, slot) => {
-        const val = q
-          ? `<span class="planning-slot-value">👤 ${planningTrunc(q.playerName || q.text || q.id, 38)}</span>`
-          : `<span class="planning-slot-value planning-empty">— non planifié —</span>`;
-        return `<div class="planning-slot" onclick="openPlanningPicker('${ds}','${slot}')">
-          <span class="planning-slot-label">${label}</span>${val}
-          ${usedBadge(q)}
-          <span class="planning-slot-edit">✎</span>
+      // Cas : jour couvert par une session qui a commencé avant
+      if (isCoveredMid) {
+        const startDs = activePlan._startDate;
+        const endDs   = dp.endDate || startDs;
+        html += `<div class="planning-day planning-day-mid${isToday ? ' planning-today' : ''}">
+          <div class="planning-day-header">
+            <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
+            <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
+            ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
+            <span class="planning-range-badge" style="margin-left:auto;">🔄 en cours</span>
+            <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;" onclick="event.stopPropagation();clearDayPlan('${startDs}')" title="Supprimer la session">✕</button>
+          </div>
+          <div class="planning-mid-info">← Session du ${fmtDs(startDs)} → ${fmtDs(endDs)}</div>
+          ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', startDs, true)}
+          ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', startDs, true)}
+          ${makeSlotHtml('Bonus', bonusQ, 'bonus', startDs, false)}
         </div>`;
-      };
+        continue;
+      }
 
-      const bonusHtml = (() => {
-        const val = bonusQ
-          ? `<span class="planning-slot-value">${planningTrunc(bonusQ.text || bonusQ.playerName || bonusQ.id, 38)}</span>`
-          : `<span class="planning-slot-value planning-empty">— non planifié —</span>`;
-        return `<div class="planning-slot" onclick="openPlanningPicker('${ds}','bonus')">
-          <span class="planning-slot-label">Bonus</span>${val}
-          ${usedBadge(bonusQ)}
-          <span class="planning-slot-edit">✎</span>
-        </div>`;
+      // Cas : début de session ou jour vide
+      const endDs      = dp.endDate || ds;
+      const isMultiDay = endDs > ds;
+      const endDateDisplay = (() => {
+        if (!isSessionStart) return `<span class="planning-slot-value planning-empty">— même jour —</span>`;
+        const endD  = new Date(endDs + 'T00:00:00');
+        const endDow = endD.getDay() === 0 ? 6 : endD.getDay() - 1;
+        return isMultiDay
+          ? `<span class="planning-slot-value" style="color:var(--or);">${PLANNING_DAY_NAMES[endDow]} ${endD.getDate()} ${PLANNING_MONTH_NAMES[endD.getMonth()]} 23h59</span>`
+          : `<span class="planning-slot-value planning-empty">— même jour —</span>`;
       })();
+
+      const rangeBadge = isSessionStart && isMultiDay
+        ? `<span class="planning-range-badge">→ ${fmtDs(endDs)}</span>` : '';
+
+      const endDateSlot = `<div class="planning-slot" onclick="this.querySelector('input').showPicker&&this.querySelector('input').showPicker()">
+        <span class="planning-slot-label">Fin de validité</span>
+        <input type="date" value="${isSessionStart ? endDs : ds}" min="${ds}"
+          onchange="setPlanningEndDate('${ds}', this.value)"
+          ${!isSessionStart ? 'disabled' : ''}>
+        <span class="planning-slot-edit">✎</span>
+      </div>`;
 
       html += `<div class="planning-day${isToday ? ' planning-today' : ''}">
         <div class="planning-day-header">
           <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
           <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
           ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
+          ${rangeBadge}
           <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;margin-left:auto;" onclick="event.stopPropagation();clearDayPlan('${ds}')" title="Effacer ce jour">✕</button>
         </div>
-        ${slotHtml('Qui suis-je 1', j1Q, 'j1')}
-        ${slotHtml('Qui suis-je 2', j2Q, 'j2')}
-        ${bonusHtml}
+        ${endDateSlot}
+        ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', ds, true)}
+        ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', ds, true)}
+        ${makeSlotHtml('Bonus', bonusQ, 'bonus', ds, false)}
       </div>`;
     }
     grid.innerHTML = html;
   }
 
-  let pickerDate = null;
-  let pickerSlot = null;
+  function setPlanningEndDate(startDs, newEndDate) {
+    if (!newEndDate) return;
+    if (newEndDate < startDs) { alert('La date de fin ne peut pas être avant la date de début.'); return; }
+    // Vérifier les conflits avec les autres sessions
+    const plan = LS.getPlanning();
+    for (const [dk, dp] of Object.entries(plan)) {
+      if (dk === startDs || dp._deleted) continue;
+      const otherEnd = dp.endDate || dk;
+      // Chevauchement si les plages [startDs, newEndDate] et [dk, otherEnd] se croisent
+      if (dk <= newEndDate && otherEnd >= startDs) {
+        if (!confirm(`La session du ${fmtPlanDate(dk)} (→ ${fmtPlanDate(otherEnd)}) chevauche cette plage. Continuer quand même ?`)) {
+          // Réinitialise le champ date
+          renderPlanning();
+          return;
+        }
+        break;
+      }
+    }
+    if (!plan[startDs]) return;
+    if (newEndDate === startDs) {
+      delete plan[startDs].endDate;
+    } else {
+      plan[startDs].endDate = newEndDate;
+    }
+    LS.savePlanning(plan);
+    renderPlanning();
+  }
+
+  function fmtPlanDate(ds) {
+    const d   = new Date(ds + 'T00:00:00');
+    const dow = d.getDay() === 0 ? 6 : d.getDay() - 1;
+    return `${PLANNING_DAY_NAMES[dow]} ${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}`;
+  }
+
+  let pickerDate      = null;
+  let pickerSlot      = null;
+  let pickerPendingId = null;
 
   function openPlanningPicker(dateStr, slot) {
-    pickerDate = dateStr;
+    // Résoudre vers le startDate de la session qui couvre ce jour
+    const activePlan = getActivePlanForDate(dateStr);
+    const sessionStart = activePlan ? activePlan._startDate : dateStr;
+    pickerDate = sessionStart;
     pickerSlot = slot;
 
     const overlay  = document.getElementById('planning-picker-overlay');
@@ -3359,13 +3943,16 @@
     const allQ       = getActiveQ();
     const isJoueur   = slot === 'j1' || slot === 'j2';
     const pool       = isJoueur ? allQ.filter(q => q.type === 'joueur') : allQ.filter(q => q.type !== 'joueur');
-    const currentId  = (LS.getPlanning()[dateStr] || {})[slot];
+    const currentId  = (LS.getPlanning()[sessionStart] || {})[slot];
+    pickerPendingId  = currentId || null;
+    const saveBtn    = document.getElementById('picker-save-btn');
+    if (saveBtn) saveBtn.disabled = !pickerPendingId;
 
-    // Calculer les IDs déjà planifiés sur d'autres jours
+    // Calculer les IDs déjà planifiés dans d'autres sessions
     const planAll    = LS.getPlanning();
     const planUsed   = new Set();
     for (const [dk, dp] of Object.entries(planAll)) {
-      if (dk === dateStr) continue;
+      if (dk === sessionStart) continue;
       if (dp.j1)    planUsed.add(dp.j1);
       if (dp.j2)    planUsed.add(dp.j2);
       if (dp.bonus) planUsed.add(dp.bonus);
@@ -3392,16 +3979,43 @@
           inGame ? `<span class="planning-used-badge badge-game">✓ joué</span>`          : '',
         ].join('');
         const dimmed     = (inPlan || inGame) && !sel;
-        return `<div onclick="setPlanningSlot('${q.id}')"
+        const codeBadge  = `<span style="font-size:.68rem;font-weight:800;color:var(--or);background:rgba(255,205,0,.12);border:1px solid rgba(255,205,0,.25);border-radius:6px;padding:2px 6px;flex-shrink:0;">${esc(q.id)}</span>`;
+        const tagChips   = (q.tags && q.tags.length)
+          ? `<span style="display:inline-flex;gap:4px;flex-wrap:wrap;">${renderTagChips(q.tags)}</span>`
+          : '';
+        return `<div data-qid="${esc(q.id)}" onclick="selectPlanningItem('${q.id}')"
           style="padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid ${sel ? 'rgba(255,205,0,.5)' : 'rgba(255,255,255,.07)'};background:${sel ? 'rgba(255,205,0,.07)' : 'transparent'};margin-bottom:6px;font-size:.84rem;display:flex;align-items:center;gap:6px;opacity:${dimmed ? '.55' : '1'};"
-          onmouseover="this.style.background='rgba(255,255,255,.07)';this.style.opacity='1'" onmouseout="this.style.background='${sel ? 'rgba(255,205,0,.07)' : 'transparent'}';this.style.opacity='${dimmed ? '.55' : '1'}'">
-          <span style="flex:1;color:${sel ? 'var(--or)' : 'inherit'}">${sel ? '✓ ' : ''}${label}</span>
-          <span style="display:flex;gap:4px;align-items:center;">${badges}</span>
-          <span style="font-size:.7rem;color:rgba(255,255,255,.28);">${q.id}</span>
+          onmouseover="this.style.background='rgba(255,255,255,.07)';this.style.opacity='1'" onmouseout="this.style.background=this.dataset.qid===pickerPendingId?'rgba(255,205,0,.07)':'transparent';this.style.opacity='${dimmed ? '.55' : '1'}'">
+          ${codeBadge}
+          <span class="picker-item-label" style="flex:1;color:${sel ? 'var(--or)' : 'inherit'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;">${sel ? '✓ ' : ''}${label}${tagChips}</span>
+          <span style="display:flex;gap:4px;align-items:center;flex-shrink:0;">${badges}</span>
         </div>`;
       }).join('');
     }
     overlay.style.display = 'flex';
+  }
+
+  function selectPlanningItem(qId) {
+    pickerPendingId = qId;
+    document.querySelectorAll('#picker-list [data-qid]').forEach(el => {
+      const isSel = el.dataset.qid === qId;
+      el.style.border     = `1px solid ${isSel ? 'rgba(255,205,0,.5)' : 'rgba(255,255,255,.07)'}`;
+      el.style.background = isSel ? 'rgba(255,205,0,.07)' : 'transparent';
+      const labelEl = el.querySelector('.picker-item-label');
+      if (labelEl) labelEl.style.color = isSel ? 'var(--or)' : 'inherit';
+    });
+    const saveBtn = document.getElementById('picker-save-btn');
+    if (saveBtn) saveBtn.disabled = false;
+  }
+
+  function confirmPlanningSlot() {
+    if (!pickerPendingId) return;
+    const plan = LS.getPlanning();
+    if (!plan[pickerDate]) plan[pickerDate] = {};
+    plan[pickerDate][pickerSlot] = pickerPendingId;
+    LS.savePlanning(plan);
+    closePlanningPicker();
+    renderPlanning();
   }
 
   function setPlanningSlot(qId) {
@@ -3415,12 +4029,16 @@
 
   function closePlanningPicker() {
     document.getElementById('planning-picker-overlay').style.display = 'none';
-    pickerDate = null; pickerSlot = null;
+    pickerDate = null; pickerSlot = null; pickerPendingId = null;
   }
 
   function resetUsedInGame() {
     if (!confirm('Réinitialiser tous les marqueurs "joué" ? Les questions pourront être sélectionnées à nouveau sans badge.')) return;
-    LS.saveUsedInGame(new Set());
+    // v3 : les marqueurs sont dérivés des parties enregistrées — on mémorise la date du reset
+    const f = LS.getFeatures();
+    f.usedResetAt   = Date.now();
+    f.usedLegacyIds = [];
+    LS.saveFeatures(f);
     renderPlanning();
   }
 
@@ -3715,6 +4333,8 @@
     const tries  = getJoueurIndiceTries(containerId);
     const target = idx + dir;
     if (target < 0 || target >= values.length) return;
+    // Seul le texte de l'indice se déplace : les points et tentatives restent
+    // attachés au numéro de position (indice 1 = 5 pts, indice 2 = 4 pts, …).
     [values[idx], values[target]] = [values[target], values[idx]];
     renderJoueurIndices(containerId, values, pts, tries);
   }
@@ -3989,16 +4609,15 @@
     renderJoueurs();
   }
 
-  function deleteJoueur(idx) {
-    const lb = LS.getLeaderboard();
-    lb.splice(idx, 1);
-    LS.saveLeaderboard(lb);
+  function deletePlayerByName(name) {
+    if (!confirm(`Supprimer tous les scores de « ${name} » ? Cette action est irréversible.`)) return;
+    scoresDeleteByName(name);
     renderJoueurs();
   }
 
   function clearAllJoueurs() {
     if (!confirm('Supprimer tous les scores ? Cette action est irréversible.')) return;
-    LS.saveLeaderboard([]);
+    scoresDeleteAll();
     renderJoueurs();
   }
 
@@ -4026,11 +4645,12 @@
       const firstDate  = new Date(Math.min(...timestamps));
       const lastDate   = new Date(Math.max(...timestamps));
       const bestScore  = Math.max(...p.games.map(g => g.score));
+      const totalScore = p.games.reduce((s, g) => s + g.score, 0);
       const bestRatio  = (() => {
         const best = p.games.reduce((b, g) => (g.maxScore > 0 && g.score / g.maxScore > b) ? g.score / g.maxScore : b, 0);
         return best;
       })();
-      return { ...p, firstDate, lastDate, bestScore, bestRatio };
+      return { ...p, firstDate, lastDate, bestScore, totalScore, bestRatio };
     });
 
     // Filtrer par recherche
@@ -4048,7 +4668,7 @@
 
     // Trier
     players.sort((a, b) => {
-      if (joueurSortKey === 'score') return b.bestRatio - a.bestRatio;
+      if (joueurSortKey === 'score') return b.totalScore - a.totalScore;
       if (joueurSortKey === 'date')  return b.lastDate - a.lastDate;
       if (joueurSortKey === 'name')  return a.name.localeCompare(b.name, 'fr');
       return 0;
@@ -4067,7 +4687,8 @@
           <div class="joueur-pseudo">${esc(p.name)}</div>
           <div class="joueur-meta">${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}</div>
         </div>
-        <div class="joueur-score-val">${p.bestScore}</div>
+        <div class="joueur-score-val">${p.totalScore}</div>
+        <button onclick="event.stopPropagation();deletePlayerByName(this.closest('[data-pname]').dataset.pname)" title="Supprimer ce joueur" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
       </div>`;
     }).join('');
   }
@@ -4086,11 +4707,10 @@
     const avgScore   = (games.reduce((s, g) => s + g.score, 0) / games.length).toFixed(1);
     const initial    = name.charAt(0).toUpperCase();
 
-    // Compute global ranking by best score
+    // Compute global ranking by total score (cohérent avec le classement)
     const allMap = {};
     lb.forEach(e => {
-      if (!allMap[e.name]) allMap[e.name] = 0;
-      if (e.score > allMap[e.name]) allMap[e.name] = e.score;
+      allMap[e.name] = (allMap[e.name] || 0) + e.score;
     });
     const allSorted = Object.entries(allMap).sort((a, b) => b[1] - a[1]);
     const totalPlayers = allSorted.length;
@@ -4162,7 +4782,7 @@
     document.getElementById('pcard-overlay').style.display = 'none';
   }
 
-  function adminResetPwd() {
+  async function adminResetPwd() {
     const name   = _pcardName;
     const input  = document.getElementById('pcard-new-pwd');
     const msgEl  = document.getElementById('pcard-pwd-msg');
@@ -4174,13 +4794,15 @@
       msgEl.style.display = 'block';
     };
 
-    if (!pwd || pwd.length < 4) { show('Le mot de passe doit faire au moins 4 caractères.', false); return; }
+    const pwdErr = _validatePwd(pwd || '');
+    if (!pwd || pwdErr) { show(pwdErr || 'Mot de passe invalide.', false); return; }
 
+    await accountsFetch();
     const accounts = LS.getAccounts();
     const key      = name.toLowerCase();
     if (!accounts[key]) accounts[key] = { pseudo: name };
     accounts[key].hash = _hashPwd(pwd);
-    LS.saveAccounts(accounts);
+    accountSave(key);
 
     input.value = '';
     show(`Mot de passe de ${name} réinitialisé avec succès.`, true);
@@ -4667,8 +5289,11 @@
   }
 
   function startBonusTimer(pfx) {
+    // Le quiz réel respecte le réglage global du timer (comme startQuizTimer).
+    if (pfx === 'qz' && !feat('timer')) return;
     const q        = pfx === 'qz' ? session.questions[session.idx] : testState.q;
-    const duration = q.timerDuration || 15;
+    // Le bonus utilise son propre timer s'il est défini, sinon celui de la question mère
+    const duration = (q.bonus && (q.bonus.timerDuration || q.bonus.timer)) || q.timerDuration || 15;
     if (!duration || duration <= 0) return;
 
     bonusActivePfx    = pfx;
@@ -4861,7 +5486,12 @@
         tSummaryEl.innerHTML = sh; tSummaryEl.style.display = sh ? 'block' : 'none';
       }
     }
-    document.getElementById(pfx === 'qz' ? 'qz-next-btn' : 'tq-close-btn').style.display = 'block';
+    if (pfx === 'qz' && q._isBonusJoueur) {
+      showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
+      setTimeout(() => nextQ(), 2200);
+    } else {
+      document.getElementById(pfx === 'qz' ? 'qz-next-btn' : 'tq-close-btn').style.display = 'block';
+    }
     if (pfx === 'qz') updateSidebar();
   }
 
@@ -4900,9 +5530,12 @@
     }
   }
 
-  // Vérification immédiate au retour sur l'onglet
+  // Vérification immédiate au retour sur l'onglet (tous les timers actifs)
   document.addEventListener('visibilitychange', () => {
-    if (!document.hidden && quizDeadline > 0) updateTimerDisplay();
+    if (document.hidden) return;
+    if (quizDeadline  > 0) updateTimerDisplay();
+    if (testDeadline  > 0) updateTestTimerDisplay();
+    if (bonusDeadline > 0) updateBonusTimerDisplay();
   });
 
   /* ═══════════════════════════════════════════════════
@@ -4919,7 +5552,6 @@
       if (dbActiveFilters.has('with-tag') && !(Array.isArray(q.tags) && q.tags.length > 0)) return false;
       if (dbActiveFilters.has('no-tag')   &&  (Array.isArray(q.tags) && q.tags.length > 0)) return false;
       if (dbActiveFilters.has('new')      && !isNew(q))                                      return false;
-      if (dbActiveFilters.has('bonus')    && !(q.bonus && q.bonus.text))                     return false;
       return true;
     };
     const showJoueurs   = !dbActiveFilters.has('bonus');
@@ -5186,8 +5818,9 @@
   function clearAll() {
     const pwd = prompt('Mot de passe administrateur :');
     if (pwd === null) return;
-    if (pwd !== LS.getPwd()) { alert('Mot de passe incorrect.'); return; }
-    if (!confirm('Supprimer TOUTES les questions ? Action irréversible.')) return;
+    if (!LS.checkPwd(pwd)) { alert('Mot de passe incorrect.'); return; }
+    if (!confirm('Supprimer TOUTES les questions ? Action irréversible.\n\nUn backup va être téléchargé automatiquement avant la suppression.')) return;
+    backupNow(true);
     LS.saveQ([]);
     renderAdmin();
   }
@@ -5314,6 +5947,29 @@
     a.download = 'Racing Quiz version 1.json';
     a.click();
     URL.revokeObjectURL(a.href);
+  }
+
+  function backupNow(silent) {
+    const questions = LS.getQ();
+    if (!questions.length && !silent) { alert('Aucune question à sauvegarder.'); return; }
+    const now = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const stamp = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}_${pad(now.getHours())}h${pad(now.getMinutes())}`;
+    const payload = { version: 1, backup_date: now.toISOString(), tags: LS.getTags(), media: LS.getMedia(), questions };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `RC_Quiz_backup_${stamp}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    localStorage.setItem('rc_last_backup', now.toISOString());
+    if (!silent) {
+      const info = document.getElementById('import-saved-info');
+      if (info) {
+        info.innerHTML = `<div class="alert alert-success" style="margin-top:10px;">✅ Backup téléchargé : RC_Quiz_backup_${stamp}.json</div>`;
+        setTimeout(() => { info.innerHTML = ''; }, 5000);
+      }
+    }
   }
 
   function importQuestions(event) {
@@ -5509,10 +6165,38 @@
   /* ═══════════════════════════════════════════════════
      EDIT MODAL
   ═══════════════════════════════════════════════════ */
+  function getEditNavOrder(id) {
+    const arr = LS.getQ();
+    const q   = arr.find(x => x.id === id);
+    if (!q) return [];
+    const isJoueur = q.type === 'joueur';
+    const group = arr.filter(x => isJoueur ? x.type === 'joueur' : x.type !== 'joueur');
+    group.sort((a, b) => {
+      const na = parseInt(a.id.replace(/\D/g, '')) || 0;
+      const nb = parseInt(b.id.replace(/\D/g, '')) || 0;
+      return na - nb;
+    });
+    return group.map(x => x.id);
+  }
+
+  function navEditQuestion(dir) {
+    if (!editId) return;
+    const order = getEditNavOrder(editId);
+    const newIdx = order.indexOf(editId) + dir;
+    if (newIdx >= 0 && newIdx < order.length) openEditModal(order[newIdx]);
+  }
+
   function openEditModal(id) {
     const q = LS.getQ().find(x => x.id === id);
     if (!q) return;
     editId = id;
+
+    // Code badge + navigation
+    document.getElementById('eq-code').textContent = id;
+    const order   = getEditNavOrder(id);
+    const idx     = order.indexOf(id);
+    document.getElementById('eq-nav-prev').disabled = idx <= 0;
+    document.getElementById('eq-nav-next').disabled = idx >= order.length - 1;
     editCurrentType  = q.type;
     editSelectedTags = (q.tags || []).slice();
 
@@ -6228,6 +6912,7 @@
           inp.disabled = true;
           document.getElementById('tq-libre-btn').disabled = true;
           document.getElementById('tq-joueur-reveal-btn').style.display = 'none';
+          showAnswerPopup('Mauvaise réponse !', 'var(--rouge)');
           testShowFeedback(false, q.playerName, val);
           return;
         }
@@ -6244,6 +6929,7 @@
     document.getElementById('tq-libre-btn').disabled = true;
     document.getElementById('tq-joueur-reveal-btn').style.display = 'none';
     const displayAns = q.type === 'joueur' ? q.playerName : (q.answers || [q.answer]).join(' / ');
+    if (q.type === 'joueur') showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
     testShowFeedback(ok, displayAns, val);
   }
 
@@ -6287,23 +6973,15 @@
       const tPts = q.type === 'joueur' ? getJoueurPts(q, testJoueurIndiceIdx) : (q.points || 1);
       const mlOk = q.type === 'multi-libre'
         ? `<div class="fb-detail" style="color:var(--vert);">${testMlState.found.length} / ${q.mlRequired} réponses trouvées !</div>` : '';
-      inner = `<div class="feedback-box fb-correct">
-        <div><div class="fb-title correct">Bonne réponse ! Tu marques ${tPts} point${tPts > 1 ? 's' : ''}</div>${mlOk}</div>
-      </div>`;
+      inner = mlOk ? `<div class="feedback-box fb-correct">
+        <div>${mlOk}</div>
+      </div>` : '';
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong">
         <div><div class="fb-title wrong">Temps écoulé !</div></div>
       </div>`;
     } else {
-      const ca = correctAns || q.answer;
-      const pa = playerAns ? `<div class="fb-detail">Votre réponse : ${esc(playerAns)}</div>` : '';
-      inner = `<div class="feedback-box fb-wrong">
-        <div>
-          <div class="fb-title wrong">Mauvaise réponse ! Zéro pointé !</div>
-          ${pa}
-          <div class="fb-answer">Bonne réponse : <strong>${esc(ca)}</strong></div>
-        </div>
-      </div>`;
+      inner = '';
     }
     document.getElementById('tq-feedback-inner').innerHTML = inner;
 
@@ -6314,7 +6992,7 @@
     tSummaryEl.innerHTML    = tSummaryHtml;
     tSummaryEl.style.display = tSummaryHtml ? 'block' : 'none';
 
-    document.getElementById('tq-feedback').style.display = 'block';
+    document.getElementById('tq-feedback').style.display = (inner || tSummaryHtml || tHasBonus) ? 'block' : 'none';
 
     const closeBtn = document.getElementById('tq-close-btn');
     if (feat('bonusQuestions') && ok && q.bonus && q.bonus.text) {
@@ -6330,6 +7008,30 @@
   /* ═══════════════════════════════════════════════════
      PLAYER NAME
   ═══════════════════════════════════════════════════ */
+  function hasPlayedToday(pseudo) {
+    if (!pseudo) return false;
+    const todayStr   = planningTodayStr();
+    const todayPlan  = getActivePlanForDate(todayStr) || {};
+    const isPlannedSession = !!(todayPlan.j1 && todayPlan.j2) && !todayPlan._deleted;
+    if (!feat('betaTest') && isPlannedSession) {
+      // v3 : dérivé des parties enregistrées (table scores)
+      const sessionDate = todayPlan._startDate || todayStr;
+      const p = pseudo.toLowerCase();
+      return (_db.scores || []).some(s =>
+        !s.beta && s.plannedDate === sessionDate && (s.name || '').toLowerCase() === p);
+    }
+    return false;
+  }
+
+  function handlePlayBtn() {
+    if (_localUser) {
+      document.getElementById('player-name').value = _localUser.pseudo;
+      startQuiz();
+    } else {
+      nav('player-name');
+    }
+  }
+
   function initPlayerName() {
     const qs = getActiveQ().filter(q => q.type === 'joueur');
     document.getElementById('no-q-alert').style.display = qs.length < 2 ? 'block' : 'none';
@@ -6367,18 +7069,33 @@
     return selected;
   }
 
-  function startQuiz() {
+  async function startQuiz() {
     const name = (document.getElementById('player-name').value || '').trim();
     if (!name) { document.getElementById('player-name').focus(); return; }
+
+    document.getElementById('already-played-alert').style.display = 'none';
+
+    // Rafraîchir l'état partagé avant la vérification "déjà joué" (autres appareils)
+    await Promise.all([scoresFetch(), dbPull('planning')]);
 
     const allJoueur = getActiveQ().filter(q => q.type === 'joueur');
     if (allJoueur.length < 2) { document.getElementById('no-q-alert').style.display = 'block'; return; }
 
     const allRegular = getActiveQ().filter(q => q.type !== 'joueur');
 
-    // Utiliser le planning du jour si disponible
+    // Utiliser la session planifiée active (peut couvrir plusieurs jours)
     let jX, jY, qX;
-    const todayPlan = LS.getPlanning()[planningDateStr(new Date())] || {};
+    const todayStr   = planningDateStr(new Date());
+    const todayPlan  = getActivePlanForDate(todayStr) || {};
+    const planStartDate    = todayPlan._startDate || null;
+    const isPlannedSession = !!(todayPlan.j1 && todayPlan.j2) && !todayPlan._deleted;
+
+    // En mode production, un joueur ne peut participer qu'une seule fois à une session planifiée
+    if (hasPlayedToday(name)) {
+      document.getElementById('already-played-alert').style.display = 'block';
+      return;
+    }
+
     if (todayPlan.j1 && todayPlan.j2) {
       const pj1 = allJoueur.find(q => q.id === todayPlan.j1);
       const pj2 = allJoueur.find(q => q.id === todayPlan.j2);
@@ -6400,7 +7117,7 @@
       : (q.points || 1) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0);
     const maxScore = calcMax(jX) + calcMax(jY) + (qX ? calcMax(qX) : 0);
 
-    session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore };
+    session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore, plannedDate: isPlannedSession ? (planStartDate || todayStr) : null };
     nav('quiz');
     renderQ(true);
     if (feat('launchOverlay')) {
@@ -6448,6 +7165,7 @@
     document.getElementById('qz-feedback').style.display    = 'none';
     document.getElementById('qz-multi-submit').style.display = 'none';
     document.getElementById('qz-bonus').style.display        = 'none';
+    document.getElementById('qz-next-btn').style.display     = 'none';
 
     const indicesEl = document.getElementById('qz-indices');
     const optEl     = document.getElementById('qz-options');
@@ -6694,8 +7412,14 @@
       document.getElementById('qz-feedback').style.display = 'block';
       const isLast = session.idx === session.questions.length - 1;
       const nextBtn = document.getElementById('qz-next-btn');
-      nextBtn.textContent = isLast ? 'Voir mes résultats' : 'Question suivante →';
-      nextBtn.style.display = 'block';
+      if (q._isBonusJoueur) {
+        showAnswerPopup('Mauvaise réponse !', 'var(--rouge)');
+        setTimeout(() => nextQ(), 2200);
+        nextBtn.style.display = 'none';
+      } else {
+        nextBtn.textContent = isLast ? 'Voir mes résultats' : 'Question suivante →';
+        nextBtn.style.display = 'block';
+      }
       document.getElementById('qz-bonus').style.display = 'none';
       updateSidebar();
     } else {
@@ -6736,10 +7460,11 @@
   }
 
   function submitQcm(sel) {
-    const q = session.questions[session.idx];
-    const ok = sel === q.correctIdx;
-    if (ok) session.score++;
-    session.answers.push({ q, sel, ok, type: 'qcm', ptsEarned: ok ? 1 : 0 });
+    const q   = session.questions[session.idx];
+    const ok  = sel === q.correctIdx;
+    const pts = q.points || 1;
+    if (ok) session.score += pts;
+    session.answers.push({ q, sel, ok, type: 'qcm', ptsEarned: ok ? pts : 0 });
 
     // Disable all & color
     q.options.forEach((_, i) => {
@@ -6776,10 +7501,11 @@
           updateJoueurRevealBtn('qz', q, quizJoueurIndiceIdx);
         } else {
           stopQuizTimer();
-          session.answers.push({ q, playerAns: val, ok: false, type: q.type, ptsEarned: 0 });
+          session.answers.push({ q, playerAns: val, ok: false, type: q.type, ptsEarned: 0, indiceIdx: quizJoueurIndiceIdx });
           inp.disabled = true;
           document.getElementById('qz-libre-btn').disabled = true;
           document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
+          showAnswerPopup('Mauvaise réponse !', 'var(--rouge)');
           showFeedback(false, q.playerName, val);
           return;
         }
@@ -6794,11 +7520,12 @@
     stopQuizTimer();
     const pts = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
     if (ok) session.score += pts;
-    session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0 });
+    session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0, indiceIdx: q.type === 'joueur' ? quizJoueurIndiceIdx : undefined });
     inp.disabled = true;
     document.getElementById('qz-libre-btn').disabled = true;
     document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
     const displayAns = q.type === 'joueur' ? q.playerName : (q.answers || [q.answer]).join(' / ');
+    if (q.type === 'joueur') showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
     showFeedback(ok, displayAns, val);
   }
 
@@ -6869,8 +7596,25 @@
     return rows ? `<div class="score-summary">${rows}</div>` : '';
   }
 
+  function showAnswerPopup(text, color) {
+    const el = document.createElement('div');
+    el.className = 'answer-popup';
+    el.style.color = color;
+    el.textContent = text;
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2100);
+  }
+
   function showFeedback(ok, correctAns, playerAns, fromTimer = false) {
     const q      = session.questions[session.idx];
+    if (q._isBonusJoueur) {
+      showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
+      setTimeout(() => nextQ(), 2200);
+      document.getElementById('qz-feedback').style.display = 'none';
+      document.getElementById('qz-next-btn').style.display = 'none';
+      updateSidebar();
+      return;
+    }
     // isLast normalement vrai pour J(y), mais si le bonus joueur va se déclencher → pas encore la fin
     let isLast = session.idx === session.questions.length - 1;
     if (isLast && session.bonusJoueur && ok && session.answers.length >= 1 && session.answers[0].ok) {
@@ -6882,23 +7626,24 @@
       const pts  = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
       const mlOk = q.type === 'multi-libre'
         ? `<div class="fb-detail" style="color:var(--vert);">${mlState.found.length} / ${q.mlRequired} réponses trouvées !</div>` : '';
-      inner = `<div class="feedback-box fb-correct">
-        <div><div class="fb-title correct">Bonne réponse ! Tu marques ${pts} point${pts > 1 ? 's' : ''}</div>${mlOk}</div>
-      </div>`;
+      inner = mlOk ? `<div class="feedback-box fb-correct">
+        <div>${mlOk}</div>
+      </div>` : '';
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong">
         <div><div class="fb-title wrong">Temps écoulé !</div></div>
       </div>`;
     } else {
-      const ca = correctAns || q.answer;
-      const pa = playerAns ? `<div class="fb-detail">Votre réponse : ${esc(playerAns)}</div>` : '';
-      inner = `<div class="feedback-box fb-wrong">
-        <div>
-          <div class="fb-title wrong">Mauvaise réponse ! Zéro pointé !</div>
-          ${pa}
-          <div class="fb-answer">Bonne réponse : <strong>${esc(ca)}</strong></div>
-        </div>
-      </div>`;
+      if (correctAns && q.type !== 'joueur') {
+        const pa = playerAns ? `<div class="fb-detail">Votre réponse : ${esc(playerAns)}</div>` : '';
+        inner = `<div class="feedback-box fb-wrong">
+          <div>
+            <div class="fb-title wrong">Pas tout à fait…</div>
+            ${pa}
+            <div class="fb-answer">Réponse : <strong>${esc(correctAns)}</strong></div>
+          </div>
+        </div>`;
+      }
     }
 
     document.getElementById('qz-feedback-inner').innerHTML = inner;
@@ -6910,7 +7655,7 @@
     summaryEl.innerHTML = summaryHtml;
     summaryEl.style.display = summaryHtml ? 'block' : 'none';
 
-    document.getElementById('qz-feedback').style.display = 'block';
+    document.getElementById('qz-feedback').style.display = (inner || summaryHtml || hasBonus) ? 'block' : 'none';
 
     const nextBtn = document.getElementById('qz-next-btn');
     nextBtn.textContent = isLast ? 'Voir mes résultats' : 'Question suivante →';
@@ -7319,7 +8064,12 @@
         tSummaryEl.style.display = sh ? 'block' : 'none';
       }
     }
-    document.getElementById(pfx === 'qz' ? 'qz-next-btn' : 'tq-close-btn').style.display = 'block';
+    if (pfx === 'qz' && q._isBonusJoueur) {
+      showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
+      setTimeout(() => nextQ(), 2200);
+    } else {
+      document.getElementById(pfx === 'qz' ? 'qz-next-btn' : 'tq-close-btn').style.display = 'block';
+    }
     if (pfx === 'qz') updateSidebar();
   }
 
@@ -7339,8 +8089,8 @@
       }
       return;
     }
-    // Écran mi-quiz toujours entre J(x) et J(y)
-    if (session.idx === 1) { nav('midbreak'); return; }
+    // Écran mi-quiz entre J(x) et J(y) — seulement si la fonctionnalité est activée
+    if (session.idx === 1 && feat('midbreak')) { nav('midbreak'); return; }
     renderQ();
   }
 
@@ -7360,6 +8110,8 @@
     const ytMatch = u.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
     if (ytMatch) return { type: 'iframe', src: `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&rel=0` };
     if (u.includes('youtube.com/embed/')) return { type: 'iframe', src: u };
+    if (/\.(jpe?g|png|gif|webp|svg|bmp)(\?.*)?$/i.test(u)) return { type: 'image', src: u };
+    if (/^https?:\/\//i.test(u)) return { type: 'iframe', src: u };
     return { type: 'image', src: u };
   }
 
@@ -7439,6 +8191,34 @@
     el.style.display = 'block';
   }
 
+  function openMidbreakPreview() {
+    const el    = document.getElementById('midbreak-preview-content');
+    const empty = document.getElementById('midbreak-preview-empty');
+    const active = LS.getMedia().filter(m => m.active !== false);
+    if (!active.length) {
+      el.innerHTML = '';
+      empty.style.display = 'block';
+    } else {
+      const m        = active[Math.floor(Math.random() * active.length)];
+      const resolved = resolveMediaUrl(m.url);
+      const mediaHtml = resolved.type === 'iframe'
+        ? `<iframe src="${resolved.src}" style="width:100%;aspect-ratio:16/9;border:none;border-radius:10px;" allow="autoplay;encrypted-media" allowfullscreen></iframe>`
+        : `<img src="${resolved.src}" alt="${esc(m.name)}" style="width:100%;max-height:360px;object-fit:contain;border-radius:10px;display:block;">`;
+      const captionHtml = m.caption
+        ? `<p style="margin-top:10px;font-size:.88rem;color:rgba(255,255,255,.6);text-align:center;font-style:italic;">${esc(m.caption)}</p>`
+        : '';
+      el.innerHTML = mediaHtml + captionHtml;
+      empty.style.display = 'none';
+    }
+    document.getElementById('midbreak-preview-modal').style.display = 'flex';
+  }
+
+  function closeMidbreakPreview() {
+    const el = document.getElementById('midbreak-preview-content');
+    el.innerHTML = '';
+    document.getElementById('midbreak-preview-modal').style.display = 'none';
+  }
+
   /* ═══════════════════════════════════════════════════
      PARTAGE
   ═══════════════════════════════════════════════════ */
@@ -7453,18 +8233,263 @@
   }
 
   function shareOnInstagram() {
-    const text = buildShareText();
     const fb = document.getElementById('share-feedback');
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(text).then(() => {
-        fb.textContent = 'Texte copié ! Colle-le dans ta story ou publication Instagram.';
+    const cv = generateShareImage();
+    cv.toBlob(async blob => {
+      const file = new File([blob], 'racing-quiz.png', { type: 'image/png' });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'Le Racing Quiz', text: buildShareText() });
+          return;
+        } catch (_) { /* fallback */ }
+      }
+      // fallback : copier le texte
+      const text = buildShareText();
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+          fb.textContent = 'Texte copié ! Colle-le dans ta story ou publication Instagram.';
+          fb.style.display = 'block';
+          setTimeout(() => { fb.style.display = 'none'; }, 4000);
+        });
+      } else {
+        fb.textContent = text;
         fb.style.display = 'block';
-        setTimeout(() => { fb.style.display = 'none'; }, 4000);
+      }
+    });
+  }
+
+  function generateShareImage() {
+    const { name, score, maxScore } = session;
+    const ratio = maxScore > 0 ? score / maxScore : 0;
+    let badgeIcon, badgeName;
+    if (ratio === 1)       { badgeIcon = ''; badgeName = 'Légende de Bollaert !'; }
+    else if (ratio >= 0.7) { badgeIcon = ''; badgeName = 'Fidèle des Sang et Or'; }
+    else if (ratio >= 0.4) { badgeIcon = ''; badgeName = 'Supporter du virage'; }
+    else                   { badgeIcon = ''; badgeName = 'Touriste à Bollaert'; }
+
+    const S = 1080;
+    const cv = document.createElement('canvas');
+    cv.width = S; cv.height = S;
+    const c = cv.getContext('2d');
+
+    // fond noir
+    c.fillStyle = '#111111';
+    c.fillRect(0, 0, S, S);
+
+    // bandeau rouge haut-droite
+    c.save();
+    c.beginPath();
+    c.moveTo(S * 0.56, 0); c.lineTo(S, 0); c.lineTo(S, S * 0.44); c.closePath();
+    c.fillStyle = '#E30613'; c.fill();
+    c.restore();
+
+    // liseré or haut-droite
+    c.save();
+    c.beginPath();
+    c.moveTo(S * 0.53, 0); c.lineTo(S * 0.56, 0);
+    c.lineTo(S, S * 0.44); c.lineTo(S, S * 0.41); c.closePath();
+    c.fillStyle = '#FFCD00'; c.fill();
+    c.restore();
+
+    // bandeau rouge bas-gauche
+    c.save();
+    c.beginPath();
+    c.moveTo(0, S * 0.76); c.lineTo(0, S); c.lineTo(S * 0.28, S); c.closePath();
+    c.fillStyle = '#E30613'; c.fill();
+    c.restore();
+
+    // liseré or bas-gauche
+    c.save();
+    c.beginPath();
+    c.moveTo(0, S * 0.73); c.lineTo(0, S * 0.76);
+    c.lineTo(S * 0.28, S); c.lineTo(S * 0.25, S); c.closePath();
+    c.fillStyle = '#FFCD00'; c.fill();
+    c.restore();
+
+    // titre
+    c.textAlign = 'center';
+    c.fillStyle = '#FFCD00';
+    c.font = 'bold italic 76px "Segoe UI", Arial, sans-serif';
+    c.fillText('LE RACING QUIZ', S / 2, 108);
+
+    // sous-titre
+    c.fillStyle = 'rgba(255,255,255,0.38)';
+    c.font = '30px "Segoe UI", Arial, sans-serif';
+    c.fillText('Racing Club Podcast', S / 2, 152);
+
+    // cercle score
+    const cx = S / 2, cy = S / 2 - 10, R = 155;
+    c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2);
+    c.fillStyle = 'rgba(255,255,255,0.04)'; c.fill();
+    c.strokeStyle = 'rgba(227,6,19,0.55)'; c.lineWidth = 6; c.stroke();
+
+    // score
+    c.fillStyle = '#FFFFFF';
+    c.font = 'bold 140px "Segoe UI", Arial, sans-serif';
+    c.textAlign = 'center';
+    c.fillText(String(score), cx, cy + 52);
+
+    // badge icon
+    c.font = '60px serif';
+    c.fillText(badgeIcon, cx, cy + 182);
+
+    // badge name
+    c.fillStyle = '#FFCD00';
+    c.font = 'bold italic 40px "Segoe UI", Arial, sans-serif';
+    c.fillText(badgeName, cx, cy + 244);
+
+    // nom joueur
+    c.fillStyle = '#FFFFFF';
+    c.font = 'bold 52px "Segoe UI", Arial, sans-serif';
+    c.fillText(name, cx, S - 222);
+
+    // hashtags
+    c.fillStyle = 'rgba(255,255,255,0.32)';
+    c.font = '30px "Segoe UI", Arial, sans-serif';
+    c.fillText('#SangEtOr  #RCLens', cx, S - 172);
+
+    // handle
+    c.fillStyle = 'rgba(255,205,0,0.55)';
+    c.font = '27px "Segoe UI", Arial, sans-serif';
+    c.fillText('@leracingclubpodcast', cx, S - 130);
+
+    return cv;
+  }
+
+  function downloadShareImage() {
+    const cv = generateShareImage();
+    const a = document.createElement('a');
+    a.download = 'racing-quiz-' + (session.name || 'score').replace(/[^a-zA-Z0-9]/g, '-') + '.png';
+    a.href = cv.toDataURL('image/png');
+    a.click();
+  }
+
+  /* ─── Classement inline résultats ─── */
+  let _rlbTab = 'today';
+
+  function rlbSetTab(tab) {
+    _rlbTab = tab;
+    ['today', 'all'].forEach(t => {
+      const btn = document.getElementById('rlb-tab-' + t);
+      if (btn) btn.classList.toggle('lb-tab-active', t === tab);
+    });
+    renderResultsLeaderboard();
+  }
+
+  function renderResultsLeaderboard() {
+    const lb       = LS.getLeaderboard();
+    const todayStr = new Date().toISOString().slice(0, 10);
+
+    function bestPerPlayer(entries) {
+      const map = {};
+      entries.forEach(e => {
+        const key = (e.name || '').toLowerCase().trim();
+        if (!key) return;
+        const prev = map[key];
+        if (!prev || e.score > prev.score) map[key] = e;
       });
-    } else {
-      fb.textContent = text;
-      fb.style.display = 'block';
+      return Object.values(map).sort((a, b) => b.score - a.score);
     }
+
+    const data = _rlbTab === 'today'
+      ? bestPerPlayer(lb.filter(e => (e.date || '').slice(0, 10) === todayStr))
+      : bestPerPlayer(lb);
+
+    const list  = document.getElementById('res-lb-list');
+    const empty = document.getElementById('res-lb-empty');
+    if (!list) return;
+
+    if (!data.length) {
+      list.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    const currentName = (session.name || '').toLowerCase();
+    const medals = ['🥇', '🥈', '🥉'];
+
+    list.innerHTML = data.slice(0, 10).map((e, i) => {
+      const isMe     = e.name.toLowerCase() === currentName;
+      const rankCls  = i < 3 ? ` lb-rank-${i + 1}` : '';
+      const rankHtml = i < 3 ? medals[i] : String(i + 1);
+      const rowStyle = isMe ? 'background:rgba(255,205,0,.07);border-radius:8px;margin:0 -8px;padding:0 8px;' : '';
+      return `<div class="lb-entry" style="${rowStyle}">
+        <div class="lb-rank${rankCls}">${rankHtml}</div>
+        <div class="lb-name" style="${isMe ? 'color:var(--or);font-weight:800;' : ''}">${esc(e.name)}</div>
+        <div class="lb-right">
+          <span class="lb-score" style="${isMe ? 'color:#fff;' : ''}">${e.score} pts</span>
+          <span class="lb-badge-txt">${esc(e.badgeLevel || '')}</span>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  /* ─── Classement public ─── */
+  let _lbTab = 'today';
+
+  function lbSetTab(tab) {
+    _lbTab = tab;
+    ['today', 'week', 'all'].forEach(t => {
+      const btn = document.getElementById('lb-tab-' + t);
+      if (btn) btn.classList.toggle('lb-tab-active', t === tab);
+    });
+    renderLeaderboardPublic();
+  }
+
+  function renderLeaderboardPublic() {
+    _lbTab = _lbTab || 'today';
+    const lb = LS.getLeaderboard();
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const weekAgo  = new Date(now.getTime() - 7 * 24 * 3600 * 1000);
+
+    function bestPerPlayer(entries) {
+      const map = {};
+      entries.forEach(e => {
+        const key = (e.name || '').toLowerCase().trim();
+        if (!key) return;
+        const prev     = map[key];
+        const ratio    = e.maxScore > 0    ? e.score / e.maxScore    : 0;
+        const prevRatio = prev && prev.maxScore > 0 ? prev.score / prev.maxScore : -1;
+        if (!prev || ratio > prevRatio || (ratio === prevRatio && e.score > prev.score)) map[key] = e;
+      });
+      return Object.values(map).sort((a, b) => {
+        const ra = a.maxScore > 0 ? a.score / a.maxScore : 0;
+        const rb = b.maxScore > 0 ? b.score / b.maxScore : 0;
+        return rb !== ra ? rb - ra : b.score - a.score;
+      });
+    }
+
+    let data;
+    if (_lbTab === 'today')     data = bestPerPlayer(lb.filter(e => (e.date || '').slice(0, 10) === todayStr));
+    else if (_lbTab === 'week') data = bestPerPlayer(lb.filter(e => e.date && new Date(e.date) >= weekAgo));
+    else                        data = bestPerPlayer(lb);
+
+    const list  = document.getElementById('lb-list');
+    const empty = document.getElementById('lb-empty');
+    if (!list) return;
+
+    if (!data.length) {
+      list.innerHTML = '';
+      if (empty) empty.style.display = 'block';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+
+    const medals = ['🥇', '🥈', '🥉'];
+    list.innerHTML = data.slice(0, 50).map((e, i) => {
+      const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
+      const rankHtml = i < 3 ? medals[i] : String(i + 1);
+      return `<div class="lb-entry">
+        <div class="lb-rank${rankCls}">${rankHtml}</div>
+        <div class="lb-name">${esc(e.name)}</div>
+        <div class="lb-right">
+          <span class="lb-score">${e.score} pts</span>
+          <span class="lb-badge-txt">${esc(e.badgeLevel || '')}</span>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   /* ═══════════════════════════════════════════════════
@@ -7474,26 +8499,32 @@
     nav('results');
     updateSidebar();
 
-    // Marquer les questions/joueurs comme utilisés (sauf en mode bêta test)
-    if (!feat('betaTest')) {
-      const used = LS.getUsedInGame();
-      session.questions.forEach(q => used.add(q.id));
-      if (session.bonusJoueur) used.add(session.bonusJoueur.id);
-      LS.saveUsedInGame(used);
-    }
-
     const { name, score, maxScore, answers, questions } = session;
     const ratio = maxScore > 0 ? score / maxScore : 0;
 
-    // Persister le score dans le leaderboard
-    const lb = LS.getLeaderboard();
     const badgeLevel = ratio === 1 ? 'Légende de Bollaert' : ratio >= 0.7 ? 'Fidèle des Sang et Or' : ratio >= 0.4 ? 'Supporter du virage' : 'Touriste à Bollaert';
     const j0ok = answers.length >= 1 && answers[0].ok && answers[0].q && answers[0].q.type === 'joueur';
     const j1ok = answers.length >= 2 && answers[1].ok && answers[1].q && answers[1].q.type === 'joueur';
     const joueurAnswered = (j0ok ? 1 : 0) + (j1ok ? 1 : 0);
     const bonusGot = answers.some(a => a.q && a.q._isBonusJoueur && a.ok);
-    lb.push({ name, score, maxScore, date: new Date().toISOString(), badgeLevel, joueurAnswered, bonusGot });
-    LS.saveLeaderboard(lb);
+    const isBeta   = feat('betaTest');
+
+    // v3 : une seule ligne insérée dans la table scores — elle porte le score,
+    // la session planifiée (anti-rejeu), les questions vues (badges "joué")
+    // et le détail par question (statistiques admin)
+    scoreInsert({
+      name, score, maxScore, date: new Date().toISOString(),
+      badgeLevel, joueurAnswered, bonusGot,
+      plannedDate: (!isBeta && session.plannedDate) ? session.plannedDate : null,
+      questionIds: [...session.questions.map(q => q.id), ...(session.bonusJoueur ? [session.bonusJoueur.id] : [])],
+      details: answers
+        .filter(a => a.q && a.q.id)
+        .map(a => ({
+          id: a.q.id, ok: !!a.ok, pts: a.ptsEarned || 0,
+          indiceIdx: (a.type === 'joueur' && a.indiceIdx !== undefined) ? a.indiceIdx : null
+        })),
+      beta: isBeta
+    });
 
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
     document.getElementById('res-score').textContent = score;
@@ -7521,16 +8552,19 @@
         if ((a.type === 'libre' || a.type === 'joueur') && a.playerAns)
           meta += `<div class="r-meta">Votre réponse : ${esc(a.playerAns)}</div>`;
       }
-      const pts    = a.q.points || 1;
+      const earned = a.ptsEarned != null ? a.ptsEarned : (a.ok ? (a.q.points || 1) : 0);
       const ptsLbl = a.ok
-        ? `<span style="font-size:.75rem;font-weight:700;color:var(--vert);margin-left:6px;">+${pts} pt${pts > 1 ? 's' : ''}</span>`
-        : `<span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.3);margin-left:6px;">0 pt${pts > 1 ? 's' : ''}</span>`;
+        ? `<span style="font-size:.75rem;font-weight:700;color:var(--vert);margin-left:6px;">+${earned} pt${earned > 1 ? 's' : ''}</span>`
+        : `<span style="font-size:.75rem;font-weight:600;color:rgba(255,255,255,.3);margin-left:6px;">0 pt</span>`;
       const qLabel = isJoueur ? `🎽 ${esc(a.q.playerName)}` : esc(a.q.text);
       return `<div class="result-item ${cls}">
         <span class="r-icon">${icon}</span>
         <div style="flex:1;min-width:0;"><div class="r-qtxt" style="display:flex;align-items:center;flex-wrap:wrap;gap:4px;">${qLabel}${ptsLbl}</div>${meta}</div>
       </div>`;
     }).join('');
+
+    _rlbTab = 'today';
+    renderResultsLeaderboard();
   }
 
   /* ═══════════════════════════════════════════════════
@@ -7572,6 +8606,12 @@
     const btn   = document.getElementById('contact-send-btn');
     errEl.style.display = 'none';
     okEl.style.display  = 'none';
+
+    if (!window.emailjs || EMAILJS_PUBLIC_KEY.indexOf('VOTRE_') === 0) {
+      errEl.textContent = 'L\'envoi d\'email n\'est pas encore configuré. Contactez directement ' + CONTACT_EMAIL + '.';
+      errEl.style.display = 'block';
+      return;
+    }
 
     let subject, body;
 
@@ -7768,6 +8808,14 @@
     return h.toString(36);
   }
 
+  function _validatePwd(pwd) {
+    if (pwd.length < 7)            return 'Le mot de passe doit faire au moins 7 caractères.';
+    if (!/[A-Z]/.test(pwd))        return 'Le mot de passe doit contenir au moins une lettre majuscule.';
+    if (!/[0-9]/.test(pwd))        return 'Le mot de passe doit contenir au moins un chiffre.';
+    if (!/[^\w\s]/.test(pwd))      return 'Le mot de passe doit contenir au moins un signe de ponctuation (ex : !, ?, ., @…).';
+    return null;
+  }
+
   function initAuth() {
     const saved = LS.getLoggedPseudo();
     if (saved) { _localUser = { pseudo: saved }; }
@@ -7780,6 +8828,8 @@
     document.getElementById('auth-tab-signup').classList.toggle('active', isSignup);
     document.getElementById('auth-confirm-group').style.display  = isSignup ? 'block' : 'none';
     document.getElementById('auth-pseudo-hint').style.display    = isSignup ? 'block' : 'none';
+    const authPwdWarn = document.getElementById('auth-pwd-warning');
+    if (authPwdWarn) authPwdWarn.style.display = isSignup ? 'block' : 'none';
     const btn = document.getElementById('auth-submit-btn');
     btn.textContent  = isSignup ? 'Créer mon compte' : 'Se connecter';
     btn.dataset.mode = mode;
@@ -7788,7 +8838,7 @@
     document.getElementById('auth-success').style.display = 'none';
   }
 
-  function authSubmit() {
+  async function authSubmit() {
     const btn     = document.getElementById('auth-submit-btn');
     const mode    = btn.dataset.mode || 'login';
     const pseudo  = (document.getElementById('auth-pseudo').value || '').trim();
@@ -7801,13 +8851,12 @@
     if (!pseudo || !pwd) {
       errEl.textContent = 'Remplis tous les champs.'; errEl.style.display = 'block'; return;
     }
-    if (pwd.length < 4) {
-      errEl.textContent = 'Le mot de passe doit faire au moins 4 caractères.'; errEl.style.display = 'block'; return;
-    }
-
+    await accountsFetch(); // comptes créés depuis d'autres appareils
     const accounts = LS.getAccounts();
 
     if (mode === 'signup') {
+      const pwdErr = _validatePwd(pwd);
+      if (pwdErr) { errEl.textContent = pwdErr; errEl.style.display = 'block'; return; }
       const confirm = document.getElementById('auth-password-confirm').value;
       if (pwd !== confirm) {
         errEl.textContent = 'Les mots de passe ne correspondent pas.'; errEl.style.display = 'block'; return;
@@ -7816,7 +8865,7 @@
         errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; return;
       }
       accounts[pseudo.toLowerCase()] = { pseudo, hash: _hashPwd(pwd) };
-      LS.saveAccounts(accounts);
+      accountSave(pseudo.toLowerCase());
       _localUser = { pseudo };
       LS.setLoggedPseudo(pseudo);
       updateHomeAuthArea();
@@ -7861,6 +8910,15 @@
         _miniAv.innerHTML = '';
         _miniAv.textContent = _localUser.pseudo[0].toUpperCase();
       }
+      const _homePlayBtn  = document.getElementById('home-play-btn');
+      const _homePlaydMsg = document.getElementById('home-already-played-msg');
+      if (_homePlayBtn && _homePlaydMsg) {
+        const _played = hasPlayedToday(_localUser.pseudo);
+        _homePlayBtn.disabled     = _played;
+        _homePlayBtn.style.opacity = _played ? '0.45' : '';
+        _homePlayBtn.style.cursor  = _played ? 'default' : '';
+        _homePlaydMsg.style.display = _played ? 'block' : 'none';
+      }
     } else {
       authSection.style.display = 'block';
       playSection.style.display = 'none';
@@ -7881,8 +8939,10 @@
     if (tabSignup) tabSignup.classList.toggle('active', isSignup);
     const confirmGroup = document.getElementById('home-confirm-group');
     const pseudoHint   = document.getElementById('home-pseudo-hint');
+    const pwdWarn      = document.getElementById('home-pwd-warning');
     if (confirmGroup) confirmGroup.style.display = isSignup ? 'block' : 'none';
     if (pseudoHint)   pseudoHint.style.display   = isSignup ? 'block' : 'none';
+    if (pwdWarn)      pwdWarn.style.display      = isSignup ? 'block' : 'none';
     const btn = document.getElementById('home-auth-btn');
     if (btn) {
       btn.textContent  = isSignup ? 'Créer mon compte' : 'Se connecter';
@@ -7895,7 +8955,7 @@
     if (okEl)  okEl.style.display  = 'none';
   }
 
-  function homeAuthSubmit() {
+  async function homeAuthSubmit() {
     const btn    = document.getElementById('home-auth-btn');
     const mode   = btn ? (btn.dataset.mode || 'login') : 'login';
     const pseudo = (document.getElementById('home-pseudo').value || '').trim();
@@ -7909,14 +8969,12 @@
       if (errEl) { errEl.textContent = 'Remplis tous les champs.'; errEl.style.display = 'block'; }
       return;
     }
-    if (pwd.length < 4) {
-      if (errEl) { errEl.textContent = 'Le mot de passe doit faire au moins 4 caractères.'; errEl.style.display = 'block'; }
-      return;
-    }
-
+    await accountsFetch(); // comptes créés depuis d'autres appareils
     const accounts = LS.getAccounts();
 
     if (mode === 'signup') {
+      const pwdErr = _validatePwd(pwd);
+      if (pwdErr) { if (errEl) { errEl.textContent = pwdErr; errEl.style.display = 'block'; } return; }
       const confirmEl = document.getElementById('home-password-confirm');
       const confirm   = confirmEl ? confirmEl.value : '';
       if (pwd !== confirm) {
@@ -7928,7 +8986,7 @@
         return;
       }
       accounts[pseudo.toLowerCase()] = { pseudo, hash: _hashPwd(pwd) };
-      LS.saveAccounts(accounts);
+      accountSave(pseudo.toLowerCase());
       _localUser = { pseudo };
       LS.setLoggedPseudo(pseudo);
       updateHomeAuthArea();
@@ -8006,7 +9064,7 @@
       rankEl.innerHTML = '';
     }
 
-    const lb = allLb.filter(e => e.name === name);
+    const lb = allLb.filter(e => e.name.toLowerCase() === name.toLowerCase());
     const games  = lb.length;
     const best   = games ? Math.max(...lb.map(e => Number(e.score) || 0)) : 0;
     document.getElementById('pc-games').textContent = games;
@@ -8032,12 +9090,14 @@
     const actSection = document.getElementById('pc-act-section');
     const actGrid    = document.getElementById('pc-act-grid');
     if (actSection && actGrid) {
-      const WEEKS = 26;
-      // Build day → best-performance map from leaderboard
+      const WEEKS = 28;
+      const fmtLocalKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+      // Build day → best-performance map from leaderboard (local dates)
       const dayMap = {};
       lb.forEach(e => {
         if (!e.date) return;
-        const key = e.date.slice(0, 10); // YYYY-MM-DD
+        const key = fmtLocalKey(new Date(e.date));
         if (!dayMap[key]) dayMap[key] = { ja: 0, bonus: false, pts: 0 };
         const ja = e.joueurAnswered != null ? e.joueurAnswered : 0;
         if (ja > dayMap[key].ja) dayMap[key].ja = ja;
@@ -8045,22 +9105,22 @@
         dayMap[key].pts += Number(e.score) || 0;
       });
 
-      // Grid starts on the Monday of (today - WEEKS*7 + 1) days ago
+      // Grid: last column = week containing today, always visible
       const now = new Date();
-      const todayKey = now.toISOString().slice(0, 10);
-      const refDate  = new Date(now);
-      refDate.setDate(now.getDate() - WEEKS * 7 + 1);
-      refDate.setHours(0, 0, 0, 0);
-      const dow = (refDate.getDay() + 6) % 7; // 0=Mon
-      const gridStart = new Date(refDate);
-      gridStart.setDate(refDate.getDate() - dow);
+      const todayKey = fmtLocalKey(now);
+      const todayDow = (now.getDay() + 6) % 7; // 0=Mon
+      const mondayThisWeek = new Date(now);
+      mondayThisWeek.setDate(now.getDate() - todayDow);
+      mondayThisWeek.setHours(0, 0, 0, 0);
+      const gridStart = new Date(mondayThisWeek);
+      gridStart.setDate(mondayThisWeek.getDate() - (WEEKS - 1) * 7);
 
       let html = '';
       const cur = new Date(gridStart);
       for (let w = 0; w < WEEKS; w++) {
         html += '<div class="pc-act-col">';
         for (let d = 0; d < 7; d++) {
-          const key    = cur.toISOString().slice(0, 10);
+          const key    = fmtLocalKey(cur);
           const entry  = dayMap[key];
           const future = key > todayKey;
           let cls = 'pac-empty';
@@ -8117,6 +9177,16 @@
       badgeWrap.style.display = 'none';
     }
 
+    const _pcPlayBtn  = document.getElementById('pc-play-btn');
+    const _pcPlaydMsg = document.getElementById('pc-already-played-msg');
+    if (_pcPlayBtn && _pcPlaydMsg) {
+      const _played = hasPlayedToday(name);
+      _pcPlayBtn.disabled      = _played;
+      _pcPlayBtn.style.opacity  = _played ? '0.45' : '';
+      _pcPlayBtn.style.cursor   = _played ? 'default' : '';
+      _pcPlaydMsg.style.display = _played ? 'block' : 'none';
+    }
+
     const historyCard = document.getElementById('pc-history-card');
     const historyList = document.getElementById('pc-history-list');
     if (lb.length > 0) {
@@ -8152,7 +9222,7 @@
       const key = _localUser.pseudo.toLowerCase();
       if (!accounts[key]) accounts[key] = { pseudo: _localUser.pseudo };
       accounts[key].avatar = dataUrl;
-      LS.saveAccounts(accounts);
+      accountSave(key);
       const avatarEl = document.getElementById('pc-avatar');
       if (avatarEl) { avatarEl.innerHTML = `<img src="${dataUrl}" alt="">`; avatarEl.style.fontSize = ''; }
       updateHomeAuthArea();
@@ -8170,6 +9240,7 @@
     const loadingEl = document.getElementById('db-loading-overlay');
     try {
       await initDB();
+      await migrateLocalStateToSupabase();
       applySubtitle();
       migrateCodesLegacy();
       migratePromoteBonus();
@@ -8177,6 +9248,13 @@
       console.error('[Supabase] initDB échoué :', e);
     } finally {
       if (loadingEl) loadingEl.style.display = 'none';
+    }
+    // Restaure la session Supabase Auth de l'admin (persistée par supabase-js)
+    if (_supa) {
+      try {
+        const { data } = await _supa.auth.getSession();
+        adminSupaAuthed = !!(data && data.session);
+      } catch {}
     }
     const _params = new URLSearchParams(window.location.search);
     if (_params.has('testmode')) {
@@ -8198,6 +9276,29 @@
      ADMIN DASHBOARD — tâches à réaliser
   ═══════════════════════════════════════════════════ */
   const ADMIN_TASKS = [
+    /* ── Sécurité (v3) ── */
+    {
+      id: 'v3-sql',
+      group: 'Sécurité (v3)',
+      label: 'Exécuter le script supabase-v3-setup.sql',
+      sub: 'Dashboard Supabase → SQL Editor → coller le script → Run',
+      link: 'https://supabase.com/dashboard/project/wxkvgilseonwcgrbryug/sql/new',
+      linkLabel: 'SQL Editor →',
+    },
+    {
+      id: 'v3-admin-user',
+      group: 'Sécurité (v3)',
+      label: 'Créer le compte admin Supabase Auth',
+      sub: 'Authentication → Users → Add user · email = ADMIN_EMAIL du code · cocher "Auto Confirm User"',
+      link: 'https://supabase.com/dashboard/project/wxkvgilseonwcgrbryug/auth/users',
+      linkLabel: 'Supabase Users →',
+    },
+    {
+      id: 'v3-pwd',
+      group: 'Sécurité (v3)',
+      label: 'Changer le mot de passe admin par défaut',
+      sub: 'Réglages → Mot de passe admin (sinon le défaut du code reste accepté)',
+    },
     /* ── EmailJS ── */
     {
       id: 'emailjs-account',
@@ -8363,11 +9464,90 @@
   }
 
   /* ── Restauration de session admin : gérée dans appInit() ci-dessus ── */
+
+  /* ═══════════════════════════════════════════════════
+     STATS PAR QUESTION
+  ═══════════════════════════════════════════════════ */
+  function renderQStats() {
+    const el = document.getElementById('qstats-content');
+    if (!el) return;
+    const qstats = computeQStats(); // v3 : agrégé depuis la table scores (tous les joueurs)
+    const qs = LS.getQ();
+    const ids = Object.keys(qstats);
+    if (!ids.length) {
+      el.innerHTML = '<p style="color:rgba(255,255,255,.4);font-size:.85rem;">Aucune donnée — les stats s\'accumulent après chaque partie.</p>';
+      return;
+    }
+
+    // Joindre avec la base de questions pour afficher nom/texte
+    const qMap = {};
+    qs.forEach(q => { qMap[String(q.id)] = q; });
+
+    // Trier par taux de réussite croissant (les plus difficiles en premier)
+    const rows = ids.map(id => {
+      const s  = qstats[id];
+      const q  = qMap[id];
+      const rate = s.attempts > 0 ? s.successes / s.attempts : 0;
+      const avgIndice = s.indiceIdxCount > 0 ? (s.indiceIdxSum / s.indiceIdxCount) : null;
+      return { id, s, q, rate, avgIndice };
+    }).sort((a, b) => a.rate - b.rate);
+
+    // Séparation joueurs / autres
+    const joueurRows = rows.filter(r => r.q && r.q.type === 'joueur');
+    const otherRows  = rows.filter(r => !r.q || r.q.type !== 'joueur');
+
+    let html = '';
+
+    const renderSection = (title, items) => {
+      if (!items.length) return '';
+      let s = `<div style="font-size:.78rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;margin:10px 0 8px;">${title}</div>`;
+      items.forEach(({ id, s: st, q, rate, avgIndice }) => {
+        const label = q ? (q.type === 'joueur' ? (q.playerName || id) : (q.text || id)) : id;
+        const pct   = Math.round(rate * 100);
+        const barColor = pct >= 70 ? 'var(--vert)' : pct >= 40 ? '#ff8c00' : 'var(--rouge)';
+        const indiceHtml = avgIndice !== null
+          ? `<span style="margin-left:10px;font-size:.75rem;color:rgba(255,255,255,.45);">indice moy. <strong style="color:rgba(255,255,255,.75);">${(avgIndice + 1).toFixed(1)}</strong></span>`
+          : '';
+        s += `<div style="margin-bottom:10px;">
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <span style="font-size:.82rem;color:rgba(255,255,255,.85);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(label)}">${esc(label)}</span>
+            <span style="font-size:.72rem;color:rgba(255,255,255,.3);white-space:nowrap;">${st.successes}/${st.attempts}</span>
+            ${indiceHtml}
+          </div>
+          <div style="height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width .3s;"></div>
+          </div>
+        </div>`;
+      });
+      return s;
+    };
+
+    html += renderSection('🎽 Qui suis-je ?', joueurRows);
+    html += renderSection('❓ Autres questions', otherRows);
+    el.innerHTML = html;
+  }
+
+  function resetQStats() {
+    if (!confirm('Réinitialiser toutes les statistiques par question ?')) return;
+    // v3 : les stats sont dérivées des parties — on mémorise la date du reset
+    const f = LS.getFeatures();
+    f.statsResetAt = Date.now();
+    LS.saveFeatures(f);
+    localStorage.removeItem('rcQStats');
+    renderQStats();
+  }
   </script>
 
   <!-- ══ Player Card overlay ══ -->
   <div id="pcard-overlay" class="pcard-overlay" style="display:none;" onclick="if(event.target===this)closePlayerCard()">
     <div class="pcard-panel" id="pcard-content"></div>
   </div>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>
