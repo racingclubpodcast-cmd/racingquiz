@@ -2133,7 +2133,10 @@
                     <input type="text" id="media-new-caption" placeholder="Ex : Le livre d'histoire du RC Lens" maxlength="140">
                   </div>
                   <div id="media-add-err" class="alert alert-error" style="display:none;"></div>
-                  <button class="btn btn-gold mb0" onclick="addMedia()">+ Ajouter ce contenu</button>
+                  <div class="flex-row" style="gap:8px;">
+                    <button class="btn btn-gold mb0" id="media-submit-btn" onclick="addMedia()">+ Ajouter ce contenu</button>
+                    <button class="btn btn-ghost mb0" id="media-cancel-btn" style="display:none;" onclick="cancelEditMedia()">Annuler</button>
+                  </div>
                 </div>
                 <div id="media-list"></div>
                 <button class="btn btn-ghost btn-full mb0" style="margin-top:14px;" onclick="openMidbreakPreview()">👁 Visualiser la pause fraîcheur</button>
@@ -8652,6 +8655,8 @@
     return { type: 'image', src: u };
   }
 
+  let editingMediaId = null;
+
   function addMedia() {
     const name    = (document.getElementById('media-new-name').value    || '').trim();
     const url     = (document.getElementById('media-new-url').value     || '').trim();
@@ -8661,17 +8666,47 @@
     if (!name) { errEl.textContent = 'Veuillez renseigner un nom.';  errEl.style.display = 'block'; return; }
     if (!url)  { errEl.textContent = 'Veuillez renseigner une URL.'; errEl.style.display = 'block'; return; }
     const media = LS.getMedia();
-    media.push({ id: String(Date.now()), name, url, caption, active: true });
+    if (editingMediaId) {
+      const m = media.find(x => x.id === editingMediaId);
+      if (m) { m.name = name; m.url = url; m.caption = caption; }
+    } else {
+      media.push({ id: String(Date.now()), name, url, caption, active: true });
+    }
     LS.saveMedia(media);
+    cancelEditMedia();
+    renderMediaList();
+  }
+
+  function editMedia(id) {
+    const m = LS.getMedia().find(x => x.id === id);
+    if (!m) return;
+    editingMediaId = id;
+    document.getElementById('media-new-name').value    = m.name    || '';
+    document.getElementById('media-new-url').value     = m.url     || '';
+    document.getElementById('media-new-caption').value = m.caption || '';
+    document.getElementById('media-add-err').style.display = 'none';
+    document.getElementById('media-submit-btn').textContent   = '💾 Enregistrer les modifications';
+    document.getElementById('media-cancel-btn').style.display = '';
+    document.getElementById('media-new-name').focus();
+    document.getElementById('media-new-name').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    renderMediaList();
+  }
+
+  function cancelEditMedia() {
+    editingMediaId = null;
     document.getElementById('media-new-name').value    = '';
     document.getElementById('media-new-url').value     = '';
     document.getElementById('media-new-caption').value = '';
+    document.getElementById('media-add-err').style.display = 'none';
+    document.getElementById('media-submit-btn').textContent   = '+ Ajouter ce contenu';
+    document.getElementById('media-cancel-btn').style.display = 'none';
     renderMediaList();
   }
 
   function deleteMedia(id) {
     if (!confirm('Supprimer ce contenu ?')) return;
     LS.saveMedia(LS.getMedia().filter(m => m.id !== id));
+    if (editingMediaId === id) { cancelEditMedia(); return; }
     renderMediaList();
   }
 
@@ -8694,8 +8729,9 @@
     el.innerHTML = media.map(m => {
       const resolved = resolveMediaUrl(m.url);
       const typeIcon = resolved.type === 'iframe' ? '▶' : '🖼';
+      const isEditing = m.id === editingMediaId;
       return `
-        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);margin-bottom:8px;${m.active ? '' : 'opacity:.45;'}">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid ${isEditing ? 'rgba(255,205,0,.55)' : 'rgba(255,255,255,.08)'};margin-bottom:8px;${m.active ? '' : 'opacity:.45;'}">
           <label class="media-toggle" title="${m.active ? 'Désactiver' : 'Activer'}">
             <input type="checkbox" ${m.active ? 'checked' : ''} onchange="toggleMedia('${m.id}')">
             <span class="media-toggle-track"></span>
@@ -8706,7 +8742,8 @@
             ${m.caption ? `<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-top:3px;">${esc(m.caption)}</div>` : ''}
             <div style="font-size:.7rem;color:rgba(255,255,255,.22);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(m.url)}</div>
           </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteMedia('${m.id}')">✕</button>
+          <button class="btn btn-ghost btn-sm" title="Modifier" onclick="editMedia('${m.id}')">✎</button>
+          <button class="btn btn-danger btn-sm" title="Supprimer" onclick="deleteMedia('${m.id}')">✕</button>
         </div>`;
     }).join('');
   }
