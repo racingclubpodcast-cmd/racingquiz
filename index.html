@@ -149,6 +149,7 @@
     .btn-gold:hover { background: #e6b800; box-shadow: 0 6px 22px rgba(255,205,0,.35); transform: translateY(-2px); }
     .btn-red      { background: var(--rouge); color: var(--blanc); }
     .btn-red:hover { background: #c0040f; box-shadow: 0 6px 22px rgba(227,6,19,.35); transform: translateY(-2px); }
+    .btn-saved-flash, .btn-saved-flash:hover { background: #1e9e57; color: var(--blanc); box-shadow: none; transform: none; }
     .btn-outline  { background: transparent; color: var(--or); border: 2px solid var(--or); }
     .btn-outline:hover { background: var(--or); color: var(--noir); }
     .btn-ghost    { background: rgba(255,255,255,.06); color: rgba(255,255,255,.7); border: 1px solid rgba(255,255,255,.1); }
@@ -286,6 +287,36 @@
     }
     .tab-btn + .tab-btn { border-left: 1px solid rgba(255,205,0,.18); }
     .tab-btn.active { background: var(--or); color: var(--noir); }
+
+    /* La barre d'onglets reste alignée sur la colonne admin (largeur des
+       cartes de création / modification des questions), centrée. */
+    #view-admin .tabs-nav { width: 100%; }
+
+    /* Menu déroulant des onglets (mobile / tactile) */
+    .tabs-select {
+      display: none;
+      width: 100%;
+      padding: 14px 44px 14px 16px;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,205,0,.35);
+      background-color: rgba(26,26,26,.92);
+      color: var(--or);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: .95rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      cursor: pointer;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23ffcd00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+    }
+    .tabs-select:focus { outline: none; border-color: var(--or); }
+    .tabs-select option { background: #1a1a1a; color: #fff; }
 
     /* ── Joueurs tab ── */
     .joueur-search-bar { margin-bottom:12px; }
@@ -498,7 +529,7 @@
       display: inline-block;
       margin-bottom: 14px;
     }
-    .quiz-question-text { font-size: 1.25rem; font-weight: 700; line-height: 1.45; margin-bottom: 22px; color: #FFFFFF; }
+    .quiz-question-text { font-size: 1.25rem; font-weight: 700; line-height: 1.45; margin-bottom: 22px; color: #FFFFFF; overflow-wrap: break-word; word-break: break-word; hyphens: auto; }
 
     /* ── QCM options (player) ── */
     .options-grid { display: flex; flex-direction: column; gap: 11px; width: 100%; }
@@ -518,6 +549,9 @@
       transition: all .18s;
       width: 100%;
       font-family: inherit;
+      overflow-wrap: break-word;
+      word-break: break-word;
+      min-width: 0;
     }
     .option-btn:hover { border-color: var(--or); background: rgba(255,205,0,.09); transform: translateX(3px); }
     .option-letter {
@@ -1448,9 +1482,17 @@
       .admin-bar { margin-bottom: 14px; }
       .admin-bar-left h2 { font-size: 1rem !important; }
 
-      /* Entrées de la liste de questions */
-      .q-item { padding: 11px 10px; gap: 8px; }
-      .q-actions { flex-direction: row; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+      /* Réglages : on empile la navigation au-dessus du contenu */
+      .settings-layout { flex-direction: column; gap: 12px; align-items: stretch; }
+      .settings-sidebar { width: 100%; }
+      .settings-layout > *:not(.settings-sidebar) { min-width: 0; }
+
+      /* Entrées de la liste de questions :
+         disposition empilée — badge + actions en haut, texte en pleine largeur dessous */
+      .q-item { padding: 11px 10px; gap: 8px 10px; flex-wrap: wrap; align-items: center; }
+      .q-body { flex-basis: 100%; order: 3; min-width: 0; }
+      .q-actions { flex-direction: row; flex-wrap: wrap; gap: 6px; justify-content: flex-end; margin-left: auto; }
+      .q-num { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
       .q-text { font-size: .86rem; }
       .q-meta { font-size: .72rem; }
 
@@ -1461,8 +1503,9 @@
       .result-item { padding: 9px 11px; gap: 8px; }
       .r-qtxt { font-size: .84rem; }
 
-      /* Onglets */
-      .tab-btn { font-size: .74rem; padding: 10px 6px; letter-spacing: 0; }
+      /* Onglets : on bascule la barre en menu déroulant tactile */
+      #view-admin .tabs { display: none !important; }
+      .tabs-select { display: block; }
 
       /* Bannière mode test */
       .test-banner { padding: 8px 12px; font-size: .76rem; }
@@ -1551,6 +1594,36 @@
     .lb-right { display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0; }
     .lb-score { font-weight:700;color:var(--or);font-size:.95rem; }
     .lb-badge-txt { font-size:.68rem;color:rgba(255,255,255,.38);white-space:nowrap; }
+
+    /* ── Mon Onze (terrain + formations + collection) ── */
+    .pos-picker { display:flex;flex-wrap:wrap;gap:6px; }
+    .pos-chip { background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.65);border-radius:8px;padding:6px 11px;font-size:.75rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s; }
+    .pos-chip.active { background:rgba(227,6,19,.2);border-color:var(--rouge);color:#fff; }
+    .onze-formations { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
+    .onze-f-chip { background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.7);border-radius:20px;padding:6px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s; }
+    .onze-f-chip.active { background:rgba(255,205,0,.15);border-color:var(--or);color:var(--or); }
+    .onze-pitch { position:relative;width:100%;aspect-ratio:707/1000;background:url('terrain-foot-web.jpg') center/cover no-repeat;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.12); }
+    .onze-slot { position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit; }
+    .onze-slot-disc { width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.72rem;transition:transform .12s; }
+    .onze-slot:hover .onze-slot-disc { transform:scale(1.08); }
+    .onze-slot.empty .onze-slot-disc { border:2px dashed rgba(255,255,255,.8);background:rgba(0,0,0,.3);color:#fff; }
+    .onze-slot.filled .onze-slot-disc { background:var(--rouge);border:2px solid var(--or);color:#fff;font-size:.95rem; }
+    .onze-slot-name { font-size:.6rem;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);background:rgba(0,0,0,.5);padding:1px 6px;border-radius:6px;max-width:82px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .onze-complete-banner { background:rgba(255,205,0,.1);border:1px solid var(--or);border-radius:10px;padding:12px 14px;text-align:center;font-weight:800;color:var(--or);margin-bottom:14px;font-size:.9rem; }
+    .onze-coll-row { display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06); }
+    .onze-coll-row:last-child { border-bottom:none; }
+    .onze-coll-name { flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .onze-coll-pos { font-size:.7rem;color:var(--or);font-weight:700;flex-shrink:0; }
+    .onze-coll-placed { font-size:.68rem;color:var(--vert);flex-shrink:0; }
+    .onze-cand { display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:11px 14px;margin-bottom:8px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;text-align:left;transition:all .12s; }
+    .onze-cand:hover { border-color:var(--or);background:rgba(255,205,0,.08); }
+    .onze-cand span { font-size:.72rem;color:var(--or);font-weight:700;flex-shrink:0; }
+    @media (max-width:380px) {
+      .onze-slot-name { max-width:60px;font-size:.56rem; }
+      .onze-slot-disc { width:38px;height:38px; }
+    }
+    .onze-toast { position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#161616;border:1px solid var(--or);color:#fff;border-radius:30px;padding:11px 20px;font-size:.85rem;font-weight:700;z-index:400;box-shadow:0 8px 30px rgba(0,0,0,.6);animation:onzeToastIn .25s ease;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis; }
+    @keyframes onzeToastIn { from { opacity:0;transform:translateX(-50%) translateY(14px); } to { opacity:1;transform:translateX(-50%) translateY(0); } }
   </style>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#E30613">
@@ -1704,12 +1777,21 @@
         </div>
       </div>
 
-      <div class="tabs">
-        <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database (<span id="qcount">0</span>)</button>
-        <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur</button>
-        <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
-        <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs</button>
-        <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
+      <div class="tabs-nav">
+        <div class="tabs">
+          <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database (<span id="qcount">0</span>)</button>
+          <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur</button>
+          <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
+          <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs</button>
+          <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
+        </div>
+        <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
+          <option value="list">Database</option>
+          <option value="generator">⚗ Générateur</option>
+          <option value="planning">Planning</option>
+          <option value="joueurs">Joueurs</option>
+          <option value="stats">Stats</option>
+        </select>
       </div>
 
       <!-- Tab : list -->
@@ -1902,6 +1984,13 @@
               <label class="field-label">Nom du joueur *</label>
               <input type="text" id="nj-name" placeholder="Ex : Éric Sikora, Lensois légendaire…" maxlength="100">
               <p class="field-hint">Le nom que les joueurs devront deviner.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Poste(s) du joueur</label>
+              <div id="nj-positions" class="pos-picker"></div>
+              <p class="field-hint" id="nj-positions-summary"></p>
+              <p class="field-hint">Sélectionnez un ou plusieurs postes — utilisé pour le mode « Mon Onze » (placement sur le terrain).</p>
             </div>
 
             <div class="form-group" style="max-width:160px;">
@@ -2112,8 +2201,7 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <button class="btn btn-gold btn-sm" onclick="generatePlanning()">Générer 4 sem.</button>
             <button class="btn btn-ghost btn-sm" onclick="planningGoToday()">Aujourd'hui</button>
-            <button class="btn btn-ghost btn-sm" onclick="resetUsedInGame()" title="Réinitialiser les marqueurs ✓ joué">↺ Réinit. joués</button>
-            <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="clearPlanningAll()">Effacer tout</button>
+            <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="resetPlanningAll()" title="Effacer le planning et réinitialiser les marqueurs ✓ joué">↺ Tout réinitialiser</button>
           </div>
           <div id="planning-beta-banner" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(100,180,255,.1);border:1px solid rgba(100,180,255,.3);font-size:.78rem;color:#64b4ff;font-weight:600;">
             🔵 Mode bêta test actif — les parties jouées ne marquent pas les questions comme utilisées
@@ -2570,11 +2658,51 @@
           <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
         </div>
 
+        <div class="card" style="margin-bottom:12px;padding:16px 18px;cursor:pointer;" onclick="nav('onze')">
+          <div class="flex-between">
+            <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+              <span style="font-size:1.4rem;">🎽</span>
+              <div style="min-width:0;">
+                <div style="font-weight:800;">Mon Onze</div>
+                <div style="font-size:.72rem;color:rgba(255,255,255,.45);" id="pc-onze-sub">Collectionne les joueurs devinés</div>
+              </div>
+            </div>
+            <span style="color:var(--or);font-weight:800;flex-shrink:0;" id="pc-onze-count"></span>
+          </div>
+        </div>
+
         <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
           <div id="pc-history-list" style="max-height:320px;overflow-y:auto;"></div>
         </div>
 
         <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ MON ONZE ═══ -->
+    <div class="view" id="view-onze">
+      <div style="width:100%;max-width:480px;padding-bottom:80px;">
+
+        <div class="card" style="margin-bottom:12px;">
+          <div class="flex-between" style="margin-bottom:14px;">
+            <h3 style="margin:0;">🎽 Mon Onze</h3>
+            <span style="color:var(--or);font-weight:800;" id="onze-count">0/11</span>
+          </div>
+          <div id="onze-complete-banner" class="onze-complete-banner" style="display:none;">🏆 Onze complet ! Bonus à venir…</div>
+          <div class="onze-formations" id="onze-formations"></div>
+          <div class="onze-pitch" id="onze-pitch"></div>
+          <p class="field-hint" style="margin-top:10px;">Touche une case pour placer ou retirer un joueur de ta collection.</p>
+        </div>
+
+        <div class="card" style="margin-bottom:12px;">
+          <div class="flex-between" style="margin-bottom:10px;">
+            <div class="pcard-section-title" style="margin-bottom:0;">Ma collection</div>
+            <span style="font-size:.75rem;color:rgba(255,255,255,.45);font-weight:700;" id="onze-coll-count"></span>
+          </div>
+          <div id="onze-collection" style="max-height:300px;overflow-y:auto;"></div>
+        </div>
+
+        <button class="btn btn-ghost btn-full mb0" onclick="nav('player-card')">← Retour au profil</button>
       </div>
     </div>
 
@@ -2599,43 +2727,57 @@
         <p style="color:rgba(255,255,255,.4);font-size:.8rem;margin:0;">Le Racing Quiz</p>
       </div>
 
-      <p style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.6;margin-bottom:20px;">Prouve que tu es le plus grand supporter du Racing Club de Lens en accumulant le maximum de points chaque semaine !</p>
+      <p style="color:rgba(255,255,255,.8);font-size:.88rem;line-height:1.6;margin-bottom:20px;">Prouve que tu es le plus grand supporter du Racing Club de Lens : devine les joueurs Sang et Or, accumule un maximum de points et grimpe au classement !</p>
 
+      <!-- Déroulé d'une partie -->
       <div style="background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:16px;margin-bottom:16px;">
-        <p style="color:var(--or);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Comment ça marche ?</p>
-        <p style="color:rgba(255,255,255,.8);font-size:.84rem;line-height:1.6;margin-bottom:10px;">Chaque semaine, <strong style="color:#fff;">deux joueurs RC Lens</strong> te sont proposés à deviner. Des indices se dévoilent progressivement : à toi de trouver de qui il s'agit le plus tôt possible.</p>
-        <ul style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.7;padding-left:18px;margin:0;">
-          <li>Tu disposes de <strong style="color:#fff;">jusqu'à 6 indices</strong> par joueur.</li>
-          <li><strong style="color:#fff;">Plus tu dévoiles d'indices, moins tu marques de points</strong> — chaque indice révélé diminue le gain potentiel.</li>
-          <li>Si tu identifies les <strong style="color:#fff;">deux joueurs de la semaine</strong>, une <strong style="color:#fff;">question bonus</strong> se débloque pour remporter des points supplémentaires.</li>
+        <p style="color:var(--or);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Comment se déroule une partie ?</p>
+        <ol style="color:rgba(255,255,255,.78);font-size:.84rem;line-height:1.7;padding-left:18px;margin:0;">
+          <li><strong style="color:#fff;">Crée ton compte</strong> (pseudo + mot de passe) ou joue en mode anonyme.</li>
+          <li>Chaque session te propose <strong style="color:#fff;">deux joueurs RC Lens à deviner</strong> via des indices, puis une <strong style="color:#fff;">question bonus</strong>.</li>
+          <li>Tu ne peux jouer <strong style="color:#fff;">qu'une seule fois par session</strong> : à toi de viser le meilleur score du premier coup !</li>
+          <li>À la fin, ton score, ton badge et le récap de tes réponses s'affichent — et tu apparais au <strong style="color:#fff;">classement</strong>.</li>
+        </ol>
+      </div>
+
+      <!-- Deviner les joueurs -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">« Qui suis-je ? » — deviner les joueurs</p>
+        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.6;margin-bottom:8px;">Des indices se dévoilent un par un. Plus tu trouves <strong style="color:#fff;">tôt</strong>, plus tu marques de points.</p>
+        <ul style="color:rgba(255,255,255,.7);font-size:.83rem;line-height:1.65;padding-left:18px;margin:0;">
+          <li>Le 1ᵉʳ indice rapporte le plus (jusqu'à <strong style="color:#fff;">5 pts</strong>), puis la valeur diminue à chaque indice révélé.</li>
+          <li>Tu disposes d'un <strong style="color:#fff;">nombre de tentatives limité</strong> par indice avant que le suivant s'affiche.</li>
+          <li>L'orthographe est tolérante : accents, articles et petites fautes sont acceptés.</li>
         </ul>
       </div>
 
+      <!-- Question bonus -->
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
-        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Chronomètre</p>
-        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.55;margin:0;">Chaque question dispose d'un compte à rebours.</p>
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">La question bonus</p>
+        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.55;margin:0;">Une question supplémentaire vient compléter la session pour gagner des points en plus. Certains joueurs cachent aussi un <strong style="color:#fff;">mini-bonus</strong> qui se débloque uniquement si tu les as trouvés.</p>
       </div>
 
-      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:24px;">
-        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;">Les 4 thématiques</p>
-        <div style="display:grid;gap:8px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
-            <span style="color:#fff;font-weight:600;">Moderne</span>
-            <span style="color:rgba(255,255,255,.45);">1990 à aujourd'hui</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
-            <span style="color:#fff;font-weight:600;">Vintage</span>
-            <span style="color:rgba(255,255,255,.45);">1970 à 1990</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
-            <span style="color:#fff;font-weight:600;">Historique</span>
-            <span style="color:rgba(255,255,255,.45);">1906 à 1969</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;">
-            <span style="color:#fff;font-weight:600;">Difficile</span>
-            <span style="color:rgba(255,255,255,.45);">Questions pointues, toutes époques</span>
-          </div>
-        </div>
+      <!-- Mon Onze -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Mon Onze 🎽</p>
+        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.6;margin:0;">Chaque joueur que tu devines en partie <strong style="color:#fff;">rejoint ta collection</strong>. Place-les ensuite sur le terrain selon leur poste, change de formation (4-4-2, 4-3-3, 3-5-2…) et tente de composer ton <strong style="color:#fff;">Onze idéal</strong> de 11 joueurs.</p>
+      </div>
+
+      <!-- Classement & chronomètre -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Classement & chronomètre</p>
+        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.55;margin:0;">Chaque question est <strong style="color:#fff;">chronométrée</strong> : à l'expiration, la réponse est comptée comme manquée. Ton score te positionne ensuite dans le <strong style="color:#fff;">classement</strong> des supporters.</p>
+      </div>
+
+      <!-- Sécurité du mot de passe -->
+      <div style="background:rgba(227,6,19,.08);border:1px solid rgba(227,6,19,.32);border-radius:12px;padding:14px 16px;margin-bottom:24px;">
+        <p style="color:#ff6b73;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🔒 Ton compte & ta sécurité</p>
+        <p style="color:rgba(255,255,255,.78);font-size:.83rem;line-height:1.6;margin:0 0 8px;">Ce quiz est un jeu amateur : la protection des comptes est <strong style="color:#fff;">volontairement simple</strong>, ce n'est pas un site bancaire.</p>
+        <ul style="color:rgba(255,255,255,.72);font-size:.82rem;line-height:1.65;padding-left:18px;margin:0;">
+          <li>Choisis un <strong style="color:#fff;">mot de passe unique</strong>, dédié à ce quiz — jamais celui de ton email, ta banque ou tes réseaux.</li>
+          <li>Il doit faire au moins <strong style="color:#fff;">7 caractères</strong> avec une majuscule, un chiffre et un signe de ponctuation.</li>
+          <li>Prends un <strong style="color:#fff;">pseudo</strong> qui ne révèle pas ton identité réelle.</li>
+        </ul>
       </div>
 
       <button class="btn btn-gold btn-full mb0" onclick="closeRules()">Compris — Bonne chance !</button>
@@ -2654,6 +2796,7 @@
           <div style="display:flex;gap:6px;flex-shrink:0;">
             <button id="eq-nav-prev" class="btn btn-ghost btn-sm" onclick="navEditQuestion(-1)" title="Question précédente" style="padding:7px 11px;">◀</button>
             <button id="eq-nav-next" class="btn btn-ghost btn-sm" onclick="navEditQuestion(1)" title="Question suivante" style="padding:7px 11px;">▶</button>
+            <button class="btn btn-ghost btn-sm" onclick="closeEditModal()" title="Fermer" style="padding:7px 12px;">✕</button>
           </div>
         </div>
         <div id="eq-text-row" class="form-group">
@@ -2753,6 +2896,12 @@
             <input type="text" id="eq-joueur-name" placeholder="Nom du joueur…" maxlength="100">
           </div>
           <div class="form-group">
+            <label class="field-label">Poste(s) du joueur</label>
+            <div id="eq-joueur-positions" class="pos-picker"></div>
+            <p class="field-hint" id="eq-joueur-positions-summary"></p>
+            <p class="field-hint">Utilisé pour le mode « Mon Onze » (placement sur le terrain).</p>
+          </div>
+          <div class="form-group">
             <label class="field-label">Indices (5 à 10) *</label>
             <div id="eq-joueur-indices"></div>
             <button type="button" class="btn btn-ghost btn-sm" id="eq-add-indice-btn" style="margin-top:8px;" onclick="addEditJoueurIndice()">+ Ajouter un indice</button>
@@ -2776,8 +2925,21 @@
         </div>
 
         <div id="eq-err" class="alert alert-error" style="display:none;"></div>
-        <button class="btn btn-red btn-full" onclick="saveEdit()">Sauvegarder</button>
-        <button class="btn btn-ghost btn-full mb0" onclick="closeEditModal()">Annuler</button>
+        <button class="btn btn-red btn-full" id="eq-save-btn" onclick="saveEdit()">Sauvegarder</button>
+        <button class="btn btn-ghost btn-full mb0" onclick="closeEditModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════ ONZE — MODAL DE PLACEMENT ═══ -->
+  <div id="onze-slot-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeOnzeSlotModal()">
+    <div class="modal-inner">
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <h3 style="margin:0;font-size:1rem;" id="onze-slot-title">Poste</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeOnzeSlotModal()">✕</button>
+        </div>
+        <div id="onze-slot-list"></div>
       </div>
     </div>
   </div>
@@ -3090,7 +3252,7 @@
       const { data, error } = await _supa.from('accounts').select('*');
       if (error) { console.warn('[Supabase] lecture accounts impossible:', error); return false; }
       const map = {};
-      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, hash: r.hash || undefined, avatar: r.avatar || undefined }; });
+      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, hash: r.hash || undefined, avatar: r.avatar || undefined, onze: r.onze || undefined }; });
       _db.accounts = map;
       _backupAccounts();
       return true;
@@ -3101,9 +3263,16 @@
     const a = _db.accounts[key];
     _backupAccounts();
     if (!_supa || !a) return false;
-    const { error } = await _supa.from('accounts').upsert({
-      key, pseudo: a.pseudo, hash: a.hash || null, avatar: a.avatar || null
+    let { error } = await _supa.from('accounts').upsert({
+      key, pseudo: a.pseudo, hash: a.hash || null, avatar: a.avatar || null, onze: a.onze || null
     }, { onConflict: 'key' });
+    if (error && /onze/i.test(error.message || '')) {
+      // Colonne "onze" absente — exécuter supabase-onze-migration.sql, repli sans la colonne
+      console.warn('[Supabase] colonne accounts.onze manquante — exécutez supabase-onze-migration.sql (Mon Onze sauvegardé en local uniquement).');
+      ({ error } = await _supa.from('accounts').upsert({
+        key, pseudo: a.pseudo, hash: a.hash || null, avatar: a.avatar || null
+      }, { onConflict: 'key' }));
+    }
     if (error) { console.error('[Supabase] sauvegarde compte:', error); return false; }
     return true;
   }
@@ -3453,6 +3622,7 @@
     if (viewName === 'midbreak')     { showMidbreakContent(); }
     if (viewName === 'player-name')  initPlayerName();
     if (viewName === 'player-card')  { renderPlayerCard(); scoresFetch().then(() => renderPlayerCard()); }
+    if (viewName === 'onze')         { renderOnze(); accountsFetch().then(() => renderOnze()); }
     if (viewName === 'home')  updateHomeAuthArea();
     if (viewName === 'leaderboard') { renderLeaderboardPublic(); scoresFetch().then(() => renderLeaderboardPublic()); }
     if (viewName === 'auth') {
@@ -3611,7 +3781,9 @@
     document.getElementById('t-settings').classList.toggle('active', tab === 'settings');
     document.getElementById('t-joueurs').classList.toggle('active', tab === 'joueurs');
     document.getElementById('t-stats').classList.toggle('active', tab === 'stats');
-    document.querySelector('#view-admin .tabs').style.display = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs' || tab === 'stats') ? 'flex' : 'none';
+    const inMainTab = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs' || tab === 'stats');
+    document.querySelector('#view-admin .tabs-nav').style.display = inMainTab ? 'block' : 'none';
+    if (inMainTab) document.getElementById('tabs-select').value = tab;
     document.getElementById('at-list').style.display      = showList ? 'block' : 'none';
     if (!showList) document.getElementById('at-add').style.display = 'none';
     document.getElementById('at-settings').style.display  = tab === 'settings'  ? 'block' : 'none';
@@ -4032,8 +4204,11 @@
     pickerDate = null; pickerSlot = null; pickerPendingId = null;
   }
 
-  function resetUsedInGame() {
-    if (!confirm('Réinitialiser tous les marqueurs "joué" ? Les questions pourront être sélectionnées à nouveau sans badge.')) return;
+  // Reset complet : efface tout le planning ET réinitialise les marqueurs "joué".
+  function resetPlanningAll() {
+    if (!confirm('Tout réinitialiser ?\n\n• Le planning sera entièrement effacé\n• Les marqueurs "joué" (✓) seront remis à zéro\n\nCette action est irréversible.')) return;
+    // Efface le planning
+    LS.savePlanning({});
     // v3 : les marqueurs sont dérivés des parties enregistrées — on mémorise la date du reset
     const f = LS.getFeatures();
     f.usedResetAt   = Date.now();
@@ -4067,12 +4242,6 @@
       delete plan[dateStr];
     }
     LS.savePlanning(plan);
-    renderPlanning();
-  }
-
-  function clearPlanningAll() {
-    if (!confirm('Effacer tout le planning ? Cette action est irréversible.')) return;
-    LS.savePlanning({});
     renderPlanning();
   }
 
@@ -4165,6 +4334,7 @@
     if (mode === 'joueur') {
       renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
       renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
+      renderPosPicker('nj-positions', addJoueurPositions);
     }
   }
 
@@ -5142,6 +5312,7 @@
       type: 'joueur',
       active: true,
       playerName: name,
+      positions: addJoueurPositions.slice(),
       playerVariants,
       indices:    filled.map(x => x.v),
       indicePts:  filled.map(x => x.p),
@@ -5158,6 +5329,8 @@
     document.getElementById('nj-name').value  = '';
     document.getElementById('nj-timer').value = '60';
     addJoueurSelectedTags = [];
+    addJoueurPositions = [];
+    renderPosPicker('nj-positions', addJoueurPositions);
     renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
     renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
     document.getElementById('qcount').textContent = arr.length;
@@ -5566,7 +5739,7 @@
     function renderItem(q, i) {
       const typeLabel = q.type === 'qcm'         ? `QCM — ${q.options.length} choix`
                       : q.type === 'qcm-multi'   ? `QCM multiple — ${q.options.length} choix`
-                      : q.type === 'joueur'       ? `Qui suis-je ? — ${(q.indices||[]).length} indices`
+                      : q.type === 'joueur'       ? `Qui suis-je ? — ${(q.indices||[]).length} indices · ${(q.positions||[]).length ? q.positions.join(', ') : '⚠ poste à assigner'}`
                       : q.type === 'multi-libre'  ? `Liste`
                       : 'Libre';
       const answerLabel = q.type === 'qcm'
@@ -6209,6 +6382,8 @@
 
     if (q.type === 'joueur') {
       document.getElementById('eq-joueur-name').value = q.playerName || '';
+      editJoueurPositions = (q.positions || []).slice();
+      renderPosPicker('eq-joueur-positions', editJoueurPositions);
       const editInds   = q.indices && q.indices.length >= 5 ? q.indices : Array(5).fill('');
       const editPts    = q.indicePts   || defaultIndicePts(editInds.length);
       const editTries  = q.indiceTries || defaultIndiceTries(editInds.length);
@@ -6355,6 +6530,7 @@
       const editPlayerVariants = [];
       arr[idx] = {
         id: editId, type: 'joueur', playerName,
+        positions: editJoueurPositions.slice(),
         playerVariants: editPlayerVariants,
         indices:     editFilled.map(x => x.v),
         indicePts:   editFilled.map(x => x.p),
@@ -6363,8 +6539,8 @@
         tags: editSelectedTags.slice()
       };
       LS.saveQ(arr);
-      closeEditModal();
       renderAdmin();
+      flashEditSaved();
       return;
     }
 
@@ -6426,8 +6602,22 @@
 
     arr[idx] = q;
     LS.saveQ(arr);
-    closeEditModal();
     renderAdmin();
+    flashEditSaved();
+  }
+
+  function flashEditSaved() {
+    const btn = document.getElementById('eq-save-btn');
+    if (!btn) return;
+    if (btn._flashTimer) clearTimeout(btn._flashTimer);
+    const orig = btn._origLabel || (btn._origLabel = btn.textContent);
+    btn.textContent = '✓ Sauvegardé';
+    btn.classList.add('btn-saved-flash');
+    btn._flashTimer = setTimeout(() => {
+      btn.textContent = orig;
+      btn.classList.remove('btn-saved-flash');
+      btn._flashTimer = null;
+    }, 1200);
   }
 
   /* ═══════════════════════════════════════════════════
@@ -7520,6 +7710,7 @@
     stopQuizTimer();
     const pts = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
     if (ok) session.score += pts;
+    if (ok && q.type === 'joueur') collectPlayer(q);
     session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0, indiceIdx: q.type === 'joueur' ? quizJoueurIndiceIdx : undefined });
     inp.disabled = true;
     document.getElementById('qz-libre-btn').disabled = true;
@@ -9021,6 +9212,279 @@
   };
   const _BADGE_ORDER = ['Légende de Bollaert','Fidèle des Sang et Or','Supporter du virage','Touriste à Bollaert'];
 
+  /* ═══════════════════════════════════════════════════
+     MON ONZE — collection de joueurs devinés + terrain
+  ═══════════════════════════════════════════════════ */
+  const ONZE_POSTES = {
+    G:   'Gardien',
+    DG:  'Latéral gauche',
+    DC:  'Défenseur central',
+    DD:  'Latéral droit',
+    MDC: 'Milieu défensif',
+    MC:  'Milieu central',
+    MOC: 'Milieu offensif',
+    AG:  'Ailier gauche',
+    AD:  'Ailier droit',
+    BU:  'Buteur'
+  };
+
+  /* Chaque formation : 11 cases { x, y } en % du terrain (attaque en haut),
+     acc = postes acceptés sur la case, label = code affiché sur la case vide.
+     Les listes "acc" sont modifiables librement ici. */
+  const ONZE_FORMATIONS = {
+    '4-4-2': [
+      { x:50, y:90, acc:['G'] },
+      { x:14, y:73, acc:['DG'] }, { x:38, y:76, acc:['DC'] }, { x:62, y:76, acc:['DC'] }, { x:86, y:73, acc:['DD'] },
+      { x:12, y:49, acc:['AG','MC'], label:'MG' }, { x:38, y:53, acc:['MC','MDC'], label:'MC' }, { x:62, y:53, acc:['MC','MOC'], label:'MC' }, { x:88, y:49, acc:['AD','MC'], label:'MD' },
+      { x:38, y:24, acc:['BU'] }, { x:62, y:24, acc:['BU'] }
+    ],
+    '4-3-3': [
+      { x:50, y:90, acc:['G'] },
+      { x:14, y:73, acc:['DG'] }, { x:38, y:76, acc:['DC'] }, { x:62, y:76, acc:['DC'] }, { x:86, y:73, acc:['DD'] },
+      { x:50, y:58, acc:['MDC','MC'], label:'MDC' }, { x:30, y:45, acc:['MC','MOC'], label:'MC' }, { x:70, y:45, acc:['MC','MOC'], label:'MC' },
+      { x:14, y:25, acc:['AG'] }, { x:50, y:18, acc:['BU'] }, { x:86, y:25, acc:['AD'] }
+    ],
+    '4-2-3-1': [
+      { x:50, y:90, acc:['G'] },
+      { x:14, y:73, acc:['DG'] }, { x:38, y:76, acc:['DC'] }, { x:62, y:76, acc:['DC'] }, { x:86, y:73, acc:['DD'] },
+      { x:36, y:58, acc:['MDC','MC'], label:'MDC' }, { x:64, y:58, acc:['MDC','MC'], label:'MDC' },
+      { x:14, y:37, acc:['AG'] }, { x:50, y:40, acc:['MOC','MC'], label:'MOC' }, { x:86, y:37, acc:['AD'] },
+      { x:50, y:16, acc:['BU'] }
+    ],
+    '3-5-2': [
+      { x:50, y:90, acc:['G'] },
+      { x:26, y:75, acc:['DC'] }, { x:50, y:78, acc:['DC'] }, { x:74, y:75, acc:['DC'] },
+      { x:10, y:50, acc:['AG','DG'], label:'PG' }, { x:32, y:51, acc:['MC','MOC'], label:'MC' }, { x:50, y:60, acc:['MDC','MC'], label:'MDC' }, { x:68, y:51, acc:['MC','MOC'], label:'MC' }, { x:90, y:50, acc:['AD','DD'], label:'PD' },
+      { x:38, y:22, acc:['BU'] }, { x:62, y:22, acc:['BU'] }
+    ],
+    '3-4-3': [
+      { x:50, y:90, acc:['G'] },
+      { x:26, y:75, acc:['DC'] }, { x:50, y:78, acc:['DC'] }, { x:74, y:75, acc:['DC'] },
+      { x:10, y:52, acc:['AG','DG'], label:'PG' }, { x:38, y:55, acc:['MC','MDC'], label:'MC' }, { x:62, y:55, acc:['MC','MDC'], label:'MC' }, { x:90, y:52, acc:['AD','DD'], label:'PD' },
+      { x:18, y:25, acc:['AG'] }, { x:50, y:18, acc:['BU'] }, { x:82, y:25, acc:['AD'] }
+    ],
+    '5-3-2': [
+      { x:50, y:90, acc:['G'] },
+      { x:10, y:68, acc:['DG'] }, { x:28, y:76, acc:['DC'] }, { x:50, y:79, acc:['DC'] }, { x:72, y:76, acc:['DC'] }, { x:90, y:68, acc:['DD'] },
+      { x:30, y:48, acc:['MC','MOC'], label:'MC' }, { x:50, y:56, acc:['MDC','MC'], label:'MDC' }, { x:70, y:48, acc:['MC','MOC'], label:'MC' },
+      { x:38, y:22, acc:['BU'] }, { x:62, y:22, acc:['BU'] }
+    ]
+  };
+
+  /* ── Sélecteur de postes (formulaires admin) ── */
+  let addJoueurPositions = [];
+  let editJoueurPositions = [];
+
+  function renderPosPicker(containerId, selected) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    el.innerHTML = Object.keys(ONZE_POSTES).map(c =>
+      `<button type="button" class="pos-chip${selected.includes(c) ? ' active' : ''}" title="${ONZE_POSTES[c]}" onclick="togglePos('${containerId}','${c}')">${c}</button>`
+    ).join('');
+    const summary = document.getElementById(containerId + '-summary');
+    if (summary) {
+      summary.innerHTML = selected.length
+        ? `Postes définis : <strong style="color:#fff;">${selected.map(c => `${ONZE_POSTES[c]} (${c})`).join(', ')}</strong>`
+        : '<span style="color:rgba(255,205,0,.8);">⚠ Aucun poste défini</span>';
+    }
+  }
+
+  function togglePos(containerId, code) {
+    const sel = containerId === 'nj-positions' ? addJoueurPositions : editJoueurPositions;
+    const i = sel.indexOf(code);
+    if (i === -1) sel.push(code); else sel.splice(i, 1);
+    renderPosPicker(containerId, sel);
+  }
+
+  /* ── Accès au compte / état Onze ── */
+  function _onzeAccount() {
+    if (!_localUser) return null;
+    const key = _localUser.pseudo.toLowerCase();
+    const accounts = LS.getAccounts();
+    if (!accounts[key]) accounts[key] = { pseudo: _localUser.pseudo };
+    const a = accounts[key];
+    if (!a.onze || typeof a.onze !== 'object') a.onze = {};
+    if (!Array.isArray(a.onze.collection)) a.onze.collection = [];
+    if (!ONZE_FORMATIONS[a.onze.formation]) a.onze.formation = '4-4-2';
+    if (!Array.isArray(a.onze.slots) || a.onze.slots.length !== 11) a.onze.slots = Array(11).fill(null);
+    return a;
+  }
+
+  function _onzeSave() {
+    if (_localUser) accountSave(_localUser.pseudo.toLowerCase());
+  }
+
+  function slotAccepts(slot, q) {
+    return (q.positions || []).some(p => slot.acc.includes(p));
+  }
+
+  /* Appelé quand un joueur connecté devine un "Qui suis-je ?" en partie réelle */
+  function collectPlayer(q) {
+    if (!q || q.type !== 'joueur') return;
+    const a = _onzeAccount();
+    if (!a) return;
+    if (a.onze.collection.includes(q.id)) return;
+    a.onze.collection.push(q.id);
+    _onzeSave();
+    // Toast décalé pour ne pas chevaucher le popup Bonne réponse
+    setTimeout(() => {
+      const t = document.createElement('div');
+      t.className = 'onze-toast';
+      t.textContent = `🎽 ${q.playerName} rejoint ta collection !`;
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, 2600);
+    }, 1200);
+  }
+
+  /* Bonus "Onze complet" — détection en place, récompense à brancher ici. */
+  function onOnzeComplete() {
+    /* TODO : appliquer le bonus (points / multiplicateur) une fois défini. */
+  }
+
+  /* ── Rendu de l'écran Mon Onze ── */
+  function renderOnze() {
+    if (!_localUser) { nav('auth'); return; }
+    const a    = _onzeAccount();
+    const onze = a.onze;
+    const allQ = LS.getQ();
+    const byId = {};
+    allQ.forEach(q => { byId[q.id] = q; });
+
+    // Purge des références vers des questions supprimées
+    onze.collection = onze.collection.filter(id => byId[id] && byId[id].type === 'joueur');
+    onze.slots      = onze.slots.map(id => (id && byId[id]) ? id : null);
+
+    // Sélecteur de formation
+    document.getElementById('onze-formations').innerHTML = Object.keys(ONZE_FORMATIONS).map(f =>
+      `<button class="onze-f-chip${f === onze.formation ? ' active' : ''}" onclick="onzeSetFormation('${f}')">${f}</button>`
+    ).join('');
+
+    // Terrain + cases
+    const slots = ONZE_FORMATIONS[onze.formation];
+    document.getElementById('onze-pitch').innerHTML = slots.map((s, i) => {
+      const q = onze.slots[i] ? byId[onze.slots[i]] : null;
+      const initials = q ? q.playerName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase() : '';
+      return `<button class="onze-slot ${q ? 'filled' : 'empty'}" style="left:${s.x}%;top:${s.y}%;" onclick="openOnzeSlot(${i})" title="${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}">
+        <div class="onze-slot-disc">${q ? initials : (s.label || s.acc[0])}</div>
+        ${q ? `<div class="onze-slot-name">${esc(q.playerName)}</div>` : ''}
+      </button>`;
+    }).join('');
+
+    // Compteur + bannière Onze complet
+    const placedCount = onze.slots.filter(Boolean).length;
+    document.getElementById('onze-count').textContent = `${placedCount}/11`;
+    const banner = document.getElementById('onze-complete-banner');
+    if (placedCount === 11) {
+      banner.style.display = 'block';
+      if (!onze.completedAt) {
+        onze.completedAt = Date.now();
+        _onzeSave();
+        onOnzeComplete();
+      }
+    } else {
+      banner.style.display = 'none';
+    }
+
+    // Collection
+    const totalJoueurs = allQ.filter(q => q.type === 'joueur').length;
+    document.getElementById('onze-coll-count').textContent = `${onze.collection.length} / ${totalJoueurs} joueur${totalJoueurs > 1 ? 's' : ''}`;
+    const collEl = document.getElementById('onze-collection');
+    if (!onze.collection.length) {
+      collEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:14px 0;">Aucun joueur collectionné pour l\'instant.<br>Devine des joueurs « Qui suis-je ? » en partie pour les ajouter ici !</p>';
+    } else {
+      collEl.innerHTML = onze.collection.map(id => {
+        const q = byId[id];
+        const placed = onze.slots.includes(id);
+        const pos = (q.positions || []).length ? q.positions.join(', ') : '—';
+        return `<div class="onze-coll-row">
+          <span class="onze-coll-name">${esc(q.playerName)}</span>
+          <span class="onze-coll-pos">${pos}</span>
+          ${placed ? '<span class="onze-coll-placed">✓ placé</span>' : ''}
+        </div>`;
+      }).join('');
+    }
+  }
+
+  /* Changement de formation : on replace automatiquement les joueurs compatibles */
+  function onzeSetFormation(f) {
+    const a = _onzeAccount();
+    if (!a || !ONZE_FORMATIONS[f]) return;
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+    const placed = a.onze.slots.filter(Boolean);
+    a.onze.formation = f;
+    const slots = ONZE_FORMATIONS[f];
+    const newSlots = Array(11).fill(null);
+    placed.forEach(id => {
+      const q = byId[id];
+      if (!q) return;
+      const i = slots.findIndex((s, k) => !newSlots[k] && slotAccepts(s, q));
+      if (i !== -1) newSlots[i] = id;
+    });
+    a.onze.slots = newSlots;
+    _onzeSave();
+    renderOnze();
+  }
+
+  /* ── Placement sur une case ── */
+  let _onzeSlotIdx = null;
+
+  function openOnzeSlot(i) {
+    const a = _onzeAccount();
+    if (!a) return;
+    _onzeSlotIdx = i;
+    const onze = a.onze;
+    const s    = ONZE_FORMATIONS[onze.formation][i];
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+
+    document.getElementById('onze-slot-title').textContent =
+      `${s.label || s.acc[0]} — ${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}`;
+
+    const current = onze.slots[i];
+    const candidates = onze.collection
+      .filter(id => id !== current && !onze.slots.includes(id))
+      .map(id => byId[id])
+      .filter(q => q && slotAccepts(s, q));
+
+    let html = '';
+    if (current && byId[current]) {
+      html += `<button class="btn btn-danger btn-full" onclick="onzeClearSlot()">✕ Retirer ${esc(byId[current].playerName)}</button>`;
+    }
+    if (candidates.length) {
+      html += candidates.map(q =>
+        `<button class="onze-cand" onclick="onzePlace('${q.id}')">${esc(q.playerName)}<span>${(q.positions || []).join(', ')}</span></button>`
+      ).join('');
+    } else if (!current) {
+      html += '<p style="text-align:center;color:rgba(255,255,255,.4);font-size:.82rem;padding:10px 0;">Aucun joueur compatible dans ta collection.<br>Devine des joueurs à ce poste pour remplir cette case !</p>';
+    }
+    document.getElementById('onze-slot-list').innerHTML = html;
+    document.getElementById('onze-slot-modal').style.display = 'flex';
+  }
+
+  function closeOnzeSlotModal() {
+    document.getElementById('onze-slot-modal').style.display = 'none';
+    _onzeSlotIdx = null;
+  }
+
+  function onzePlace(qid) {
+    const a = _onzeAccount();
+    if (!a || _onzeSlotIdx === null) return;
+    a.onze.slots[_onzeSlotIdx] = qid;
+    _onzeSave();
+    closeOnzeSlotModal();
+    renderOnze();
+  }
+
+  function onzeClearSlot() {
+    const a = _onzeAccount();
+    if (!a || _onzeSlotIdx === null) return;
+    a.onze.slots[_onzeSlotIdx] = null;
+    _onzeSave();
+    closeOnzeSlotModal();
+    renderOnze();
+  }
+
   function renderPlayerCard() {
     if (!_localUser) { nav('auth'); return; }
 
@@ -9069,6 +9533,17 @@
     const best   = games ? Math.max(...lb.map(e => Number(e.score) || 0)) : 0;
     document.getElementById('pc-games').textContent = games;
     document.getElementById('pc-best').textContent  = best;
+
+    // ── Carte Mon Onze ──
+    const onzeAcc = _onzeAccount();
+    if (onzeAcc) {
+      const placed = onzeAcc.onze.slots.filter(Boolean).length;
+      const coll   = onzeAcc.onze.collection.length;
+      document.getElementById('pc-onze-count').textContent = `${placed}/11`;
+      document.getElementById('pc-onze-sub').textContent = coll
+        ? `${coll} joueur${coll > 1 ? 's' : ''} collectionné${coll > 1 ? 's' : ''}`
+        : 'Collectionne les joueurs devinés';
+    }
 
     const avgBox   = document.getElementById('pc-avg-box');
     const firstBox = document.getElementById('pc-first-box');
