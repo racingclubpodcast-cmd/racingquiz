@@ -1707,7 +1707,6 @@
       <!-- Section jouer (affichée après auth ou mode anonyme) -->
       <div class="card" id="home-play-section" style="max-width:380px;display:none;">
         <button id="home-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">Jouer</button>
-        <div id="home-already-played-msg" class="alert alert-error" style="display:none;margin-top:10px;">Tu as déjà joué ta partie du jour ! Rendez-vous à la prochaine session.</div>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
@@ -2740,7 +2739,6 @@
           </div>
 
           <button id="pc-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">▶ Jouer</button>
-          <div id="pc-already-played-msg" class="alert alert-error" style="display:none;margin-top:8px;">Tu as déjà joué ta partie du jour ! Rendez-vous à la prochaine session.</div>
           <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
         </div>
 
@@ -9429,13 +9427,11 @@
         _miniAv.textContent = _localUser.pseudo[0].toUpperCase();
       }
       const _homePlayBtn  = document.getElementById('home-play-btn');
-      const _homePlaydMsg = document.getElementById('home-already-played-msg');
-      if (_homePlayBtn && _homePlaydMsg) {
+      if (_homePlayBtn) {
         // Bouton laissé cliquable : un clic ouvre le popup "déjà joué" avec la date
         // de la prochaine session (voir handlePlayBtn → showAlreadyPlayedPopup).
         const _played = hasPlayedToday(_localUser.pseudo);
         _homePlayBtn.style.opacity  = _played ? '0.55' : '';
-        _homePlaydMsg.style.display = _played ? 'block' : 'none';
       }
     } else {
       authSection.style.display = 'block';
@@ -10027,13 +10023,11 @@
     }
 
     const _pcPlayBtn  = document.getElementById('pc-play-btn');
-    const _pcPlaydMsg = document.getElementById('pc-already-played-msg');
-    if (_pcPlayBtn && _pcPlaydMsg) {
+    if (_pcPlayBtn) {
       // Bouton laissé cliquable : un clic ouvre le popup "déjà joué" avec la date
       // de la prochaine session (voir handlePlayBtn → showAlreadyPlayedPopup).
       const _played = hasPlayedToday(name);
       _pcPlayBtn.style.opacity  = _played ? '0.55' : '';
-      _pcPlaydMsg.style.display = _played ? 'block' : 'none';
     }
 
     const historyCard = document.getElementById('pc-history-card');
