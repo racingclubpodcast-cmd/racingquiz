@@ -397,6 +397,37 @@
     .planning-slot input[type="date"] { background:transparent;border:none;color:rgba(255,255,255,.85);font-size:.83rem;flex:1;cursor:pointer;font-family:inherit;outline:none;min-width:0;width:100%; }
     .planning-slot input[type="date"]::-webkit-calendar-picker-indicator { filter:invert(.5) sepia(1) saturate(5) hue-rotate(10deg);cursor:pointer; }
     .planning-mid-info { font-size:.74rem;color:rgba(255,205,0,.65);padding:3px 8px 8px;display:flex;align-items:center;gap:6px; }
+    /* ── Calendrier mensuel (type Outlook) ── */
+    .cal-wrap { background: rgba(8,8,8,.96); border: 1px solid rgba(255,205,0,.18); border-radius: 14px; padding: 10px; }
+    .cal-head { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 6px; }
+    .cal-head span { text-align: center; font-size: .72rem; font-weight: 700; color: rgba(255,205,0,.6); text-transform: uppercase; letter-spacing: .5px; padding: 4px 0; }
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+    .cal-cell { position: relative; aspect-ratio: 1 / 1; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    /* Le fond/bordure vit dans .cal-bg, qui peut déborder dans le gap pour relier
+       les jours d'une même session multi-jours (barre continue). */
+    .cal-bg { position: absolute; left: 0; right: 0; top: 0; bottom: 0; border-radius: 8px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); transition: background .15s, border-color .15s; }
+    .cal-cell:hover .cal-bg { background: rgba(255,255,255,.09); }
+    .cal-num { position: relative; z-index: 1; font-size: .98rem; font-weight: 600; color: rgba(255,255,255,.78); }
+    .cal-out { opacity: .3; cursor: default; }
+    .cal-out:hover .cal-bg { background: rgba(255,255,255,.03); }
+    .cal-out .cal-num { color: rgba(255,255,255,.45); }
+    /* Parties : la couleur alterne d'une session à l'autre (jaune / rouge). */
+    .cal-game .cal-num { font-weight: 800; }
+    .cal-game.cal-c-jaune .cal-bg { background: rgba(255,205,0,.18); border-color: rgba(255,205,0,.5); }
+    .cal-game.cal-c-jaune:hover .cal-bg { background: rgba(255,205,0,.28); }
+    .cal-game.cal-c-jaune .cal-num { color: #ff3b3b; }
+    .cal-game.cal-c-rouge .cal-bg { background: rgba(227,6,19,.22); border-color: rgba(227,6,19,.55); }
+    .cal-game.cal-c-rouge:hover .cal-bg { background: rgba(227,6,19,.34); }
+    .cal-game.cal-c-rouge .cal-num { color: #ffcd00; }
+    /* Fusion des jours contigus d'une même session : on retire l'arrondi et la
+       bordure du côté relié, et on étire le fond de 7px pour combler le gap (6px). */
+    .cal-conn-l .cal-bg { left: -7px; border-top-left-radius: 0; border-bottom-left-radius: 0; border-left: none; }
+    .cal-conn-r .cal-bg { right: -7px; border-top-right-radius: 0; border-bottom-right-radius: 0; border-right: none; }
+    .cal-today .cal-bg { box-shadow: 0 0 0 2px rgba(255,205,0,.65) inset; }
+    .cal-selected .cal-bg { border-color: #fff !important; box-shadow: 0 0 0 2px #fff inset; }
+    .cal-legend { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 10px; font-size: .72rem; color: rgba(255,255,255,.5); }
+    .cal-legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .cal-legend i { width: 13px; height: 13px; border-radius: 4px; display: inline-block; }
 
     /* ── Alerts ── */
     .alert { padding: 11px 15px; border-radius: 9px; font-size: .88rem; margin-bottom: 14px; width: 100%; line-height: 1.4; }
@@ -702,6 +733,13 @@
       background: rgba(255,205,0,.12);
       border-color: var(--or);
       color: var(--or);
+    }
+    /* Fond sombre derrière les sous-onglets de la database */
+    .db-subtabs {
+      background: rgba(0,0,0,.45);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 8px;
     }
 
     /* ── Joueur indice rows ── */
@@ -1327,6 +1365,36 @@
     }
     .home-social-logos a img:hover { transform: scale(1.12); }
 
+    /* ── Mot allemand du jour (clin d'œil à Dino Toppmöller) ── */
+    .german-flag-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 99px;
+      padding: 5px 12px 5px 6px;
+      margin: 2px 0 14px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: all .15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .german-flag-btn:hover { border-color: rgba(255,205,0,.5); background: rgba(255,205,0,.07); transform: translateY(-1px); }
+    .german-flag-btn .flag-de {
+      width: 26px; height: 18px; border-radius: 3px; display: block; flex-shrink: 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.4);
+    }
+    .german-flag-btn .flag-label { font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.7); white-space: nowrap; }
+    .german-word-card { text-align: center; }
+    .german-word-flag { width: 64px; height: 42px; border-radius: 5px; margin: 0 auto 14px; box-shadow: 0 3px 12px rgba(0,0,0,.5); }
+    .german-word-term { font-size: 2rem; font-weight: 800; color: var(--or); margin: 0 0 4px; font-family: 'Calleo', sans-serif; word-break: break-word; }
+    .german-word-trans { font-size: 1.05rem; color: #fff; margin: 0 0 14px; }
+    .german-word-example { font-size: .85rem; color: rgba(255,255,255,.6); font-style: italic; line-height: 1.5; margin: 0 0 4px; }
+    .german-word-date { font-size: .72rem; color: rgba(255,255,255,.35); margin: 0 0 18px; }
+    .german-word-empty { font-size: .9rem; color: rgba(255,255,255,.6); line-height: 1.6; margin: 8px 0 18px; }
+    .german-word-footer { font-size: .72rem; color: rgba(255,255,255,.4); line-height: 1.5; border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; margin-bottom: 14px; }
+
     /* ── Admin Dashboard (right sidebar) ── */
     #admin-dashboard {
       position: fixed;
@@ -1345,6 +1413,22 @@
       flex-direction: column;
     }
     @media (max-width: 1100px) { #admin-dashboard { display: none !important; } }
+
+    /* Barre de défilement aux couleurs de l'app (or sur fond sombre) */
+    #admin-dashboard { scrollbar-width: thin; scrollbar-color: rgba(255,205,0,.4) transparent; }
+    #admin-dashboard::-webkit-scrollbar { width: 8px; }
+    #admin-dashboard::-webkit-scrollbar-track { background: transparent; margin: 6px 0; }
+    #admin-dashboard::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--rouge), var(--or));
+      border-radius: 99px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    #admin-dashboard::-webkit-scrollbar-thumb:hover {
+      background: var(--or);
+      background-clip: padding-box;
+      border: 2px solid transparent;
+    }
 
     .ad-header {
       font-size: .72rem;
@@ -1374,10 +1458,23 @@
       padding: 6px 5px;
       border-radius: 8px;
       cursor: pointer;
+      max-height: 200px;
       transition: background .15s;
     }
     .ad-item:hover { background: rgba(255,255,255,.05); }
     .ad-item.done  { opacity: .4; }
+    /* Fondu de 5 s puis effondrement de la ligne une fois cochée */
+    .ad-item.ad-removing {
+      opacity: 0;
+      max-height: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+      margin: 0;
+      overflow: hidden;
+      pointer-events: none;
+      transition: opacity 5s ease, max-height 5s ease,
+                  padding 5s ease, margin 5s ease;
+    }
     .ad-checkbox {
       width: 15px;
       height: 15px;
@@ -1422,6 +1519,50 @@
       font-weight: 600;
     }
     .ad-link:hover { text-decoration: underline; }
+    .ad-del {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,.3);
+      font-size: .8rem;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      border-radius: 4px;
+      transition: all .15s;
+    }
+    .ad-del:hover { color: var(--rouge); background: rgba(255,255,255,.07); }
+    .ad-add {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .ad-add input {
+      flex: 1;
+      min-width: 0;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,205,0,.18);
+      border-radius: 8px;
+      padding: 6px 8px;
+      color: #fff;
+      font-size: .78rem;
+      outline: none;
+    }
+    .ad-add input:focus { border-color: rgba(255,205,0,.5); }
+    .ad-add input::placeholder { color: rgba(255,255,255,.3); }
+    .ad-add button {
+      flex-shrink: 0;
+      width: 30px;
+      background: rgba(255,205,0,.14);
+      border: 1px solid rgba(255,205,0,.3);
+      border-radius: 8px;
+      color: var(--or);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .ad-add button:hover { background: rgba(255,205,0,.28); }
     .ad-footer {
       margin-top: 12px;
       padding-top: 10px;
@@ -1693,6 +1834,15 @@
       <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
       <h1 style="font-family:'Calleo',sans-serif;">Le Racing Quiz</h1>
       <p class="subtitle app-subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
+      <!-- Mot allemand du jour — clin d'œil à Dino Toppmöller, supporter du RC Lens -->
+      <button class="german-flag-btn" onclick="openGermanWord()" title="Le mot allemand du jour" aria-label="Le mot allemand du jour">
+        <svg class="flag-de" viewBox="0 0 5 3" preserveAspectRatio="none" aria-hidden="true">
+          <rect width="5" height="1" y="0" fill="#000"/>
+          <rect width="5" height="1" y="1" fill="#D00"/>
+          <rect width="5" height="1" y="2" fill="#FFCE00"/>
+        </svg>
+        <span class="flag-label">Toi aussi, deviens Topp en allemand</span>
+      </button>
       <!-- Section auth (cachée si déjà connecté) -->
       <div class="card" id="home-auth-section" style="max-width:400px;width:100%;">
         <div class="auth-toggle">
@@ -1731,13 +1881,15 @@
       <!-- Section jouer (affichée après auth ou mode anonyme) -->
       <div class="card" id="home-play-section" style="max-width:380px;display:none;">
         <button id="home-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">Jouer</button>
+        <!-- Rattrapage : parties passées non jouées (joueur ayant pris le train en route) -->
+        <div id="home-catchup" style="display:none;margin-top:12px;"></div>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
             <span id="home-display-name" style="flex:1;text-align:left;"></span>
             <span style="font-size:.7rem;opacity:.45;">Ma carte →</span>
           </button>
-          <button id="home-logout-btn" class="btn btn-ghost btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
+          <button id="home-logout-btn" class="btn btn-danger btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
         </div>
       </div>
 
@@ -1843,6 +1995,15 @@
 
       <!-- Tab : list -->
       <div id="at-list" style="width:100%">
+        <!-- Sous-onglets de la database -->
+        <div class="add-subtabs db-subtabs">
+          <button class="add-subtab active" id="dst-joueur" onclick="setDbSubTab('joueur')">Qui suis-je ?</button>
+          <button class="add-subtab" id="dst-bonus" onclick="setDbSubTab('bonus')">Bonus</button>
+          <button class="add-subtab" id="dst-vocab" onclick="setDbSubTab('vocab')">Vocabulaire allemand</button>
+        </div>
+
+        <!-- Pane : Questions (Qui suis-je ? / Bonus) -->
+        <div id="db-questions-pane">
         <div class="card">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
             <div style="flex:1;position:relative;">
@@ -1887,6 +2048,51 @@
           <div id="q-list-actions" style="display:none">
             <div class="sep"></div>
             <button class="btn btn-danger btn-full mb0" onclick="clearAll()">Supprimer toutes les questions</button>
+          </div>
+        </div>
+        </div><!-- /db-questions-pane -->
+
+        <!-- Pane : Vocabulaire allemand -->
+        <div id="db-vocab-pane" style="display:none;">
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+              <div>
+                <div style="font-weight:800;font-size:.98rem;">🇩🇪 Vocabulaire allemand</div>
+                <div style="font-size:.76rem;color:rgba(255,255,255,.5);">Un mot par jour, affiché via le drapeau sur la page d'accueil. <span id="vocab-count" style="color:var(--or);font-weight:700;"></span></div>
+              </div>
+              <button class="btn btn-red btn-sm" id="vocab-add-btn" onclick="vocabOpenForm()" style="margin-left:auto;white-space:nowrap;">+ Ajouter un mot</button>
+            </div>
+
+            <!-- Formulaire d'ajout / édition (masqué par défaut) -->
+            <div id="vocab-form" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.25);border-radius:12px;padding:14px;margin-bottom:14px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                <span id="vocab-form-title" style="font-weight:700;color:var(--or);font-size:.85rem;text-transform:uppercase;letter-spacing:.4px;">Nouveau mot</span>
+                <button class="btn btn-ghost btn-sm" onclick="vocabCloseForm()">✕</button>
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <div class="form-group" style="flex:1;min-width:140px;">
+                  <label class="field-label">Date *</label>
+                  <input type="date" id="vocab-date">
+                </div>
+                <div class="form-group" style="flex:1;min-width:140px;">
+                  <label class="field-label">Mot allemand *</label>
+                  <input type="text" id="vocab-word" placeholder="Ex : das Tor" maxlength="80">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="field-label">Traduction française *</label>
+                <input type="text" id="vocab-translation" placeholder="Ex : le but / la cage" maxlength="120">
+              </div>
+              <div class="form-group">
+                <label class="field-label">Exemple (optionnel)</label>
+                <input type="text" id="vocab-example" placeholder="Ex : Was für ein Tor! — Quel but !" maxlength="200">
+              </div>
+              <div id="vocab-form-err" class="alert alert-error" style="display:none;margin-bottom:10px;"></div>
+              <input type="hidden" id="vocab-edit-orig">
+              <button class="btn btn-red btn-full mb0" onclick="vocabSubmit()">Enregistrer</button>
+            </div>
+
+            <div id="vocab-list-container"></div>
           </div>
         </div>
       </div>
@@ -2097,7 +2303,7 @@
             </nav>
             <div class="settings-cat-header">Maintenance</div>
             <nav class="settings-nav">
-              <button class="settings-nav-item" id="snav-maintenance"   onclick="showSettingsPanel('maintenance')">Reset game</button>
+              <button class="settings-nav-item" id="snav-maintenance"   onclick="showSettingsPanel('maintenance')">Réinitialisation</button>
             </nav>
           </div>
 
@@ -2234,32 +2440,67 @@
               </div>
             </div>
 
-            <!-- Panel : Reset game -->
+            <!-- Panel : Reset -->
             <div id="settings-panel-maintenance" class="settings-panel">
               <div class="card">
-                <h3>Reset game</h3>
+                <h3>Réinitialisation</h3>
                 <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">
-                  Réinitialise entièrement la <strong>partie en cours</strong> pour repartir d'une page blanche,
-                  tout en conservant la base de questions et le générateur.
+                  Choisissez précisément ce que vous souhaitez remettre à zéro. La
+                  <strong>base de questions</strong> et le <strong>générateur de joueurs</strong>
+                  ne sont <strong>jamais</strong> touchés par ces actions.
                 </p>
-                <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:14px;">
-                  <div style="font-size:.78rem;font-weight:700;color:var(--or);margin-bottom:8px;">Seront réinitialisés</div>
-                  <ul style="margin:0;padding-left:18px;font-size:.8rem;line-height:1.7;color:rgba(255,255,255,.7);">
-                    <li>Le planning des sessions</li>
-                    <li>Les marqueurs « joué » (✓) des questions</li>
+                <div class="alert alert-info" style="font-size:.75rem;line-height:1.45;padding:9px 12px;margin-bottom:16px;">
+                  ✅ <strong>Toujours préservés</strong> : la base de questions (questions, catégories,
+                  tags, médias) et le générateur de joueurs.<br>
+                  ⚠️ Toutes ces actions sont irréversibles — une connexion admin (Supabase Auth) est
+                  requise pour effacer scores et comptes sur tous les appareils.
+                </div>
+                <div id="reset-game-status"></div>
+
+                <!-- Reset partiels -->
+                <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.84rem;font-weight:700;color:#fff;">Le planning</div>
+                    <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Efface le planning des sessions et les marqueurs « joué » (✓).</div>
+                  </div>
+                  <button class="btn btn-danger btn-sm" id="btn-reset-planning" onclick="resetGamePlanning()" style="white-space:nowrap;margin-left:auto;">↺ Reset planning</button>
+                </div>
+
+                <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.84rem;font-weight:700;color:#fff;">Les statistiques</div>
+                    <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Remet à zéro les statistiques par question.</div>
+                  </div>
+                  <button class="btn btn-danger btn-sm" id="btn-reset-stats" onclick="resetGameStats()" style="white-space:nowrap;margin-left:auto;">↺ Reset stats</button>
+                </div>
+
+                <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.84rem;font-weight:700;color:#fff;">Les joueurs inscrits</div>
+                    <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Supprime tous les comptes joueurs (et leurs « Mon Onze »). Les scores sont aussi effacés.</div>
+                  </div>
+                  <button class="btn btn-danger btn-sm" id="btn-reset-accounts" onclick="resetGameAccounts()" style="white-space:nowrap;margin-left:auto;">↺ Reset joueurs</button>
+                </div>
+
+                <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                  <div style="flex:1;min-width:180px;">
+                    <div style="font-size:.84rem;font-weight:700;color:#fff;">Les scores des joueurs</div>
+                    <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Efface tous les scores enregistrés. Les comptes joueurs sont conservés.</div>
+                  </div>
+                  <button class="btn btn-danger btn-sm" id="btn-reset-scores" onclick="resetGameScores()" style="white-space:nowrap;margin-left:auto;">↺ Reset scores</button>
+                </div>
+
+                <!-- Reset complet -->
+                <div style="padding:12px 14px;border-radius:10px;background:rgba(220,40,40,.08);border:1px solid rgba(220,40,40,.3);margin-bottom:14px;">
+                  <div style="font-size:.84rem;font-weight:700;color:#ff6b6b;margin-bottom:6px;">Reset game — tout réinitialiser</div>
+                  <ul style="margin:0 0 12px;padding-left:18px;font-size:.78rem;line-height:1.6;color:rgba(255,255,255,.65);">
+                    <li>Le planning des sessions + marqueurs « joué » (✓)</li>
                     <li>Les statistiques par question</li>
                     <li>Tous les joueurs et leurs scores</li>
                     <li>Tous les « Mon Onze »</li>
                   </ul>
+                  <button class="btn btn-red btn-sm mb0" id="btn-reset-game" onclick="resetGame()" style="white-space:nowrap;">↺ Reset game</button>
                 </div>
-                <div class="alert alert-info" style="font-size:.75rem;line-height:1.45;padding:9px 12px;">
-                  ✅ <strong>Non touchés</strong> : la base de questions (questions, catégories, tags, médias)
-                  et le générateur de joueurs.<br>
-                  ⚠️ Action irréversible — nécessite la connexion admin (Supabase Auth) pour effacer
-                  scores et comptes sur tous les appareils.
-                </div>
-                <button class="btn btn-red mb0" id="btn-reset-game" onclick="resetGame()">↺ Reset game</button>
-                <div id="reset-game-status"></div>
               </div>
             </div>
 
@@ -2283,11 +2524,12 @@
       <div id="at-planning" style="display:none;width:100%">
         <div class="card" style="margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
-            <button class="btn btn-ghost btn-sm" onclick="planningNavWeek(-1)">◀</button>
-            <span id="planning-week-label" style="flex:1;text-align:center;font-weight:700;font-size:.88rem;color:var(--or);"></span>
-            <button class="btn btn-ghost btn-sm" onclick="planningNavWeek(1)">▶</button>
+            <button class="btn btn-ghost btn-sm" onclick="planningNavMonth(-1)">◀</button>
+            <span id="planning-week-label" style="flex:1;text-align:center;font-weight:700;font-size:.95rem;color:var(--or);text-transform:capitalize;"></span>
+            <button class="btn btn-ghost btn-sm" onclick="planningNavMonth(1)">▶</button>
           </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-ghost btn-sm" onclick="planningGoToday()" title="Revenir au mois courant">Aujourd'hui</button>
             <button class="btn btn-red btn-sm" id="planning-save-btn" onclick="savePlanningManual()" title="Forcer la sauvegarde du planning vers Supabase">Sauvegarder</button>
             <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="resetPlanningAll()" title="Effacer le planning et réinitialiser les marqueurs ✓ joué">↺ Tout réinitialiser</button>
           </div>
@@ -2296,6 +2538,7 @@
           </div>
         </div>
         <div id="planning-grid"></div>
+        <div id="planning-detail" style="margin-top:14px;"></div>
       </div>
 
       <!-- Tab : joueurs -->
@@ -2559,8 +2802,8 @@
           </div>
         </div>
 
-        <!-- Accueil -->
-        <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+        <!-- Accueil / chaînage rattrapage -->
+        <button id="res-home-btn" class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
 
       </div>
     </div>
@@ -3151,6 +3394,28 @@
     </div>
   </div>
 
+  <!-- ════════════════════════════════════ MOT ALLEMAND DU JOUR ═══ -->
+  <div id="german-word-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeGermanWord()">
+    <div class="modal-inner" style="max-width:420px;">
+      <div class="card german-word-card" style="margin-bottom:0;">
+        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="closeGermanWord()">✕</button>
+        </div>
+        <svg class="german-word-flag" viewBox="0 0 5 3" preserveAspectRatio="none" aria-hidden="true">
+          <rect width="5" height="1" y="0" fill="#000"/>
+          <rect width="5" height="1" y="1" fill="#D00"/>
+          <rect width="5" height="1" y="2" fill="#FFCE00"/>
+        </svg>
+        <div id="german-word-body"></div>
+        <p class="german-word-footer">
+          🇩🇪 En l'honneur de <strong>Dino Toppmöller</strong>, supporter du RC Lens.<br>
+          Un mot d'allemand par jour, pour briller en tribune.
+        </p>
+        <button class="btn btn-ghost btn-full mb0" onclick="closeGermanWord()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ════════════════════════════════════ MIDBREAK PREVIEW MODAL ═══ -->
   <div id="midbreak-preview-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeMidbreakPreview()">
     <div class="modal-inner">
@@ -3176,6 +3441,7 @@
         <span id="picker-title" style="flex:1;font-weight:700;font-size:.88rem;color:var(--or);"></span>
         <button class="btn btn-ghost btn-sm" style="padding:4px 8px;" onclick="closePlanningPicker()" title="Fermer">✕</button>
       </div>
+      <div id="picker-tag-filter" class="tag-picker" style="margin-bottom:12px;flex-shrink:0;"></div>
       <div id="picker-list" style="overflow-y:auto;flex:1;"></div>
       <div style="flex-shrink:0;padding-top:12px;border-top:1px solid rgba(255,255,255,.08);margin-top:10px;display:flex;gap:8px;justify-content:flex-end;">
         <button class="btn btn-ghost btn-sm" onclick="closePlanningPicker()">Annuler</button>
@@ -3194,6 +3460,19 @@
       </p>
       <div id="already-played-next" style="font-size:1rem;font-weight:700;color:#fff;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:10px;padding:10px 14px;margin:10px 0 18px;"></div>
       <button class="btn btn-gold btn-full mb0" onclick="closeAlreadyPlayedPopup()">Compris&nbsp;!</button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════ AUCUNE SESSION ═══ -->
+  <div id="no-session-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.28);border-radius:18px;padding:26px 24px;width:min(94vw,400px);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.65);">
+      <div style="font-size:2.6rem;line-height:1;margin-bottom:12px;">📅</div>
+      <div style="font-weight:800;font-size:1.05rem;color:var(--or);margin-bottom:10px;">Aucune session aujourd'hui</div>
+      <p style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5;margin:0 0 6px;">
+        Aucune partie n'est programmée aujourd'hui. Rendez-vous à la prochaine session&nbsp;:
+      </p>
+      <div id="no-session-next" style="font-size:1rem;font-weight:700;color:#fff;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:10px;padding:10px 14px;margin:10px 0 18px;"></div>
+      <button class="btn btn-gold btn-full mb0" onclick="closeNoSessionPopup()">Compris&nbsp;!</button>
     </div>
   </div>
 
@@ -3277,9 +3556,9 @@
      v3 : le contenu (questions, tags, media, réglages, planning) vit dans la table
      clé/valeur quiz_data (écriture réservée à l'admin authentifié — RLS), tandis que
      les scores et les comptes joueurs ont leurs propres tables (voir supabase-v3-setup.sql). */
-  const QUIZ_DATA_KEYS = ['questions', 'tags', 'media', 'features', 'planning'];
+  const QUIZ_DATA_KEYS = ['questions', 'tags', 'media', 'features', 'planning', 'vocab'];
   let _db = {
-    questions: [], tags: [], media: [], features: {}, planning: {},
+    questions: [], tags: [], media: [], features: {}, planning: {}, vocab: [],
     scores: [], accounts: {}
   };
   let adminSupaAuthed = false; // session Supabase Auth active (écritures contenu autorisées par RLS)
@@ -3636,6 +3915,13 @@
     } else {
       await seedFromJson();
     }
+    // Pré-remplissage du vocabulaire allemand (clé "vocab") à partir de la graine codée.
+    // Le backup localStorage de dbPush garantit le fonctionnement hors-ligne ; l'écriture
+    // Supabase réussira à la première sauvegarde admin (RLS).
+    if (!Array.isArray(_db.vocab) || !_db.vocab.length) {
+      _db.vocab = VOCAB_SEED.slice();
+      await dbPush('vocab');
+    }
     await Promise.all([scoresFetch(), accountsFetch()]);
   }
 
@@ -3734,6 +4020,8 @@
     saveRotation : (arr) => localStorage.setItem('rcRotation', JSON.stringify(arr)),
     getPlanning   : ()    => (_db.planning && typeof _db.planning === 'object')   ? _db.planning : {},
     savePlanning  : (obj) => { _db.planning = obj; dbPush('planning'); },
+    getVocab      : ()    => Array.isArray(_db.vocab)                             ? _db.vocab     : [],
+    saveVocab     : (arr) => { _db.vocab = arr; dbPush('vocab'); },
     /* v3 : usedInGame est dérivé des parties enregistrées (table scores) */
     getUsedInGame   : ()    => computeUsedInGame(),
     getLeaderboard      : ()    => Array.isArray(_db.scores) ? _db.scores : [],
@@ -3955,7 +4243,12 @@
     if (viewName === 'player-name')  initPlayerName();
     if (viewName === 'player-card')  { renderPlayerCard(); scoresFetch().then(() => renderPlayerCard()); }
     if (viewName === 'onze')         { renderOnze(); accountsFetch().then(() => renderOnze()); }
-    if (viewName === 'home')  updateHomeAuthArea();
+    if (viewName === 'home')  {
+      updateHomeAuthArea();
+      // Le planning et les scores peuvent être périmés au chargement : on les
+      // rafraîchit puis on recalcule les parties à rattraper.
+      if (_localUser) Promise.all([scoresFetch(), dbPull('planning')]).then(renderHomeCatchUp);
+    }
     if (viewName === 'leaderboard') { renderLeaderboardPublic(); scoresFetch().then(() => renderLeaderboardPublic()); }
     if (viewName === 'auth') {
       authSetMode('login');
@@ -4103,9 +4396,35 @@
   let dbPageJ = 0;
   let dbSearchTerm   = '';
   let dbActiveFilters = new Set(); // 'joueur' | 'bonus' | 'with-tag' | 'no-tag' | 'new'
+  let dbSubTab = sessionStorage.getItem('rcDbSubTab') || 'joueur'; // 'joueur' | 'bonus' | 'vocab'
   const DB_PAGE_SIZE = 10;
 
+  // Bascule entre les sous-onglets de la database (Qui suis-je ? / Bonus / Vocabulaire)
+  function setDbSubTab(sub) {
+    dbSubTab = sub;
+    sessionStorage.setItem('rcDbSubTab', sub);
+    ['joueur', 'bonus', 'vocab'].forEach(s =>
+      document.getElementById('dst-' + s).classList.toggle('active', s === sub));
+    const isVocab = sub === 'vocab';
+    document.getElementById('db-questions-pane').style.display = isVocab ? 'none' : 'block';
+    document.getElementById('db-vocab-pane').style.display     = isVocab ? 'block' : 'none';
+    if (isVocab) renderVocabAdmin();
+    else renderAdmin();
+  }
+
+  let _joueursPollTimer = null;
+  function _stopJoueursPoll() { if (_joueursPollTimer) { clearInterval(_joueursPollTimer); _joueursPollTimer = null; } }
+  function _startJoueursPoll() {
+    _stopJoueursPoll();
+    // Rafraîchit automatiquement scores + comptes tant que l'onglet Joueurs est ouvert
+    _joueursPollTimer = setInterval(() => {
+      if (sessionStorage.getItem('rcAdminTab') !== 'joueurs') { _stopJoueursPoll(); return; }
+      Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
+    }, 15000);
+  }
+
   function adminTab(tab) {
+    if (tab !== 'joueurs') _stopJoueursPoll();
     const showList = tab === 'list';
     document.getElementById('t-list').classList.toggle('active', tab === 'list');
     document.getElementById('t-generator').classList.toggle('active', tab === 'generator');
@@ -4126,10 +4445,11 @@
     document.getElementById('at-messages').style.display  = tab === 'messages'  ? 'block' : 'none';
     document.getElementById('at-stats').style.display     = tab === 'stats'     ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
+    if (tab === 'list')      setDbSubTab(dbSubTab);
     if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); showSettingsPanel('db-questions'); }
     if (tab === 'planning')  { renderPlanning(); Promise.all([dbPull('planning'), scoresFetch()]).then(renderPlanning); }
     if (tab === 'generator') renderGeneratorList();
-    if (tab === 'joueurs')   { renderJoueurs(); scoresFetch().then(() => renderJoueurs()); }
+    if (tab === 'joueurs')   { renderJoueurs(); Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs()); _startJoueursPoll(); }
     if (tab === 'messages')  { renderMessages(); messagesFetch().then(renderMessages); }
     if (tab === 'stats')     { renderQStats(); scoresFetch().then(() => renderQStats()); }
   }
@@ -4201,18 +4521,19 @@
   /* ═══════════════════════════════════════════════════
      PLANNING
   ═══════════════════════════════════════════════════ */
-  let planningWeekOffset = 0;
+  let planningMonthOffset  = 0;     // nombre de mois d'écart par rapport au mois courant
+  let planningSelectedDate = null;  // jour (YYYY-MM-DD) affiché dans le panneau de détail
 
   const PLANNING_DAY_NAMES   = ['Lun.','Mar.','Mer.','Jeu.','Ven.','Sam.','Dim.'];
+  const PLANNING_DAY_INITIALS = ['L','M','M','J','V','S','D'];
   const PLANNING_MONTH_NAMES = ['jan.','fév.','mars','avr.','mai','juin','juil.','août','sep.','oct.','nov.','déc.'];
+  const PLANNING_MONTH_FULL  = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
 
-  function planningGetWeekStart(offset) {
+  // Premier jour du mois (mois courant décalé de `offset`).
+  function planningGetMonthStart(offset) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dow = today.getDay();
-    const monday = new Date(today);
-    monday.setDate(today.getDate() - (dow === 0 ? 6 : dow - 1) + offset * 7);
-    return monday;
+    return new Date(today.getFullYear(), today.getMonth() + offset, 1);
   }
 
   function planningDateStr(d) {
@@ -4261,8 +4582,14 @@
     if (changed) { f.usedLegacyIds = [...extra]; LS.saveFeatures(f); }
   }
 
-  function planningNavWeek(dir) { planningWeekOffset += dir; renderPlanning(); }
-  function planningGoToday()    { planningWeekOffset = 0;    renderPlanning(); }
+  function planningNavMonth(dir) { planningMonthOffset += dir; planningSelectedDate = null; renderPlanning(); }
+  function planningGoToday()     { planningMonthOffset = 0;   planningSelectedDate = planningTodayStr(); renderPlanning(); }
+
+  // Sélectionne un jour : ouvre/replie le panneau de détail sous le calendrier.
+  function planningSelectDay(ds) {
+    planningSelectedDate = (planningSelectedDate === ds) ? null : ds;
+    renderPlanning();
+  }
 
   // Force l'envoi du planning courant vers Supabase et affiche le résultat sur le bouton.
   async function savePlanningManual() {
@@ -4295,36 +4622,119 @@
     return str.length > n ? str.slice(0, n) + '…' : str;
   }
 
+  // Formate une date YYYY-MM-DD en "Lun. 11 juin"
+  function planningFmtDs(ds) {
+    const dd = new Date(ds + 'T00:00:00');
+    const dow = dd.getDay() === 0 ? 6 : dd.getDay() - 1;
+    return `${PLANNING_DAY_NAMES[dow]} ${dd.getDate()} ${PLANNING_MONTH_NAMES[dd.getMonth()]}`;
+  }
+
+  // Date de début (identifiant) de la session non supprimée comportant au moins une
+  // entrée qui couvre `ds`, ou null. Sert au surlignage et au regroupement multi-jours.
+  function planningSessionIdForDate(ds) {
+    const ap = getActivePlanForDate(ds);
+    return (ap && (ap.j1 || ap.j2 || ap.bonus)) ? ap._startDate : null;
+  }
+
+  // Vrai si un jour est couvert par une session (jour « avec partie » surligné).
+  function planningDayHasGame(ds) { return !!planningSessionIdForDate(ds); }
+
+  // Décale une date YYYY-MM-DD de `delta` jours.
+  function planningShiftDs(ds, delta) {
+    const d = new Date(ds + 'T00:00:00');
+    d.setDate(d.getDate() + delta);
+    return planningDateStr(d);
+  }
+
+  // Vue principale : calendrier mensuel + panneau de détail du jour sélectionné.
   function renderPlanning() {
     markExpiredSessionsAsUsed();
     const betaBanner = document.getElementById('planning-beta-banner');
     if (betaBanner) betaBanner.style.display = feat('betaTest') ? 'block' : 'none';
 
-    const weekStart = planningGetWeekStart(planningWeekOffset);
-    const weekEnd   = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
+    const grid = document.getElementById('planning-grid');
+    if (!grid) return;
+
+    const monthStart = planningGetMonthStart(planningMonthOffset);
+    const year  = monthStart.getFullYear();
+    const month = monthStart.getMonth();
+    const today = planningTodayStr();
 
     const labelEl = document.getElementById('planning-week-label');
-    if (labelEl) {
-      const fmt = d => `${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
-      labelEl.textContent = `${fmt(weekStart)} – ${fmt(weekEnd)}`;
+    if (labelEl) labelEl.textContent = `${PLANNING_MONTH_FULL[month]} ${year}`;
+
+    // Début de la grille : lundi situé le jour de la 1ʳᵉ du mois ou avant.
+    const firstDow  = monthStart.getDay() === 0 ? 6 : monthStart.getDay() - 1;
+    const gridStart = new Date(year, month, 1 - firstDow);
+
+    const headHtml = PLANNING_DAY_INITIALS.map(l => `<span>${l}</span>`).join('');
+
+    // Ordre d'apparition des sessions du mois : sert à alterner la couleur
+    // (rouge, jaune, rouge, jaune…) d'une partie à l'autre.
+    const sessionOrder = {};
+    let sessionCount = 0;
+
+    let cells = '';
+    for (let i = 0; i < 42; i++) {
+      const d  = new Date(gridStart);
+      d.setDate(gridStart.getDate() + i);
+      const ds      = planningDateStr(d);
+      const inMonth = d.getMonth() === month;
+      const col     = i % 7;
+      const sid     = planningSessionIdForDate(ds);
+      const cls = ['cal-cell'];
+      if (!inMonth)                    cls.push('cal-out');
+      if (sid) {
+        cls.push('cal-game');
+        if (!(sid in sessionOrder)) sessionOrder[sid] = sessionCount++;
+        cls.push(sessionOrder[sid] % 2 === 0 ? 'cal-c-rouge' : 'cal-c-jaune');
+      }
+      if (ds === today)                cls.push('cal-today');
+      if (ds === planningSelectedDate) cls.push('cal-selected');
+      // Relie les jours contigus (même semaine) d'une même session multi-jours.
+      if (sid) {
+        if (col > 0 && planningSessionIdForDate(planningShiftDs(ds, -1)) === sid) cls.push('cal-conn-l');
+        if (col < 6 && planningSessionIdForDate(planningShiftDs(ds,  1)) === sid) cls.push('cal-conn-r');
+      }
+      cells += `<div class="${cls.join(' ')}" onclick="planningSelectDay('${ds}')" title="${planningFmtDs(ds)}">
+        <div class="cal-bg"></div>
+        <span class="cal-num">${d.getDate()}</span>
+      </div>`;
     }
 
+    grid.innerHTML = `<div class="cal-wrap">
+      <div class="cal-head">${headHtml}</div>
+      <div class="cal-grid">${cells}</div>
+      <div class="cal-legend">
+        <span><i style="background:rgba(227,6,19,.55);"></i><i style="background:rgba(255,205,0,.5);"></i> Jour avec partie</span>
+        <span><i style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);"></i> Jour libre</span>
+        <span><i style="box-shadow:0 0 0 2px rgba(255,205,0,.65) inset;background:transparent;"></i> Aujourd'hui</span>
+      </div>
+    </div>`;
+
+    // Panneau de détail (édition des entrées) pour le jour sélectionné.
+    const detail = document.getElementById('planning-detail');
+    if (detail) {
+      detail.innerHTML = planningSelectedDate
+        ? buildDayCardHtml(planningSelectedDate)
+        : `<div class="card" style="text-align:center;color:rgba(255,255,255,.4);font-size:.84rem;padding:18px;">
+             Sélectionne un jour dans le calendrier pour planifier ou modifier ses entrées.
+           </div>`;
+    }
+  }
+
+  // Construit la carte d'édition d'un jour donné (entrées Qui suis-je / Bonus,
+  // fin de validité, gestion des sessions multi-jours).
+  function buildDayCardHtml(ds) {
     const allQ       = LS.getQ().filter(q => q.active !== false);
-    const today      = planningTodayStr();
-    const grid       = document.getElementById('planning-grid');
-    if (!grid) return;
     const usedInGame = LS.getUsedInGame();
+    const today      = planningTodayStr();
+    const isToday    = ds === today;
+    const d          = new Date(ds + 'T00:00:00');
+    const dowIdx     = d.getDay() === 0 ? 6 : d.getDay() - 1;
 
     const usedBadge = q => q && usedInGame.has(q.id)
       ? `<span class="planning-used-badge badge-game">✓ joué</span>` : '';
-
-    // Formate une date YYYY-MM-DD en "Lun. 11 juin"
-    const fmtDs = ds => {
-      const dd = new Date(ds + 'T00:00:00');
-      const dow = dd.getDay() === 0 ? 6 : dd.getDay() - 1;
-      return `${PLANNING_DAY_NAMES[dow]} ${dd.getDate()} ${PLANNING_MONTH_NAMES[dd.getMonth()]}`;
-    };
 
     const makeSlotHtml = (label, q, slot, pickDs, isJoueur) => {
       const val = q
@@ -4337,95 +4747,76 @@
       </div>`;
     };
 
-    let html = '';
-    for (let i = 0; i < 7; i++) {
-      const d       = new Date(weekStart);
-      d.setDate(weekStart.getDate() + i);
-      const ds      = planningDateStr(d);
-      const isToday = ds === today;
+    const headerDate = `${PLANNING_DAY_NAMES[dowIdx]} ${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}`;
 
-      // Cherche la session active pour ce jour
-      const activePlan    = getActivePlanForDate(ds);
-      const isSessionStart = activePlan && activePlan._startDate === ds;
-      const isCoveredMid   = activePlan && activePlan._startDate !== ds;
-      const dp             = activePlan || {};
+    const activePlan     = getActivePlanForDate(ds);
+    const isSessionStart = activePlan && activePlan._startDate === ds;
+    const isCoveredMid   = activePlan && activePlan._startDate !== ds;
+    const dp             = activePlan || {};
 
-      // Cas : session supprimée (soft-delete sur le startDate)
-      if (dp._deleted && isSessionStart) {
-        html += `<div class="planning-day${isToday ? ' planning-today' : ''}" style="opacity:.7;border-style:dashed;">
-          <div class="planning-day-header">
-            <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
-            <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
-            ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
-          </div>
-          <div style="text-align:center;color:rgba(255,255,255,.4);font-size:.8rem;padding:6px 0 10px;">Session supprimée</div>
-          <button class="btn btn-ghost btn-full mb0" onclick="restoreDayPlan('${ds}')">↩ Restaurer</button>
-        </div>`;
-        continue;
-      }
-
-      const j1Q    = dp.j1    ? allQ.find(q => q.id === dp.j1)    : null;
-      const j2Q    = dp.j2    ? allQ.find(q => q.id === dp.j2)    : null;
-      const bonusQ = dp.bonus ? allQ.find(q => q.id === dp.bonus) : null;
-
-      // Cas : jour couvert par une session qui a commencé avant
-      if (isCoveredMid) {
-        const startDs = activePlan._startDate;
-        const endDs   = dp.endDate || startDs;
-        html += `<div class="planning-day planning-day-mid${isToday ? ' planning-today' : ''}">
-          <div class="planning-day-header">
-            <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
-            <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
-            ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
-            <span class="planning-range-badge" style="margin-left:auto;">🔄 en cours</span>
-            <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;" onclick="event.stopPropagation();clearDayPlan('${startDs}')" title="Supprimer la session">✕</button>
-          </div>
-          <div class="planning-mid-info">← Session du ${fmtDs(startDs)} → ${fmtDs(endDs)}</div>
-          ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', startDs, true)}
-          ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', startDs, true)}
-          ${makeSlotHtml('Bonus', bonusQ, 'bonus', startDs, false)}
-        </div>`;
-        continue;
-      }
-
-      // Cas : début de session ou jour vide
-      const endDs      = dp.endDate || ds;
-      const isMultiDay = endDs > ds;
-      const endDateDisplay = (() => {
-        if (!isSessionStart) return `<span class="planning-slot-value planning-empty">— même jour —</span>`;
-        const endD  = new Date(endDs + 'T00:00:00');
-        const endDow = endD.getDay() === 0 ? 6 : endD.getDay() - 1;
-        return isMultiDay
-          ? `<span class="planning-slot-value" style="color:var(--or);">${PLANNING_DAY_NAMES[endDow]} ${endD.getDate()} ${PLANNING_MONTH_NAMES[endD.getMonth()]} 23h59</span>`
-          : `<span class="planning-slot-value planning-empty">— même jour —</span>`;
-      })();
-
-      const rangeBadge = isSessionStart && isMultiDay
-        ? `<span class="planning-range-badge">→ ${fmtDs(endDs)}</span>` : '';
-
-      const endDateSlot = `<div class="planning-slot" onclick="this.querySelector('input').showPicker&&this.querySelector('input').showPicker()">
-        <span class="planning-slot-label">Fin de validité</span>
-        <input type="date" value="${isSessionStart ? endDs : ds}" min="${ds}"
-          onchange="setPlanningEndDate('${ds}', this.value)"
-          ${!isSessionStart ? 'disabled' : ''}>
-        <span class="planning-slot-edit">✎</span>
-      </div>`;
-
-      html += `<div class="planning-day${isToday ? ' planning-today' : ''}">
+    // Cas : session supprimée (soft-delete sur le startDate)
+    if (dp._deleted && isSessionStart) {
+      return `<div class="planning-day${isToday ? ' planning-today' : ''}" style="opacity:.7;border-style:dashed;">
         <div class="planning-day-header">
-          <span class="planning-day-name">${PLANNING_DAY_NAMES[i]}</span>
-          <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}</span>
+          <span class="planning-day-name">${PLANNING_DAY_NAMES[dowIdx]}</span>
+          <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}</span>
           ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
-          ${rangeBadge}
-          <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;margin-left:auto;" onclick="event.stopPropagation();clearDayPlan('${ds}')" title="Effacer ce jour">✕</button>
         </div>
-        ${endDateSlot}
-        ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', ds, true)}
-        ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', ds, true)}
-        ${makeSlotHtml('Bonus', bonusQ, 'bonus', ds, false)}
+        <div style="text-align:center;color:rgba(255,255,255,.4);font-size:.8rem;padding:6px 0 10px;">Session supprimée</div>
+        <button class="btn btn-ghost btn-full mb0" onclick="restoreDayPlan('${ds}')">↩ Restaurer</button>
       </div>`;
     }
-    grid.innerHTML = html;
+
+    const j1Q    = dp.j1    ? allQ.find(q => q.id === dp.j1)    : null;
+    const j2Q    = dp.j2    ? allQ.find(q => q.id === dp.j2)    : null;
+    const bonusQ = dp.bonus ? allQ.find(q => q.id === dp.bonus) : null;
+
+    // Cas : jour couvert par une session qui a commencé avant
+    if (isCoveredMid) {
+      const startDs = activePlan._startDate;
+      const endDs   = dp.endDate || startDs;
+      return `<div class="planning-day planning-day-mid${isToday ? ' planning-today' : ''}">
+        <div class="planning-day-header">
+          <span class="planning-day-name">${PLANNING_DAY_NAMES[dowIdx]}</span>
+          <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}</span>
+          ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
+          <span class="planning-range-badge" style="margin-left:auto;">🔄 en cours</span>
+          <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;" onclick="event.stopPropagation();clearDayPlan('${startDs}')" title="Supprimer la session">✕</button>
+        </div>
+        <div class="planning-mid-info">← Session du ${planningFmtDs(startDs)} → ${planningFmtDs(endDs)}</div>
+        ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', startDs, true)}
+        ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', startDs, true)}
+        ${makeSlotHtml('Bonus', bonusQ, 'bonus', startDs, false)}
+      </div>`;
+    }
+
+    // Cas : début de session ou jour vide
+    const endDs      = dp.endDate || ds;
+    const isMultiDay = endDs > ds;
+    const rangeBadge = isSessionStart && isMultiDay
+      ? `<span class="planning-range-badge">→ ${planningFmtDs(endDs)}</span>` : '';
+
+    const endDateSlot = `<div class="planning-slot" onclick="this.querySelector('input').showPicker&&this.querySelector('input').showPicker()">
+      <span class="planning-slot-label">Fin de validité</span>
+      <input type="date" value="${isSessionStart ? endDs : ds}" min="${ds}"
+        onchange="setPlanningEndDate('${ds}', this.value)"
+        ${!isSessionStart ? 'disabled' : ''}>
+      <span class="planning-slot-edit">✎</span>
+    </div>`;
+
+    return `<div class="planning-day${isToday ? ' planning-today' : ''}">
+      <div class="planning-day-header">
+        <span class="planning-day-name">${PLANNING_DAY_NAMES[dowIdx]}</span>
+        <span class="planning-day-date">${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]} ${d.getFullYear()}</span>
+        ${isToday ? '<span class="planning-today-badge">Aujourd\'hui</span>' : ''}
+        ${rangeBadge}
+        <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;margin-left:auto;" onclick="event.stopPropagation();clearDayPlan('${ds}')" title="Effacer ce jour">✕</button>
+      </div>
+      ${endDateSlot}
+      ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', ds, true)}
+      ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', ds, true)}
+      ${makeSlotHtml('Bonus', bonusQ, 'bonus', ds, false)}
+    </div>`;
   }
 
   function setPlanningEndDate(startDs, newEndDate) {
@@ -4501,9 +4892,32 @@
     if (ov) ov.style.display = 'none';
   }
 
+  function showNoSessionPopup() {
+    const nextEl = document.getElementById('no-session-next');
+    if (nextEl) {
+      const nextDs = getNextSessionStartDs();
+      nextEl.textContent = nextDs
+        ? '📅 ' + fmtSessionLong(nextDs)
+        : 'Prochaine session bientôt annoncée';
+    }
+    const ov = document.getElementById('no-session-overlay');
+    if (ov) ov.style.display = 'flex';
+  }
+
+  function closeNoSessionPopup() {
+    const ov = document.getElementById('no-session-overlay');
+    if (ov) ov.style.display = 'none';
+  }
+
   let pickerDate      = null;
   let pickerSlot      = null;
   let pickerPendingId = null;
+  let pickerTagFilter = [];   // tags actifs comme filtres dans le sélecteur de planning
+  let pickerPool      = [];   // questions candidates pour le slot en cours
+  let pickerPlanUsed  = new Set();
+  let pickerGameUsed  = new Set();
+  let pickerCurrentId = null;
+  let pickerIsBeta    = false;
 
   function openPlanningPicker(dateStr, slot) {
     // Résoudre vers le startDate de la session qui couvre ce jour
@@ -4520,57 +4934,98 @@
 
     const allQ       = getActiveQ();
     const isJoueur   = slot === 'j1' || slot === 'j2';
-    const pool       = isJoueur ? allQ.filter(q => q.type === 'joueur') : allQ.filter(q => q.type !== 'joueur');
-    const currentId  = (LS.getPlanning()[sessionStart] || {})[slot];
-    pickerPendingId  = currentId || null;
+    pickerPool       = isJoueur ? allQ.filter(q => q.type === 'joueur') : allQ.filter(q => q.type !== 'joueur');
+    pickerCurrentId  = (LS.getPlanning()[sessionStart] || {})[slot] || null;
+    pickerPendingId  = pickerCurrentId;
+    pickerTagFilter  = [];
     const saveBtn    = document.getElementById('picker-save-btn');
     if (saveBtn) saveBtn.disabled = !pickerPendingId;
 
     // Calculer les IDs déjà planifiés dans d'autres sessions
     const planAll    = LS.getPlanning();
-    const planUsed   = new Set();
+    pickerPlanUsed   = new Set();
     for (const [dk, dp] of Object.entries(planAll)) {
       if (dk === sessionStart) continue;
-      if (dp.j1)    planUsed.add(dp.j1);
-      if (dp.j2)    planUsed.add(dp.j2);
-      if (dp.bonus) planUsed.add(dp.bonus);
+      if (dp.j1)    pickerPlanUsed.add(dp.j1);
+      if (dp.j2)    pickerPlanUsed.add(dp.j2);
+      if (dp.bonus) pickerPlanUsed.add(dp.bonus);
     }
-    const gameUsed   = LS.getUsedInGame();
-    const isBeta     = feat('betaTest');
+    pickerGameUsed   = LS.getUsedInGame();
+    pickerIsBeta     = feat('betaTest');
+
+    renderPlanningPickerFilter();
+    renderPlanningPickerList();
+    overlay.style.display = 'flex';
+  }
+
+  // Barre de filtres par tag : n'affiche que les tags réellement présents dans le pool.
+  function renderPlanningPickerFilter() {
+    const el = document.getElementById('picker-tag-filter');
+    if (!el) return;
+    const tags    = LS.getTags();
+    const present = new Set();
+    pickerPool.forEach(q => (q.tags || []).forEach(t => present.add(t)));
+    const usable  = tags.filter(t => present.has(t.id));
+    if (!usable.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    el.style.display = 'flex';
+    el.innerHTML = usable.map(t => {
+      const sel = pickerTagFilter.includes(t.id);
+      return `<span class="tag-chip tag-chip-pick${sel ? ' selected' : ''}"
+        style="background:${t.color};" onclick="togglePlanningPickerTag('${t.id}')">${esc(t.name)}</span>`;
+    }).join('');
+  }
+
+  function togglePlanningPickerTag(id) {
+    const idx = pickerTagFilter.indexOf(id);
+    if (idx === -1) pickerTagFilter.push(id);
+    else pickerTagFilter.splice(idx, 1);
+    renderPlanningPickerFilter();
+    renderPlanningPickerList();
+  }
+
+  // Rend la liste des questions du slot courant, filtrée par les tags actifs.
+  function renderPlanningPickerList() {
+    const listEl = document.getElementById('picker-list');
+    if (!listEl) return;
+    // Un item passe le filtre s'il porte au moins un des tags sélectionnés (OR).
+    const pool = pickerTagFilter.length
+      ? pickerPool.filter(q => (q.tags || []).some(t => pickerTagFilter.includes(t)))
+      : pickerPool;
 
     if (!pool.length) {
-      listEl.innerHTML = '<p style="color:rgba(255,255,255,.4);font-size:.84rem;padding:8px 0;">Aucune question disponible.</p>';
-    } else {
-      // Trier : non-utilisés en premier, utilisés (planning ou jeu) ensuite
-      const sorted = [...pool].sort((a, b) => {
-        const scoreA = (planUsed.has(a.id) ? 2 : 0) + (gameUsed.has(a.id) ? 1 : 0);
-        const scoreB = (planUsed.has(b.id) ? 2 : 0) + (gameUsed.has(b.id) ? 1 : 0);
-        return scoreA - scoreB;
-      });
-      listEl.innerHTML = sorted.map(q => {
-        const label      = q.type === 'joueur' ? `👤 ${q.playerName || q.id}` : planningTrunc(q.text || q.id, 54);
-        const sel        = q.id === currentId;
-        const inPlan     = planUsed.has(q.id);
-        const inGame     = !isBeta && gameUsed.has(q.id);
-        const badges     = [
-          inPlan ? `<span class="planning-used-badge badge-planning">📅 planifié</span>` : '',
-          inGame ? `<span class="planning-used-badge badge-game">✓ joué</span>`          : '',
-        ].join('');
-        const dimmed     = (inPlan || inGame) && !sel;
-        const codeBadge  = `<span style="font-size:.68rem;font-weight:800;color:var(--or);background:rgba(255,205,0,.12);border:1px solid rgba(255,205,0,.25);border-radius:6px;padding:2px 6px;flex-shrink:0;">${esc(q.id)}</span>`;
-        const tagChips   = (q.tags && q.tags.length)
-          ? `<span style="display:inline-flex;gap:4px;flex-wrap:wrap;">${renderTagChips(q.tags)}</span>`
-          : '';
-        return `<div data-qid="${esc(q.id)}" onclick="selectPlanningItem('${q.id}')"
-          style="padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid ${sel ? 'rgba(255,205,0,.5)' : 'rgba(255,255,255,.07)'};background:${sel ? 'rgba(255,205,0,.07)' : 'transparent'};margin-bottom:6px;font-size:.84rem;display:flex;align-items:center;gap:6px;opacity:${dimmed ? '.55' : '1'};"
-          onmouseover="this.style.background='rgba(255,255,255,.07)';this.style.opacity='1'" onmouseout="this.style.background=this.dataset.qid===pickerPendingId?'rgba(255,205,0,.07)':'transparent';this.style.opacity='${dimmed ? '.55' : '1'}'">
-          ${codeBadge}
-          <span class="picker-item-label" style="flex:1;color:${sel ? 'var(--or)' : 'inherit'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;">${sel ? '✓ ' : ''}${label}${tagChips}</span>
-          <span style="display:flex;gap:4px;align-items:center;flex-shrink:0;">${badges}</span>
-        </div>`;
-      }).join('');
+      listEl.innerHTML = pickerTagFilter.length
+        ? '<p style="color:rgba(255,255,255,.4);font-size:.84rem;padding:8px 0;">Aucune question pour ces tags.</p>'
+        : '<p style="color:rgba(255,255,255,.4);font-size:.84rem;padding:8px 0;">Aucune question disponible.</p>';
+      return;
     }
-    overlay.style.display = 'flex';
+    // Trier : non-utilisés en premier, utilisés (planning ou jeu) ensuite
+    const sorted = [...pool].sort((a, b) => {
+      const scoreA = (pickerPlanUsed.has(a.id) ? 2 : 0) + (pickerGameUsed.has(a.id) ? 1 : 0);
+      const scoreB = (pickerPlanUsed.has(b.id) ? 2 : 0) + (pickerGameUsed.has(b.id) ? 1 : 0);
+      return scoreA - scoreB;
+    });
+    listEl.innerHTML = sorted.map(q => {
+      const label      = q.type === 'joueur' ? `👤 ${q.playerName || q.id}` : planningTrunc(q.text || q.id, 54);
+      const sel        = q.id === pickerPendingId;
+      const inPlan     = pickerPlanUsed.has(q.id);
+      const inGame     = !pickerIsBeta && pickerGameUsed.has(q.id);
+      const badges     = [
+        inPlan ? `<span class="planning-used-badge badge-planning">📅 planifié</span>` : '',
+        inGame ? `<span class="planning-used-badge badge-game">✓ joué</span>`          : '',
+      ].join('');
+      const dimmed     = (inPlan || inGame) && !sel;
+      const codeBadge  = `<span style="font-size:.68rem;font-weight:800;color:var(--or);background:rgba(255,205,0,.12);border:1px solid rgba(255,205,0,.25);border-radius:6px;padding:2px 6px;flex-shrink:0;">${esc(q.id)}</span>`;
+      const tagChips   = (q.tags && q.tags.length)
+        ? `<span style="display:inline-flex;gap:4px;flex-wrap:wrap;">${renderTagChips(q.tags)}</span>`
+        : '';
+      return `<div data-qid="${esc(q.id)}" onclick="selectPlanningItem('${q.id}')"
+        style="padding:10px 12px;border-radius:8px;cursor:pointer;border:1px solid ${sel ? 'rgba(255,205,0,.5)' : 'rgba(255,255,255,.07)'};background:${sel ? 'rgba(255,205,0,.07)' : 'transparent'};margin-bottom:6px;font-size:.84rem;display:flex;align-items:center;gap:6px;opacity:${dimmed ? '.55' : '1'};"
+        onmouseover="this.style.background='rgba(255,255,255,.07)';this.style.opacity='1'" onmouseout="this.style.background=this.dataset.qid===pickerPendingId?'rgba(255,205,0,.07)':'transparent';this.style.opacity='${dimmed ? '.55' : '1'}'">
+        ${codeBadge}
+        <span class="picker-item-label" style="flex:1;color:${sel ? 'var(--or)' : 'inherit'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;">${sel ? '✓ ' : ''}${label}${tagChips}</span>
+        <span style="display:flex;gap:4px;align-items:center;flex-shrink:0;">${badges}</span>
+      </div>`;
+    }).join('');
   }
 
   function selectPlanningItem(qId) {
@@ -4669,6 +5124,68 @@
     if (status) status.innerHTML = '<div class="alert alert-success" style="margin:10px 0 0;">Partie réinitialisée — base de questions et générateur intacts.</div>';
   }
 
+  // Helper : affiche un message de statut dans le panneau Réinitialisation
+  function _resetStatus(msg, ok) {
+    const status = document.getElementById('reset-game-status');
+    if (!status) return;
+    const cls = ok === false ? 'alert-error' : 'alert-success';
+    status.innerHTML = '<div class="alert ' + cls + '" style="margin:0 0 14px;">' + msg + '</div>';
+  }
+
+  // Reset partiel : planning + marqueurs « joué » (✓), sans toucher au reste.
+  function resetGamePlanning() {
+    if (!confirm('Réinitialiser le planning ?\n\n• Le planning des sessions sera effacé\n• Les marqueurs « joué » (✓) seront remis à zéro\n\nCette action est irréversible.')) return;
+    LS.savePlanning({});
+    const f = LS.getFeatures();
+    f.usedResetAt   = Date.now();
+    f.usedLegacyIds = [];
+    LS.saveFeatures(f);
+    renderPlanning();
+    _resetStatus('Planning et marqueurs « joué » réinitialisés.');
+  }
+
+  // Reset partiel : statistiques par question uniquement.
+  function resetGameStats() {
+    if (!confirm('Réinitialiser les statistiques par question ?\n\nCette action est irréversible.')) return;
+    const f = LS.getFeatures();
+    f.statsResetAt = Date.now();
+    LS.saveFeatures(f);
+    localStorage.removeItem('rcQStats');
+    renderQStats();
+    _resetStatus('Statistiques par question réinitialisées.');
+  }
+
+  // Reset partiel : joueurs inscrits (comptes + Mon Onze) + leurs scores.
+  async function resetGameAccounts() {
+    if (!confirm(
+      'Supprimer tous les joueurs inscrits ?\n\n' +
+      '• Tous les comptes joueurs et leurs « Mon Onze »\n' +
+      '• Tous les scores associés\n\n' +
+      'Cette action est irréversible.'
+    )) return;
+    const btn = document.getElementById('btn-reset-accounts');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    _resetStatus('');
+    await scoresDeleteAll();
+    await accountsDeleteAll();
+    LS.setLoggedPseudo(null);
+    renderJoueurs();
+    if (btn) { btn.disabled = false; btn.textContent = '↺ Reset joueurs'; }
+    _resetStatus('Joueurs inscrits et scores supprimés.');
+  }
+
+  // Reset partiel : scores des joueurs inscrits, en conservant les comptes.
+  async function resetGameScores() {
+    if (!confirm('Effacer tous les scores des joueurs ?\n\nLes comptes joueurs seront conservés.\n\nCette action est irréversible.')) return;
+    const btn = document.getElementById('btn-reset-scores');
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    _resetStatus('');
+    await scoresDeleteAll();
+    renderJoueurs();
+    if (btn) { btn.disabled = false; btn.textContent = '↺ Reset scores'; }
+    _resetStatus('Scores des joueurs effacés — comptes conservés.');
+  }
+
   function clearDayPlan(dateStr) {
     const plan = LS.getPlanning();
     const dp   = plan[dateStr] || {};
@@ -4748,7 +5265,7 @@
     });
 
     LS.savePlanning(plan);
-    planningWeekOffset = 0;
+    planningMonthOffset = 0;
     renderPlanning();
   }
 
@@ -5231,9 +5748,26 @@
     renderJoueurs();
   }
 
+  /* Supprime le compte joueur (pseudo, avatar, Mon Onze) correspondant à `name`.
+     Mêmes contraintes RLS que scoresDeleteByName : réservé à l'admin. */
+  async function accountDeleteByName(name) {
+    const key = Object.keys(_db.accounts || {}).find(k =>
+      (_db.accounts[k]?.pseudo || k).toLowerCase() === (name || '').toLowerCase());
+    if (!key) return;
+    delete _db.accounts[key];
+    _backupAccounts();
+    if (!_supa) return;
+    const { error } = await _supa.from('accounts').delete().eq('key', key);
+    if (error) {
+      console.error('[Supabase] suppression compte:', error);
+      accountsFetch().then(() => renderJoueurs());
+    }
+  }
+
   function deletePlayerByName(name) {
-    if (!confirm(`Supprimer tous les scores de « ${name} » ? Cette action est irréversible.`)) return;
+    if (!confirm(`Supprimer le joueur « ${name} » (compte et scores) ? Cette action est irréversible.`)) return;
     scoresDeleteByName(name);
+    accountDeleteByName(name);
     renderJoueurs();
   }
 
@@ -5245,29 +5779,38 @@
 
   function renderJoueurs() {
     const lb     = LS.getLeaderboard();
+    const accts  = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
     const listEl = document.getElementById('joueurs-list');
     const countEl = document.getElementById('joueurs-count');
     if (!listEl) return;
 
-    if (!lb.length) {
-      countEl.textContent = '';
-      listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun joueur pour l\'instant.<br>Les scores apparaîtront ici après chaque partie.</p>';
-      return;
-    }
-
-    // Grouper par pseudo
+    // Grouper par pseudo (parties jouées)
     const map = {};
     lb.forEach(e => {
       if (!map[e.name]) map[e.name] = { name: e.name, games: [] };
       map[e.name].games.push(e);
     });
 
+    // Inclure les comptes créés même sans aucune partie jouée
+    Object.values(accts).forEach(a => {
+      const pseudo = a && a.pseudo ? a.pseudo : null;
+      if (!pseudo) return;
+      const exists = Object.keys(map).some(n => n.toLowerCase() === pseudo.toLowerCase());
+      if (!exists) map[pseudo] = { name: pseudo, games: [] };
+    });
+
+    if (!Object.keys(map).length) {
+      countEl.textContent = '';
+      listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun joueur pour l\'instant.<br>Les comptes et les scores apparaîtront ici.</p>';
+      return;
+    }
+
     let players = Object.values(map).map(p => {
       const timestamps = p.games.map(g => new Date(g.date).getTime());
-      const firstDate  = new Date(Math.min(...timestamps));
-      const lastDate   = new Date(Math.max(...timestamps));
-      const bestScore  = Math.max(...p.games.map(g => g.score));
       const onzeBonus  = onzeBonusForName(p.name);
+      const firstDate  = timestamps.length ? new Date(Math.min(...timestamps)) : null;
+      const lastDate   = timestamps.length ? new Date(Math.max(...timestamps)) : null;
+      const bestScore  = p.games.length ? Math.max(...p.games.map(g => g.score)) : 0;
       const totalScore = p.games.reduce((s, g) => s + g.score, 0) + onzeBonus;
       const bestRatio  = (() => {
         const best = p.games.reduce((b, g) => (g.maxScore > 0 && g.score / g.maxScore > b) ? g.score / g.maxScore : b, 0);
@@ -5292,7 +5835,7 @@
     // Trier
     players.sort((a, b) => {
       if (joueurSortKey === 'score') return b.totalScore - a.totalScore;
-      if (joueurSortKey === 'date')  return b.lastDate - a.lastDate;
+      if (joueurSortKey === 'date')  return (b.lastDate ? b.lastDate.getTime() : 0) - (a.lastDate ? a.lastDate.getTime() : 0);
       if (joueurSortKey === 'name')  return a.name.localeCompare(b.name, 'fr');
       return 0;
     });
@@ -5308,7 +5851,7 @@
         <div class="joueur-avatar">${initial}</div>
         <div style="flex:1;min-width:0;">
           <div class="joueur-pseudo">${esc(p.name)}</div>
-          <div class="joueur-meta">${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}</div>
+          <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}</div>
         </div>
         <div class="joueur-score-val">${p.totalScore}</div>
         <button onclick="event.stopPropagation();deletePlayerByName(this.closest('[data-pname]').dataset.pname)" title="Supprimer ce joueur" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
@@ -5556,6 +6099,8 @@
     const pts   = st.pts      || defaultIndicePts(n);
     const tries = st.tries    || defaultIndiceTries(n);
     const timer = st.timer    !== undefined ? st.timer : 60;
+    const positions = Array.isArray(st.positions) ? st.positions : [];
+    const tags  = Array.isArray(st.tags) ? st.tags : [];
     const status = genPlayerStatus(name);
     const isDone = status === 'done';
 
@@ -5567,6 +6112,10 @@
         <div class="indice-row-top">
           <span class="indice-num">${i + 1}</span>
           <input type="text" class="indice-text" id="gen-i-${idx}-${i}" value="${esc(v)}" placeholder="Indice ${i + 1}…" maxlength="300" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})">
+          ${isDone ? '' : `<div class="indice-move-col">
+            <button type="button" class="indice-move-btn" title="Monter" onclick="genMoveIndice(${idx},${i},-1)" ${i === 0 ? 'disabled' : ''}>▲</button>
+            <button type="button" class="indice-move-btn" title="Descendre" onclick="genMoveIndice(${idx},${i},1)" ${i === vals.length - 1 ? 'disabled' : ''}>▼</button>
+          </div>`}
           ${vals.length > 5 ? `<button type="button" class="indice-remove-btn" onclick="genRemoveIndice(${idx},${i})" ${isDone ? 'disabled' : ''}>✕</button>` : ''}
         </div>
         <div class="indice-row-sub">
@@ -5583,6 +6132,12 @@
         <input type="text" id="gen-name-${idx}" value="${esc(st.customName || name)}" placeholder="${esc(name)}" maxlength="100" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})" style="${isDone ? 'background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);' : ''}">
       </div>
       <div class="form-group">
+        <label class="field-label">Poste(s) du joueur ou entraîneur</label>
+        <div id="gen-positions-${idx}" class="pos-picker" style="${isDone ? 'pointer-events:none;opacity:.55;' : ''}"></div>
+        <p class="field-hint" id="gen-positions-${idx}-summary"></p>
+        <p class="field-hint">Sélectionnez un ou plusieurs postes (ENT pour l'entraîneur) — utilisé pour le mode « Mon Onze ».</p>
+      </div>
+      <div class="form-group">
         <label class="field-label">Indices (5 à 10)</label>
         <div id="gen-indices-${idx}">${indiceRows}</div>
         ${!isDone && vals.length < 10 ? `<button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="genAddIndice(${idx})">+ Ajouter un indice</button>` : ''}
@@ -5592,6 +6147,11 @@
         <label class="field-label">Durée du timer (s)</label>
         <input type="number" id="gen-timer-${idx}" value="${timer}" min="10" max="300" style="max-width:100px;" ${isDone ? 'disabled' : ''} onchange="genAutoSave(${idx})">
       </div>
+      <div class="form-group">
+        <label class="field-label">Tags (optionnel)</label>
+        <div id="gen-tags-${idx}" class="tag-picker" style="${isDone ? 'pointer-events:none;opacity:.55;' : ''}"></div>
+        <p class="field-hint">Cliquer sur un tag pour l'associer. Gérez vos tags dans Réglages.</p>
+      </div>
       ${isDone
         ? `<div class="alert alert-success" style="margin-top:10px;">✓ Déjà présent dans la Database.</div>`
         : `<div class="gen-form-actions">
@@ -5600,6 +6160,67 @@
            </div>
            <div id="gen-err-${idx}" class="alert alert-error" style="display:none;margin-top:8px;"></div>`
       }`;
+
+    genRenderPosPicker(idx, positions);
+    genRenderTagPicker(idx, tags);
+  }
+
+  /* Tag picker inside a generator card (per-player, stored in gen state) */
+  function genRenderTagPicker(idx, selected) {
+    const el = document.getElementById(`gen-tags-${idx}`);
+    if (!el) return;
+    const tags = LS.getTags();
+    if (!tags.length) {
+      el.innerHTML = '<span style="font-size:.8rem;color:rgba(255,255,255,.3);">Aucun tag — créez-en dans Réglages.</span>';
+      return;
+    }
+    el.innerHTML = tags.map(t => {
+      const sel = selected.includes(t.id);
+      return `<span class="tag-chip tag-chip-pick${sel ? ' selected' : ''}"
+        style="background:${t.color};" onclick="genToggleTag(${idx},'${t.id}')">${esc(t.name)}</span>`;
+    }).join('');
+  }
+
+  /* Toggle a tag chip in a generator card */
+  function genToggleTag(idx, tagId) {
+    const name = GEN_PLAYERS[idx];
+    const st   = genLoadState();
+    const cur  = Array.isArray(st[name]?.tags) ? [...st[name].tags] : [];
+    const i    = cur.indexOf(tagId);
+    if (i === -1) cur.push(tagId); else cur.splice(i, 1);
+    if (!st[name]) st[name] = {};
+    st[name].tags = cur;
+    genSaveState(st);
+    genRenderTagPicker(idx, cur);
+  }
+
+  /* Position picker inside a generator card (per-player, stored in gen state) */
+  function genRenderPosPicker(idx, selected) {
+    const el = document.getElementById(`gen-positions-${idx}`);
+    if (!el) return;
+    el.innerHTML = Object.keys(ONZE_POSTES).map(c =>
+      `<button type="button" class="pos-chip${selected.includes(c) ? ' active' : ''}" title="${ONZE_POSTES[c]}" onclick="genTogglePos(${idx},'${c}')">${c}</button>`
+    ).join('');
+    const summary = document.getElementById(`gen-positions-${idx}-summary`);
+    if (summary) {
+      summary.innerHTML = selected.length
+        ? `Postes définis : <strong style="color:#fff;">${selected.map(c => `${ONZE_POSTES[c]} (${c})`).join(', ')}</strong>`
+        : '<span style="color:rgba(255,205,0,.8);">⚠ Aucun poste défini</span>';
+    }
+  }
+
+  /* Toggle a position chip in a generator card */
+  function genTogglePos(idx, code) {
+    const name = GEN_PLAYERS[idx];
+    const st   = genLoadState();
+    const cur  = Array.isArray(st[name]?.positions) ? [...st[name].positions] : [];
+    const i    = cur.indexOf(code);
+    if (i === -1) cur.push(code); else cur.splice(i, 1);
+    if (!st[name]) st[name] = {};
+    st[name].positions = cur;
+    genSaveState(st);
+    genRenderPosPicker(idx, cur);
+    genRefreshCardStatus(idx);
   }
 
   /* Read current form values and save to localStorage */
@@ -5615,7 +6236,9 @@
     const timer = parseInt(document.getElementById(`gen-timer-${idx}`)?.value) || 60;
     const customName = (document.getElementById(`gen-name-${idx}`)?.value || '').trim();
     const st = genLoadState();
-    st[name] = { indices, pts, tries, timer, ...(customName && customName !== name ? { customName } : {}) };
+    const positions = Array.isArray(st[name]?.positions) ? st[name].positions : [];
+    const tags      = Array.isArray(st[name]?.tags) ? st[name].tags : [];
+    st[name] = { indices, pts, tries, timer, positions, tags, ...(customName && customName !== name ? { customName } : {}) };
     genSaveState(st);
   }
 
@@ -5636,7 +6259,9 @@
       indices: [...vals, ''],
       pts:     [...pts, Math.max(0.5, (pts[pts.length - 1] || 0.5) - 1)],
       tries:   [...tries, tries[tries.length - 1] ?? 1],
-      timer:   st.timer !== undefined ? st.timer : 60
+      timer:   st.timer !== undefined ? st.timer : 60,
+      positions: Array.isArray(st.positions) ? st.positions : [],
+      tags:    Array.isArray(st.tags) ? st.tags : []
     };
     genSaveState(st2);
     genRenderForm(idx);
@@ -5653,7 +6278,30 @@
     if (vals.length <= 5) return;
     vals.splice(rowIdx, 1); pts.splice(rowIdx, 1); tries.splice(rowIdx, 1);
     const st2 = genLoadState();
-    st2[name] = { indices: vals, pts, tries, timer: st.timer !== undefined ? st.timer : 60 };
+    st2[name] = { indices: vals, pts, tries, timer: st.timer !== undefined ? st.timer : 60, positions: Array.isArray(st.positions) ? st.positions : [], tags: Array.isArray(st.tags) ? st.tags : [] };
+    genSaveState(st2);
+    genRenderForm(idx);
+  }
+
+  /* Move one indice up/down — only the text moves; points & tries stay
+     attached to the position number (indice 1 = 5 pts, indice 2 = 4 pts, …). */
+  function genMoveIndice(idx, rowIdx, dir) {
+    genAutoSave(idx);
+    const name = GEN_PLAYERS[idx];
+    const st   = genLoadState()[name] || {};
+    const vals = [...(st.indices || [])];
+    const target = rowIdx + dir;
+    if (target < 0 || target >= vals.length) return;
+    [vals[rowIdx], vals[target]] = [vals[target], vals[rowIdx]];
+    const st2 = genLoadState();
+    st2[name] = {
+      indices: vals,
+      pts:     Array.isArray(st.pts) ? st.pts : defaultIndicePts(vals.length),
+      tries:   Array.isArray(st.tries) ? st.tries : defaultIndiceTries(vals.length),
+      timer:   st.timer !== undefined ? st.timer : 60,
+      positions: Array.isArray(st.positions) ? st.positions : [],
+      tags:    Array.isArray(st.tags) ? st.tags : []
+    };
     genSaveState(st2);
     genRenderForm(idx);
   }
@@ -5715,11 +6363,12 @@
       active: true,
       playerName: effectiveName,
       playerVariants: [],
+      positions:    Array.isArray(st.positions) ? st.positions : [],
       indices:      filled.map(x => x.v),
       indicePts:    filled.map(x => x.p),
       indiceTries:  filled.map(x => x.t),
       timerDuration: timer,
-      tags: [],
+      tags: Array.isArray(st.tags) ? st.tags.slice() : [],
       createdAt: Date.now()
     };
     arr.push(q);
@@ -6356,25 +7005,120 @@
       ? pJ.items.map((q, i) => renderItem(q, pJ.start + i)).join('') + pagerHtml(pJ.safePage, pJ.totalPages, 'j')
       : `<div class="empty-state" style="padding:20px;">Aucun joueur pour le moment.</div>`;
 
-    listEl.innerHTML = `
+    const joueurSection = `
       <div>
-        <h3 style="margin-bottom:12px;">Qui suis-je ? <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${joueurs.length})</span></h3>
         ${joueursHtml}
-      </div>
-      <div class="sep"></div>
+      </div>`;
+    const bonusSection = `
       <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-          <h3 style="margin:0;">Bonus <span style="font-size:.8rem;font-weight:400;color:rgba(255,255,255,.4);">(${questions.length})</span></h3>
-          <button class="btn btn-red btn-sm" onclick="openAddJoueur()" style="white-space:nowrap;flex-shrink:0;">+ Créer une entrée</button>
-        </div>
         ${questionsHtml}
       </div>`;
+    // Affiche uniquement la section correspondant au sous-onglet actif
+    listEl.innerHTML = dbSubTab === 'bonus' ? bonusSection : joueurSection;
   }
 
   function dbGoPage(section, page) {
     if (section === 'q') dbPageQ = page;
     else dbPageJ = page;
     renderAdmin();
+  }
+
+  /* ═══════════════════════════════════════════════════
+     VOCABULAIRE ALLEMAND — gestion admin (clé quiz_data "vocab")
+  ═══════════════════════════════════════════════════ */
+  function renderVocabAdmin() {
+    const list = LS.getVocab().slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    const today = planningTodayStr();
+    document.getElementById('vocab-count').textContent = `${list.length} mot${list.length > 1 ? 's' : ''}`;
+    const cont = document.getElementById('vocab-list-container');
+    if (!list.length) {
+      cont.innerHTML = `<div class="empty-state" style="padding:24px;">Aucun mot pour le moment.<br>Cliquez sur « + Ajouter un mot ».</div>`;
+      return;
+    }
+    cont.innerHTML = list.map(w => {
+      const isToday = w.date === today;
+      const dateLabel = w.date ? planningFmtDs(w.date) : '—';
+      return `
+        <div class="q-item" style="${isToday ? 'border-color:rgba(255,205,0,.5);' : ''}">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:74px;">
+            <div style="font-size:.72rem;font-weight:700;color:var(--or);text-align:center;line-height:1.2;">${esc(dateLabel)}</div>
+            ${isToday ? `<span class="q-badge-new" style="background:var(--or);color:#1a1a1a;">AUJOURD'HUI</span>` : ''}
+          </div>
+          <div class="q-body">
+            <div class="q-text"><span style="color:var(--or);font-weight:800;">${esc(w.word)}</span></div>
+            <div class="q-answer">${esc(w.translation)}</div>
+            ${w.example ? `<div class="q-meta" style="font-style:italic;">${esc(w.example)}</div>` : ''}
+          </div>
+          <div class="q-actions">
+            <button class="btn btn-edit btn-sm" onclick="vocabEditRow('${esc(w.date)}')">Modifier</button>
+            <button class="btn btn-edit btn-sm" onclick="vocabTest('${esc(w.date)}')" title="Tester en condition joueur">⚗</button>
+            <button class="btn btn-ghost btn-sm" onclick="vocabDelete('${esc(w.date)}')" title="Supprimer">✕</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function vocabOpenForm() {
+    document.getElementById('vocab-form-title').textContent = 'Nouveau mot';
+    document.getElementById('vocab-edit-orig').value = '';
+    document.getElementById('vocab-date').value = '';
+    document.getElementById('vocab-word').value = '';
+    document.getElementById('vocab-translation').value = '';
+    document.getElementById('vocab-example').value = '';
+    document.getElementById('vocab-form-err').style.display = 'none';
+    document.getElementById('vocab-form').style.display = 'block';
+  }
+
+  function vocabCloseForm() {
+    document.getElementById('vocab-form').style.display = 'none';
+  }
+
+  function vocabEditRow(date) {
+    const w = LS.getVocab().find(v => v.date === date);
+    if (!w) return;
+    document.getElementById('vocab-form-title').textContent = 'Modifier le mot';
+    document.getElementById('vocab-edit-orig').value = w.date;
+    document.getElementById('vocab-date').value = w.date || '';
+    document.getElementById('vocab-word').value = w.word || '';
+    document.getElementById('vocab-translation').value = w.translation || '';
+    document.getElementById('vocab-example').value = w.example || '';
+    document.getElementById('vocab-form-err').style.display = 'none';
+    document.getElementById('vocab-form').style.display = 'block';
+    document.getElementById('vocab-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function vocabSubmit() {
+    const err  = document.getElementById('vocab-form-err');
+    const orig = document.getElementById('vocab-edit-orig').value;
+    const date = document.getElementById('vocab-date').value.trim();
+    const word = document.getElementById('vocab-word').value.trim();
+    const translation = document.getElementById('vocab-translation').value.trim();
+    const example = document.getElementById('vocab-example').value.trim();
+    const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
+    if (!date) return fail('La date est obligatoire.');
+    if (!word) return fail('Le mot allemand est obligatoire.');
+    if (!translation) return fail('La traduction est obligatoire.');
+
+    const arr = LS.getVocab().slice();
+    // Conflit : une autre entrée occupe déjà cette date
+    const clashIdx = arr.findIndex(v => v.date === date && date !== orig);
+    if (clashIdx !== -1 && !confirm(`Un mot existe déjà pour le ${planningFmtDs(date)} (« ${arr[clashIdx].word} »).\nLe remplacer ?`)) return;
+
+    const entry = { date, word, translation, example };
+    // Supprime l'ancienne entrée (édition : date d'origine ; conflit : date cible)
+    const filtered = arr.filter(v => v.date !== orig && v.date !== date);
+    filtered.push(entry);
+    LS.saveVocab(filtered);
+    vocabCloseForm();
+    renderVocabAdmin();
+  }
+
+  function vocabDelete(date) {
+    const w = LS.getVocab().find(v => v.date === date);
+    if (!w) return;
+    if (!confirm(`Supprimer le mot « ${w.word} » (${planningFmtDs(date)}) ?`)) return;
+    LS.saveVocab(LS.getVocab().filter(v => v.date !== date));
+    renderVocabAdmin();
   }
 
   function dbSearchFilter(val) {
@@ -7544,19 +8288,103 @@
   /* ═══════════════════════════════════════════════════
      PLAYER NAME
   ═══════════════════════════════════════════════════ */
+  // Vrai si `pseudo` a déjà joué la session planifiée identifiée par sa date de début.
+  // v3 : dérivé des parties enregistrées (table scores, champ plannedDate).
+  function hasPlayedSession(pseudo, startDate) {
+    if (!pseudo || !startDate) return false;
+    const p = pseudo.toLowerCase();
+    return (_db.scores || []).some(s =>
+      !s.beta && s.plannedDate === startDate && (s.name || '').toLowerCase() === p);
+  }
+
   function hasPlayedToday(pseudo) {
     if (!pseudo) return false;
     const todayStr   = planningTodayStr();
     const todayPlan  = getActivePlanForDate(todayStr) || {};
     const isPlannedSession = !!(todayPlan.j1 && todayPlan.j2) && !todayPlan._deleted;
     if (!feat('betaTest') && isPlannedSession) {
-      // v3 : dérivé des parties enregistrées (table scores)
-      const sessionDate = todayPlan._startDate || todayStr;
-      const p = pseudo.toLowerCase();
-      return (_db.scores || []).some(s =>
-        !s.beta && s.plannedDate === sessionDate && (s.name || '').toLowerCase() === p);
+      return hasPlayedSession(pseudo, todayPlan._startDate || todayStr);
     }
     return false;
+  }
+
+  // Sessions planifiées passées (terminées avant aujourd'hui) qu'un joueur n'a pas
+  // encore jouées : lui permettent de rattraper son retard s'il a pris le train en
+  // route. Triées de la plus ancienne à la plus récente. Inactif en mode bêta.
+  function getMissedSessions(pseudo) {
+    if (!pseudo || feat('betaTest')) return [];
+    const today   = planningTodayStr();
+    const plan    = LS.getPlanning();
+    const jIds    = new Set(getActiveQ().filter(q => q.type === 'joueur').map(q => q.id));
+    const out = [];
+    for (const [startDs, dp] of Object.entries(plan)) {
+      if (dp._deleted || !dp.j1 || !dp.j2) continue;
+      const endDs = dp.endDate || startDs;
+      if (endDs >= today) continue;                          // encore en cours / à venir
+      if (!jIds.has(dp.j1) || !jIds.has(dp.j2)) continue;    // joueur retiré de la base
+      if (hasPlayedSession(pseudo, startDs)) continue;       // déjà rattrapée
+      out.push({ startDate: startDs, endDate: endDs, plan: dp });
+    }
+    out.sort((a, b) => (a.startDate < b.startDate ? -1 : 1));
+    return out;
+  }
+
+  // Session planifiée du jour que le joueur n'a pas encore jouée. Sert de dernière
+  // étape du chaînage : une fois les parties en retard rattrapées, on lui propose
+  // d'enchaîner sur la partie du jour. Renvoie { startDate } ou null.
+  function getTodaySessionToPlay(pseudo) {
+    if (!pseudo || feat('betaTest')) return null;
+    const todayStr  = planningTodayStr();
+    const todayPlan = getActivePlanForDate(todayStr) || {};
+    if (!todayPlan.j1 || !todayPlan.j2 || todayPlan._deleted) return null;
+    const jIds = new Set(getActiveQ().filter(q => q.type === 'joueur').map(q => q.id));
+    if (!jIds.has(todayPlan.j1) || !jIds.has(todayPlan.j2)) return null;
+    const startDs = todayPlan._startDate || todayStr;
+    if (hasPlayedSession(pseudo, startDs)) return null;
+    return { startDate: startDs };
+  }
+
+  // Libellé d'une session de rattrapage : un seul jour ou une plage de dates.
+  function catchUpLabel(m) {
+    return (m.endDate && m.endDate !== m.startDate)
+      ? planningFmtDs(m.startDate) + ' → ' + planningFmtDs(m.endDate)
+      : planningFmtDs(m.startDate);
+  }
+
+  // Date « jj mois » (sans jour de semaine) pour la formule « À partir du … ».
+  function catchUpDayMonth(ds) {
+    const d = new Date(ds + 'T00:00:00');
+    return `${d.getDate()} ${PLANNING_MONTH_NAMES[d.getMonth()]}`;
+  }
+
+  // Rend l'accès au rattrapage sous le bouton « Jouer » de l'accueil. On lance
+  // toujours la session la plus ancienne en premier ; les suivantes s'enchaînent
+  // depuis l'écran de résultats jusqu'à ce que le joueur soit à jour.
+  function renderHomeCatchUp() {
+    const box = document.getElementById('home-catchup');
+    if (!box) return;
+    const missed = _localUser ? getMissedSessions(_localUser.pseudo) : [];
+    if (!missed.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const oldest = missed[0];                 // getMissedSessions trie du plus ancien au plus récent
+    const multi  = missed.length > 1;
+    // Plusieurs parties : on annonce « À partir du <plus ancienne> ». Une seule : sa date.
+    const label  = multi ? `À partir du ${catchUpDayMonth(oldest.startDate)}` : catchUpLabel(oldest);
+    box.style.display = 'block';
+    box.innerHTML =
+      `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">⏳ ${missed.length} partie${multi ? 's' : ''} à rattraper</div>
+       <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Tu as pris le train en route ? Les parties s'enchaînent de la plus ancienne à la plus récente jusqu'à ce que tu sois à jour.</div>
+       <button class="btn btn-ghost btn-full mb0" onclick="startCatchUp('${oldest.startDate}')"
+               style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
+         <span style="flex:1;color:rgba(255,255,255,.85);">${esc(label)}</span>
+         <span style="color:var(--or);font-weight:700;white-space:nowrap;">Rattraper →</span>
+       </button>`;
+  }
+
+  // Lance une partie de rattrapage pour la session passée `startDate`.
+  function startCatchUp(startDate) {
+    if (!_localUser) { nav('player-name'); return; }
+    document.getElementById('player-name').value = _localUser.pseudo;
+    startQuiz(startDate);
   }
 
   function handlePlayBtn() {
@@ -7607,7 +8435,7 @@
     return selected;
   }
 
-  async function startQuiz() {
+  async function startQuiz(catchUpStart = null) {
     const name = (document.getElementById('player-name').value || '').trim();
     if (!name) { document.getElementById('player-name').focus(); return; }
 
@@ -7621,33 +8449,45 @@
 
     const allRegular = getActiveQ().filter(q => q.type !== 'joueur');
 
-    // Utiliser la session planifiée active (peut couvrir plusieurs jours)
+    // Session à jouer : la session planifiée active du jour, ou — en rattrapage —
+    // une session passée donnée (catchUpStart = sa date de début).
     let jX, jY, qX;
-    const todayStr   = planningDateStr(new Date());
-    const todayPlan  = getActivePlanForDate(todayStr) || {};
-    const planStartDate    = todayPlan._startDate || null;
+    const todayStr = planningDateStr(new Date());
+    let todayPlan, planStartDate;
+    if (catchUpStart) {
+      const dp = (LS.getPlanning() || {})[catchUpStart];
+      todayPlan     = (dp && !dp._deleted) ? { _startDate: catchUpStart, ...dp } : {};
+      planStartDate = catchUpStart;
+    } else {
+      todayPlan     = getActivePlanForDate(todayStr) || {};
+      planStartDate = todayPlan._startDate || null;
+    }
     const isPlannedSession = !!(todayPlan.j1 && todayPlan.j2) && !todayPlan._deleted;
 
-    // En mode production, un joueur ne peut participer qu'une seule fois à une session planifiée
-    if (hasPlayedToday(name)) {
+    // Aucune session planifiée : on bloque le lancement (pas de fallback rotation)
+    if (!isPlannedSession) {
+      showNoSessionPopup();
+      return;
+    }
+
+    // En production, un joueur ne peut participer qu'une seule fois à une session donnée
+    const alreadyPlayed = catchUpStart ? hasPlayedSession(name, planStartDate) : hasPlayedToday(name);
+    if (alreadyPlayed) {
       document.getElementById('already-played-alert').style.display = 'block';
       return;
     }
 
-    if (todayPlan.j1 && todayPlan.j2) {
-      const pj1 = allJoueur.find(q => q.id === todayPlan.j1);
-      const pj2 = allJoueur.find(q => q.id === todayPlan.j2);
-      if (pj1 && pj2) {
-        jX = pj1; jY = pj2;
-        qX = todayPlan.bonus ? (allRegular.find(q => q.id === todayPlan.bonus) || null) : null;
-      }
+    const pj1 = allJoueur.find(q => q.id === todayPlan.j1);
+    const pj2 = allJoueur.find(q => q.id === todayPlan.j2);
+    if (pj1 && pj2) {
+      jX = pj1; jY = pj2;
+      qX = todayPlan.bonus ? (allRegular.find(q => q.id === todayPlan.bonus) || null) : null;
     }
 
-    // Fallback : rotation automatique
+    // Les joueurs de la session planifiée sont introuvables dans la base
     if (!jX || !jY) {
-      const joueurPool = feat('shuffle') ? rotationSelect(allJoueur, 2) : allJoueur.slice(0, 2);
-      [jX, jY] = joueurPool;
-      qX = allRegular.length ? (feat('shuffle') ? fisherYates([...allRegular])[0] : allRegular[0]) : null;
+      showNoSessionPopup();
+      return;
     }
 
     const calcMax = q => q.type === 'joueur'
@@ -7655,7 +8495,7 @@
       : (q.points || 1) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0);
     const maxScore = calcMax(jX) + calcMax(jY) + (qX ? calcMax(qX) : 0);
 
-    session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore, plannedDate: isPlannedSession ? (planStartDate || todayStr) : null };
+    session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore, plannedDate: isPlannedSession ? (planStartDate || todayStr) : null, catchUp: !!catchUpStart };
     nav('quiz');
     renderQ(true);
     if (feat('launchOverlay')) {
@@ -7681,6 +8521,125 @@
 
   function closeRules() {
     document.getElementById('rules-modal').style.display = 'none';
+  }
+
+  /* ═══════════════════════════════════════════════════
+     MOT ALLEMAND DU JOUR (clin d'œil à Dino Toppmöller)
+     ───────────────────────────────────────────────────
+     VOCAB_SEED = graine de démarrage (50 mots, issus de vocab_allemand.xlsx).
+     La source de vérité réelle est Supabase (clé quiz_data "vocab"), éditable
+     depuis l'admin → Database → sous-onglet « Vocabulaire allemand ».
+     VOCAB_SEED ne sert qu'au premier remplissage de la base (voir initDB) et
+     de repli si la base est vide.
+     Format d'une entrée : { date:'YYYY-MM-DD', word, translation, example? }
+  ═══════════════════════════════════════════════════ */
+  const VOCAB_SEED = [
+    { date: "2026-06-16", word: "das Tor", translation: "le but / la cage", example: "Was für ein Tor! — Quel but !" },
+    { date: "2026-06-17", word: "Hallo", translation: "bonjour / salut", example: "Hallo, wie geht's? — Salut, ça va ?" },
+    { date: "2026-06-18", word: "der Ball", translation: "le ballon", example: "Der Ball ist rund. — Le ballon est rond." },
+    { date: "2026-06-19", word: "Danke", translation: "merci", example: "Danke schön! — Merci beaucoup !" },
+    { date: "2026-06-20", word: "der Fußball", translation: "le football", example: "Ich liebe Fußball. — J'adore le football." },
+    { date: "2026-06-21", word: "Bitte", translation: "s'il te plaît / de rien", example: "Ein Bier, bitte. — Une bière, s'il te plaît." },
+    { date: "2026-06-22", word: "das Spiel", translation: "le match / le jeu", example: "Das Spiel beginnt. — Le match commence." },
+    { date: "2026-06-23", word: "Ja", translation: "oui", example: "Ja, gerne! — Oui, avec plaisir !" },
+    { date: "2026-06-24", word: "der Spieler", translation: "le joueur", example: "Er ist ein guter Spieler. — C'est un bon joueur." },
+    { date: "2026-06-25", word: "Nein", translation: "non", example: "Nein, danke. — Non, merci." },
+    { date: "2026-06-26", word: "die Mannschaft", translation: "l'équipe", example: "Unsere Mannschaft gewinnt. — Notre équipe gagne." },
+    { date: "2026-06-27", word: "der Tag", translation: "le jour", example: "Schönen Tag! — Bonne journée !" },
+    { date: "2026-06-28", word: "der Torwart", translation: "le gardien de but", example: "Der Torwart hält den Ball. — Le gardien arrête le ballon." },
+    { date: "2026-06-29", word: "die Nacht", translation: "la nuit", example: "Gute Nacht! — Bonne nuit !" },
+    { date: "2026-06-30", word: "der Schiedsrichter", translation: "l'arbitre", example: "Der Schiedsrichter pfeift. — L'arbitre siffle." },
+    { date: "2026-07-01", word: "das Wasser", translation: "l'eau", example: "Ich trinke Wasser. — Je bois de l'eau." },
+    { date: "2026-07-02", word: "das Stadion", translation: "le stade", example: "Das Stadion ist voll. — Le stade est plein." },
+    { date: "2026-07-03", word: "das Brot", translation: "le pain", example: "Frisches Brot. — Du pain frais." },
+    { date: "2026-07-04", word: "der Trainer", translation: "l'entraîneur", example: "Der Trainer ist zufrieden. — L'entraîneur est satisfait." },
+    { date: "2026-07-05", word: "der Freund", translation: "l'ami", example: "Mein bester Freund. — Mon meilleur ami." },
+    { date: "2026-07-06", word: "der Sieg", translation: "la victoire", example: "Ein wichtiger Sieg! — Une victoire importante !" },
+    { date: "2026-07-07", word: "die Liebe", translation: "l'amour", example: "Liebe ist schön. — L'amour est beau." },
+    { date: "2026-07-08", word: "die Niederlage", translation: "la défaite", example: "Eine bittere Niederlage. — Une défaite amère." },
+    { date: "2026-07-09", word: "das Haus", translation: "la maison", example: "Mein Haus ist groß. — Ma maison est grande." },
+    { date: "2026-07-10", word: "das Unentschieden", translation: "le match nul", example: "Es endet unentschieden. — Ça finit par un nul." },
+    { date: "2026-07-11", word: "die Stadt", translation: "la ville", example: "Lens ist eine Stadt. — Lens est une ville." },
+    { date: "2026-07-12", word: "die Halbzeit", translation: "la mi-temps", example: "In der Halbzeit. — À la mi-temps." },
+    { date: "2026-07-13", word: "das Auto", translation: "la voiture", example: "Das Auto ist rot. — La voiture est rouge." },
+    { date: "2026-07-14", word: "der Anstoß", translation: "le coup d'envoi", example: "Der Anstoß ist um 15 Uhr. — Le coup d'envoi est à 15h." },
+    { date: "2026-07-15", word: "die Sonne", translation: "le soleil", example: "Die Sonne scheint. — Le soleil brille." },
+    { date: "2026-07-16", word: "der Elfmeter", translation: "le penalty", example: "Er verwandelt den Elfmeter. — Il transforme le penalty." },
+    { date: "2026-07-17", word: "der Regen", translation: "la pluie", example: "Es gibt Regen. — Il y a de la pluie." },
+    { date: "2026-07-18", word: "die Ecke", translation: "le corner", example: "Eine gefährliche Ecke. — Un corner dangereux." },
+    { date: "2026-07-19", word: "essen", translation: "manger", example: "Wir essen zusammen. — Nous mangeons ensemble." },
+    { date: "2026-07-20", word: "das Abseits", translation: "le hors-jeu", example: "Das war Abseits! — C'était hors-jeu !" },
+    { date: "2026-07-21", word: "trinken", translation: "boire", example: "Möchtest du trinken? — Veux-tu boire ?" },
+    { date: "2026-07-22", word: "die gelbe Karte", translation: "le carton jaune", example: "Er bekommt die gelbe Karte. — Il reçoit le carton jaune." },
+    { date: "2026-07-23", word: "gehen", translation: "aller / marcher", example: "Wir gehen nach Hause. — On rentre à la maison." },
+    { date: "2026-07-24", word: "die rote Karte", translation: "le carton rouge", example: "Rote Karte für den Spieler! — Carton rouge pour le joueur !" },
+    { date: "2026-07-25", word: "sprechen", translation: "parler", example: "Sprichst du Deutsch? — Parles-tu allemand ?" },
+    { date: "2026-07-26", word: "der Stürmer", translation: "l'attaquant", example: "Der Stürmer schießt ein Tor. — L'attaquant marque un but." },
+    { date: "2026-07-27", word: "gut", translation: "bon / bien", example: "Sehr gut! — Très bien !" },
+    { date: "2026-07-28", word: "der Verteidiger", translation: "le défenseur", example: "Ein starker Verteidiger. — Un défenseur solide." },
+    { date: "2026-07-29", word: "schön", translation: "beau / joli", example: "Ein schöner Tag. — Une belle journée." },
+    { date: "2026-07-30", word: "die Tribüne", translation: "la tribune", example: "Die Fans sind auf der Tribüne. — Les fans sont en tribune." },
+    { date: "2026-07-31", word: "groß", translation: "grand", example: "Ein großes Stadion. — Un grand stade." },
+    { date: "2026-08-01", word: "der Freistoß", translation: "le coup franc", example: "Ein Freistoß aus 20 Metern. — Un coup franc à 20 mètres." },
+    { date: "2026-08-02", word: "klein", translation: "petit", example: "Ein kleines Kind. — Un petit enfant." },
+    { date: "2026-08-03", word: "die Meisterschaft", translation: "le championnat", example: "Wir gewinnen die Meisterschaft. — On gagne le championnat." },
+    { date: "2026-08-04", word: "die Zeit", translation: "le temps", example: "Ich habe keine Zeit. — Je n'ai pas le temps." },
+  ];
+
+  // Mot affiché quand aucune entrée n'est planifiée pour la journée.
+  const GERMAN_WORD_FALLBACK = {
+    word: 'Auf geht’s!',
+    translation: 'Allez, c’est parti !',
+    example: 'Auf geht’s, Lens! — Allez, Lens !'
+  };
+
+  function germanWordForDate(ds) {
+    const list = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : VOCAB_SEED;
+    return (Array.isArray(list) ? list : VOCAB_SEED).find(w => w.date === ds) || null;
+  }
+
+  // Ouvre la modale "mot du jour". Sans argument : mot de la date du jour (vue joueur).
+  // Avec un `forceDate` (YYYY-MM-DD) : mode test admin — affiche le mot de cette date
+  // exactement comme le verra le joueur, avec un bandeau « test ».
+  function openGermanWord(forceDate = null) {
+    const isTest = !!forceDate;
+    const ds = forceDate || ((typeof planningTodayStr === 'function') ? planningTodayStr() : new Date().toISOString().slice(0, 10));
+    const entry = germanWordForDate(ds);
+    const w = entry || GERMAN_WORD_FALLBACK;
+    const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+    // Libellé de date « lun. 16 juin 2026 »
+    let dateLabel = '';
+    try {
+      const d = new Date(ds + 'T00:00:00');
+      dateLabel = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
+    } catch (e) { dateLabel = ds; }
+
+    let html = '';
+    if (isTest) {
+      html += `<div style="background:rgba(100,180,255,.13);border:1px solid rgba(100,180,255,.4);color:#64b4ff;border-radius:8px;padding:7px 12px;margin-bottom:14px;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">⚗ Aperçu test — vue joueur</div>`;
+    }
+    html += `<p class="german-word-term">${esc(w.word)}</p>`;
+    html += `<p class="german-word-trans">${esc(w.translation)}</p>`;
+    if (w.example) html += `<p class="german-word-example">« ${esc(w.example)} »</p>`;
+    html += `<p class="german-word-date">${esc(dateLabel)}</p>`;
+    if (!entry) {
+      html += `<p class="german-word-empty">Le mot du jour n’est pas encore programmé — revenez plus tard !</p>`;
+    }
+    document.getElementById('german-word-body').innerHTML = html;
+
+    const modal = document.getElementById('german-word-modal');
+    modal.style.display = 'flex';
+    modal.scrollTop = 0;
+  }
+
+  function closeGermanWord() {
+    document.getElementById('german-word-modal').style.display = 'none';
+  }
+
+  // Bouton ⚗ « Tester » d'une ligne du vocabulaire (admin) : affiche le mot en condition joueur.
+  function vocabTest(date) {
+    openGermanWord(date);
   }
 
   /* ═══════════════════════════════════════════════════
@@ -9101,6 +10060,30 @@
       beta: isBeta
     });
 
+    // Chaînage du rattrapage : le score venant d'être inséré dans _db.scores,
+    // getMissedSessions exclut déjà la partie terminée. S'il reste des sessions
+    // passées non jouées, le bouton du bas relance la plus ancienne ; sinon retour accueil.
+    const homeBtn = document.getElementById('res-home-btn');
+    if (homeBtn) {
+      const remaining = isBeta ? [] : getMissedSessions(name);
+      const todaySess = isBeta ? null : getTodaySessionToPlay(name);
+      if (remaining.length) {
+        const next = remaining[0];
+        homeBtn.className = 'btn btn-red btn-full mb0';
+        homeBtn.textContent = `Partie suivante (${catchUpDayMonth(next.startDate)}) →`;
+        homeBtn.setAttribute('onclick', `startCatchUp('${next.startDate}')`);
+      } else if (todaySess && session.catchUp) {
+        // Retards rattrapés : on propose d'enchaîner sur la partie du jour.
+        homeBtn.className = 'btn btn-red btn-full mb0';
+        homeBtn.textContent = `Jouer la partie du ${catchUpDayMonth(todaySess.startDate)} →`;
+        homeBtn.setAttribute('onclick', `startCatchUp('${todaySess.startDate}')`);
+      } else {
+        homeBtn.className = 'btn btn-ghost btn-full mb0';
+        homeBtn.textContent = '← Accueil';
+        homeBtn.setAttribute('onclick', "nav('home')");
+      }
+    }
+
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
     document.getElementById('res-score').textContent = score;
 
@@ -9515,7 +10498,9 @@
         const _played = hasPlayedToday(_localUser.pseudo);
         _homePlayBtn.style.opacity  = _played ? '0.55' : '';
       }
+      renderHomeCatchUp();
     } else {
+      renderHomeCatchUp();
       authSection.style.display = 'block';
       playSection.style.display = 'none';
       if (profileBtn) profileBtn.style.display = 'none';
@@ -9602,6 +10587,9 @@
       _localUser = { pseudo: entry.pseudo };
       LS.setLoggedPseudo(entry.pseudo);
       updateHomeAuthArea();
+      // Joueur qui se connecte (potentiellement après plusieurs sessions manquées) :
+      // on rafraîchit l'état partagé pour proposer les parties à rattraper.
+      Promise.all([scoresFetch(), dbPull('planning')]).then(renderHomeCatchUp);
     }
   }
 
@@ -10317,26 +11305,90 @@
     return JSON.parse(localStorage.getItem('rcAdminTasks') || '[]');
   }
 
+  /* Tâches ajoutées manuellement par l'admin */
+  function getCustomTasks() {
+    return JSON.parse(localStorage.getItem('rcAdminCustomTasks') || '[]');
+  }
+  function saveCustomTasks(arr) {
+    localStorage.setItem('rcAdminCustomTasks', JSON.stringify(arr));
+  }
+  function addCustomTask() {
+    const inp = document.getElementById('ad-new-task');
+    if (!inp) return;
+    const label = inp.value.trim();
+    if (!label) return;
+    const arr = getCustomTasks();
+    arr.push({ id: 'custom-' + Date.now(), group: 'Mes tâches', label, custom: true });
+    saveCustomTasks(arr);
+    inp.value = '';
+    renderAdminDashboard();
+    const f = document.getElementById('ad-new-task');
+    if (f) f.focus();
+  }
+  function deleteCustomTask(id) {
+    saveCustomTasks(getCustomTasks().filter(t => t.id !== id));
+    const done = getDoneTasks();
+    const i = done.indexOf(id);
+    if (i !== -1) { done.splice(i, 1); localStorage.setItem('rcAdminTasks', JSON.stringify(done)); }
+    renderAdminDashboard();
+  }
+
   function toggleAdTask(id) {
     const done = getDoneTasks();
     const i = done.indexOf(id);
-    if (i === -1) done.push(id); else done.splice(i, 1);
-    localStorage.setItem('rcAdminTasks', JSON.stringify(done));
-    renderAdminDashboard();
+    if (i === -1) {
+      /* Cochée → on enregistre, puis fondu de 5 s avant disparition */
+      done.push(id);
+      localStorage.setItem('rcAdminTasks', JSON.stringify(done));
+      const item = document.querySelector(`.ad-item[data-id="${id}"]`);
+      if (item) {
+        item.classList.add('done');
+        const cb = item.querySelector('.ad-checkbox');
+        if (cb) cb.textContent = '✓';
+        updateAdProgress();
+        /* Laisser la coche visible un court instant, puis fondre */
+        requestAnimationFrame(() => item.classList.add('ad-removing'));
+        setTimeout(renderAdminDashboard, 5000);
+      } else {
+        renderAdminDashboard();
+      }
+    } else {
+      done.splice(i, 1);
+      localStorage.setItem('rcAdminTasks', JSON.stringify(done));
+      renderAdminDashboard();
+    }
+  }
+
+  /* Met à jour le compteur et la barre sans re-render (pendant le fondu) */
+  function updateAdProgress() {
+    const el = document.getElementById('admin-dashboard');
+    if (!el) return;
+    const allTasks = [...ADMIN_TASKS, ...getCustomTasks()];
+    const done  = getDoneTasks();
+    const total = allTasks.length;
+    const doneN = allTasks.filter(t => done.includes(t.id)).length;
+    const pct   = total ? Math.round(doneN / total * 100) : 0;
+    const cnt  = document.getElementById('ad-count');
+    const ftxt = document.getElementById('ad-footer-txt');
+    const fill = document.getElementById('ad-footer-fill');
+    if (cnt)  cnt.textContent = `${doneN}/${total}`;
+    if (ftxt) ftxt.textContent = pct === 100 ? '🎉 Tout est prêt !' : `${pct}% complété`;
+    if (fill) fill.style.width = pct + '%';
   }
 
   function renderAdminDashboard() {
     const el = document.getElementById('admin-dashboard');
     if (!el || el.style.display === 'none') return;
 
+    const allTasks = [...ADMIN_TASKS, ...getCustomTasks()];
     const done  = getDoneTasks();
-    const total = ADMIN_TASKS.length;
-    const doneN = ADMIN_TASKS.filter(t => done.includes(t.id)).length;
+    const total = allTasks.length;
+    const doneN = allTasks.filter(t => done.includes(t.id)).length;
     const pct   = total ? Math.round(doneN / total * 100) : 0;
 
-    /* Grouper les tâches */
+    /* Grouper les tâches non terminées (les cochées disparaissent) */
     const groups = {};
-    ADMIN_TASKS.forEach(t => {
+    allTasks.filter(t => !done.includes(t.id)).forEach(t => {
       if (!groups[t.group]) groups[t.group] = [];
       groups[t.group].push(t);
     });
@@ -10344,33 +11396,44 @@
     let html = `
       <div class="ad-header">
         <span>📋 À faire</span>
-        <span style="font-weight:400;color:rgba(255,255,255,.4);">${doneN}/${total}</span>
+        <span id="ad-count" style="font-weight:400;color:rgba(255,255,255,.4);">${doneN}/${total}</span>
       </div>`;
 
     Object.entries(groups).forEach(([groupName, tasks]) => {
       html += `<div class="ad-group-label">${groupName}</div>`;
       tasks.forEach(t => {
-        const isDone = done.includes(t.id);
         html += `
-          <div class="ad-item${isDone ? ' done' : ''}" onclick="toggleAdTask('${t.id}')">
-            <div class="ad-checkbox">${isDone ? '✓' : ''}</div>
-            <div>
+          <div class="ad-item" data-id="${t.id}" onclick="toggleAdTask('${t.id}')">
+            <div class="ad-checkbox"></div>
+            <div style="flex:1;min-width:0;">
               <div class="ad-task-label">${t.label}</div>
               ${t.sub ? `<div class="ad-task-sub">${t.sub}</div>` : ''}
-              ${t.link && !isDone
+              ${t.link
                 ? `<a class="ad-link" href="${t.link}" target="_blank" rel="noopener"
                        onclick="event.stopPropagation()">${t.linkLabel || t.link}</a>`
                 : ''}
             </div>
+            ${t.custom
+              ? `<button class="ad-del" title="Supprimer"
+                         onclick="event.stopPropagation();deleteCustomTask('${t.id}')">✕</button>`
+              : ''}
           </div>`;
       });
     });
 
+    /* Champ d'ajout de tâche manuelle */
+    html += `
+      <div class="ad-add">
+        <input id="ad-new-task" type="text" placeholder="Nouvelle tâche…"
+               onkeydown="if(event.key==='Enter')addCustomTask()" />
+        <button onclick="addCustomTask()">＋</button>
+      </div>`;
+
     html += `
       <div class="ad-footer">
-        ${pct === 100 ? '🎉 Tout est prêt !' : `${pct}% complété`}
+        <span id="ad-footer-txt">${pct === 100 ? '🎉 Tout est prêt !' : `${pct}% complété`}</span>
         <div class="ad-progress-bar">
-          <div class="ad-progress-fill" style="width:${pct}%"></div>
+          <div class="ad-progress-fill" id="ad-footer-fill" style="width:${pct}%"></div>
         </div>
       </div>`;
 
