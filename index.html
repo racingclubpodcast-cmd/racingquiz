@@ -173,6 +173,7 @@
     input[type="email"],
     input[type="password"],
     input[type="number"],
+    input[type="date"],
     textarea,
     select {
       width: 100%;
@@ -190,6 +191,12 @@
     input:focus, textarea:focus, select:focus {
       border-color: var(--or);
       box-shadow: 0 0 0 3px rgba(255,205,0,.1);
+    }
+    /* Champ date hors planning : icône calendrier teintée or pour rester dans la charte */
+    input[type="date"] { cursor: pointer; }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(.7) sepia(1) saturate(6) hue-rotate(5deg);
+      cursor: pointer;
     }
     textarea { resize: vertical; min-height: 80px; }
     select option { background: #1a1a1a; }
@@ -860,20 +867,23 @@
       box-shadow: 0 0 0 2px rgba(220,38,38,.25) !important;
     }
     @keyframes bonne-reponse-pop {
-      0%   { transform: translate(-50%,-50%) scale(.4); opacity: 1; }
-      60%  { opacity: 1; }
-      100% { transform: translate(-50%,-50%) scale(2.2); opacity: 0; }
+      0%   { transform: translate(-50%,-50%) scale(1);   opacity: 0; }
+      15%  { transform: translate(-50%,-50%) scale(1);   opacity: 1; }
+      60%  { transform: translate(-50%,-50%) scale(1.1); opacity: 1; }
+      100% { transform: translate(-50%,-50%) scale(1.8); opacity: 0; }
     }
     .answer-popup {
       position: fixed;
       top: 50%; left: 50%;
-      transform: translate(-50%,-50%) scale(.4);
-      font-family: 'Calleo', sans-serif;
-      font-size: clamp(2.4rem, 9vw, 4.5rem);
+      transform: translate(-50%,-50%);
+      font-family: Calibri, sans-serif;
+      font-style: italic;
+      font-weight: bold;
+      font-size: clamp(3.2rem, 12vw, 6rem);
       white-space: nowrap;
       pointer-events: none;
       z-index: 9999;
-      animation: bonne-reponse-pop 2s cubic-bezier(.22,.68,0,1.2) forwards;
+      animation: bonne-reponse-pop 2s ease forwards;
     }
 
     /* ── Joueur quiz indices list ── */
@@ -1861,10 +1871,14 @@
           <label class="field-label">Mot de passe</label>
           <input type="password" id="home-password" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
                  onkeydown="if(event.key==='Enter')homeAuthSubmit()">
-          <div id="home-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.45;padding:9px 12px;">
-            ⚠️ <strong>Choisis un mot de passe unique, juste pour ce quiz.</strong>
-            N'utilise jamais un mot de passe que tu emploies ailleurs (email, banque, réseaux sociaux…) :
-            ce compte est protégé de façon simple, pas comme un site sécurisé.
+          <div id="home-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
+            <strong>Ton mot de passe doit contenir :</strong>
+            <ul style="margin:6px 0 0;padding-left:18px;">
+              <li>au moins <strong>7 caractères</strong></li>
+              <li>au moins une <strong>majuscule</strong></li>
+              <li>au moins un <strong>chiffre</strong></li>
+              <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
+            </ul>
           </div>
         </div>
         <div id="home-confirm-group" class="form-group" style="display:none;">
@@ -2058,9 +2072,18 @@
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
               <div>
                 <div style="font-weight:800;font-size:.98rem;">🇩🇪 Vocabulaire allemand</div>
-                <div style="font-size:.76rem;color:rgba(255,255,255,.5);">Un mot par jour, affiché via le drapeau sur la page d'accueil. <span id="vocab-count" style="color:var(--or);font-weight:700;"></span></div>
+                <div style="font-size:.76rem;color:rgba(255,255,255,.5);">Un mot par jour, à partir du jour de démarrage. <span id="vocab-count" style="color:var(--or);font-weight:700;"></span></div>
               </div>
               <button class="btn btn-red btn-sm" id="vocab-add-btn" onclick="vocabOpenForm()" style="margin-left:auto;white-space:nowrap;">+ Ajouter un mot</button>
+            </div>
+
+            <!-- Jour de démarrage : le 1er mot de la liste y est affiché, puis un mot par jour -->
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+              <div class="form-group mb0" style="flex:0 0 auto;min-width:180px;margin:0;">
+                <label class="field-label">📅 Jour de démarrage (1<sup>er</sup> mot)</label>
+                <input type="date" id="vocab-start" onchange="vocabSetStart()">
+              </div>
+              <div id="vocab-start-info" style="flex:1;min-width:180px;font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.45;"></div>
             </div>
 
             <!-- Formulaire d'ajout / édition (masqué par défaut) -->
@@ -2069,15 +2092,9 @@
                 <span id="vocab-form-title" style="font-weight:700;color:var(--or);font-size:.85rem;text-transform:uppercase;letter-spacing:.4px;">Nouveau mot</span>
                 <button class="btn btn-ghost btn-sm" onclick="vocabCloseForm()">✕</button>
               </div>
-              <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                <div class="form-group" style="flex:1;min-width:140px;">
-                  <label class="field-label">Date *</label>
-                  <input type="date" id="vocab-date">
-                </div>
-                <div class="form-group" style="flex:1;min-width:140px;">
-                  <label class="field-label">Mot allemand *</label>
-                  <input type="text" id="vocab-word" placeholder="Ex : das Tor" maxlength="80">
-                </div>
+              <div class="form-group">
+                <label class="field-label">Mot allemand *</label>
+                <input type="text" id="vocab-word" placeholder="Ex : das Tor" maxlength="80">
               </div>
               <div class="form-group">
                 <label class="field-label">Traduction française *</label>
@@ -2537,6 +2554,7 @@
             🔵 Mode bêta test actif — les parties jouées ne marquent pas les questions comme utilisées
           </div>
         </div>
+        <div id="planning-stock"></div>
         <div id="planning-grid"></div>
         <div id="planning-detail" style="margin-top:14px;"></div>
       </div>
@@ -2941,10 +2959,14 @@
           <label class="field-label">Mot de passe</label>
           <input type="password" id="auth-password" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
                  onkeydown="if(event.key==='Enter')authSubmit()">
-          <div id="auth-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.45;padding:9px 12px;">
-            ⚠️ <strong>Choisis un mot de passe unique, juste pour ce quiz.</strong>
-            N'utilise jamais un mot de passe que tu emploies ailleurs (email, banque, réseaux sociaux…) :
-            ce compte est protégé de façon simple, pas comme un site sécurisé.
+          <div id="auth-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
+            <strong>Ton mot de passe doit contenir :</strong>
+            <ul style="margin:6px 0 0;padding-left:18px;">
+              <li>au moins <strong>7 caractères</strong></li>
+              <li>au moins une <strong>majuscule</strong></li>
+              <li>au moins un <strong>chiffre</strong></li>
+              <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
+            </ul>
           </div>
         </div>
         <div id="auth-confirm-group" class="form-group" style="display:none;">
@@ -4646,9 +4668,82 @@
     return planningDateStr(d);
   }
 
+  // Seuil critique : on alerte dès qu'il reste 20 % ou moins de questions disponibles.
+  const PLANNING_STOCK_THRESHOLD = 0.20;
+
+  // Calcule, pour les deux pools (Qui suis-je ? / Bonus), le ratio de questions
+  // encore disponibles = non utilisées dans le planning / total.
+  // « Utilisée » = planifiée dans une session OU déjà jouée (✓), donc indisponible
+  // pour une future planification.
+  function computePlanningStock() {
+    const allQ = getActiveQ();
+
+    // IDs déjà engagés : présents dans une session du planning (non supprimée)…
+    const used = new Set();
+    const plan = LS.getPlanning();
+    for (const dp of Object.values(plan)) {
+      if (!dp || dp._deleted) continue;
+      if (dp.j1)    used.add(dp.j1);
+      if (dp.j2)    used.add(dp.j2);
+      if (dp.bonus) used.add(dp.bonus);
+    }
+    // …ou déjà jouées (hors mode bêta test, où le jeu ne consomme pas les questions).
+    if (!feat('betaTest')) LS.getUsedInGame().forEach(id => used.add(id));
+
+    const tally = pred => {
+      const pool  = allQ.filter(pred);
+      const total = pool.length;
+      const free  = pool.filter(q => !used.has(q.id)).length;
+      const ratio = total ? free / total : 1;
+      return { total, free, used: total - free, ratio };
+    };
+
+    return {
+      joueur: tally(q => q.type === 'joueur'),
+      bonus:  tally(q => q.type !== 'joueur'),
+    };
+  }
+
+  // Construit la pastille d'un pool : barre de progression + alerte sous seuil.
+  function planningStockCardHtml(label, st) {
+    const pct      = Math.round(st.ratio * 100);
+    const critical = st.ratio <= PLANNING_STOCK_THRESHOLD;
+    const empty    = st.total === 0;
+    const color    = critical ? '#e30613' : st.ratio <= 0.4 ? '#ffcd00' : '#2ecc71';
+    const barBg    = empty ? 'rgba(255,255,255,.12)' : color;
+    return `<div style="flex:1;min-width:200px;background:rgba(26,26,26,.92);border:1px solid ${critical ? 'rgba(227,6,19,.5)' : 'rgba(255,205,0,.18)'};border-radius:12px;padding:12px 14px;">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px;">
+        <span style="font-weight:700;font-size:.84rem;color:#fff;">${label}</span>
+        <span style="margin-left:auto;font-weight:800;font-size:1.05rem;color:${empty ? 'rgba(255,255,255,.4)' : color};">${empty ? '—' : pct + '%'}</span>
+      </div>
+      <div style="height:7px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;">
+        <div style="height:100%;width:${empty ? 0 : Math.max(pct, 2)}%;background:${barBg};border-radius:99px;transition:width .25s;"></div>
+      </div>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.55);margin-top:6px;">
+        ${st.free} disponible${st.free > 1 ? 's' : ''} / ${st.total} au total${st.used ? ` · ${st.used} utilisée${st.used > 1 ? 's' : ''}` : ''}
+      </div>
+      ${critical && !empty ? `<div style="font-size:.72rem;font-weight:700;color:#e30613;margin-top:6px;">⚠ Stock critique — pense à ajouter des questions</div>` : ''}
+    </div>`;
+  }
+
+  // Affiche les deux ratios de stock au-dessus du calendrier.
+  function renderPlanningStock() {
+    const el = document.getElementById('planning-stock');
+    if (!el) return;
+    const stock = computePlanningStock();
+    el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,205,0,.7);font-weight:700;margin-bottom:10px;">📊 Stock de questions disponibles</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        ${planningStockCardHtml('👤 Qui suis-je ?', stock.joueur)}
+        ${planningStockCardHtml('🎁 Bonus', stock.bonus)}
+      </div>
+    </div>`;
+  }
+
   // Vue principale : calendrier mensuel + panneau de détail du jour sélectionné.
   function renderPlanning() {
     markExpiredSessionsAsUsed();
+    renderPlanningStock();
     const betaBanner = document.getElementById('planning-beta-banner');
     if (betaBanner) betaBanner.style.display = feat('betaTest') ? 'block' : 'none';
 
@@ -5940,6 +6035,40 @@
         <span class="pcard-game-date">${fmtFull(g.date)}</span>
       </div>`).join('');
 
+    // Mon Onze du joueur (lecture seule)
+    const onze        = onzeForName(name);
+    const placedCount = onze.slots.filter(Boolean).length;
+    const onzeComplete = placedCount === 11 && !!onze.coach;
+    const totalJoueursQ = LS.getQ().filter(q => q.type === 'joueur').length;
+    // Liste détaillée des joueurs collectionnés (nom + postes + statut placé)
+    const byIdQ = {};
+    LS.getQ().forEach(q => { byIdQ[q.id] = q; });
+    const collRows = onze.collection
+      .map(id => byIdQ[id])
+      .filter(q => q && q.type === 'joueur')
+      .map(q => {
+        const placed = onze.slots.includes(q.id) || onze.coach === q.id;
+        const pos = (q.positions || []).length ? q.positions.join(', ') : '—';
+        return `<div class="onze-coll-row">
+          <span class="onze-coll-name">${esc(q.playerName)}</span>
+          <span class="onze-coll-pos">${pos}</span>
+          ${placed ? '<span class="onze-coll-placed">✓ placé</span>' : ''}
+        </div>`;
+      }).join('');
+    const collHtml = collRows
+      ? `<div style="max-height:240px;overflow-y:auto;">${collRows}</div>`
+      : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucun joueur collectionné.</p>';
+    const onzeSection = `
+      <div class="pcard-section-title">🎽 Mon Onze${onzeComplete ? ' <span style="color:var(--or);">· complet ✓</span>' : ''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+        <span style="background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:20px;padding:3px 10px;color:var(--or);font-weight:700;font-size:.74rem;">${onze.formation}</span>
+        <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">${placedCount}/11${onze.coach ? ' + ENT' : ''}</span>
+        <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">🃏 ${onze.collection.length}/${totalJoueursQ}</span>
+      </div>
+      <div class="onze-pitch" style="margin-bottom:12px;">${onzePitchReadonlyHtml(onze)}</div>
+      <div class="pcard-section-title">🃏 Joueurs collectionnés (${onze.collection.length}/${totalJoueursQ})</div>
+      ${collHtml}`;
+
     document.getElementById('pcard-content').innerHTML = `
       <div class="pcard-drag-handle"></div>
       <div class="pcard-header">
@@ -5976,6 +6105,7 @@
           <div class="pcard-stat-label">Première partie</div>
         </div>
       </div>
+      ${onzeSection}
       <div class="pcard-section-title">Classement général</div>
       ${miniRankingHtml(name)}
       <div class="pcard-section-title">Historique des parties</div>
@@ -7026,21 +7156,65 @@
   /* ═══════════════════════════════════════════════════
      VOCABULAIRE ALLEMAND — gestion admin (clé quiz_data "vocab")
   ═══════════════════════════════════════════════════ */
+  // Jour de démarrage : date du 1er mot de la liste. Les mots suivants sont
+  // affichés un jour après l'autre (index 0 → start, index 1 → start+1, …).
+  function vocabStartDate() {
+    const f = (typeof LS !== 'undefined' && LS.getFeatures) ? (LS.getFeatures() || {}) : {};
+    if (f.vocabStart) return f.vocabStart;
+    // Repli : plus ancienne date présente sur les entrées héritées, sinon graine.
+    const list = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : [];
+    const dated = (Array.isArray(list) ? list : []).map(w => w && w.date).filter(Boolean).sort();
+    return dated.length ? dated[0] : '2026-06-16';
+  }
+  // Date (YYYY-MM-DD) du mot à la position `i` de la séquence.
+  function vocabDateAtIndex(i) {
+    const d = new Date(vocabStartDate() + 'T00:00:00');
+    d.setDate(d.getDate() + i);
+    return planningDateStr(d);
+  }
+  // Position dans la séquence correspondant à une date (peut être négative / hors liste).
+  function vocabIndexForDate(ds) {
+    const a = new Date(vocabStartDate() + 'T00:00:00');
+    const b = new Date(ds + 'T00:00:00');
+    return Math.round((b - a) / 86400000);
+  }
+
+  function vocabSetStart() {
+    const v = document.getElementById('vocab-start').value;
+    if (!v) return;
+    const f = LS.getFeatures();
+    f.vocabStart = v;
+    LS.saveFeatures(f);
+    renderVocabAdmin();
+  }
+
   function renderVocabAdmin() {
-    const list = LS.getVocab().slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    const list = LS.getVocab().slice(); // l'ordre du tableau = la séquence des jours
     const today = planningTodayStr();
     document.getElementById('vocab-count').textContent = `${list.length} mot${list.length > 1 ? 's' : ''}`;
+
+    const startInput = document.getElementById('vocab-start');
+    if (startInput) startInput.value = vocabStartDate();
+    const info = document.getElementById('vocab-start-info');
+    if (info) {
+      info.innerHTML = list.length
+        ? `1<sup>er</sup> mot le <b style="color:var(--or);">${esc(planningFmtDs(vocabStartDate()))}</b>, puis un mot par jour jusqu'au <b style="color:var(--or);">${esc(planningFmtDs(vocabDateAtIndex(list.length - 1)))}</b>.`
+        : `Ajoutez des mots : le 1<sup>er</sup> sera affiché le jour de démarrage.`;
+    }
+
     const cont = document.getElementById('vocab-list-container');
     if (!list.length) {
       cont.innerHTML = `<div class="empty-state" style="padding:24px;">Aucun mot pour le moment.<br>Cliquez sur « + Ajouter un mot ».</div>`;
       return;
     }
-    cont.innerHTML = list.map(w => {
-      const isToday = w.date === today;
-      const dateLabel = w.date ? planningFmtDs(w.date) : '—';
+    cont.innerHTML = list.map((w, i) => {
+      const ds = vocabDateAtIndex(i);
+      const isToday = ds === today;
+      const dateLabel = planningFmtDs(ds);
       return `
         <div class="q-item" style="${isToday ? 'border-color:rgba(255,205,0,.5);' : ''}">
           <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:74px;">
+            <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.45);">#${i + 1}</div>
             <div style="font-size:.72rem;font-weight:700;color:var(--or);text-align:center;line-height:1.2;">${esc(dateLabel)}</div>
             ${isToday ? `<span class="q-badge-new" style="background:var(--or);color:#1a1a1a;">AUJOURD'HUI</span>` : ''}
           </div>
@@ -7050,9 +7224,11 @@
             ${w.example ? `<div class="q-meta" style="font-style:italic;">${esc(w.example)}</div>` : ''}
           </div>
           <div class="q-actions">
-            <button class="btn btn-edit btn-sm" onclick="vocabEditRow('${esc(w.date)}')">Modifier</button>
-            <button class="btn btn-edit btn-sm" onclick="vocabTest('${esc(w.date)}')" title="Tester en condition joueur">⚗</button>
-            <button class="btn btn-ghost btn-sm" onclick="vocabDelete('${esc(w.date)}')" title="Supprimer">✕</button>
+            <button class="btn btn-ghost btn-sm" onclick="vocabMove(${i},-1)" title="Monter (plus tôt)" ${i === 0 ? 'disabled' : ''}>▲</button>
+            <button class="btn btn-ghost btn-sm" onclick="vocabMove(${i},1)" title="Descendre (plus tard)" ${i === list.length - 1 ? 'disabled' : ''}>▼</button>
+            <button class="btn btn-edit btn-sm" onclick="vocabEditRow(${i})">Modifier</button>
+            <button class="btn btn-edit btn-sm" onclick="vocabTest('${ds}')" title="Tester en condition joueur">⚗</button>
+            <button class="btn btn-ghost btn-sm" onclick="vocabDelete(${i})" title="Supprimer">✕</button>
           </div>
         </div>`;
     }).join('');
@@ -7061,7 +7237,6 @@
   function vocabOpenForm() {
     document.getElementById('vocab-form-title').textContent = 'Nouveau mot';
     document.getElementById('vocab-edit-orig').value = '';
-    document.getElementById('vocab-date').value = '';
     document.getElementById('vocab-word').value = '';
     document.getElementById('vocab-translation').value = '';
     document.getElementById('vocab-example').value = '';
@@ -7073,12 +7248,11 @@
     document.getElementById('vocab-form').style.display = 'none';
   }
 
-  function vocabEditRow(date) {
-    const w = LS.getVocab().find(v => v.date === date);
+  function vocabEditRow(i) {
+    const w = LS.getVocab()[i];
     if (!w) return;
     document.getElementById('vocab-form-title').textContent = 'Modifier le mot';
-    document.getElementById('vocab-edit-orig').value = w.date;
-    document.getElementById('vocab-date').value = w.date || '';
+    document.getElementById('vocab-edit-orig').value = String(i);
     document.getElementById('vocab-word').value = w.word || '';
     document.getElementById('vocab-translation').value = w.translation || '';
     document.getElementById('vocab-example').value = w.example || '';
@@ -7090,34 +7264,43 @@
   function vocabSubmit() {
     const err  = document.getElementById('vocab-form-err');
     const orig = document.getElementById('vocab-edit-orig').value;
-    const date = document.getElementById('vocab-date').value.trim();
     const word = document.getElementById('vocab-word').value.trim();
     const translation = document.getElementById('vocab-translation').value.trim();
     const example = document.getElementById('vocab-example').value.trim();
     const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
-    if (!date) return fail('La date est obligatoire.');
     if (!word) return fail('Le mot allemand est obligatoire.');
     if (!translation) return fail('La traduction est obligatoire.');
 
     const arr = LS.getVocab().slice();
-    // Conflit : une autre entrée occupe déjà cette date
-    const clashIdx = arr.findIndex(v => v.date === date && date !== orig);
-    if (clashIdx !== -1 && !confirm(`Un mot existe déjà pour le ${planningFmtDs(date)} (« ${arr[clashIdx].word} »).\nLe remplacer ?`)) return;
-
-    const entry = { date, word, translation, example };
-    // Supprime l'ancienne entrée (édition : date d'origine ; conflit : date cible)
-    const filtered = arr.filter(v => v.date !== orig && v.date !== date);
-    filtered.push(entry);
-    LS.saveVocab(filtered);
+    const entry = { word, translation, example };
+    if (orig === '') {
+      arr.push(entry);                       // nouvel ajout : en fin de séquence
+    } else {
+      const i = parseInt(orig, 10);
+      if (i >= 0 && i < arr.length) arr[i] = entry; else arr.push(entry);
+    }
+    LS.saveVocab(arr);
     vocabCloseForm();
     renderVocabAdmin();
   }
 
-  function vocabDelete(date) {
-    const w = LS.getVocab().find(v => v.date === date);
+  function vocabDelete(i) {
+    const arr = LS.getVocab().slice();
+    const w = arr[i];
     if (!w) return;
-    if (!confirm(`Supprimer le mot « ${w.word} » (${planningFmtDs(date)}) ?`)) return;
-    LS.saveVocab(LS.getVocab().filter(v => v.date !== date));
+    if (!confirm(`Supprimer le mot « ${w.word} » ?\nLes mots suivants seront décalés d'un jour.`)) return;
+    arr.splice(i, 1);
+    LS.saveVocab(arr);
+    renderVocabAdmin();
+  }
+
+  // Déplace un mot dans la séquence (dir = -1 plus tôt, +1 plus tard).
+  function vocabMove(i, dir) {
+    const arr = LS.getVocab().slice();
+    const j = i + dir;
+    if (j < 0 || j >= arr.length) return;
+    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    LS.saveVocab(arr);
     renderVocabAdmin();
   }
 
@@ -8531,7 +8714,10 @@
      depuis l'admin → Database → sous-onglet « Vocabulaire allemand ».
      VOCAB_SEED ne sert qu'au premier remplissage de la base (voir initDB) et
      de repli si la base est vide.
-     Format d'une entrée : { date:'YYYY-MM-DD', word, translation, example? }
+     Le mot du jour dépend du « jour de démarrage » (features.vocabStart) :
+     l'ordre du tableau = la séquence des jours (index 0 → jour de démarrage,
+     index 1 → +1 jour, …). Le champ `date` des entrées héritées est ignoré.
+     Format d'une entrée : { word, translation, example? }
   ═══════════════════════════════════════════════════ */
   const VOCAB_SEED = [
     { date: "2026-06-16", word: "das Tor", translation: "le but / la cage", example: "Was für ein Tor! — Quel but !" },
@@ -8595,7 +8781,11 @@
 
   function germanWordForDate(ds) {
     const list = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : VOCAB_SEED;
-    return (Array.isArray(list) ? list : VOCAB_SEED).find(w => w.date === ds) || null;
+    const arr = Array.isArray(list) ? list : VOCAB_SEED;
+    // Le mot dépend désormais du jour de démarrage : index = nombre de jours écoulés.
+    const i = (typeof vocabIndexForDate === 'function') ? vocabIndexForDate(ds) : -1;
+    if (i < 0 || i >= arr.length) return null;
+    return arr[i] || null;
   }
 
   // Ouvre la modale "mot du jour". Sans argument : mot de la date du jour (vue joueur).
@@ -10714,6 +10904,39 @@
 
   function _onzeSave() {
     if (_localUser) accountSave(_localUser.pseudo.toLowerCase());
+  }
+
+  /* ── Lecture seule (overlay admin) ── */
+  /* Objet onze normalisé d'un joueur quelconque, sans toucher au compte connecté. */
+  function onzeForName(name) {
+    const a    = LS.getAccounts()[(name || '').toLowerCase()];
+    const onze = (a && a.onze && typeof a.onze === 'object') ? a.onze : {};
+    return {
+      formation:  ONZE_FORMATIONS[onze.formation] ? onze.formation : '4-4-2',
+      slots:      (Array.isArray(onze.slots) && onze.slots.length === 11) ? onze.slots : Array(11).fill(null),
+      coach:      onze.coach || null,
+      collection: Array.isArray(onze.collection) ? onze.collection : []
+    };
+  }
+
+  /* HTML du terrain Mon Onze en lecture seule (divs non cliquables). */
+  function onzePitchReadonlyHtml(onze) {
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+    const initialsOf = q => q.playerName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
+    let html = ONZE_FORMATIONS[onze.formation].map((s, i) => {
+      const q = onze.slots[i] ? byId[onze.slots[i]] : null;
+      return `<div class="onze-slot ${q ? 'filled' : 'empty'}" style="left:${s.x}%;top:${s.y}%;cursor:default;" title="${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}">
+        <div class="onze-slot-disc">${q ? initialsOf(q) : (s.label || s.acc[0])}</div>
+        ${q ? `<div class="onze-slot-name">${esc(q.playerName)}</div>` : ''}
+      </div>`;
+    }).join('');
+    const coachQ = onze.coach ? byId[onze.coach] : null;
+    html += `<div class="onze-slot coach ${coachQ ? 'filled' : 'empty'}" style="left:90%;top:93%;cursor:default;" title="Entraîneur (coach)">
+      <div class="onze-slot-disc">${coachQ ? initialsOf(coachQ) : 'ENT'}</div>
+      ${coachQ ? `<div class="onze-slot-name">${esc(coachQ.playerName)}</div>` : ''}
+    </div>`;
+    return html;
   }
 
   function slotAccepts(slot, q) {
