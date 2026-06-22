@@ -2503,7 +2503,7 @@
                 <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                   <div style="flex:1;min-width:180px;">
                     <div style="font-size:.84rem;font-weight:700;color:#fff;">Les scores des joueurs</div>
-                    <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Efface tous les scores enregistrés. Les comptes joueurs sont conservés.</div>
+                    <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Efface tous les scores enregistrés et remet à zéro les « Mon Onze ». Les comptes joueurs (pseudo, avatar) sont conservés.</div>
                   </div>
                   <button class="btn btn-danger btn-sm" id="btn-reset-scores" onclick="resetGameScores()" style="white-space:nowrap;margin-left:auto;">↺ Reset scores</button>
                 </div>
@@ -2784,13 +2784,7 @@
             <button class="btn btn-ghost mb0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="shareOnX()">
               <img src="X.png" alt="X" style="height:16px;width:auto;"> Sur X
             </button>
-            <button class="btn btn-ghost mb0" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="shareOnInstagram()">
-              <img src="Insta.png" alt="Instagram" style="height:16px;width:auto;"> Sur Instagram
-            </button>
           </div>
-          <button class="btn btn-ghost btn-full mb0" style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:.85rem;" onclick="downloadShareImage()">
-            📷 Télécharger en image (Insta / X)
-          </button>
           <div id="share-feedback" style="display:none;margin-top:10px;font-size:.82rem;color:rgba(255,255,255,.5);text-align:center;"></div>
         </div>
 
@@ -5270,16 +5264,23 @@
     _resetStatus('Joueurs inscrits et scores supprimés.');
   }
 
-  // Reset partiel : scores des joueurs inscrits, en conservant les comptes.
+  // Reset partiel : scores + « Mon Onze » des joueurs inscrits, en conservant les comptes.
   async function resetGameScores() {
-    if (!confirm('Effacer tous les scores des joueurs ?\n\nLes comptes joueurs seront conservés.\n\nCette action est irréversible.')) return;
+    if (!confirm('Effacer tous les scores des joueurs ET leurs « Mon Onze » ?\n\nLes comptes joueurs (pseudo, avatar) seront conservés.\n\nCette action est irréversible.')) return;
     const btn = document.getElementById('btn-reset-scores');
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
     _resetStatus('');
     await scoresDeleteAll();
+    // Remise à zéro des « Mon Onze » : on récupère tous les comptes puis on vide
+    // leur collection/terrain (onze = null), sans supprimer les comptes eux-mêmes.
+    await accountsFetch();
+    const keys = Object.keys(_db.accounts || {});
+    keys.forEach(k => { if (_db.accounts[k]) _db.accounts[k].onze = null; });
+    _backupAccounts();
+    await Promise.all(keys.map(k => accountSave(k)));
     renderJoueurs();
     if (btn) { btn.disabled = false; btn.textContent = '↺ Reset scores'; }
-    _resetStatus('Scores des joueurs effacés — comptes conservés.');
+    _resetStatus('Scores et « Mon Onze » remis à zéro — comptes conservés.');
   }
 
   function clearDayPlan(dateStr) {
@@ -9968,146 +9969,28 @@
   /* ═══════════════════════════════════════════════════
      PARTAGE
   ═══════════════════════════════════════════════════ */
+  // JJ/MM/AAAA
+  function fmtShareDate(ds) {
+    const d = new Date(ds + 'T00:00:00');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    return `${dd}/${mm}/${d.getFullYear()}`;
+  }
+
   function buildShareText() {
-    const { name, score } = session;
-    return `${name} a obtenu ${score} pts au Quiz RC Lens ! ⚽🏆 #RCLens #SangEtOr`;
+    const { score } = session;
+    const gameDs = session.plannedDate || planningTodayStr();
+    const nextDs = getNextSessionStartDs();
+    const unit   = score > 1 ? 'points' : 'point';
+    let txt = `J'ai scoré ${score} ${unit} lors de la partie du ${fmtShareDate(gameDs)}.`;
+    if (nextDs) txt += ` La prochaine session démarrera le ${fmtShareDate(nextDs)}.`;
+    txt += ' Inscris-toi !';
+    return txt;
   }
 
   function shareOnX() {
     const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(buildShareText())}`;
     window.open(url, '_blank', 'noopener');
-  }
-
-  function shareOnInstagram() {
-    const fb = document.getElementById('share-feedback');
-    const cv = generateShareImage();
-    cv.toBlob(async blob => {
-      const file = new File([blob], 'racing-quiz.png', { type: 'image/png' });
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-          await navigator.share({ files: [file], title: 'Le Racing Quiz', text: buildShareText() });
-          return;
-        } catch (_) { /* fallback */ }
-      }
-      // fallback : copier le texte
-      const text = buildShareText();
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(() => {
-          fb.textContent = 'Texte copié ! Colle-le dans ta story ou publication Instagram.';
-          fb.style.display = 'block';
-          setTimeout(() => { fb.style.display = 'none'; }, 4000);
-        });
-      } else {
-        fb.textContent = text;
-        fb.style.display = 'block';
-      }
-    });
-  }
-
-  function generateShareImage() {
-    const { name, score, maxScore } = session;
-    const ratio = maxScore > 0 ? score / maxScore : 0;
-    let badgeIcon, badgeName;
-    if (ratio === 1)       { badgeIcon = ''; badgeName = 'Légende de Bollaert !'; }
-    else if (ratio >= 0.7) { badgeIcon = ''; badgeName = 'Fidèle des Sang et Or'; }
-    else if (ratio >= 0.4) { badgeIcon = ''; badgeName = 'Supporter du virage'; }
-    else                   { badgeIcon = ''; badgeName = 'Touriste à Bollaert'; }
-
-    const S = 1080;
-    const cv = document.createElement('canvas');
-    cv.width = S; cv.height = S;
-    const c = cv.getContext('2d');
-
-    // fond noir
-    c.fillStyle = '#111111';
-    c.fillRect(0, 0, S, S);
-
-    // bandeau rouge haut-droite
-    c.save();
-    c.beginPath();
-    c.moveTo(S * 0.56, 0); c.lineTo(S, 0); c.lineTo(S, S * 0.44); c.closePath();
-    c.fillStyle = '#E30613'; c.fill();
-    c.restore();
-
-    // liseré or haut-droite
-    c.save();
-    c.beginPath();
-    c.moveTo(S * 0.53, 0); c.lineTo(S * 0.56, 0);
-    c.lineTo(S, S * 0.44); c.lineTo(S, S * 0.41); c.closePath();
-    c.fillStyle = '#FFCD00'; c.fill();
-    c.restore();
-
-    // bandeau rouge bas-gauche
-    c.save();
-    c.beginPath();
-    c.moveTo(0, S * 0.76); c.lineTo(0, S); c.lineTo(S * 0.28, S); c.closePath();
-    c.fillStyle = '#E30613'; c.fill();
-    c.restore();
-
-    // liseré or bas-gauche
-    c.save();
-    c.beginPath();
-    c.moveTo(0, S * 0.73); c.lineTo(0, S * 0.76);
-    c.lineTo(S * 0.28, S); c.lineTo(S * 0.25, S); c.closePath();
-    c.fillStyle = '#FFCD00'; c.fill();
-    c.restore();
-
-    // titre
-    c.textAlign = 'center';
-    c.fillStyle = '#FFCD00';
-    c.font = 'bold italic 76px "Segoe UI", Arial, sans-serif';
-    c.fillText('LE RACING QUIZ', S / 2, 108);
-
-    // sous-titre
-    c.fillStyle = 'rgba(255,255,255,0.38)';
-    c.font = '30px "Segoe UI", Arial, sans-serif';
-    c.fillText('Racing Club Podcast', S / 2, 152);
-
-    // cercle score
-    const cx = S / 2, cy = S / 2 - 10, R = 155;
-    c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2);
-    c.fillStyle = 'rgba(255,255,255,0.04)'; c.fill();
-    c.strokeStyle = 'rgba(227,6,19,0.55)'; c.lineWidth = 6; c.stroke();
-
-    // score
-    c.fillStyle = '#FFFFFF';
-    c.font = 'bold 140px "Segoe UI", Arial, sans-serif';
-    c.textAlign = 'center';
-    c.fillText(String(score), cx, cy + 52);
-
-    // badge icon
-    c.font = '60px serif';
-    c.fillText(badgeIcon, cx, cy + 182);
-
-    // badge name
-    c.fillStyle = '#FFCD00';
-    c.font = 'bold italic 40px "Segoe UI", Arial, sans-serif';
-    c.fillText(badgeName, cx, cy + 244);
-
-    // nom joueur
-    c.fillStyle = '#FFFFFF';
-    c.font = 'bold 52px "Segoe UI", Arial, sans-serif';
-    c.fillText(name, cx, S - 222);
-
-    // hashtags
-    c.fillStyle = 'rgba(255,255,255,0.32)';
-    c.font = '30px "Segoe UI", Arial, sans-serif';
-    c.fillText('#SangEtOr  #RCLens', cx, S - 172);
-
-    // handle
-    c.fillStyle = 'rgba(255,205,0,0.55)';
-    c.font = '27px "Segoe UI", Arial, sans-serif';
-    c.fillText('@leracingclubpodcast', cx, S - 130);
-
-    return cv;
-  }
-
-  function downloadShareImage() {
-    const cv = generateShareImage();
-    const a = document.createElement('a');
-    a.download = 'racing-quiz-' + (session.name || 'score').replace(/[^a-zA-Z0-9]/g, '-') + '.png';
-    a.href = cv.toDataURL('image/png');
-    a.click();
   }
 
   /* ─── Classement inline résultats ─── */
