@@ -2061,6 +2061,7 @@
           <div id="q-list-container"></div>
           <div id="q-list-actions" style="display:none">
             <div class="sep"></div>
+            <button id="btn-bulk-timer" class="btn btn-ghost btn-full" onclick="setAllBonusTimer()" style="display:none;margin-bottom:10px;">⏱ Régler le timer de toutes les questions Bonus…</button>
             <button class="btn btn-danger btn-full mb0" onclick="clearAll()">Supprimer toutes les questions</button>
           </div>
         </div>
@@ -4260,7 +4261,7 @@
       viewName === 'midbreak'
         ? "url('background_black.png')"
         : "url('background_emission_rouge_2.png')";
-    if (viewName === 'admin')        { renderAdmin(); renderAdminDashboard(); }
+    if (viewName === 'admin')        { setDbSubTab('joueur'); renderAdminDashboard(); }
     if (viewName === 'midbreak')     { showMidbreakContent(); }
     if (viewName === 'player-name')  initPlayerName();
     if (viewName === 'player-card')  { renderPlayerCard(); scoresFetch().then(() => renderPlayerCard()); }
@@ -7005,6 +7006,8 @@
     const actionsEl = document.getElementById('q-list-actions');
     const listEl    = document.getElementById('q-list-container');
     actionsEl.style.display = 'block';
+    const bulkTimerBtn = document.getElementById('btn-bulk-timer');
+    if (bulkTimerBtn) bulkTimerBtn.style.display = dbSubTab === 'bonus' ? 'block' : 'none';
 
     const matchesFilters = q => {
       if (dbActiveFilters.has('with-tag') && !(Array.isArray(q.tags) && q.tags.length > 0)) return false;
@@ -7419,6 +7422,26 @@
     if (!confirm('Supprimer cette question ?')) return;
     LS.saveQ(LS.getQ().filter(q => q.id !== id));
     renderAdmin();
+  }
+
+  function setAllBonusTimer() {
+    const arr = LS.getQ();
+    const bonusQ = arr.filter(q => q.type !== 'joueur');
+    if (!bonusQ.length) { alert('Aucune question Bonus à modifier.'); return; }
+    const input = prompt(`Nouvelle durée (en secondes) pour les ${bonusQ.length} questions Bonus :`, '25');
+    if (input === null) return;
+    const secs = parseInt(input, 10);
+    if (!Number.isFinite(secs) || secs < 1 || secs > 300) { alert('Durée invalide. Entre 1 et 300 secondes.'); return; }
+    if (!confirm(`Régler le timer de ${bonusQ.length} questions Bonus à ${secs} s ?`)) return;
+    let nb = 0;
+    arr.forEach(q => {
+      if (q.type === 'joueur') return;
+      q.timerDuration = secs;
+      if (q.bonus && q.bonus.text) { q.bonus.timerDuration = secs; delete q.bonus.timer; nb++; }
+    });
+    LS.saveQ(arr);
+    renderAdmin();
+    alert(`✅ ${bonusQ.length} questions réglées à ${secs} s` + (nb ? ` (+ ${nb} sous-questions bonus ⭐)` : ''));
   }
 
   function clearAll() {
