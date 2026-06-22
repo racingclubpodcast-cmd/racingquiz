@@ -2556,6 +2556,7 @@
           </div>
         </div>
         <div id="planning-stock"></div>
+        <div id="planning-overlap"></div>
         <div id="planning-grid"></div>
         <div id="planning-detail" style="margin-top:14px;"></div>
       </div>
@@ -3497,7 +3498,6 @@
   /* ═══════════════════════════════════════════════════
      STATE
   ═══════════════════════════════════════════════════ */
-  const DEFAULT_PWD  = 'rcpodcast';
   const CONTACT_EMAIL = 'racingclubpodcast@gmail.com';  // affiché en repli si la base est indisponible
 
   /* ── Compte admin Supabase Auth (v3) ── créer cet utilisateur dans le dashboard
@@ -3815,14 +3815,45 @@
   async function accountsFetch() {
     if (!_supa) return false;
     try {
-      const { data, error } = await _supa.from('accounts').select('*');
+      // v4 : lecture via RPC publique — ne renvoie JAMAIS le hash ni le jeton.
+      const { data, error } = await _supa.rpc('accounts_public');
       if (error) { console.warn('[Supabase] lecture accounts impossible:', error); return false; }
       const map = {};
-      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, hash: r.hash || undefined, avatar: r.avatar || undefined, onze: r.onze || undefined }; });
+      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, avatar: r.avatar || undefined, onze: r.onze || undefined }; });
       _db.accounts = map;
       _backupAccounts();
       return true;
     } catch { return false; }
+  }
+
+  /* ── Jeton de session joueur (v4) ── secret renvoyé par les RPC signup/login,
+     requis pour les écritures (avatar / Mon Onze). Stocké localement uniquement. */
+  const AUTH_TOKEN_KEY = 'rcAuthToken';
+  function _getAuthToken() { try { return localStorage.getItem(AUTH_TOKEN_KEY) || null; } catch { return null; } }
+  function _setAuthToken(t) { try { t ? localStorage.setItem(AUTH_TOKEN_KEY, t) : localStorage.removeItem(AUTH_TOKEN_KEY); } catch {} }
+
+  /* Inscription serveur : renvoie { ok, token } ou { error: 'taken'|'weak'|'no_supa'|'other' }. */
+  async function _rpcSignup(pseudo, pwd) {
+    if (!_supa) return { error: 'no_supa' };
+    const { data, error } = await _supa.rpc('account_signup', { p_pseudo: pseudo, p_pwd: pwd });
+    if (error) {
+      const m = error.message || '';
+      if (/pseudo_taken/.test(m)) return { error: 'taken' };
+      if (/weak_password/.test(m)) return { error: 'weak' };
+      return { error: 'other', detail: m };
+    }
+    _setAuthToken(data);
+    return { ok: true, token: data };
+  }
+
+  /* Connexion serveur : renvoie { ok, profile } ou { error: 'bad_creds'|'no_supa'|'other' }. */
+  async function _rpcLogin(pseudo, pwd) {
+    if (!_supa) return { error: 'no_supa' };
+    const { data, error } = await _supa.rpc('account_login', { p_pseudo: pseudo, p_pwd: pwd });
+    if (error) return { error: 'other', detail: error.message };
+    if (!data) return { error: 'bad_creds' };
+    _setAuthToken(data.token);
+    return { ok: true, profile: data };
   }
 
   async function accountSave(key) {
@@ -4019,7 +4050,10 @@
     checkPwd : (p) => {
       const h = (LS.getFeatures() || {}).adminPwdHash;
       if (h) return _hashPwd(p) === h;
-      return p === (localStorage.getItem('rcPwd') || DEFAULT_PWD);
+      // Plus de mot de passe par défaut dans le code : tant qu'aucun hash n'est
+      // enregistré (Supabase), seul l'ancien rcPwd local (migration) est accepté.
+      const local = localStorage.getItem('rcPwd');
+      return local ? p === local : false;
     },
     setPwd : (p) => {
       const f = LS.getFeatures();
@@ -4739,6 +4773,7 @@
   function renderPlanning() {
     markExpiredSessionsAsUsed();
     renderPlanningStock();
+    renderPlanningOverlap();
     const betaBanner = document.getElementById('planning-beta-banner');
     if (betaBanner) betaBanner.style.display = feat('betaTest') ? 'block' : 'none';
 
@@ -4886,6 +4921,13 @@
     const rangeBadge = isSessionStart && isMultiDay
       ? `<span class="planning-range-badge">→ ${planningFmtDs(endDs)}</span>` : '';
 
+    const startDateSlot = isSessionStart ? `<div class="planning-slot" onclick="this.querySelector('input').showPicker&&this.querySelector('input').showPicker()">
+      <span class="planning-slot-label">Début de validité</span>
+      <input type="date" value="${ds}" max="${endDs}"
+        onchange="setPlanningStartDate('${ds}', this.value)">
+      <span class="planning-slot-edit">✎</span>
+    </div>` : '';
+
     const endDateSlot = `<div class="planning-slot" onclick="this.querySelector('input').showPicker&&this.querySelector('input').showPicker()">
       <span class="planning-slot-label">Fin de validité</span>
       <input type="date" value="${isSessionStart ? endDs : ds}" min="${ds}"
@@ -4902,6 +4944,7 @@
         ${rangeBadge}
         <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;margin-left:auto;" onclick="event.stopPropagation();clearDayPlan('${ds}')" title="Effacer ce jour">✕</button>
       </div>
+      ${startDateSlot}
       ${endDateSlot}
       ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', ds, true)}
       ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', ds, true)}
@@ -4912,21 +4955,7 @@
   function setPlanningEndDate(startDs, newEndDate) {
     if (!newEndDate) return;
     if (newEndDate < startDs) { alert('La date de fin ne peut pas être avant la date de début.'); return; }
-    // Vérifier les conflits avec les autres sessions
     const plan = LS.getPlanning();
-    for (const [dk, dp] of Object.entries(plan)) {
-      if (dk === startDs || dp._deleted) continue;
-      const otherEnd = dp.endDate || dk;
-      // Chevauchement si les plages [startDs, newEndDate] et [dk, otherEnd] se croisent
-      if (dk <= newEndDate && otherEnd >= startDs) {
-        if (!confirm(`La session du ${fmtPlanDate(dk)} (→ ${fmtPlanDate(otherEnd)}) chevauche cette plage. Continuer quand même ?`)) {
-          // Réinitialise le champ date
-          renderPlanning();
-          return;
-        }
-        break;
-      }
-    }
     if (!plan[startDs]) return;
     if (newEndDate === startDs) {
       delete plan[startDs].endDate;
@@ -4934,7 +4963,72 @@
       plan[startDs].endDate = newEndDate;
     }
     LS.savePlanning(plan);
+    // Le chevauchement est autorisé : on ne bloque pas, on l'affichera en bandeau.
     renderPlanning();
+  }
+
+  // Déplace la date de début (= clé) d'une session vers newStartDs.
+  function setPlanningStartDate(oldStartDs, newStartDs) {
+    if (!newStartDs || newStartDs === oldStartDs) return;
+    const plan = LS.getPlanning();
+    const dp = plan[oldStartDs];
+    if (!dp) return;
+    const endDs = dp.endDate || oldStartDs;
+    if (newStartDs > endDs) { alert('La date de début ne peut pas être après la date de fin.'); return; }
+    // Impossible de fusionner avec une autre session qui démarre déjà à cette date.
+    if (plan[newStartDs] && !plan[newStartDs]._deleted) {
+      alert('Une autre session démarre déjà à cette date. Choisis une autre date de début.');
+      renderPlanning();
+      return;
+    }
+    delete plan[oldStartDs];
+    if (newStartDs === endDs) delete dp.endDate; else dp.endDate = endDs;
+    plan[newStartDs] = dp;
+    LS.savePlanning(plan);
+    planningSelectedDate = newStartDs;
+    // Le chevauchement est autorisé : on ne bloque pas, on l'affichera en bandeau.
+    renderPlanning();
+  }
+
+  // Détecte les paires de sessions (non supprimées, avec contenu) dont les plages
+  // [start, end] se chevauchent. Chevauchement = toléré mais signalé à l'admin.
+  function detectPlanningOverlaps() {
+    const plan = LS.getPlanning();
+    const sessions = Object.entries(plan)
+      .filter(([, dp]) => dp && !dp._deleted && (dp.j1 || dp.j2 || dp.bonus))
+      .map(([k, dp]) => ({ start: k, end: dp.endDate || k }))
+      .sort((a, b) => a.start < b.start ? -1 : 1);
+    const overlaps = [];
+    for (let i = 0; i < sessions.length; i++) {
+      for (let j = i + 1; j < sessions.length; j++) {
+        const a = sessions[i], b = sessions[j];
+        if (a.start <= b.end && b.start <= a.end) overlaps.push([a, b]);
+      }
+    }
+    return overlaps;
+  }
+
+  // Affiche un bandeau informatif (non bloquant) listant les chevauchements détectés
+  // et proposant de sélectionner la session suivante pour décaler sa date de début.
+  function renderPlanningOverlap() {
+    const el = document.getElementById('planning-overlap');
+    if (!el) return;
+    const overlaps = detectPlanningOverlaps();
+    if (!overlaps.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+    el.style.display = 'block';
+    const items = overlaps.map(([a, b]) => {
+      const later   = a.start >= b.start ? a : b;
+      const earlier = later === a ? b : a;
+      return `<li style="margin-bottom:5px;">
+        La session du <b>${fmtPlanDate(earlier.start)}</b> (→ ${fmtPlanDate(earlier.end)}) chevauche celle du <b>${fmtPlanDate(later.start)}</b> (→ ${fmtPlanDate(later.end)}).
+        <button class="btn btn-ghost btn-sm" style="padding:2px 9px;font-size:.7rem;margin-left:4px;" onclick="planningSelectDay('${later.start}')">Décaler la session suivante</button>
+      </li>`;
+    }).join('');
+    el.innerHTML = `<div class="card" style="margin-bottom:12px;border-color:rgba(255,205,0,.5);background:rgba(40,34,0,.6);">
+      <div style="font-size:.8rem;font-weight:700;color:var(--or);margin-bottom:7px;">⚠ Chevauchement de sessions</div>
+      <ul style="margin:0;padding-left:18px;font-size:.78rem;color:rgba(255,255,255,.85);line-height:1.5;">${items}</ul>
+      <div style="font-size:.72rem;color:rgba(255,255,255,.55);margin-top:7px;">Ce n'est pas bloquant — tu peux modifier la date de début de la session suivante pour les séparer.</div>
+    </div>`;
   }
 
   function fmtPlanDate(ds) {
@@ -5271,13 +5365,13 @@
     if (btn) { btn.disabled = true; btn.textContent = '…'; }
     _resetStatus('');
     await scoresDeleteAll();
-    // Remise à zéro des « Mon Onze » : on récupère tous les comptes puis on vide
-    // leur collection/terrain (onze = null), sans supprimer les comptes eux-mêmes.
+    // Remise à zéro des « Mon Onze » côté serveur (RPC admin), sans supprimer les comptes.
+    if (_supa) {
+      const { error } = await _supa.rpc('account_admin_clear_all_onze');
+      if (error) { alert('Reset des « Mon Onze » refusé par Supabase — connexion admin (Supabase Auth) requise.'); }
+    }
     await accountsFetch();
-    const keys = Object.keys(_db.accounts || {});
-    keys.forEach(k => { if (_db.accounts[k]) _db.accounts[k].onze = null; });
     _backupAccounts();
-    await Promise.all(keys.map(k => accountSave(k)));
     renderJoueurs();
     if (btn) { btn.disabled = false; btn.textContent = '↺ Reset scores'; }
     _resetStatus('Scores et « Mon Onze » remis à zéro — comptes conservés.');
@@ -6146,12 +6240,14 @@
     const pwdErr = _validatePwd(pwd || '');
     if (!pwd || pwdErr) { show(pwdErr || 'Mot de passe invalide.', false); return; }
 
+    if (!_supa) { show('Serveur indisponible.', false); return; }
+    // Réinitialisation côté serveur (bcrypt) — réservée à l'admin connecté via Supabase Auth.
+    const { error } = await _supa.rpc('account_admin_set_pwd', { p_key: name, p_pwd: pwd });
+    if (error) {
+      show('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).', false);
+      return;
+    }
     await accountsFetch();
-    const accounts = LS.getAccounts();
-    const key      = name.toLowerCase();
-    if (!accounts[key]) accounts[key] = { pseudo: name };
-    accounts[key].hash = _hashPwd(pwd);
-    accountSave(key);
 
     input.value = '';
     show(`Mot de passe de ${name} réinitialisé avec succès.`, true);
@@ -10541,19 +10637,32 @@
       if (accounts[pseudo.toLowerCase()]) {
         errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; return;
       }
-      accounts[pseudo.toLowerCase()] = { pseudo, hash: _hashPwd(pwd) };
-      accountSave(pseudo.toLowerCase());
+      const res = await _rpcSignup(pseudo, pwd);
+      if (!res.ok) {
+        errEl.textContent = res.error === 'taken' ? 'Ce pseudo est déjà utilisé.'
+          : res.error === 'weak' ? 'Mot de passe trop faible.'
+          : 'Inscription impossible pour le moment. Réessaie.';
+        errEl.style.display = 'block'; return;
+      }
+      accounts[pseudo.toLowerCase()] = { pseudo };
+      _backupAccounts();
       _localUser = { pseudo };
       LS.setLoggedPseudo(pseudo);
       updateHomeAuthArea();
       nav('player-card');
     } else {
-      const entry = accounts[pseudo.toLowerCase()];
-      if (!entry || entry.hash !== _hashPwd(pwd)) {
-        errEl.textContent = 'Pseudo ou mot de passe incorrect.'; errEl.style.display = 'block'; return;
+      const res = await _rpcLogin(pseudo, pwd);
+      if (!res.ok) {
+        errEl.textContent = res.error === 'no_supa'
+          ? 'Connexion au serveur indisponible. Réessaie plus tard.'
+          : 'Pseudo ou mot de passe incorrect.';
+        errEl.style.display = 'block'; return;
       }
-      _localUser = { pseudo: entry.pseudo };
-      LS.setLoggedPseudo(entry.pseudo);
+      const prof = res.profile;
+      accounts[pseudo.toLowerCase()] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
+      _backupAccounts();
+      _localUser = { pseudo: prof.pseudo };
+      LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
       nav('player-card');
     }
@@ -10562,6 +10671,7 @@
   function authSignOut() {
     _localUser = null;
     LS.setLoggedPseudo(null);
+    _setAuthToken(null);
     updateHomeAuthArea();
     nav('home');
   }
@@ -10669,19 +10779,37 @@
         if (errEl) { errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; }
         return;
       }
-      accounts[pseudo.toLowerCase()] = { pseudo, hash: _hashPwd(pwd) };
-      accountSave(pseudo.toLowerCase());
+      const res = await _rpcSignup(pseudo, pwd);
+      if (!res.ok) {
+        if (errEl) {
+          errEl.textContent = res.error === 'taken' ? 'Ce pseudo est déjà utilisé.'
+            : res.error === 'weak' ? 'Mot de passe trop faible.'
+            : 'Inscription impossible pour le moment. Réessaie.';
+          errEl.style.display = 'block';
+        }
+        return;
+      }
+      accounts[pseudo.toLowerCase()] = { pseudo };
+      _backupAccounts();
       _localUser = { pseudo };
       LS.setLoggedPseudo(pseudo);
       updateHomeAuthArea();
     } else {
-      const entry = accounts[pseudo.toLowerCase()];
-      if (!entry || entry.hash !== _hashPwd(pwd)) {
-        if (errEl) { errEl.textContent = 'Pseudo ou mot de passe incorrect.'; errEl.style.display = 'block'; }
+      const res = await _rpcLogin(pseudo, pwd);
+      if (!res.ok) {
+        if (errEl) {
+          errEl.textContent = res.error === 'no_supa'
+            ? 'Connexion au serveur indisponible. Réessaie plus tard.'
+            : 'Pseudo ou mot de passe incorrect.';
+          errEl.style.display = 'block';
+        }
         return;
       }
-      _localUser = { pseudo: entry.pseudo };
-      LS.setLoggedPseudo(entry.pseudo);
+      const prof = res.profile;
+      accounts[pseudo.toLowerCase()] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
+      _backupAccounts();
+      _localUser = { pseudo: prof.pseudo };
+      LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
       // Joueur qui se connecte (potentiellement après plusieurs sessions manquées) :
       // on rafraîchit l'état partagé pour proposer les parties à rattraper.
@@ -10809,7 +10937,15 @@
   }
 
   function _onzeSave() {
-    if (_localUser) accountSave(_localUser.pseudo.toLowerCase());
+    if (!_localUser) return;
+    const key = _localUser.pseudo.toLowerCase();
+    _backupAccounts();
+    if (!_supa) return;
+    const tok = _getAuthToken();
+    if (!tok) { console.warn('[Onze] non sauvegardé : session expirée, reconnecte-toi.'); return; }
+    const a = _db.accounts[key];
+    _supa.rpc('account_set_onze', { p_pseudo: _localUser.pseudo, p_token: tok, p_onze: a ? a.onze : null })
+      .then(({ data, error }) => { if (error || data === false) console.warn('[Onze] sauvegarde refusée par le serveur', error); });
   }
 
   /* ── Lecture seule (overlay admin) ── */
@@ -11271,7 +11407,14 @@
       const key = _localUser.pseudo.toLowerCase();
       if (!accounts[key]) accounts[key] = { pseudo: _localUser.pseudo };
       accounts[key].avatar = dataUrl;
-      accountSave(key);
+      _backupAccounts();
+      const tok = _getAuthToken();
+      if (_supa && tok) {
+        _supa.rpc('account_set_avatar', { p_pseudo: _localUser.pseudo, p_token: tok, p_avatar: dataUrl })
+          .then(({ data, error }) => { if (error || data === false) console.warn('[Avatar] sauvegarde refusée par le serveur', error); });
+      } else if (!tok) {
+        console.warn('[Avatar] non sauvegardé : session expirée, reconnecte-toi.');
+      }
       const avatarEl = document.getElementById('pc-avatar');
       if (avatarEl) { avatarEl.innerHTML = `<img src="${dataUrl}" alt="">`; avatarEl.style.fontSize = ''; }
       updateHomeAuthArea();
