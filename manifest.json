@@ -1,0 +1,33 @@
+{
+  "name": "Le Racing Quiz",
+  "short_name": "Racing Quiz",
+  "description": "Quiz officiel du Racing Club Podcast — Sang et Or !",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#111111",
+  "theme_color": "#E30613",
+  "orientation": "portrait-primary",
+  "lang": "fr",
+  "categories": ["games", "entertainment", "sports"],
+  "icons": [
+    {
+      "src": "logo_700x700.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo_700x700.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo_700x700.png",
+      "sizes": "700x700",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
