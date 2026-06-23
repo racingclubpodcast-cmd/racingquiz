@@ -1901,6 +1901,7 @@
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
             <span id="home-display-name" style="flex:1;text-align:left;"></span>
+            <span id="home-inbox-badge" style="display:none;background:var(--rouge);color:#fff;font-size:.68rem;font-weight:800;border-radius:20px;padding:1px 7px;">📬 0</span>
             <span style="font-size:.7rem;opacity:.45;">Ma carte →</span>
           </button>
           <button id="home-logout-btn" class="btn btn-danger btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
@@ -2549,7 +2550,6 @@
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
             <button class="btn btn-ghost btn-sm" onclick="planningGoToday()" title="Revenir au mois courant">Aujourd'hui</button>
             <button class="btn btn-red btn-sm" id="planning-save-btn" onclick="savePlanningManual()" title="Forcer la sauvegarde du planning vers Supabase">Sauvegarder</button>
-            <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="resetPlanningAll()" title="Effacer le planning et réinitialiser les marqueurs ✓ joué">↺ Tout réinitialiser</button>
           </div>
           <div id="planning-beta-banner" style="display:none;margin-top:10px;padding:8px 12px;border-radius:8px;background:rgba(100,180,255,.1);border:1px solid rgba(100,180,255,.3);font-size:.78rem;color:#64b4ff;font-weight:600;">
             🔵 Mode bêta test actif — les parties jouées ne marquent pas les questions comme utilisées
@@ -2563,11 +2563,37 @@
 
       <!-- Tab : joueurs -->
       <div id="at-joueurs" style="display:none;width:100%">
+        <!-- Envoyer un message aux joueurs -->
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">✉️ Envoyer un message</span>
+          </div>
+          <select id="pmsg-recipient" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;margin-bottom:8px;">
+            <option value="">📢 Tous les joueurs (diffusion)</option>
+          </select>
+          <input type="text" id="pmsg-title" placeholder="Objet (optionnel)" maxlength="120" autocomplete="off"
+                 style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;margin-bottom:8px;">
+          <textarea id="pmsg-body" placeholder="Votre message…" rows="3" maxlength="2000"
+                 style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;resize:vertical;font-family:inherit;"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+            <span id="pmsg-feedback" style="flex:1;font-size:.78rem;"></span>
+            <button class="btn btn-red btn-sm" onclick="sendPlayerMessage()">Envoyer</button>
+          </div>
+        </div>
+
+        <!-- Messages envoyés -->
+        <div class="card" style="margin-bottom:12px;">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Messages envoyés</span>
+            <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="playerMsgsFetchAdmin().then(renderPlayerMsgAdmin)">↻ Actualiser</button>
+          </div>
+          <div id="pmsg-sent-list"></div>
+        </div>
+
         <div class="card" style="margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
             <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
             <span id="joueurs-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
-            <button class="btn btn-danger btn-sm" onclick="clearAllJoueurs()">Tout effacer</button>
           </div>
           <div class="joueur-search-bar">
             <input type="text" id="joueur-search" placeholder="Rechercher un pseudo…" oninput="renderJoueurs()" autocomplete="off">
@@ -2604,7 +2630,6 @@
         <div class="card">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
             <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Statistiques par question</span>
-            <button class="btn btn-danger btn-sm" style="margin-left:auto;" onclick="resetQStats()">Réinitialiser</button>
           </div>
           <div id="qstats-content"></div>
         </div>
@@ -3040,6 +3065,15 @@
 
           <button id="pc-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">▶ Jouer</button>
           <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
+        </div>
+
+        <!-- Messages reçus -->
+        <div class="card" id="pc-inbox-card" style="margin-bottom:12px;display:none;">
+          <div class="flex-between" style="margin-bottom:10px;">
+            <div class="pcard-section-title" style="margin-bottom:0;">📬 Mes messages <span id="pc-inbox-badge" style="display:none;background:var(--rouge);color:#fff;font-size:.7rem;font-weight:800;border-radius:20px;padding:1px 8px;margin-left:4px;"></span></div>
+            <button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:4px 10px;" onclick="inboxMarkAllRead()">Tout marquer lu</button>
+          </div>
+          <div id="pc-inbox-list"></div>
         </div>
 
         <div class="card" style="margin-bottom:12px;padding:16px 18px;cursor:pointer;" onclick="nav('onze')">
@@ -3621,7 +3655,8 @@
     date: r.created_at, badgeLevel: r.badge_level,
     joueurAnswered: r.joueur_answered, bonusGot: r.bonus_got,
     plannedDate: r.planned_date, questionIds: r.question_ids || [],
-    details: r.details || [], beta: !!r.beta
+    details: r.details || [], beta: !!r.beta,
+    adjust: !!r.adjust, note: r.note || ''
   });
 
   function _backupScores()   { try { localStorage.setItem('rc_bk_scores',   JSON.stringify(_db.scores));   } catch {} }
@@ -3646,7 +3681,8 @@
       name: e.name, score: e.score, max_score: e.maxScore,
       badge_level: e.badgeLevel, joueur_answered: e.joueurAnswered, bonus_got: !!e.bonusGot,
       planned_date: e.plannedDate || null, question_ids: e.questionIds || [],
-      details: e.details || [], beta: !!e.beta
+      details: e.details || [], beta: !!e.beta,
+      adjust: !!e.adjust, note: e.note || null
     });
     if (error) { console.error('[Supabase] insertion score:', error); return false; }
     return true;
@@ -3810,6 +3846,100 @@
       </div>`;
     }).join('');
   }
+
+  /* ═══ Table player_messages (v4) : messages Admin → Joueurs ═══
+     L'admin (Supabase Auth) écrit directement (RLS) ; le joueur lit/marque-lu
+     via des RPC validant son jeton de session. Les joueurs ne peuvent pas
+     s'envoyer de messages : aucun accès anon direct à la table.
+     Exécuter supabase-player-messages-migration.sql avant utilisation. */
+
+  // ── Côté ADMIN ──
+  let _adminPlayerMsgs = [];  // cache admin des messages envoyés
+
+  async function playerMsgsFetchAdmin() {
+    if (!_supa) return false;
+    try {
+      const { data, error } = await _supa.from('player_messages')
+        .select('*').order('created_at', { ascending: false });
+      if (error) { console.warn('[Supabase] lecture player_messages impossible:', error); return false; }
+      _adminPlayerMsgs = data || [];
+      return true;
+    } catch { return false; }
+  }
+
+  async function playerMsgSend(recipientKey, title, body) {
+    if (!_supa) return 'Serveur indisponible';
+    const { error } = await _supa.from('player_messages').insert({
+      recipient_key: recipientKey || null,   // null = diffusion à tous
+      title: title || null, body
+    });
+    if (error) {
+      console.error('[Supabase] envoi player_message:', error);
+      return error.message || 'envoi refusé (connexion admin requise)';
+    }
+    return true;
+  }
+
+  async function playerMsgDelete(id) {
+    _adminPlayerMsgs = _adminPlayerMsgs.filter(m => m.id !== id);
+    if (!_supa) return;
+    const { error } = await _supa.from('player_messages').delete().eq('id', id);
+    if (error) {
+      console.error('[Supabase] suppression player_message:', error);
+      alert('Suppression refusée par Supabase — connexion admin requise.');
+      playerMsgsFetchAdmin().then(renderPlayerMsgAdmin);
+    }
+  }
+
+  // ── Côté JOUEUR ──
+  let _inbox = [];  // boîte de réception du joueur connecté
+
+  async function inboxFetch() {
+    if (!_supa || !_localUser) { _inbox = []; return false; }
+    const tok = _getAuthToken();
+    if (!tok) { _inbox = []; return false; }
+    try {
+      const { data, error } = await _supa.rpc('player_messages_for', { p_pseudo: _localUser.pseudo, p_token: tok });
+      if (error) { console.warn('[Supabase] lecture boîte de réception impossible:', error); return false; }
+      _inbox = data || [];
+      return true;
+    } catch { return false; }
+  }
+
+  async function inboxMarkRead(id) {
+    const m = _inbox.find(x => x.id === id);
+    if (m) m.read = true;
+    if (!_supa || !_localUser) return;
+    const tok = _getAuthToken();
+    if (!tok) return;
+    _supa.rpc('player_message_mark_read', { p_pseudo: _localUser.pseudo, p_token: tok, p_id: id })
+      .catch(() => {});
+  }
+
+  async function inboxMarkAllRead() {
+    _inbox.forEach(m => { m.read = true; });
+    renderInbox();
+    if (!_supa || !_localUser) return;
+    const tok = _getAuthToken();
+    if (!tok) return;
+    await _supa.rpc('player_messages_mark_all_read', { p_pseudo: _localUser.pseudo, p_token: tok }).catch(() => {});
+  }
+
+  async function inboxDelete(id) {
+    _inbox = _inbox.filter(x => x.id !== id);
+    renderInbox();
+    if (typeof updateHomeAuthArea === 'function') updateHomeAuthArea();
+    if (!_supa || !_localUser) return;
+    const tok = _getAuthToken();
+    if (!tok) return;
+    const { error } = await _supa.rpc('player_message_delete', { p_pseudo: _localUser.pseudo, p_token: tok, p_id: id });
+    if (error) {
+      console.error('[Supabase] suppression message joueur:', error);
+      inboxFetch().then(renderInbox);  // recharge l'état réel si l'opération a échoué
+    }
+  }
+
+  function _inboxUnreadCount() { return _inbox.filter(m => !m.read).length; }
 
   /* ═══ Table accounts (v3) : comptes joueurs ═══ */
   async function accountsFetch() {
@@ -4292,7 +4422,7 @@
     if (viewName === 'admin')        { setDbSubTab('joueur'); renderAdminDashboard(); }
     if (viewName === 'midbreak')     { showMidbreakContent(); }
     if (viewName === 'player-name')  initPlayerName();
-    if (viewName === 'player-card')  { renderPlayerCard(); scoresFetch().then(() => renderPlayerCard()); }
+    if (viewName === 'player-card')  { renderPlayerCard(); renderInbox(); scoresFetch().then(() => renderPlayerCard()); inboxFetch().then(renderInbox); }
     if (viewName === 'onze')         { renderOnze(); accountsFetch().then(() => renderOnze()); }
     if (viewName === 'home')  {
       updateHomeAuthArea();
@@ -4500,7 +4630,12 @@
     if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); showSettingsPanel('db-questions'); }
     if (tab === 'planning')  { renderPlanning(); Promise.all([dbPull('planning'), scoresFetch()]).then(renderPlanning); }
     if (tab === 'generator') renderGeneratorList();
-    if (tab === 'joueurs')   { renderJoueurs(); Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs()); _startJoueursPoll(); }
+    if (tab === 'joueurs')   {
+      renderJoueurs(); populatePmsgRecipients(); renderPlayerMsgAdmin();
+      Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); populatePmsgRecipients(); });
+      playerMsgsFetchAdmin().then(renderPlayerMsgAdmin);
+      _startJoueursPoll();
+    }
     if (tab === 'messages')  { renderMessages(); messagesFetch().then(renderMessages); }
     if (tab === 'stats')     { renderQStats(); scoresFetch().then(() => renderQStats()); }
   }
@@ -5249,19 +5384,6 @@
     pickerDate = null; pickerSlot = null; pickerPendingId = null;
   }
 
-  // Reset complet : efface tout le planning ET réinitialise les marqueurs "joué".
-  function resetPlanningAll() {
-    if (!confirm('Tout réinitialiser ?\n\n• Le planning sera entièrement effacé\n• Les marqueurs "joué" (✓) seront remis à zéro\n\nCette action est irréversible.')) return;
-    // Efface le planning
-    LS.savePlanning({});
-    // v3 : les marqueurs sont dérivés des parties enregistrées — on mémorise la date du reset
-    const f = LS.getFeatures();
-    f.usedResetAt   = Date.now();
-    f.usedLegacyIds = [];
-    LS.saveFeatures(f);
-    renderPlanning();
-  }
-
   // Reset game : remet à zéro la PARTIE (planning, statut "joué", stats par
   // question, joueurs/scores et Mon Onze) SANS toucher à la base de questions
   // (questions, tags, catégories, médias) ni au générateur (rcGeneratorState).
@@ -5962,10 +6084,99 @@
     renderJoueurs();
   }
 
-  function clearAllJoueurs() {
-    if (!confirm('Supprimer tous les scores ? Cette action est irréversible.')) return;
-    scoresDeleteAll();
-    renderJoueurs();
+  /* ═══ Admin : envoi de messages aux joueurs ═══ */
+
+  // Remplit la liste déroulante des destinataires (Tous + chaque compte).
+  function populatePmsgRecipients() {
+    const sel = document.getElementById('pmsg-recipient');
+    if (!sel) return;
+    const prev = sel.value;
+    const accts = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
+    const rows = Object.entries(accts)
+      .map(([key, a]) => ({ key, pseudo: (a && a.pseudo) || key }))
+      .sort((a, b) => a.pseudo.localeCompare(b.pseudo, 'fr'));
+    sel.innerHTML = '<option value="">📢 Tous les joueurs (diffusion)</option>'
+      + rows.map(r => `<option value="${esc(r.key)}">${esc(r.pseudo)}</option>`).join('');
+    sel.value = prev;  // conserve la sélection si elle existe toujours
+  }
+
+  // Pré-sélectionne un joueur précis (depuis sa carte) et bascule sur l'onglet.
+  function composeMessageTo(key) {
+    adminTab('joueurs');
+    closePlayerCard();
+    populatePmsgRecipients();
+    const sel = document.getElementById('pmsg-recipient');
+    if (sel) sel.value = key || '';
+    const body = document.getElementById('pmsg-body');
+    if (body) body.focus();
+  }
+
+  async function sendPlayerMessage() {
+    const selEl   = document.getElementById('pmsg-recipient');
+    const titleEl = document.getElementById('pmsg-title');
+    const bodyEl  = document.getElementById('pmsg-body');
+    const fb      = document.getElementById('pmsg-feedback');
+    const show = (text, ok) => { if (fb) { fb.textContent = text; fb.style.color = ok ? '#2ecc71' : '#e74c3c'; } };
+
+    const recipient = selEl ? selEl.value : '';
+    const title     = titleEl ? titleEl.value.trim() : '';
+    const body      = bodyEl ? bodyEl.value.trim() : '';
+    if (!body) { show('Le message ne peut pas être vide.', false); return; }
+
+    show('Envoi…', true);
+    const res = await playerMsgSend(recipient, title, body);
+    if (res !== true) { show('Échec : ' + res, false); return; }
+
+    if (titleEl) titleEl.value = '';
+    if (bodyEl)  bodyEl.value  = '';
+    const who = recipient
+      ? `à ${(_db.accounts[recipient] && _db.accounts[recipient].pseudo) || recipient}`
+      : 'à tous les joueurs';
+    show('✓ Message envoyé ' + who + '.', true);
+    await playerMsgsFetchAdmin();
+    renderPlayerMsgAdmin();
+  }
+
+  async function onDeletePlayerMsg(id) {
+    if (!confirm('Supprimer définitivement ce message envoyé ?')) return;
+    await playerMsgDelete(id);
+    renderPlayerMsgAdmin();
+  }
+
+  function renderPlayerMsgAdmin() {
+    const list = document.getElementById('pmsg-sent-list');
+    if (!list) return;
+    const fmt = ts => { try { return new Date(ts).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch { return ''; } };
+    const accts = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
+
+    if (!_adminPlayerMsgs.length) {
+      list.innerHTML = '<p style="font-size:.85rem;color:rgba(255,255,255,.4);text-align:center;padding:20px 0;margin:0;">Aucun message envoyé.</p>';
+      return;
+    }
+
+    list.innerHTML = _adminPlayerMsgs.map(m => {
+      const broadcast = !m.recipient_key;
+      const dest = broadcast
+        ? '📢 Tous les joueurs'
+        : '👤 ' + esc((accts[m.recipient_key] && accts[m.recipient_key].pseudo) || m.recipient_key);
+      const readCnt = Array.isArray(m.read_by) ? m.read_by.length : 0;
+      const readLbl = broadcast
+        ? `${readCnt} lecture${readCnt > 1 ? 's' : ''}`
+        : (readCnt > 0 ? '✓ lu' : 'non lu');
+      return `<div style="border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 14px;margin-bottom:10px;background:rgba(255,255,255,.04);">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <span style="font-size:.74rem;font-weight:700;padding:2px 8px;border-radius:6px;background:rgba(255,205,0,.15);color:#ffcd00;">${dest}</span>
+          <span style="font-size:.7rem;color:rgba(255,255,255,.45);">${readLbl}</span>
+          <span style="flex:1;"></span>
+          <span style="font-size:.72rem;color:rgba(255,255,255,.4);">${fmt(m.created_at)}</span>
+        </div>
+        ${m.title ? `<div style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:4px;">${esc(m.title)}</div>` : ''}
+        <div style="font-size:.88rem;color:rgba(255,255,255,.85);white-space:pre-wrap;">${esc(m.body)}</div>
+        <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end;">
+          <button class="btn btn-danger btn-sm" style="font-size:.74rem;padding:4px 10px;" onclick="onDeletePlayerMsg(${m.id})">Supprimer</button>
+        </div>
+      </div>`;
+    }).join('');
   }
 
   function renderJoueurs() {
@@ -5997,17 +6208,20 @@
     }
 
     let players = Object.values(map).map(p => {
-      const timestamps = p.games.map(g => new Date(g.date).getTime());
+      // Les ajustements manuels (admin) comptent dans le total mais ne sont pas des parties.
+      const realGames  = p.games.filter(g => !g.adjust);
+      const adjustPts  = p.games.filter(g => g.adjust).reduce((s, g) => s + (Number(g.score) || 0), 0);
+      const timestamps = realGames.map(g => new Date(g.date).getTime());
       const onzeBonus  = onzeBonusForName(p.name);
       const firstDate  = timestamps.length ? new Date(Math.min(...timestamps)) : null;
       const lastDate   = timestamps.length ? new Date(Math.max(...timestamps)) : null;
-      const bestScore  = p.games.length ? Math.max(...p.games.map(g => g.score)) : 0;
+      const bestScore  = realGames.length ? Math.max(...realGames.map(g => g.score)) : 0;
       const totalScore = p.games.reduce((s, g) => s + g.score, 0) + onzeBonus;
       const bestRatio  = (() => {
-        const best = p.games.reduce((b, g) => (g.maxScore > 0 && g.score / g.maxScore > b) ? g.score / g.maxScore : b, 0);
+        const best = realGames.reduce((b, g) => (g.maxScore > 0 && g.score / g.maxScore > b) ? g.score / g.maxScore : b, 0);
         return best;
       })();
-      return { ...p, firstDate, lastDate, bestScore, totalScore, bestRatio, onzeBonus };
+      return { ...p, realGames, adjustPts, firstDate, lastDate, bestScore, totalScore, bestRatio, onzeBonus };
     });
 
     // Filtrer par recherche
@@ -6036,13 +6250,14 @@
     listEl.innerHTML = players.map((p, rank) => {
       const rankLabel = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `#${rank + 1}`;
       const initial   = p.name.charAt(0).toUpperCase();
-      const nGames    = p.games.length;
+      const nGames    = p.realGames.length;
+      const adjLabel  = p.adjustPts ? ` · ⚖️ ${p.adjustPts > 0 ? '+' : ''}${p.adjustPts}` : '';
       return `<div class="joueur-row" data-pname="${esc(p.name)}" onclick="openPlayerCard(this.dataset.pname)">
         <span class="joueur-rank">${rankLabel}</span>
         <div class="joueur-avatar">${initial}</div>
         <div style="flex:1;min-width:0;">
           <div class="joueur-pseudo">${esc(p.name)}</div>
-          <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}</div>
+          <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}${adjLabel}</div>
         </div>
         <div class="joueur-score-val">${p.totalScore}</div>
         <button onclick="event.stopPropagation();deletePlayerByName(this.closest('[data-pname]').dataset.pname)" title="Supprimer ce joueur" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
@@ -6098,15 +6313,20 @@
   function openPlayerCard(name) {
     _pcardName = name;
     const lb    = LS.getLeaderboard();
-    const games = lb.filter(e => e.name === name).sort((a, b) => new Date(b.date) - new Date(a.date));
-    if (!games.length) return;
+    const all   = lb.filter(e => e.name === name).sort((a, b) => new Date(b.date) - new Date(a.date));
+    const games = all.filter(e => !e.adjust);
+    const adjustments = all.filter(e => e.adjust);
+    const acctExists = Object.values((_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {})
+      .some(a => a && a.pseudo && a.pseudo.toLowerCase() === name.toLowerCase());
+    if (!all.length && !acctExists) return;
 
     const timestamps = games.map(g => new Date(g.date).getTime());
-    const firstDate  = new Date(Math.min(...timestamps));
-    const bestScore  = Math.max(...games.map(g => g.score));
-    const avgScore   = (games.reduce((s, g) => s + g.score, 0) / games.length).toFixed(1);
+    const firstDate  = timestamps.length ? new Date(Math.min(...timestamps)) : null;
+    const bestScore  = games.length ? Math.max(...games.map(g => g.score)) : 0;
+    const avgScore   = games.length ? (games.reduce((s, g) => s + g.score, 0) / games.length).toFixed(1) : '—';
+    const adjustPts  = adjustments.reduce((s, g) => s + (Number(g.score) || 0), 0);
     const onzeBonus  = onzeBonusForName(name);
-    const totalScore = games.reduce((s, g) => s + g.score, 0) + onzeBonus;
+    const totalScore = all.reduce((s, g) => s + (Number(g.score) || 0), 0) + onzeBonus;
     const initial    = name.charAt(0).toUpperCase();
 
     // Classement général (score total cumulé + bonus Onze)
@@ -6125,11 +6345,41 @@
     };
     const fmtShort = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
 
-    const historyRows = games.map(g => `
+    const historyRows = games.length ? games.map(g => `
       <div class="pcard-game-row">
         <span class="pcard-game-score">${g.score}</span>
         <span class="pcard-game-date">${fmtFull(g.date)}</span>
-      </div>`).join('');
+      </div>`).join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucune partie jouée.</p>';
+
+    // Historique des ajustements manuels (admin)
+    const adjustRows = adjustments.map(g => {
+      const val = Number(g.score) || 0;
+      const sign = val > 0 ? '+' : '';
+      const col  = val >= 0 ? 'var(--or)' : '#e57373';
+      return `<div class="pcard-game-row" style="align-items:flex-start;">
+        <span class="pcard-game-score" style="color:${col};min-width:54px;">${sign}${val}</span>
+        <span style="flex:1;min-width:0;">
+          <span class="pcard-game-date" style="display:block;">${fmtFull(g.date)}</span>
+          ${g.note ? `<span style="display:block;color:rgba(255,255,255,.7);font-size:.8rem;margin-top:2px;">${esc(g.note)}</span>` : ''}
+        </span>
+        <button onclick="adminDeleteAdjustment(${g.id})" title="Annuler cet ajustement" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:.95rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
+      </div>`;
+    }).join('');
+    const adjustSection = `
+      <div class="pcard-section-title">⚖️ Ajuster les points</div>
+      <div style="padding:0 0 8px;">
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ajoute (valeur positive) ou retire (valeur négative) des points à ${esc(name)}. Le motif est obligatoire et le joueur le reçoit en message.</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
+          <input type="number" id="pcard-adjust-pts" placeholder="ex. +5 ou -3" step="1"
+                 style="width:110px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;">
+          <input type="text" id="pcard-adjust-note" placeholder="Motif (visible par le joueur)"
+                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
+                 onkeydown="if(event.key==='Enter')adminAdjustScore()">
+          <button class="btn btn-red btn-sm" onclick="adminAdjustScore()" style="white-space:nowrap;">Appliquer</button>
+        </div>
+        <div id="pcard-adjust-msg" style="margin-top:4px;font-size:.78rem;display:none;"></div>
+        ${adjustments.length ? `<div style="margin-top:10px;font-size:.74rem;color:rgba(255,255,255,.4);">Total des ajustements : <strong style="color:${adjustPts >= 0 ? 'var(--or)' : '#e57373'};">${adjustPts > 0 ? '+' : ''}${adjustPts}</strong></div>${adjustRows}` : ''}
+      </div>`;
 
     // Mon Onze du joueur (lecture seule)
     const onze        = onzeForName(name);
@@ -6197,7 +6447,7 @@
           <div class="pcard-stat-label">Score moyen</div>
         </div>
         <div class="pcard-stat">
-          <div class="pcard-stat-val">${fmtShort(firstDate)}</div>
+          <div class="pcard-stat-val">${firstDate ? fmtShort(firstDate) : '—'}</div>
           <div class="pcard-stat-label">Première partie</div>
         </div>
       </div>
@@ -6206,7 +6456,11 @@
       ${miniRankingHtml(name)}
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
+      ${adjustSection}
       <div class="pcard-section-title">Compte</div>
+      <div style="padding:0 0 14px;">
+        <button class="btn btn-red btn-sm" style="white-space:nowrap;" onclick="composeMessageTo('${esc(name.toLowerCase())}')">✉️ Envoyer un message à ${esc(name)}</button>
+      </div>
       <div style="padding:0 0 8px;">
         <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Réinitialiser le mot de passe de ce joueur</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -6252,6 +6506,73 @@
     input.value = '';
     show(`Mot de passe de ${name} réinitialisé avec succès.`, true);
     setTimeout(() => { if (msgEl) msgEl.style.display = 'none'; }, 3000);
+  }
+
+  /* Ajustement manuel des points (admin) : insère une ligne « adjust » dans la
+     table scores (comptée dans le total mais pas comme une partie) et notifie
+     le joueur par message. Réservé à l'admin (insertion publique mais panneau admin). */
+  async function adminAdjustScore() {
+    const name   = _pcardName;
+    const ptsEl  = document.getElementById('pcard-adjust-pts');
+    const noteEl = document.getElementById('pcard-adjust-note');
+    const msgEl  = document.getElementById('pcard-adjust-msg');
+    if (!name || !ptsEl || !noteEl) return;
+
+    const show = (text, ok) => {
+      msgEl.textContent   = text;
+      msgEl.style.color   = ok ? '#2ecc71' : '#e74c3c';
+      msgEl.style.display = 'block';
+    };
+
+    const pts  = Number(ptsEl.value);
+    const note = (noteEl.value || '').trim();
+    if (!ptsEl.value.trim() || !Number.isFinite(pts) || pts === 0) {
+      show('Indique un nombre de points non nul (ex. 5 ou -3).', false); return;
+    }
+    if (!note) { show('Le motif est obligatoire.', false); return; }
+    if (!_supa) { show('Serveur indisponible.', false); return; }
+
+    const ok = await scoreInsert({
+      name, score: pts, maxScore: 0, date: new Date().toISOString(),
+      badgeLevel: '', joueurAnswered: 0, bonusGot: false,
+      plannedDate: null, questionIds: [], details: [],
+      beta: false, adjust: true, note
+    });
+    if (!ok) {
+      show('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).', false);
+      await scoresFetch();
+      return;
+    }
+
+    // Notifie le joueur (s'il a un compte) — non bloquant.
+    const sign  = pts > 0 ? '+' : '';
+    const title = pts > 0 ? `Vous avez gagné ${pts} point${Math.abs(pts) > 1 ? 's' : ''} !`
+                          : `${Math.abs(pts)} point${Math.abs(pts) > 1 ? 's' : ''} retiré${Math.abs(pts) > 1 ? 's' : ''}`;
+    await playerMsgSend(name.toLowerCase(), title, `Ajustement de ${sign}${pts} point${Math.abs(pts) > 1 ? 's' : ''} par l'admin.\nMotif : ${note}`);
+
+    ptsEl.value = '';
+    noteEl.value = '';
+    await scoresFetch();
+    renderJoueurs();
+    openPlayerCard(name);   // rouvre la carte avec l'ajustement visible
+  }
+
+  /* Annule un ajustement manuel (supprime la ligne adjust). */
+  async function adminDeleteAdjustment(id) {
+    if (!confirm('Annuler cet ajustement de points ?')) return;
+    _db.scores = _db.scores.filter(s => s.id !== id);
+    _backupScores();
+    if (_supa) {
+      const { error } = await _supa.from('scores').delete().eq('id', id);
+      if (error) {
+        console.error('[Supabase] suppression ajustement:', error);
+        alert('Suppression refusée par Supabase — connexion admin (Supabase Auth) requise.');
+        await scoresFetch();
+      }
+    }
+    await scoresFetch();
+    renderJoueurs();
+    openPlayerCard(_pcardName);
   }
 
   /* Render the full player list (filtered by search or letter) */
@@ -9106,7 +9427,7 @@
         if (pfx === 'qz') {
           stopQuizTimer();
           session.score += (q.points || 1);
-          session.answers.push({ q, ok: true, type: 'multi-libre', ptsEarned: q.points || 1, found: state.found.length, required });
+          session.answers.push({ q, ok: true, type: 'multi-libre', ptsEarned: q.points || 1, found: state.found.length, foundIdxs: state.found.slice(), required });
           document.getElementById('qz-ml-btn').disabled = true;
           inp.disabled = true;
           showFeedback(true, null);
@@ -9194,7 +9515,7 @@
 
     if (pfx === 'qz') {
       stopQuizTimer();
-      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: 0, found: state.found.length, required: q.mlRequired || answers.length, reason: 'max-wrong' });
+      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: 0, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'max-wrong' });
       showMlFailFeedback('qz', q, state, 'wrong');
     } else {
       stopTestTimer();
@@ -9260,7 +9581,7 @@
     }
 
     if (pfx === 'qz') {
-      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: 0, found: state.found.length, required: q.mlRequired || answers.length, reason: 'timer' });
+      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: 0, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'timer' });
       showMlFailFeedback('qz', q, state, 'timer');
     } else {
       showMlFailFeedback('tq', q, state, 'timer');
@@ -10081,6 +10402,7 @@
     let txt = `J'ai scoré ${score} ${unit} lors de la partie du ${fmtShareDate(gameDs)}.`;
     if (nextDs) txt += ` La prochaine session démarrera le ${fmtShareDate(nextDs)}.`;
     txt += ' Inscris-toi !';
+    txt += ` Pour rejoindre le Racing Quiz : ${window.location.href.split('?')[0].split('#')[0]}`;
     return txt;
   }
 
@@ -10116,9 +10438,10 @@
       return Object.values(map).sort((a, b) => b.score - a.score);
     }
 
+    const realLb = lb.filter(e => !e.adjust);
     const data = _rlbTab === 'today'
-      ? bestPerPlayer(lb.filter(e => (e.date || '').slice(0, 10) === todayStr))
-      : bestPerPlayer(lb);
+      ? bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr))
+      : bestPerPlayer(realLb);
 
     const list  = document.getElementById('res-lb-list');
     const empty = document.getElementById('res-lb-empty');
@@ -10186,11 +10509,12 @@
       });
     }
 
+    const realLb = lb.filter(e => !e.adjust);
     let data;
     if (_lbTab === 'general')   data = generalRankingList().map(r => ({ name: r.name, score: r.total, badgeLevel: '' }));
-    else if (_lbTab === 'today') data = bestPerPlayer(lb.filter(e => (e.date || '').slice(0, 10) === todayStr));
-    else if (_lbTab === 'week') data = bestPerPlayer(lb.filter(e => e.date && new Date(e.date) >= weekAgo));
-    else                        data = bestPerPlayer(lb);
+    else if (_lbTab === 'today') data = bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr));
+    else if (_lbTab === 'week') data = bestPerPlayer(realLb.filter(e => e.date && new Date(e.date) >= weekAgo));
+    else                        data = bestPerPlayer(realLb);
 
     const list  = document.getElementById('lb-list');
     const empty = document.getElementById('lb-empty');
@@ -10216,6 +10540,28 @@
         </div>
       </div>`;
     }).join('');
+  }
+
+  /* Réponse donnée par le joueur, en texte lisible, selon le type de question.
+     Stockée dans les détails pour l'affichage admin (stats par question). */
+  function answerToText(a) {
+    if (!a || !a.q) return '';
+    const q = a.q;
+    try {
+      if (a.type === 'qcm') {
+        return (a.sel != null && q.options && q.options[a.sel] != null) ? String(q.options[a.sel]) : '';
+      }
+      if (a.type === 'multi') {
+        const opts = q.options || [];
+        return (a.selectedIdxs || []).map(i => opts[i]).filter(v => v != null).join(', ');
+      }
+      if (a.type === 'multi-libre') {
+        const ans = q.mlAnswers || [];
+        return (a.foundIdxs || []).map(i => ans[i]).filter(v => v != null).join(', ');
+      }
+      // libre / autres types à saisie
+      return (a.playerAns != null) ? String(a.playerAns) : '';
+    } catch { return ''; }
   }
 
   /* ═══════════════════════════════════════════════════
@@ -10247,7 +10593,8 @@
         .filter(a => a.q && a.q.id)
         .map(a => ({
           id: a.q.id, ok: !!a.ok, pts: a.ptsEarned || 0,
-          indiceIdx: (a.type === 'joueur' && a.indiceIdx !== undefined) ? a.indiceIdx : null
+          indiceIdx: (a.type === 'joueur' && a.indiceIdx !== undefined) ? a.indiceIdx : null,
+          playerAns: (a.type === 'joueur') ? null : answerToText(a)
         })),
       beta: isBeta
     });
@@ -10670,6 +11017,7 @@
 
   function authSignOut() {
     _localUser = null;
+    _inbox = [];
     LS.setLoggedPseudo(null);
     _setAuthToken(null);
     updateHomeAuthArea();
@@ -10704,6 +11052,21 @@
         const _played = hasPlayedToday(_localUser.pseudo);
         _homePlayBtn.style.opacity  = _played ? '0.55' : '';
       }
+      // Badge messages non lus (boîte de réception)
+      const _inboxBadge = document.getElementById('home-inbox-badge');
+      if (_inboxBadge) {
+        const n = _inboxUnreadCount();
+        _inboxBadge.textContent   = '📬 ' + n;
+        _inboxBadge.style.display = n > 0 ? 'inline-block' : 'none';
+      }
+      // Rafraîchit la boîte de réception en arrière-plan puis réaffiche le badge
+      inboxFetch().then(() => {
+        const b = document.getElementById('home-inbox-badge');
+        if (!b || !_localUser) return;
+        const n = _inboxUnreadCount();
+        b.textContent   = '📬 ' + n;
+        b.style.display = n > 0 ? 'inline-block' : 'none';
+      });
       renderHomeCatchUp();
     } else {
       renderHomeCatchUp();
@@ -11187,6 +11550,51 @@
     renderOnze();
   }
 
+  /* Boîte de réception du joueur (messages reçus de l'admin). */
+  function renderInbox() {
+    const card  = document.getElementById('pc-inbox-card');
+    const list  = document.getElementById('pc-inbox-list');
+    const badge = document.getElementById('pc-inbox-badge');
+    if (!card || !list) return;
+    if (!_localUser || !_inbox.length) { card.style.display = 'none'; return; }
+    card.style.display = '';
+
+    const unread = _inboxUnreadCount();
+    if (badge) {
+      badge.textContent   = unread;
+      badge.style.display = unread > 0 ? 'inline-block' : 'none';
+    }
+
+    const fmt = ts => { try { return new Date(ts).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch { return ''; } };
+
+    list.innerHTML = _inbox.map(m => {
+      const isUnread = !m.read;
+      return `<div onclick="onOpenInboxMsg(${m.id})" style="border:1px solid ${isUnread ? 'rgba(227,6,19,.4)' : 'rgba(255,255,255,.1)'};border-radius:12px;padding:11px 13px;margin-bottom:9px;background:${isUnread ? 'rgba(227,6,19,.07)' : 'rgba(255,255,255,.03)'};cursor:pointer;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          ${isUnread ? '<span style="width:8px;height:8px;border-radius:50%;background:var(--rouge);flex-shrink:0;"></span>' : ''}
+          <span style="font-size:.78rem;font-weight:800;color:var(--or);">${esc(m.sender || 'Admin')}</span>
+          <span style="flex:1;"></span>
+          <span style="font-size:.7rem;color:rgba(255,255,255,.4);">${fmt(m.created_at)}</span>
+          <button title="Supprimer ce message" onclick="event.stopPropagation();onDeleteInboxMsg(${m.id})" style="background:none;border:none;color:rgba(255,255,255,.35);font-size:1rem;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935'" onmouseout="this.style.color='rgba(255,255,255,.35)'">✕</button>
+        </div>
+        ${m.title ? `<div style="font-size:.9rem;font-weight:700;color:#fff;margin-bottom:3px;">${esc(m.title)}</div>` : ''}
+        <div style="font-size:.86rem;color:rgba(255,255,255,.85);white-space:pre-wrap;">${esc(m.body)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // Clic sur un message : le marque comme lu (s'il ne l'est pas déjà).
+  function onOpenInboxMsg(id) {
+    const m = _inbox.find(x => x.id === id);
+    if (m && !m.read) { inboxMarkRead(id); renderInbox(); updateHomeAuthArea(); }
+  }
+
+  // Suppression d'un message par le joueur (masqué pour lui uniquement).
+  function onDeleteInboxMsg(id) {
+    if (!confirm('Supprimer ce message ?')) return;
+    inboxDelete(id);
+  }
+
   function renderPlayerCard() {
     if (!_localUser) { nav('auth'); return; }
 
@@ -11235,8 +11643,9 @@
     }
 
     const lb = allLb.filter(e => e.name.toLowerCase() === name.toLowerCase());
-    const games  = lb.length;
-    const best   = games ? Math.max(...lb.map(e => Number(e.score) || 0)) : 0;
+    const realLb = lb.filter(e => !e.adjust);
+    const games  = realLb.length;
+    const best   = games ? Math.max(...realLb.map(e => Number(e.score) || 0)) : 0;
     const onzeBonus  = onzeBonusForName(name);
     const totalScore = lb.reduce((s, e) => s + (Number(e.score) || 0), 0) + onzeBonus;
     document.getElementById('pc-games').textContent = games;
@@ -11758,7 +12167,8 @@
           ? `<span style="margin-left:10px;font-size:.75rem;color:rgba(255,255,255,.45);">indice moy. <strong style="color:rgba(255,255,255,.75);">${(avgIndice + 1).toFixed(1)}</strong></span>`
           : '';
         s += `<div style="margin-bottom:10px;">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <div onclick="toggleQStatDetail('${esc(String(id))}')" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;cursor:pointer;" title="Voir le détail par joueur">
+            <span class="qstat-caret" id="qstat-caret-${esc(String(id))}" style="font-size:.65rem;color:rgba(255,255,255,.35);transition:transform .2s;display:inline-block;">▶</span>
             <span style="font-size:.82rem;color:rgba(255,255,255,.85);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(label)}">${esc(label)}</span>
             <span style="font-size:.72rem;color:rgba(255,255,255,.3);white-space:nowrap;">${st.successes}/${st.attempts}</span>
             ${indiceHtml}
@@ -11766,6 +12176,7 @@
           <div style="height:5px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden;">
             <div style="height:100%;width:${pct}%;background:${barColor};border-radius:3px;transition:width .3s;"></div>
           </div>
+          <div id="qstat-detail-${esc(String(id))}" style="display:none;"></div>
         </div>`;
       });
       return s;
@@ -11776,15 +12187,87 @@
     el.innerHTML = html;
   }
 
-  function resetQStats() {
-    if (!confirm('Réinitialiser toutes les statistiques par question ?')) return;
-    // v3 : les stats sont dérivées des parties — on mémorise la date du reset
-    const f = LS.getFeatures();
-    f.statsResetAt = Date.now();
-    LS.saveFeatures(f);
-    localStorage.removeItem('rcQStats');
-    renderQStats();
+  /* Détail par joueur pour une question donnée (qui a trouvé / à quel indice / qui a manqué).
+     Réutilise la même logique de filtrage que computeQStats (reset + exclusion bêta). */
+  function getQuestionAttempts(id) {
+    const f       = (_db.features && typeof _db.features === 'object') ? _db.features : {};
+    const resetAt = f.statsResetAt || 0;
+    const want    = String(id);
+    const out     = [];
+    (_db.scores || []).forEach(sc => {
+      if (sc.beta) return;
+      if (resetAt && new Date(sc.date).getTime() < resetAt) return;
+      (sc.details || []).forEach(d => {
+        if (!d || String(d.id) !== want) return;
+        out.push({ name: sc.name || '—', date: sc.date, ok: !!d.ok, indiceIdx: d.indiceIdx, playerAns: d.playerAns });
+      });
+    });
+    // Plus récent en premier
+    out.sort((a, b) => new Date(b.date) - new Date(a.date));
+    return out;
   }
+
+  function toggleQStatDetail(id) {
+    const box   = document.getElementById('qstat-detail-' + id);
+    const caret = document.getElementById('qstat-caret-' + id);
+    if (!box) return;
+    if (box.style.display !== 'none') {
+      box.style.display = 'none';
+      if (caret) caret.style.transform = '';
+      return;
+    }
+    if (caret) caret.style.transform = 'rotate(90deg)';
+
+    const q          = LS.getQ().find(x => String(x.id) === String(id));
+    const isJoueur   = q && q.type === 'joueur';
+    const attempts   = getQuestionAttempts(id);
+    const fmtDate     = (d) => { try { return new Date(d).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }); } catch { return ''; } };
+
+    if (!attempts.length) {
+      box.innerHTML = `<div style="padding:8px 0 4px 18px;font-size:.76rem;color:rgba(255,255,255,.4);">Aucune donnée détaillée (parties antérieures au suivi par joueur).</div>`;
+      box.style.display = 'block';
+      return;
+    }
+
+    const found  = attempts.filter(a => a.ok);
+    const missed = attempts.filter(a => !a.ok);
+
+    const lineFound = (a) => {
+      const indiceTxt = (isJoueur && a.indiceIdx != null)
+        ? `<span style="color:var(--or);font-weight:700;">indice ${a.indiceIdx + 1}</span>`
+        : `<span style="color:var(--vert);font-weight:700;">trouvé</span>`;
+      return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.78rem;">
+        <span style="color:var(--vert);">✓</span>
+        <span style="flex:1;color:rgba(255,255,255,.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span>
+        ${indiceTxt}
+        <span style="color:rgba(255,255,255,.3);font-size:.7rem;white-space:nowrap;">${fmtDate(a.date)}</span>
+      </div>`;
+    };
+    const lineMissed = (a) => {
+      // Pour les questions bonus, montrer la réponse réellement donnée (vide = pas de réponse / temps écoulé)
+      const ansTxt = (!isJoueur && a.playerAns != null && String(a.playerAns).trim() !== '')
+        ? `<span style="font-size:.74rem;color:rgba(255,255,255,.55);">a répondu : <em style="color:#ff8c00;font-style:normal;font-weight:600;">${esc(String(a.playerAns))}</em></span>`
+        : (!isJoueur
+            ? `<span style="font-size:.74rem;color:rgba(255,255,255,.3);font-style:italic;">aucune réponse</span>`
+            : `<span style="color:var(--rouge);font-size:.74rem;">non trouvé</span>`);
+      return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.78rem;">
+        <span style="color:var(--rouge);">✗</span>
+        <span style="flex:1;color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span>
+        ${ansTxt}
+        <span style="color:rgba(255,255,255,.3);font-size:.7rem;white-space:nowrap;">${fmtDate(a.date)}</span>
+      </div>`;
+    };
+
+    box.innerHTML = `
+      <div style="margin:6px 0 8px 18px;padding:8px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:8px;">
+        <div style="font-size:.7rem;font-weight:700;color:var(--vert);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;">Trouvé (${found.length})</div>
+        ${found.length ? found.map(lineFound).join('') : '<div style="font-size:.74rem;color:rgba(255,255,255,.35);padding:2px 0;">Personne</div>'}
+        <div style="font-size:.7rem;font-weight:700;color:var(--rouge);text-transform:uppercase;letter-spacing:.4px;margin:8px 0 2px;">Manqué (${missed.length})</div>
+        ${missed.length ? missed.map(lineMissed).join('') : '<div style="font-size:.74rem;color:rgba(255,255,255,.35);padding:2px 0;">Personne</div>'}
+      </div>`;
+    box.style.display = 'block';
+  }
+
   </script>
 
   <!-- ══ Player Card overlay ══ -->
