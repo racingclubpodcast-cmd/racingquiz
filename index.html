@@ -327,6 +327,13 @@
     /* ── Joueurs tab ── */
     .joueur-search-bar { margin-bottom:12px; }
     .joueur-search-bar input { width:100%; }
+    /* Pastille de statut compte : rond rouge plein = avec compte, rond rouge vide = sans compte */
+    .acct-dot { display:inline-block; width:11px; height:11px; border-radius:50%; flex-shrink:0; box-sizing:border-box; }
+    .acct-dot.has  { background:#e53935; border:1px solid #e53935; }
+    .acct-dot.none { background:transparent; border:2px solid #e53935; }
+    /* Badge de notification "joueurs sans compte" sur l'onglet Joueurs */
+    .tab-badge { display:none; min-width:16px; height:16px; line-height:14px; padding:0 4px; margin-left:5px; border-radius:9px; background:#e53935; color:#fff; font-size:.68rem; font-weight:800; text-align:center; vertical-align:middle; box-sizing:border-box; }
+    .tab-badge.show { display:inline-block; }
     .joueur-row { display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.07); margin-bottom:6px; cursor:pointer; transition:background .12s,border-color .12s; background:rgba(255,255,255,.02); user-select:none; }
     .joueur-row:hover { background:rgba(255,205,0,.06); border-color:rgba(255,205,0,.22); }
     .joueur-rank { font-size:.95rem; min-width:28px; text-align:center; flex-shrink:0; }
@@ -337,7 +344,11 @@
 
     /* ── Player Card overlay ── */
     .pcard-overlay { position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.75); backdrop-filter:blur(5px); display:flex; align-items:flex-end; justify-content:center; }
-    .pcard-panel { background:#161616; border:1px solid rgba(255,205,0,.2); border-bottom:none; border-radius:20px 20px 0 0; width:100%; max-width:520px; padding:8px 20px 36px; max-height:88vh; overflow-y:auto; animation:pcardUp .22s ease; }
+    .pcard-panel { background:#161616; border:1px solid rgba(255,205,0,.2); border-bottom:none; border-radius:20px 20px 0 0; width:100%; max-width:520px; padding:8px 20px 36px; max-height:88vh; overflow-y:auto; animation:pcardUp .22s ease; scrollbar-width:thin; scrollbar-color:var(--or) transparent; }
+    .pcard-panel::-webkit-scrollbar { width:8px; }
+    .pcard-panel::-webkit-scrollbar-track { background:transparent; margin:6px 0; }
+    .pcard-panel::-webkit-scrollbar-thumb { background:linear-gradient(var(--rouge), var(--or)); border-radius:99px; border:2px solid transparent; background-clip:padding-box; }
+    .pcard-panel::-webkit-scrollbar-thumb:hover { background:var(--or); background-clip:padding-box; border:2px solid transparent; }
     @keyframes pcardUp { from { transform:translateY(60px); opacity:0; } to { transform:translateY(0); opacity:1; } }
     .pcard-drag-handle { width:40px; height:4px; background:rgba(255,255,255,.15); border-radius:2px; margin:12px auto 20px; }
     .pcard-header { display:flex; align-items:center; gap:14px; margin-bottom:20px; }
@@ -1780,7 +1791,7 @@
     .mini-rank-name { flex:1;font-weight:600;font-size:.86rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .mini-rank-row.is-me .mini-rank-name { color:var(--or); }
     .mini-rank-score { font-weight:700;color:var(--or);font-size:.88rem;flex-shrink:0; }
-    .mini-rank-link { display:block;text-align:center;margin-top:10px;font-size:.8rem;font-weight:700;color:var(--or);cursor:pointer;text-decoration:none; }
+    .mini-rank-link { display:block;text-align:center;margin-top:10px;margin-bottom:18px;font-size:.8rem;font-weight:700;color:var(--or);cursor:pointer;text-decoration:none; }
     .mini-rank-link:hover { text-decoration:underline; }
 
     /* ── Mon Onze (terrain + formations + collection) ── */
@@ -1889,7 +1900,7 @@
         <div id="home-auth-error" class="alert alert-error" style="display:none;margin-bottom:12px;"></div>
         <div id="home-auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
         <button id="home-auth-btn" class="btn btn-red btn-full" data-mode="login" onclick="homeAuthSubmit()">Se connecter</button>
-        <p class="auth-anon-link" onclick="homePlayAnon()">Jouer sans se connecter →</p>
+        <p style="text-align:center;margin-top:12px;font-size:.74rem;color:rgba(255,255,255,.4);line-height:1.45;">Un compte est nécessaire pour jouer. Crée-le en quelques secondes, c'est gratuit. Si vous avez oublié votre mot de passe, contactez-nous en utilisant la fonctionnalité ci-dessous.</p>
       </div>
 
       <!-- Section jouer (affichée après auth ou mode anonyme) -->
@@ -1996,7 +2007,7 @@
           <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database (<span id="qcount">0</span>)</button>
           <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur</button>
           <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
-          <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs</button>
+          <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs<span id="joueurs-noacct-badge" class="tab-badge" title="Joueurs sans compte"></span></button>
           <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
         </div>
         <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
@@ -3000,8 +3011,6 @@
         <div id="auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
 
         <button id="auth-submit-btn" class="btn btn-red btn-full" data-mode="login" onclick="authSubmit()">Se connecter</button>
-
-        <p class="auth-anon-link" onclick="nav('player-name')">Continuer sans compte →</p>
       </div>
       <button class="btn btn-ghost btn-sm" style="margin-top:12px;" onclick="nav('home')">← Retour</button>
     </div>
@@ -3098,6 +3107,43 @@
           <div id="pc-history-list" style="max-height:320px;overflow-y:auto;"></div>
         </div>
 
+        <!-- Sécurité : changer son mot de passe -->
+        <div class="card" id="pc-security-card" style="margin-bottom:12px;">
+          <button id="pc-pwd-toggle" class="btn btn-ghost btn-full mb0" onclick="pcTogglePwdForm()"
+                  style="display:flex;align-items:center;justify-content:space-between;font-size:.88rem;">
+            <span>🔒 Modifier mon mot de passe</span>
+            <span style="opacity:.5;">›</span>
+          </button>
+          <div id="pc-pwd-form" style="display:none;margin-top:14px;">
+            <div class="form-group">
+              <label class="field-label">Mot de passe actuel</label>
+              <input type="password" id="pc-pwd-current" placeholder="Mot de passe actuel"
+                     onkeydown="if(event.key==='Enter')pcChangePwd()">
+            </div>
+            <div class="form-group">
+              <label class="field-label">Nouveau mot de passe</label>
+              <input type="password" id="pc-pwd-new" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
+                     onkeydown="if(event.key==='Enter')pcChangePwd()">
+              <div class="alert alert-info" style="margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
+                <strong>Ton nouveau mot de passe doit contenir :</strong>
+                <ul style="margin:6px 0 0;padding-left:18px;">
+                  <li>au moins <strong>7 caractères</strong></li>
+                  <li>au moins une <strong>majuscule</strong></li>
+                  <li>au moins un <strong>chiffre</strong></li>
+                  <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="field-label">Confirmer le nouveau mot de passe</label>
+              <input type="password" id="pc-pwd-confirm" placeholder="Répéter le nouveau mot de passe"
+                     onkeydown="if(event.key==='Enter')pcChangePwd()">
+            </div>
+            <div id="pc-pwd-msg" style="margin-bottom:10px;font-size:.8rem;display:none;"></div>
+            <button class="btn btn-red btn-full mb0" onclick="pcChangePwd()">Valider le nouveau mot de passe</button>
+          </div>
+        </div>
+
         <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
       </div>
     </div>
@@ -3156,7 +3202,7 @@
       <div style="background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:16px;margin-bottom:16px;">
         <p style="color:var(--or);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;">Comment se déroule une partie ?</p>
         <ol style="color:rgba(255,255,255,.78);font-size:.84rem;line-height:1.7;padding-left:18px;margin:0;">
-          <li><strong style="color:#fff;">Crée ton compte</strong> (pseudo + mot de passe) ou joue en mode anonyme.</li>
+          <li><strong style="color:#fff;">Crée ton compte</strong> (pseudo + mot de passe) — il est obligatoire pour jouer.</li>
           <li>Chaque session te propose <strong style="color:#fff;">deux joueurs RC Lens à deviner</strong> via des indices, puis une <strong style="color:#fff;">question bonus</strong>.</li>
           <li>Tu ne peux jouer <strong style="color:#fff;">qu'une seule fois par session</strong> : à toi de viser le meilleur score du premier coup !</li>
           <li>À la fin, ton score, ton badge et le récap de tes réponses s'affichent — et tu apparais au <strong style="color:#fff;">classement</strong>.</li>
@@ -4101,6 +4147,7 @@
       await dbPush('vocab');
     }
     await Promise.all([scoresFetch(), accountsFetch()]);
+    updateNoAccountBadge();
   }
 
   /* Migration one-shot v3 : déplace les données des anciennes versions
@@ -4606,6 +4653,12 @@
 
   function adminTab(tab) {
     if (tab !== 'joueurs') _stopJoueursPoll();
+    updateNoAccountBadge();
+    // Si l'onglet Joueurs n'est pas ouvert, rafraîchir les comptes/scores pour
+    // afficher la notification "joueurs sans compte" sans cliquer sur l'onglet.
+    if (tab !== 'joueurs' && _supa) {
+      Promise.all([scoresFetch(), accountsFetch()]).then(updateNoAccountBadge).catch(() => {});
+    }
     const showList = tab === 'list';
     document.getElementById('t-list').classList.toggle('active', tab === 'list');
     document.getElementById('t-generator').classList.toggle('active', tab === 'generator');
@@ -6179,6 +6232,28 @@
     }).join('');
   }
 
+  /* true si un compte (pseudo) existe pour ce nom de joueur. */
+  function _hasAccount(name) {
+    const accts = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
+    const k = (name || '').toLowerCase().trim();
+    return Object.values(accts).some(a => a && a.pseudo && a.pseudo.toLowerCase() === k);
+  }
+
+  /* Met à jour le badge "joueurs sans compte" sur l'onglet Joueurs. */
+  function updateNoAccountBadge() {
+    const badge = document.getElementById('joueurs-noacct-badge');
+    if (!badge) return;
+    const lb = LS.getLeaderboard();
+    const names = new Set();
+    lb.forEach(e => { if (e && e.name) names.add(e.name.toLowerCase().trim()); });
+    let n = 0;
+    names.forEach(k => { if (!_hasAccount(k)) n++; });
+    badge.textContent = n > 0 ? String(n) : '';
+    badge.classList.toggle('show', n > 0);
+    const opt = document.querySelector('#tabs-select option[value="joueurs"]');
+    if (opt) opt.textContent = n > 0 ? `Joueurs (${n} sans compte)` : 'Joueurs';
+  }
+
   function renderJoueurs() {
     const lb     = LS.getLeaderboard();
     const accts  = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
@@ -6252,17 +6327,21 @@
       const initial   = p.name.charAt(0).toUpperCase();
       const nGames    = p.realGames.length;
       const adjLabel  = p.adjustPts ? ` · ⚖️ ${p.adjustPts > 0 ? '+' : ''}${p.adjustPts}` : '';
+      const hasAcct   = _hasAccount(p.name);
+      const dot       = `<span class="acct-dot ${hasAcct ? 'has' : 'none'}" title="${hasAcct ? 'Joueur avec compte' : 'Joueur sans compte'}"></span>`;
       return `<div class="joueur-row" data-pname="${esc(p.name)}" onclick="openPlayerCard(this.dataset.pname)">
         <span class="joueur-rank">${rankLabel}</span>
         <div class="joueur-avatar">${initial}</div>
         <div style="flex:1;min-width:0;">
-          <div class="joueur-pseudo">${esc(p.name)}</div>
+          <div class="joueur-pseudo" style="display:flex;align-items:center;gap:7px;">${dot}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</span></div>
           <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}${adjLabel}</div>
         </div>
         <div class="joueur-score-val">${p.totalScore}</div>
         <button onclick="event.stopPropagation();deletePlayerByName(this.closest('[data-pname]').dataset.pname)" title="Supprimer ce joueur" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
       </div>`;
     }).join('');
+
+    updateNoAccountBadge();
   }
 
   let _pcardName = '';
@@ -6457,20 +6536,30 @@
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
       ${adjustSection}
-      <div class="pcard-section-title">Compte</div>
-      <div style="padding:0 0 14px;">
-        <button class="btn btn-red btn-sm" style="white-space:nowrap;" onclick="composeMessageTo('${esc(name.toLowerCase())}')">✉️ Envoyer un message à ${esc(name)}</button>
-      </div>
+      <div class="pcard-section-title">Compte ${acctExists
+          ? '<span class="acct-dot has" style="vertical-align:middle;"></span> <span style="color:rgba(255,255,255,.6);font-weight:600;font-size:.8rem;">avec compte</span>'
+          : '<span class="acct-dot none" style="vertical-align:middle;"></span> <span style="color:rgba(255,255,255,.6);font-weight:600;font-size:.8rem;">sans compte</span>'}</div>
+      ${acctExists ? `
       <div style="padding:0 0 8px;">
         <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Réinitialiser le mot de passe de ce joueur</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (min. 4 car.)"
+          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (min. 7 car.)"
                  style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
                  onkeydown="if(event.key==='Enter')adminResetPwd()">
           <button class="btn btn-ghost btn-sm" onclick="adminResetPwd()" style="white-space:nowrap;">Réinitialiser</button>
         </div>
         <div id="pcard-pwd-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
-      </div>
+      </div>` : `
+      <div style="padding:0 0 8px;">
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ce joueur joue <strong>sans compte</strong>. Crée-lui un compte en définissant un mot de passe simple (min. 7 caractères, aucune autre règle) : communique-le-lui pour qu'il se connecte avec son pseudo <strong>${esc(name)}</strong>. Il pourra ensuite le modifier depuis sa carte joueur.</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="pcard-create-pwd" placeholder="Mot de passe (min. 7 car.)"
+                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
+                 onkeydown="if(event.key==='Enter')adminCreateAccount()">
+          <button class="btn btn-red btn-sm" onclick="adminCreateAccount()" style="white-space:nowrap;">Créer le compte</button>
+        </div>
+        <div id="pcard-create-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
+      </div>`}
     `;
     document.getElementById('pcard-overlay').style.display = 'flex';
   }
@@ -6506,6 +6595,42 @@
     input.value = '';
     show(`Mot de passe de ${name} réinitialisé avec succès.`, true);
     setTimeout(() => { if (msgEl) msgEl.style.display = 'none'; }, 3000);
+  }
+
+  /* Promotion d'un joueur sans compte → joueur avec compte.
+     account_admin_set_pwd (upsert serveur) crée le compte si absent. */
+  async function adminCreateAccount() {
+    const name  = _pcardName;
+    const input = document.getElementById('pcard-create-pwd');
+    const msgEl = document.getElementById('pcard-create-msg');
+    const pwd   = input ? input.value : '';
+
+    const show = (text, ok) => {
+      msgEl.textContent   = text;
+      msgEl.style.color   = ok ? '#2ecc71' : '#e74c3c';
+      msgEl.style.display = 'block';
+    };
+
+    // Promotion par l'admin : mot de passe libre (aucune règle de caractères),
+    // seule contrainte = la longueur min. 7 imposée par le serveur (account_admin_set_pwd).
+    if (!pwd || pwd.length < 7) { show('Le mot de passe doit faire au moins 7 caractères.', false); return; }
+
+    if (!_supa) { show('Serveur indisponible.', false); return; }
+    const { error } = await _supa.rpc('account_admin_set_pwd', { p_key: name, p_pwd: pwd });
+    if (error) {
+      show('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).', false);
+      return;
+    }
+    await accountsFetch();
+    renderJoueurs();
+    // On affiche le mot de passe en clair pour que l'admin puisse le communiquer au
+    // joueur. Le joueur pourra ensuite le changer depuis sa carte joueur.
+    msgEl.innerHTML = `Compte créé pour <strong>${esc(name)}</strong>. Communique-lui ces identifiants :<br>`
+      + `Pseudo : <strong>${esc(name)}</strong> — Mot de passe : <strong style="font-family:monospace;letter-spacing:.04em;">${esc(pwd)}</strong>`;
+    msgEl.style.color   = '#2ecc71';
+    msgEl.style.display = 'block';
+    // Rouvrir la carte (état "avec compte") après un délai laissant lire le mot de passe.
+    setTimeout(() => openPlayerCard(name), 6000);
   }
 
   /* Ajustement manuel des points (admin) : insère une ligne « adjust » dans la
@@ -9006,7 +9131,7 @@
 
   // Lance une partie de rattrapage pour la session passée `startDate`.
   function startCatchUp(startDate) {
-    if (!_localUser) { nav('player-name'); return; }
+    if (!_localUser) { nav('auth'); return; }
     document.getElementById('player-name').value = _localUser.pseudo;
     startQuiz(startDate);
   }
@@ -9018,7 +9143,7 @@
       document.getElementById('player-name').value = _localUser.pseudo;
       startQuiz();
     } else {
-      nav('player-name');
+      nav('auth');
     }
   }
 
@@ -9060,8 +9185,10 @@
   }
 
   async function startQuiz(catchUpStart = null) {
-    const name = (document.getElementById('player-name').value || '').trim();
-    if (!name) { document.getElementById('player-name').focus(); return; }
+    // Un compte est désormais obligatoire pour jouer (plus de mode anonyme).
+    if (!_localUser) { nav('auth'); return; }
+    const name = (_localUser.pseudo || '').trim();
+    if (!name) { nav('auth'); return; }
 
     document.getElementById('already-played-alert').style.display = 'none';
 
@@ -11024,6 +11151,77 @@
     nav('home');
   }
 
+  /* Ouvre/ferme le formulaire « Modifier mon mot de passe » de la carte joueur. */
+  function pcTogglePwdForm() {
+    const form = document.getElementById('pc-pwd-form');
+    if (!form) return;
+    const open = form.style.display === 'none' || !form.style.display;
+    form.style.display = open ? 'block' : 'none';
+    if (open) {
+      ['pc-pwd-current','pc-pwd-new','pc-pwd-confirm'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.value = '';
+      });
+      const msg = document.getElementById('pc-pwd-msg'); if (msg) msg.style.display = 'none';
+      const cur = document.getElementById('pc-pwd-current');
+      if (cur) setTimeout(() => cur.focus(), 60);
+    }
+  }
+
+  /* Changement de mot de passe par le joueur lui-même (depuis sa carte joueur).
+     Vérifie le mot de passe actuel via account_login, puis applique le nouveau via
+     account_change_pwd (jeton requis ; renvoie un jeton neuf). */
+  async function pcChangePwd() {
+    if (!_localUser) { nav('auth'); return; }
+    const pseudo  = _localUser.pseudo;
+    const curEl   = document.getElementById('pc-pwd-current');
+    const newEl   = document.getElementById('pc-pwd-new');
+    const confEl  = document.getElementById('pc-pwd-confirm');
+    const msgEl   = document.getElementById('pc-pwd-msg');
+    const cur     = curEl  ? curEl.value  : '';
+    const npwd    = newEl  ? newEl.value  : '';
+    const conf    = confEl ? confEl.value : '';
+
+    const show = (text, ok) => {
+      if (!msgEl) return;
+      msgEl.textContent   = text;
+      msgEl.style.color   = ok ? '#2ecc71' : '#e74c3c';
+      msgEl.style.display = 'block';
+    };
+
+    if (!cur)  { show('Saisis ton mot de passe actuel.', false); return; }
+    const pwdErr = _validatePwd(npwd || '');
+    if (pwdErr) { show(pwdErr, false); return; }
+    if (npwd !== conf) { show('Les nouveaux mots de passe ne correspondent pas.', false); return; }
+    if (npwd === cur)  { show('Le nouveau mot de passe doit être différent de l\'actuel.', false); return; }
+    if (!_supa) { show('Serveur indisponible. Réessaie plus tard.', false); return; }
+
+    // 1) Vérifier le mot de passe actuel (rafraîchit aussi le jeton).
+    const login = await _rpcLogin(pseudo, cur);
+    if (!login.ok) { show('Mot de passe actuel incorrect.', false); return; }
+
+    // 2) Appliquer le nouveau mot de passe.
+    const tok = _getAuthToken();
+    const { data, error } = await _supa.rpc('account_change_pwd', {
+      p_pseudo: pseudo, p_token: tok, p_new_pwd: npwd
+    });
+    if (error) {
+      show(/weak_password/.test(error.message || '') ? 'Mot de passe trop faible.'
+        : 'Échec du changement. Réessaie.', false);
+      return;
+    }
+    if (data) _setAuthToken(data);   // nouveau jeton renvoyé par le serveur
+
+    if (curEl)  curEl.value  = '';
+    if (newEl)  newEl.value  = '';
+    if (confEl) confEl.value = '';
+    show('Mot de passe modifié avec succès ✓', true);
+    setTimeout(() => {
+      const f = document.getElementById('pc-pwd-form');
+      if (f) f.style.display = 'none';
+      if (msgEl) msgEl.style.display = 'none';
+    }, 2500);
+  }
+
   function updateHomeAuthArea() {
     const authSection = document.getElementById('home-auth-section');
     const playSection = document.getElementById('home-play-section');
@@ -11178,17 +11376,6 @@
       // on rafraîchit l'état partagé pour proposer les parties à rattraper.
       Promise.all([scoresFetch(), dbPull('planning')]).then(renderHomeCatchUp);
     }
-  }
-
-  function homePlayAnon() {
-    const authSection = document.getElementById('home-auth-section');
-    const playSection = document.getElementById('home-play-section');
-    const profileBtn  = document.getElementById('home-profile-btn');
-    const logoutBtn   = document.getElementById('home-logout-btn');
-    if (authSection) authSection.style.display = 'none';
-    if (playSection) playSection.style.display = 'block';
-    if (profileBtn)  profileBtn.style.display  = 'none';
-    if (logoutBtn)   logoutBtn.style.display   = 'none';
   }
 
   const _BADGE_ICONS = {
