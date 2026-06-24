@@ -6551,7 +6551,7 @@
         <div id="pcard-pwd-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
       </div>` : `
       <div style="padding:0 0 8px;">
-        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ce joueur joue <strong>sans compte</strong>. Crée-lui un compte en définissant un mot de passe simple (min. 7 caractères, aucune autre règle) : communique-le-lui pour qu'il se connecte avec son pseudo <strong>${esc(name)}</strong>. Il pourra ensuite le modifier depuis sa carte joueur.</div>
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ce joueur joue <strong>sans compte</strong>. Crée-lui un compte en définissant un mot de passe simple (aucune contrainte de longueur ni de caractères) : communique-le-lui pour qu'il se connecte avec son pseudo <strong>${esc(name)}</strong>. Il pourra ensuite le modifier depuis sa carte joueur.</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <input type="text" id="pcard-create-pwd" placeholder="Mot de passe (min. 7 car.)"
                  style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
@@ -6611,9 +6611,9 @@
       msgEl.style.display = 'block';
     };
 
-    // Promotion par l'admin : mot de passe libre (aucune règle de caractères),
-    // seule contrainte = la longueur min. 7 imposée par le serveur (account_admin_set_pwd).
-    if (!pwd || pwd.length < 7) { show('Le mot de passe doit faire au moins 7 caractères.', false); return; }
+    // Promotion par l'admin : mot de passe totalement libre (aucune règle de
+    // longueur ni de caractères). Seule contrainte : le champ doit être rempli.
+    if (!pwd) { show('Saisis un mot de passe.', false); return; }
 
     if (!_supa) { show('Serveur indisponible.', false); return; }
     const { error } = await _supa.rpc('account_admin_set_pwd', { p_key: name, p_pwd: pwd });
