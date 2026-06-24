@@ -6553,7 +6553,7 @@
       <div style="padding:0 0 8px;">
         <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ce joueur joue <strong>sans compte</strong>. Crée-lui un compte en définissant un mot de passe simple (aucune contrainte de longueur ni de caractères) : communique-le-lui pour qu'il se connecte avec son pseudo <strong>${esc(name)}</strong>. Il pourra ensuite le modifier depuis sa carte joueur.</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="pcard-create-pwd" placeholder="Mot de passe (min. 7 car.)"
+          <input type="text" id="pcard-create-pwd" placeholder="Mot de passe (libre, aucune contrainte)"
                  style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
                  onkeydown="if(event.key==='Enter')adminCreateAccount()">
           <button class="btn btn-red btn-sm" onclick="adminCreateAccount()" style="white-space:nowrap;">Créer le compte</button>
