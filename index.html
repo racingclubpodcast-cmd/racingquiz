@@ -752,6 +752,23 @@
       border-color: var(--or);
       color: var(--or);
     }
+    /* Pastille de comptage dans les sous-onglets */
+    .subtab-count {
+      display: inline-block;
+      min-width: 20px;
+      padding: 1px 6px;
+      margin-left: 3px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      color: inherit;
+      font-size: .76rem;
+      font-weight: 800;
+      line-height: 1.4;
+      vertical-align: middle;
+    }
+    .add-subtab.active .subtab-count {
+      background: rgba(255,205,0,.22);
+    }
     /* Fond sombre derrière les sous-onglets de la database */
     .db-subtabs {
       background: rgba(0,0,0,.45);
@@ -1359,11 +1376,27 @@
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-top: 1px solid rgba(255,205,0,.25);
+      padding: 10px 0;
+      overflow: hidden;
+    }
+    .home-social-track {
+      display: flex;
+      width: max-content;
+      align-items: center;
+      animation: home-social-scroll 28s linear infinite;
+    }
+    /* Le défilement s'immobilise au survol pour laisser cliquer les liens */
+    .home-social:hover .home-social-track { animation-play-state: paused; }
+    .home-social-group {
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 18px;
-      padding: 10px 20px;
+      padding: 0 32px;
+      flex-shrink: 0;
+    }
+    @keyframes home-social-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
     }
     .home-social-label {
       font-size: .72rem;
@@ -1446,6 +1479,22 @@
       background-clip: padding-box;
     }
     #admin-dashboard::-webkit-scrollbar-thumb:hover {
+      background: var(--or);
+      background-clip: padding-box;
+      border: 2px solid transparent;
+    }
+    /* Liste du sélecteur de questions du planning (Qui suis-je 1/2, Bonus) :
+       barre de défilement aux couleurs de la charte (rouge → or). */
+    #picker-list { scrollbar-width: thin; scrollbar-color: var(--or) transparent; }
+    #picker-list::-webkit-scrollbar { width: 8px; }
+    #picker-list::-webkit-scrollbar-track { background: transparent; margin: 6px 0; }
+    #picker-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--rouge), var(--or));
+      border-radius: 99px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    #picker-list::-webkit-scrollbar-thumb:hover {
       background: var(--or);
       background-clip: padding-box;
       border: 2px solid transparent;
@@ -1697,14 +1746,9 @@
       .test-banner { padding: 8px 12px; font-size: .76rem; }
 
       /* Bannière réseaux sociaux */
-      .home-social {
-        flex-direction: column;
-        gap: 6px;
-        padding: 8px 14px;
-      }
+      .home-social { padding: 8px 0; }
+      .home-social-group { gap: 12px; padding: 0 22px; }
       .home-social-label {
-        white-space: normal;
-        text-align: center;
         font-size: .62rem;
         letter-spacing: .3px;
       }
@@ -1767,12 +1811,39 @@
     .pc-act-legend-item { display:flex;align-items:center;gap:4px;font-size:.63rem;color:rgba(255,255,255,.3); }
     .pc-act-legend-cell { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
     #pc-act-tip { position:fixed;z-index:9999;display:none;pointer-events:none;background:rgba(20,20,20,.97);border:1px solid rgba(255,205,0,.22);border-radius:6px;padding:5px 10px;font-size:.72rem;color:rgba(255,255,255,.85);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.5); }
+
+    /* ── Graphique points par partie (player card) ── */
+    .score-chart-scroll { overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch; }
+    .score-chart-svg { display:block;height:auto; }
+    .score-chart-svg .sc-bar { fill:var(--or);transition:fill .12s;pointer-events:none; }
+    .score-chart-svg .sc-bar.is-hover { fill:#ffd633; }
+    .score-chart-svg .sc-col { fill:transparent;cursor:pointer; }
+    .score-chart-svg .sc-line { fill:none;stroke:var(--rouge);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;pointer-events:none; }
+    .score-chart-svg .sc-dot { fill:#fff;stroke:var(--rouge);stroke-width:2;pointer-events:none; }
+    .score-chart-svg .sc-barval, .score-chart-svg .sc-datelbl, .score-chart-svg .sc-axislbl, .score-chart-svg .sc-axis { pointer-events:none; }
+    .score-chart-svg .sc-axis { stroke:rgba(255,255,255,.1);stroke-width:1; }
+    .score-chart-svg .sc-axislbl { fill:rgba(255,255,255,.35);font-size:9px;font-family:inherit; }
+    .score-chart-svg .sc-datelbl { fill:rgba(255,255,255,.5);font-size:9px;font-family:inherit; }
+    .score-chart-svg .sc-barval { fill:var(--or);font-size:9px;font-weight:700;font-family:inherit; }
+    .score-chart-legend { display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap;justify-content:center; }
+    .score-chart-legend-item { display:flex;align-items:center;gap:5px;font-size:.66rem;color:rgba(255,255,255,.45); }
+    .score-chart-legend-bar { width:11px;height:11px;border-radius:2px;background:var(--or);flex-shrink:0; }
+    .score-chart-legend-line { width:14px;height:0;border-top:2.5px solid var(--rouge);flex-shrink:0; }
+    .score-chart-tip { position:fixed;z-index:10000;display:none;pointer-events:none;background:rgba(20,20,20,.98);border:1px solid rgba(255,205,0,.25);border-radius:8px;padding:9px 11px;font-size:.74rem;color:rgba(255,255,255,.85);box-shadow:0 6px 22px rgba(0,0,0,.55);max-width:240px; }
+    .score-chart-tip .chart-tip-head { font-weight:700;color:#fff;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:5px;margin-bottom:5px;font-size:.78rem; }
+    .score-chart-tip .chart-tip-q { display:flex;align-items:center;gap:6px;padding:2px 0;line-height:1.3; }
+    .score-chart-tip .chart-tip-qicon { flex-shrink:0;width:14px;text-align:center; }
+    .score-chart-tip .chart-tip-qlabel { flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .score-chart-tip .chart-tip-qpts { flex-shrink:0;font-weight:700;color:var(--or);white-space:nowrap; }
+    .score-chart-tip .chart-tip-empty { color:rgba(255,255,255,.4);font-style:italic; }
     /* ── Classement public ── */
     .lb-tab-btn { flex:1;padding:9px 2px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;white-space:nowrap;transition:background .15s,color .15s; }
     @media (max-width:380px) { .lb-tab-btn { font-size:.72rem;padding:8px 1px; } }
     .lb-tab-active { background:var(--rouge);border-color:var(--rouge);color:#fff;font-weight:700; }
     .lb-entry { display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07); }
     .lb-entry:last-child { border-bottom:none; }
+    .lb-entry.clickable { cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;transition:background .12s; }
+    .lb-entry.clickable:hover { background:rgba(255,205,0,.08); }
     .lb-rank { width:32px;text-align:center;font-weight:700;font-size:.9rem;color:rgba(255,255,255,.38);flex-shrink:0; }
     .lb-rank-1 { color:#FFCD00;font-size:1.2rem; }
     .lb-rank-2 { color:#c8c8c8;font-size:1.1rem; }
@@ -1785,6 +1856,8 @@
     /* ── Mini-classement général (player cards) ── */
     .mini-rank { display:flex;flex-direction:column;gap:2px; }
     .mini-rank-row { display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background .12s; }
+    .mini-rank-row.clickable { cursor:pointer; }
+    .mini-rank-row.clickable:hover { background:rgba(255,205,0,.08); }
     .mini-rank-row.is-me { background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.28); }
     .mini-rank-pos { width:30px;text-align:center;font-weight:700;font-size:.85rem;color:rgba(255,255,255,.4);flex-shrink:0; }
     .mini-rank-row.is-me .mini-rank-pos { color:var(--or); }
@@ -1925,17 +1998,21 @@
 
       <!-- Bandeau réseaux sociaux -->
       <div class="home-social">
-        <span class="home-social-label">Abonne-toi à notre chaîne YouTube et suis-nous sur les réseaux sociaux</span>
-        <div class="home-social-logos">
-          <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" aria-label="Chaîne YouTube Racing Club Podcast">
-            <img src="YT.png" alt="YouTube">
-          </a>
-          <a href="https://www.instagram.com/leracingclubpodcast/" target="_blank" rel="noopener" aria-label="Instagram Racing Club Podcast">
-            <img src="Insta.png" alt="Instagram">
-          </a>
-          <a href="https://x.com/leracingclub" target="_blank" rel="noopener" aria-label="Compte X Racing Club Podcast">
-            <img src="X.png" alt="X">
-          </a>
+        <div class="home-social-track">
+          <div class="home-social-group">
+            <span class="home-social-label">Abonne-toi à notre chaîne YouTube et suis-nous sur les réseaux sociaux</span>
+            <div class="home-social-logos">
+              <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" aria-label="Chaîne YouTube Racing Club Podcast">
+                <img src="YT.png" alt="YouTube">
+              </a>
+              <a href="https://www.instagram.com/leracingclubpodcast/" target="_blank" rel="noopener" aria-label="Instagram Racing Club Podcast">
+                <img src="Insta.png" alt="Instagram">
+              </a>
+              <a href="https://x.com/leracingclub" target="_blank" rel="noopener" aria-label="Compte X Racing Club Podcast">
+                <img src="X.png" alt="X">
+              </a>
+            </div>
+          </div>
         </div>
       </div>
       <button id="home-contact-btn" class="btn btn-ghost btn-full" style="max-width:380px;margin-top:18px;margin-bottom:0;font-size:.85rem;" onclick="openContactFromHome()">✉ Contactez-nous</button>
@@ -1985,7 +2062,7 @@
           <h2 style="margin:0;font-size:1.2rem;">Espace Administrateur</h2>
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn-settings-icon btn-msg-icon" onclick="adminTab('messages')" id="t-messages" title="Messages">
+          <button class="btn-settings-icon btn-msg-icon" onclick="adminTab('messagerie')" id="t-messages" title="Messagerie">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
               <path d="m22 6-10 7L2 6"/>
@@ -2004,17 +2081,19 @@
 
       <div class="tabs-nav">
         <div class="tabs">
-          <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database (<span id="qcount">0</span>)</button>
-          <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">⚗ Générateur</button>
+          <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database</button>
+          <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">Générateur</button>
           <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
           <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs<span id="joueurs-noacct-badge" class="tab-badge" title="Joueurs sans compte"></span></button>
+          <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messagerie</button>
           <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
         </div>
         <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
           <option value="list">Database</option>
-          <option value="generator">⚗ Générateur</option>
+          <option value="generator">Générateur</option>
           <option value="planning">Planning</option>
           <option value="joueurs">Joueurs</option>
+          <option value="messagerie">Messagerie</option>
           <option value="stats">Stats</option>
         </select>
       </div>
@@ -2023,9 +2102,9 @@
       <div id="at-list" style="width:100%">
         <!-- Sous-onglets de la database -->
         <div class="add-subtabs db-subtabs">
-          <button class="add-subtab active" id="dst-joueur" onclick="setDbSubTab('joueur')">Qui suis-je ?</button>
-          <button class="add-subtab" id="dst-bonus" onclick="setDbSubTab('bonus')">Bonus</button>
-          <button class="add-subtab" id="dst-vocab" onclick="setDbSubTab('vocab')">Vocabulaire allemand</button>
+          <button class="add-subtab active" id="dst-joueur" onclick="setDbSubTab('joueur')">Joueurs <span class="subtab-count" id="dstc-joueur">0</span></button>
+          <button class="add-subtab" id="dst-bonus" onclick="setDbSubTab('bonus')">Bonus <span class="subtab-count" id="dstc-bonus">0</span></button>
+          <button class="add-subtab" id="dst-vocab" onclick="setDbSubTab('vocab')">Vocabulaire allemand <span class="subtab-count" id="dstc-vocab">0</span></button>
         </div>
 
         <!-- Pane : Questions (Qui suis-je ? / Bonus) -->
@@ -2574,33 +2653,6 @@
 
       <!-- Tab : joueurs -->
       <div id="at-joueurs" style="display:none;width:100%">
-        <!-- Envoyer un message aux joueurs -->
-        <div class="card" style="margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">✉️ Envoyer un message</span>
-          </div>
-          <select id="pmsg-recipient" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;margin-bottom:8px;">
-            <option value="">📢 Tous les joueurs (diffusion)</option>
-          </select>
-          <input type="text" id="pmsg-title" placeholder="Objet (optionnel)" maxlength="120" autocomplete="off"
-                 style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;margin-bottom:8px;">
-          <textarea id="pmsg-body" placeholder="Votre message…" rows="3" maxlength="2000"
-                 style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;resize:vertical;font-family:inherit;"></textarea>
-          <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
-            <span id="pmsg-feedback" style="flex:1;font-size:.78rem;"></span>
-            <button class="btn btn-red btn-sm" onclick="sendPlayerMessage()">Envoyer</button>
-          </div>
-        </div>
-
-        <!-- Messages envoyés -->
-        <div class="card" style="margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Messages envoyés</span>
-            <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="playerMsgsFetchAdmin().then(renderPlayerMsgAdmin)">↻ Actualiser</button>
-          </div>
-          <div id="pmsg-sent-list"></div>
-        </div>
-
         <div class="card" style="margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
             <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
@@ -2618,21 +2670,59 @@
         </div>
       </div>
 
-      <!-- Tab : messages -->
-      <div id="at-messages" style="display:none;width:100%">
-        <div class="card" style="margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Messages reçus</span>
-            <span id="messages-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
-            <button class="btn btn-ghost btn-sm" onclick="messagesFetch().then(renderMessages)">↻ Actualiser</button>
+      <!-- Tab : messagerie -->
+      <div id="at-messagerie" style="display:none;width:100%">
+        <!-- Sous-onglets de la messagerie -->
+        <div class="add-subtabs">
+          <button class="add-subtab active" id="mst-send" onclick="setMessagerieSubTab('send')">Envoyer un message</button>
+          <button class="add-subtab" id="mst-sent" onclick="setMessagerieSubTab('sent')">Messages envoyés</button>
+          <button class="add-subtab" id="mst-received" onclick="setMessagerieSubTab('received')">Messages reçus</button>
+        </div>
+
+        <!-- Pane : Envoyer un message -->
+        <div id="msgr-send-pane">
+          <div class="card" style="margin-bottom:12px;">
+            <select id="pmsg-recipient" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;margin-bottom:8px;">
+              <option value="">Tous les joueurs (diffusion)</option>
+            </select>
+            <input type="text" id="pmsg-title" placeholder="Objet (optionnel)" maxlength="120" autocomplete="off"
+                   style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;margin-bottom:8px;">
+            <textarea id="pmsg-body" placeholder="Votre message…" rows="3" maxlength="2000"
+                   style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;resize:vertical;font-family:inherit;"></textarea>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:10px;">
+              <span id="pmsg-feedback" style="flex:1;font-size:.78rem;"></span>
+              <button class="btn btn-red btn-sm" onclick="sendPlayerMessage()">Envoyer</button>
+            </div>
           </div>
-          <div id="messages-filter-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <button class="btn btn-sm" id="mfilter-all" onclick="setMessageFilter('all')" style="font-size:.75rem;padding:5px 10px;">Tous</button>
-            <button class="btn btn-ghost btn-sm" id="mfilter-error" onclick="setMessageFilter('error')" style="font-size:.75rem;padding:5px 10px;">⚠ Erreurs</button>
-            <button class="btn btn-ghost btn-sm" id="mfilter-propose" onclick="setMessageFilter('propose')" style="font-size:.75rem;padding:5px 10px;">💡 Propositions</button>
-            <button class="btn btn-ghost btn-sm" id="mfilter-todo" onclick="setMessageFilter('todo')" style="font-size:.75rem;padding:5px 10px;">À traiter</button>
+        </div>
+
+        <!-- Pane : Messages envoyés -->
+        <div id="msgr-sent-pane" style="display:none;">
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Messages envoyés</span>
+              <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="playerMsgsFetchAdmin().then(renderPlayerMsgAdmin)">↻ Actualiser</button>
+            </div>
+            <div id="pmsg-sent-list"></div>
           </div>
-          <div id="messages-list"></div>
+        </div>
+
+        <!-- Pane : Messages reçus -->
+        <div id="msgr-received-pane" style="display:none;">
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Messages reçus</span>
+              <span id="messages-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
+              <button class="btn btn-ghost btn-sm" onclick="messagesFetch().then(renderMessages)">↻ Actualiser</button>
+            </div>
+            <div id="messages-filter-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+              <button class="btn btn-sm" id="mfilter-all" onclick="setMessageFilter('all')" style="font-size:.75rem;padding:5px 10px;">Tous</button>
+              <button class="btn btn-ghost btn-sm" id="mfilter-error" onclick="setMessageFilter('error')" style="font-size:.75rem;padding:5px 10px;">⚠ Erreurs</button>
+              <button class="btn btn-ghost btn-sm" id="mfilter-propose" onclick="setMessageFilter('propose')" style="font-size:.75rem;padding:5px 10px;">💡 Propositions</button>
+              <button class="btn btn-ghost btn-sm" id="mfilter-todo" onclick="setMessageFilter('todo')" style="font-size:.75rem;padding:5px 10px;">À traiter</button>
+            </div>
+            <div id="messages-list"></div>
+          </div>
         </div>
       </div>
 
@@ -3101,6 +3191,11 @@
         <div class="card" id="pc-mini-rank-card" style="display:none;margin-bottom:12px;">
           <div class="pcard-section-title" style="margin-bottom:10px;">🏆 Classement général</div>
           <div id="pc-mini-rank"></div>
+        </div>
+
+        <div class="card" id="pc-chart-card" style="display:none;margin-bottom:12px;">
+          <div class="pcard-section-title" style="margin-bottom:10px;">📊 Progression des points</div>
+          <div id="pc-score-chart"></div>
         </div>
 
         <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
@@ -4627,6 +4722,16 @@
   let dbSubTab = sessionStorage.getItem('rcDbSubTab') || 'joueur'; // 'joueur' | 'bonus' | 'vocab'
   const DB_PAGE_SIZE = 10;
 
+  // Met à jour les pastilles de comptage des sous-onglets de la database
+  function updateDbSubtabCounts() {
+    const qs = (typeof LS !== 'undefined' && LS.getQ) ? LS.getQ() : [];
+    const vocab = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : [];
+    const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
+    set('dstc-joueur', qs.filter(q => q.type === 'joueur').length);
+    set('dstc-bonus',  qs.filter(q => q.type !== 'joueur').length);
+    set('dstc-vocab',  Array.isArray(vocab) ? vocab.length : 0);
+  }
+
   // Bascule entre les sous-onglets de la database (Qui suis-je ? / Bonus / Vocabulaire)
   function setDbSubTab(sub) {
     dbSubTab = sub;
@@ -4638,6 +4743,19 @@
     document.getElementById('db-vocab-pane').style.display     = isVocab ? 'block' : 'none';
     if (isVocab) renderVocabAdmin();
     else renderAdmin();
+  }
+
+  // Sous-onglets de la messagerie : Envoyer / Messages envoyés / Messages reçus
+  let messagerieSubTab = sessionStorage.getItem('rcMessagerieSubTab') || 'send'; // 'send' | 'sent' | 'received'
+  function setMessagerieSubTab(sub) {
+    messagerieSubTab = sub;
+    sessionStorage.setItem('rcMessagerieSubTab', sub);
+    [['send', 'mst-send', 'msgr-send-pane'],
+     ['sent', 'mst-sent', 'msgr-sent-pane'],
+     ['received', 'mst-received', 'msgr-received-pane']].forEach(([s, btnId, paneId]) => {
+      document.getElementById(btnId).classList.toggle('active', s === sub);
+      document.getElementById(paneId).style.display = s === sub ? 'block' : 'none';
+    });
   }
 
   let _joueursPollTimer = null;
@@ -4665,18 +4783,19 @@
     document.getElementById('t-planning').classList.toggle('active', tab === 'planning');
     document.getElementById('t-settings').classList.toggle('active', tab === 'settings');
     document.getElementById('t-joueurs').classList.toggle('active', tab === 'joueurs');
-    document.getElementById('t-messages').classList.toggle('active', tab === 'messages');
+    document.getElementById('t-messagerie').classList.toggle('active', tab === 'messagerie');
+    document.getElementById('t-messages').classList.toggle('active', tab === 'messagerie');
     document.getElementById('t-stats').classList.toggle('active', tab === 'stats');
-    const inMainTab = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs' || tab === 'messages' || tab === 'stats');
+    const inMainTab = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs' || tab === 'messagerie' || tab === 'stats');
     document.querySelector('#view-admin .tabs-nav').style.display = inMainTab ? 'block' : 'none';
-    if (inMainTab && tab !== 'messages') document.getElementById('tabs-select').value = tab;
+    if (inMainTab) document.getElementById('tabs-select').value = tab;
     document.getElementById('at-list').style.display      = showList ? 'block' : 'none';
     if (!showList) document.getElementById('at-add').style.display = 'none';
     document.getElementById('at-settings').style.display  = tab === 'settings'  ? 'block' : 'none';
     document.getElementById('at-planning').style.display  = tab === 'planning'  ? 'block' : 'none';
     document.getElementById('at-generator').style.display = tab === 'generator' ? 'block' : 'none';
     document.getElementById('at-joueurs').style.display   = tab === 'joueurs'   ? 'block' : 'none';
-    document.getElementById('at-messages').style.display  = tab === 'messages'  ? 'block' : 'none';
+    document.getElementById('at-messagerie').style.display = tab === 'messagerie' ? 'block' : 'none';
     document.getElementById('at-stats').style.display     = tab === 'stats'     ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
     if (tab === 'list')      setDbSubTab(dbSubTab);
@@ -4684,12 +4803,17 @@
     if (tab === 'planning')  { renderPlanning(); Promise.all([dbPull('planning'), scoresFetch()]).then(renderPlanning); }
     if (tab === 'generator') renderGeneratorList();
     if (tab === 'joueurs')   {
-      renderJoueurs(); populatePmsgRecipients(); renderPlayerMsgAdmin();
-      Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); populatePmsgRecipients(); });
-      playerMsgsFetchAdmin().then(renderPlayerMsgAdmin);
+      renderJoueurs();
+      Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
       _startJoueursPoll();
     }
-    if (tab === 'messages')  { renderMessages(); messagesFetch().then(renderMessages); }
+    if (tab === 'messagerie') {
+      setMessagerieSubTab(messagerieSubTab);
+      renderMessages(); messagesFetch().then(renderMessages);
+      populatePmsgRecipients(); renderPlayerMsgAdmin();
+      accountsFetch().then(populatePmsgRecipients);
+      playerMsgsFetchAdmin().then(renderPlayerMsgAdmin);
+    }
     if (tab === 'stats')     { renderQStats(); scoresFetch().then(() => renderQStats()); }
   }
 
@@ -5377,7 +5501,7 @@
       return scoreA - scoreB;
     });
     listEl.innerHTML = sorted.map(q => {
-      const label      = q.type === 'joueur' ? `👤 ${q.playerName || q.id}` : planningTrunc(q.text || q.id, 54);
+      const label      = q.type === 'joueur' ? `👤 ${esc(q.playerName || q.id)}` : esc(q.text || q.id);
       const sel        = q.id === pickerPendingId;
       const inPlan     = pickerPlanUsed.has(q.id);
       const inGame     = !pickerIsBeta && pickerGameUsed.has(q.id);
@@ -6148,7 +6272,7 @@
     const rows = Object.entries(accts)
       .map(([key, a]) => ({ key, pseudo: (a && a.pseudo) || key }))
       .sort((a, b) => a.pseudo.localeCompare(b.pseudo, 'fr'));
-    sel.innerHTML = '<option value="">📢 Tous les joueurs (diffusion)</option>'
+    sel.innerHTML = '<option value="">Tous les joueurs (diffusion)</option>'
       + rows.map(r => `<option value="${esc(r.key)}">${esc(r.pseudo)}</option>`).join('');
     sel.value = prev;  // conserve la sélection si elle existe toujours
   }
@@ -6329,11 +6453,20 @@
       const adjLabel  = p.adjustPts ? ` · ⚖️ ${p.adjustPts > 0 ? '+' : ''}${p.adjustPts}` : '';
       const hasAcct   = _hasAccount(p.name);
       const dot       = `<span class="acct-dot ${hasAcct ? 'has' : 'none'}" title="${hasAcct ? 'Joueur avec compte' : 'Joueur sans compte'}"></span>`;
+      const hiddenTag = isHiddenFromRanking(p.name)
+        ? '<span title="Masqué du classement" style="display:inline-flex;align-items:center;flex-shrink:0;color:rgba(255,255,255,.55);">'
+          + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+          + '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>'
+          + '<path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>'
+          + '<path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>'
+          + '<line x1="2" y1="2" x2="22" y2="22"/>'
+          + '</svg></span>'
+        : '';
       return `<div class="joueur-row" data-pname="${esc(p.name)}" onclick="openPlayerCard(this.dataset.pname)">
         <span class="joueur-rank">${rankLabel}</span>
         <div class="joueur-avatar">${initial}</div>
         <div style="flex:1;min-width:0;">
-          <div class="joueur-pseudo" style="display:flex;align-items:center;gap:7px;">${dot}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</span></div>
+          <div class="joueur-pseudo" style="display:flex;align-items:center;gap:7px;">${dot}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</span>${hiddenTag}</div>
           <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}${adjLabel}</div>
         </div>
         <div class="joueur-score-val">${p.totalScore}</div>
@@ -6346,15 +6479,42 @@
 
   let _pcardName = '';
 
+  /* Ensemble des pseudos (en minuscules) masqués du classement général par l'admin. */
+  function hiddenRankingSet() {
+    const f = LS.getFeatures();
+    const arr = Array.isArray(f.hiddenPlayers) ? f.hiddenPlayers : [];
+    return new Set(arr.map(n => String(n || '').toLowerCase().trim()).filter(Boolean));
+  }
+  function isHiddenFromRanking(name) {
+    return hiddenRankingSet().has(String(name || '').toLowerCase().trim());
+  }
+  /* Bascule le masquage d'un joueur du classement, persiste et rafraîchit l'affichage. */
+  async function toggleHiddenFromRanking(name) {
+    name = name || _pcardName;
+    const f   = LS.getFeatures();
+    const arr = Array.isArray(f.hiddenPlayers) ? f.hiddenPlayers.slice() : [];
+    const key = String(name || '').toLowerCase().trim();
+    const idx = arr.findIndex(n => String(n || '').toLowerCase().trim() === key);
+    if (idx >= 0) arr.splice(idx, 1); else arr.push(key);
+    f.hiddenPlayers = arr;
+    LS.saveFeatures(f);
+    await dbPush('features');
+    openPlayerCard(name);        // rafraîchit la carte (badge + bouton)
+    renderLeaderboardPublic();   // met à jour le classement public si visible
+  }
+
   /* Classement général : score total cumulé (toutes parties) + bonus Onze.
+     Les joueurs masqués par l'admin (features.hiddenPlayers) sont exclus.
      Retourne un tableau trié [{ name, total }]. */
   function generalRankingList() {
-    const lb  = LS.getLeaderboard();
+    const lb     = LS.getLeaderboard();
+    const hidden = hiddenRankingSet();
     const map = {};
     lb.forEach(e => {
       const raw = (e.name || '').trim();
       if (!raw) return;
       const key = raw.toLowerCase();
+      if (hidden.has(key)) return;
       if (!map[key]) map[key] = { name: raw, total: 0 };
       map[key].total += Number(e.score) || 0;
     });
@@ -6378,7 +6538,7 @@
       const pos    = start + i;
       const isMe   = pos === meIdx;
       const posLbl = pos < 3 ? medals[pos] : `#${pos + 1}`;
-      return `<div class="mini-rank-row${isMe ? ' is-me' : ''}">
+      return `<div class="mini-rank-row clickable${isMe ? ' is-me' : ''}" data-pname="${esc(r.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(r.name)}">
         <span class="mini-rank-pos">${posLbl}</span>
         <span class="mini-rank-name">${esc(r.name)}</span>
         <span class="mini-rank-score">${r.total} pts</span>
@@ -6409,13 +6569,16 @@
     const initial    = name.charAt(0).toUpperCase();
 
     // Classement général (score total cumulé + bonus Onze)
+    const hiddenRank = isHiddenFromRanking(name);
     const ranking = generalRankingList();
     const totalPlayers = ranking.length;
     const rankIdx = ranking.findIndex(r => r.name.toLowerCase() === name.toLowerCase());
     const rankPos = rankIdx + 1;
     const rankEmoji = rankPos === 1 ? '🥇' : rankPos === 2 ? '🥈' : rankPos === 3 ? '🥉' : null;
     const rankLabel = rankEmoji ? `${rankEmoji} ${rankPos === 1 ? '1er' : `${rankPos}e`}` : `#${rankPos}`;
-    const rankHtml = `<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,205,0,.08);border:1px solid rgba(255,205,0,.22);border-radius:20px;padding:3px 10px;font-size:.75rem;color:var(--or);font-weight:700;margin-top:4px;">${rankLabel} sur ${totalPlayers} joueur${totalPlayers > 1 ? 's' : ''}</div>`;
+    const rankHtml = hiddenRank
+      ? `<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);border-radius:20px;padding:3px 10px;font-size:.75rem;color:rgba(255,255,255,.6);font-weight:700;margin-top:4px;">Masqué du classement</div>`
+      : `<div style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,205,0,.08);border:1px solid rgba(255,205,0,.22);border-radius:20px;padding:3px 10px;font-size:.75rem;color:var(--or);font-weight:700;margin-top:4px;">${rankLabel} sur ${totalPlayers} joueur${totalPlayers > 1 ? 's' : ''}</div>`;
 
     const fmtFull = iso => {
       const d = new Date(iso);
@@ -6424,11 +6587,43 @@
     };
     const fmtShort = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
 
+    // Lookup question par id pour afficher le libellé / nom du joueur dans le détail
+    const qByIdPc = {};
+    LS.getQ().forEach(q => { qByIdPc[q.id] = q; });
+
+    // Détail d'une partie : réponses données aux « Qui suis-je ? » et au bonus
+    const gameDetailHtml = (g) => {
+      const dets = Array.isArray(g.details) ? g.details : [];
+      const rows = dets.map(d => {
+        const q       = qByIdPc[d.id];
+        const isBonus = !!d.bonus;
+        const label   = q ? (q.type === 'joueur' ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+        const ansRaw  = (d.playerAns != null) ? String(d.playerAns).trim() : '';
+        const ansHtml = ansRaw
+          ? `<em style="color:#ff8c00;font-style:normal;font-weight:600;">${esc(ansRaw)}</em>`
+          : `<span style="color:rgba(255,255,255,.3);font-style:italic;">aucune réponse</span>`;
+        const statusHtml = d.ok
+          ? `<span style="color:var(--vert);font-weight:700;white-space:nowrap;">✓ trouvé${d.indiceIdx != null ? ` · indice ${d.indiceIdx + 1}` : ''}</span>`
+          : `<span style="color:var(--rouge);font-weight:700;white-space:nowrap;">✗ raté</span>`;
+        return `<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+          <div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:#fff;">
+            ${isBonus ? '<span style="color:var(--or);" title="Question bonus">⭐</span>' : '<span style="opacity:.55;">🎽</span>'}
+            <span style="flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;">${esc(label)}</span>
+            ${statusHtml}
+          </div>
+          <div style="font-size:.76rem;color:rgba(255,255,255,.55);margin-top:3px;padding-left:24px;">Réponse : ${ansHtml}</div>
+        </div>`;
+      }).join('');
+      return rows || '<div style="padding:8px 0;font-size:.78rem;color:rgba(255,255,255,.35);">Aucun détail enregistré pour cette partie.</div>';
+    };
+
     const historyRows = games.length ? games.map(g => `
-      <div class="pcard-game-row">
+      <div class="pcard-game-row" style="cursor:pointer;" onclick="toggleGameDetail('${g.id}')">
         <span class="pcard-game-score">${g.score}</span>
         <span class="pcard-game-date">${fmtFull(g.date)}</span>
-      </div>`).join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucune partie jouée.</p>';
+        <span id="gdet-caret-${g.id}" style="color:rgba(255,255,255,.3);font-size:.72rem;transition:transform .15s;flex-shrink:0;">▶</span>
+      </div>
+      <div id="gdet-${g.id}" style="display:none;padding:2px 0 10px 6px;border-bottom:1px solid rgba(255,255,255,.06);">${gameDetailHtml(g)}</div>`).join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucune partie jouée.</p>';
 
     // Historique des ajustements manuels (admin)
     const adjustRows = adjustments.map(g => {
@@ -6459,6 +6654,33 @@
         <div id="pcard-adjust-msg" style="margin-top:4px;font-size:.78rem;display:none;"></div>
         ${adjustments.length ? `<div style="margin-top:10px;font-size:.74rem;color:rgba(255,255,255,.4);">Total des ajustements : <strong style="color:${adjustPts >= 0 ? 'var(--or)' : '#e57373'};">${adjustPts > 0 ? '+' : ''}${adjustPts}</strong></div>${adjustRows}` : ''}
       </div>`;
+
+    // Section « Compte » (réservée à l'admin : réinitialisation / création de mot de passe)
+    const accountSection = `
+      <div class="pcard-section-title">Compte ${acctExists
+          ? '<span class="acct-dot has" style="vertical-align:middle;"></span> <span style="color:rgba(255,255,255,.6);font-weight:600;font-size:.8rem;">avec compte</span>'
+          : '<span class="acct-dot none" style="vertical-align:middle;"></span> <span style="color:rgba(255,255,255,.6);font-weight:600;font-size:.8rem;">sans compte</span>'}</div>
+      ${acctExists ? `
+      <div style="padding:0 0 8px;">
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Réinitialiser le mot de passe de ce joueur</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (min. 7 car.)"
+                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
+                 onkeydown="if(event.key==='Enter')adminResetPwd()">
+          <button class="btn btn-ghost btn-sm" onclick="adminResetPwd()" style="white-space:nowrap;">Réinitialiser</button>
+        </div>
+        <div id="pcard-pwd-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
+      </div>` : `
+      <div style="padding:0 0 8px;">
+        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ce joueur joue <strong>sans compte</strong>. Crée-lui un compte en définissant un mot de passe simple (aucune contrainte de longueur ni de caractères) : communique-le-lui pour qu'il se connecte avec son pseudo <strong>${esc(name)}</strong>. Il pourra ensuite le modifier depuis sa carte joueur.</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <input type="text" id="pcard-create-pwd" placeholder="Mot de passe (libre, aucune contrainte)"
+                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
+                 onkeydown="if(event.key==='Enter')adminCreateAccount()">
+          <button class="btn btn-red btn-sm" onclick="adminCreateAccount()" style="white-space:nowrap;">Créer le compte</button>
+        </div>
+        <div id="pcard-create-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
+      </div>`}`;
 
     // Mon Onze du joueur (lecture seule)
     const onze        = onzeForName(name);
@@ -6502,6 +6724,9 @@
           <div class="pcard-name" style="margin-bottom:0;">${esc(name)}</div>
           ${rankHtml}
         </div>
+        ${adminLogged ? `<button class="pcard-close" onclick="toggleHiddenFromRanking()" title="${hiddenRank ? 'Réafficher dans le classement' : 'Masquer du classement'}" style="display:inline-flex;align-items:center;justify-content:center;${hiddenRank ? 'color:var(--or);' : ''}">${hiddenRank
+          ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
+          : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`}</button>` : ''}
         <button class="pcard-close" onclick="closePlayerCard()">✕</button>
       </div>
       <div class="pcard-stats">
@@ -6533,39 +6758,28 @@
       ${onzeSection}
       <div class="pcard-section-title">Classement général</div>
       ${miniRankingHtml(name)}
+      ${games.length ? '<div class="pcard-section-title">📊 Progression des points</div><div id="pcard-score-chart" style="margin-bottom:6px;"></div>' : ''}
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
-      ${adjustSection}
-      <div class="pcard-section-title">Compte ${acctExists
-          ? '<span class="acct-dot has" style="vertical-align:middle;"></span> <span style="color:rgba(255,255,255,.6);font-weight:600;font-size:.8rem;">avec compte</span>'
-          : '<span class="acct-dot none" style="vertical-align:middle;"></span> <span style="color:rgba(255,255,255,.6);font-weight:600;font-size:.8rem;">sans compte</span>'}</div>
-      ${acctExists ? `
-      <div style="padding:0 0 8px;">
-        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Réinitialiser le mot de passe de ce joueur</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (min. 7 car.)"
-                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
-                 onkeydown="if(event.key==='Enter')adminResetPwd()">
-          <button class="btn btn-ghost btn-sm" onclick="adminResetPwd()" style="white-space:nowrap;">Réinitialiser</button>
-        </div>
-        <div id="pcard-pwd-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
-      </div>` : `
-      <div style="padding:0 0 8px;">
-        <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Ce joueur joue <strong>sans compte</strong>. Crée-lui un compte en définissant un mot de passe simple (aucune contrainte de longueur ni de caractères) : communique-le-lui pour qu'il se connecte avec son pseudo <strong>${esc(name)}</strong>. Il pourra ensuite le modifier depuis sa carte joueur.</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="text" id="pcard-create-pwd" placeholder="Mot de passe (libre, aucune contrainte)"
-                 style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
-                 onkeydown="if(event.key==='Enter')adminCreateAccount()">
-          <button class="btn btn-red btn-sm" onclick="adminCreateAccount()" style="white-space:nowrap;">Créer le compte</button>
-        </div>
-        <div id="pcard-create-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
-      </div>`}
+      ${adminLogged ? adjustSection + accountSection : ''}
     `;
     document.getElementById('pcard-overlay').style.display = 'flex';
+    // Graphique points par partie + cumul (après injection du HTML)
+    renderScoreChart(document.getElementById('pcard-score-chart'), all);
   }
 
   function closePlayerCard() {
     document.getElementById('pcard-overlay').style.display = 'none';
+  }
+
+  // Déroule / replie le détail d'une partie dans l'historique de la carte joueur
+  function toggleGameDetail(id) {
+    const box   = document.getElementById('gdet-' + id);
+    const caret = document.getElementById('gdet-caret-' + id);
+    if (!box) return;
+    const open = box.style.display !== 'none';
+    box.style.display = open ? 'none' : 'block';
+    if (caret) caret.style.transform = open ? '' : 'rotate(90deg)';
   }
 
   async function adminResetPwd() {
@@ -7047,7 +7261,7 @@
     };
     arr.push(q);
     LS.saveQ(arr);
-    document.getElementById('qcount').textContent = arr.length;
+    { const _qc = document.getElementById('qcount'); if (_qc) _qc.textContent = arr.length; }
 
     genRenderForm(idx);
     genRefreshCardStatus(idx);
@@ -7160,7 +7374,7 @@
     renderPosPicker('nj-positions', addJoueurPositions);
     renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
     renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
-    document.getElementById('qcount').textContent = arr.length;
+    { const _qc = document.getElementById('qcount'); if (_qc) _qc.textContent = arr.length; }
 
     okEl.style.display = 'block';
     setTimeout(() => okEl.style.display = 'none', 2500);
@@ -7545,7 +7759,8 @@
     // Rafraîchit l'état du bouton Messages de l'en-tête (sombre + compteur si non-lus)
     messagesFetch().then(_updateMsgBadge);
     const qs = LS.getQ();
-    document.getElementById('qcount').textContent = qs.length;
+    { const _qc = document.getElementById('qcount'); if (_qc) _qc.textContent = qs.length; }
+    updateDbSubtabCounts();
     const actionsEl = document.getElementById('q-list-actions');
     const listEl    = document.getElementById('q-list-container');
     actionsEl.style.display = 'block';
@@ -7738,6 +7953,7 @@
     const list = LS.getVocab().slice(); // l'ordre du tableau = la séquence des jours
     const today = planningTodayStr();
     document.getElementById('vocab-count').textContent = `${list.length} mot${list.length > 1 ? 's' : ''}`;
+    updateDbSubtabCounts();
 
     const startInput = document.getElementById('vocab-start');
     if (startInput) startInput.value = vocabStartDate();
@@ -8698,7 +8914,7 @@
     correctIdxsMulti = [];
     addSelectedTags = [];
     renderTagPicker('tag-picker', addSelectedTags);
-    document.getElementById('qcount').textContent = arr.length;
+    { const _qc = document.getElementById('qcount'); if (_qc) _qc.textContent = arr.length; }
 
     okEl.style.display = 'block';
     setTimeout(() => okEl.style.display = 'none', 2500);
@@ -10636,7 +10852,9 @@
       });
     }
 
-    const realLb = lb.filter(e => !e.adjust);
+    // Exclut les ajustements ET les joueurs masqués du classement par l'admin.
+    const hidden = hiddenRankingSet();
+    const realLb = lb.filter(e => !e.adjust && !hidden.has((e.name || '').toLowerCase().trim()));
     let data;
     if (_lbTab === 'general')   data = generalRankingList().map(r => ({ name: r.name, score: r.total, badgeLevel: '' }));
     else if (_lbTab === 'today') data = bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr));
@@ -10654,11 +10872,17 @@
     }
     if (empty) empty.style.display = 'none';
 
+    // Dans le classement général, chaque ligne ouvre la carte du joueur cliqué.
+    const clickable = _lbTab === 'general';
     const medals = ['🥇', '🥈', '🥉'];
     list.innerHTML = data.slice(0, 50).map((e, i) => {
       const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
-      return `<div class="lb-entry">
+      const rowCls   = clickable ? 'lb-entry clickable' : 'lb-entry';
+      const rowAttrs = clickable
+        ? ` data-pname="${esc(e.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(e.name)}"`
+        : '';
+      return `<div class="${rowCls}"${rowAttrs}>
         <div class="lb-rank${rankCls}">${rankHtml}</div>
         <div class="lb-name">${esc(e.name)}</div>
         <div class="lb-right">
@@ -10721,7 +10945,10 @@
         .map(a => ({
           id: a.q.id, ok: !!a.ok, pts: a.ptsEarned || 0,
           indiceIdx: (a.type === 'joueur' && a.indiceIdx !== undefined) ? a.indiceIdx : null,
-          playerAns: (a.type === 'joueur') ? null : answerToText(a)
+          // Réponse réellement donnée — conservée pour tous les types (y compris
+          // « Qui suis-je ? ») afin que l'admin puisse la consulter dans la carte joueur.
+          playerAns: answerToText(a),
+          bonus: !!a.q._isBonusJoueur
         })),
       beta: isBeta
     });
@@ -11782,6 +12009,143 @@
     inboxDelete(id);
   }
 
+  /* ────────────────────────────────────────────────────────────────
+     Graphique « points par partie » + cumul global, utilisé à la fois
+     dans la carte joueur (vue joueur) et dans l'overlay (admin).
+     - Barres : points inscrits à chaque partie (axe gauche).
+     - Courbe : cumul des points inscrits au global (axe droit).
+     - Infobulle au survol d'une barre : détail des questions + points.
+     `rawGames` = lignes de leaderboard du joueur (parties + ajustements).
+     Seules les vraies parties (hors `adjust`) sont tracées.
+  ──────────────────────────────────────────────────────────────────── */
+  function renderScoreChart(container, rawGames) {
+    if (!container) return;
+    const games = (rawGames || [])
+      .filter(g => g && !g.adjust)
+      .slice()
+      .sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+
+    if (games.length < 1) { container.style.display = 'none'; container.innerHTML = ''; return; }
+    container.style.display = '';
+
+    // Libellés de questions pour les infobulles
+    const qById = {};
+    LS.getQ().forEach(q => { qById[q.id] = q; });
+
+    // Cumul progressif des scores de parties
+    let run = 0;
+    const cums = games.map(g => (run += (Number(g.score) || 0)));
+    const maxBar = Math.max(1, ...games.map(g => Number(g.score) || 0));
+    const maxCum = Math.max(1, cums[cums.length - 1]);
+
+    // Géométrie
+    const padL = 30, padR = 38, padT = 18, padB = 30, plotH = 150;
+    const slot = games.length === 1 ? 90 : Math.max(40, Math.min(72, 360 / games.length));
+    const barW = Math.min(30, slot * 0.5);
+    const plotW = slot * games.length;
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const baseY = padT + plotH;
+    const yBar = v => baseY - (v / maxBar) * plotH;
+    const yCum = v => baseY - (v / maxCum) * plotH;
+    const cx = i => padL + slot * i + slot / 2;
+    const fmtDate = iso => {
+      const d = new Date(iso);
+      return isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+    };
+
+    // ── Construction SVG ──
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+
+    // Lignes de repère + graduations (axe gauche = points/partie)
+    const ticks = 4;
+    for (let t = 0; t <= ticks; t++) {
+      const val = (maxBar * t) / ticks;
+      const y = yBar(val);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+    }
+    // Graduation droite (cumul) : 0 et max
+    svg += `<text class="sc-axislbl" x="${W - padR + 5}" y="${(yCum(maxCum) + 3).toFixed(1)}" text-anchor="start" style="fill:var(--rouge);">${maxCum}</text>`;
+
+    // Barres + valeur au-dessus + date en dessous
+    games.forEach((g, i) => {
+      const v = Number(g.score) || 0;
+      const x = cx(i) - barW / 2;
+      const y = yBar(v);
+      const h = baseY - y;
+      svg += `<rect class="sc-bar" data-bar="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3"/>`;
+      svg += `<text class="sc-barval" x="${cx(i).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle">${v}</text>`;
+      svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(g.date)}</text>`;
+    });
+
+    // Courbe de cumul
+    const linePts = cums.map((c, i) => `${cx(i).toFixed(1)},${yCum(c).toFixed(1)}`).join(' ');
+    if (games.length > 1) svg += `<polyline class="sc-line" points="${linePts}"/>`;
+    cums.forEach((c, i) => {
+      svg += `<circle class="sc-dot" cx="${cx(i).toFixed(1)}" cy="${yCum(c).toFixed(1)}" r="3.5"/>`;
+    });
+
+    // Zones de survol (toute la colonne) — dessinées en dernier pour capter
+    // le survol par-dessus barres, courbe et points.
+    games.forEach((g, i) => {
+      svg += `<rect class="sc-col" data-i="${i}" x="${(cx(i) - slot / 2).toFixed(1)}" y="${padT}" width="${slot}" height="${plotH}"/>`;
+    });
+
+    svg += '</svg>';
+
+    // ── Infobulles : détail des questions par partie ──
+    const tipHtml = games.map(g => {
+      const dets = Array.isArray(g.details) ? g.details : [];
+      const rows = dets.map(de => {
+        const q = qById[de.id];
+        const isBonus = !!de.bonus;
+        const isJoueur = q && q.type === 'joueur';
+        const label = q ? (isJoueur ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+        const pts = Number(de.pts) || 0;
+        const icon = isBonus ? '⭐' : (isJoueur ? '🎽' : '•');
+        const okIcon = de.ok
+          ? '<span style="color:var(--vert);">✓</span>'
+          : '<span style="color:var(--rouge);">✗</span>';
+        return `<div class="chart-tip-q"><span class="chart-tip-qicon">${icon}</span><span class="chart-tip-qlabel">${esc(label)}</span><span class="chart-tip-qpts">${okIcon} ${pts} pt${pts > 1 ? 's' : ''}</span></div>`;
+      }).join('');
+      return `<div class="chart-tip-head">${fmtDate(g.date)} · ${Number(g.score) || 0} pts</div>${rows || '<div class="chart-tip-empty">Aucun détail enregistré.</div>'}`;
+    });
+
+    // ── Montage DOM ──
+    container.innerHTML =
+      `<div class="score-chart-scroll">${svg}</div>` +
+      `<div class="score-chart-legend">` +
+        `<div class="score-chart-legend-item"><span class="score-chart-legend-bar"></span>Points par partie</div>` +
+        `<div class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul global</div>` +
+      `</div>` +
+      `<div class="score-chart-tip"></div>`;
+
+    const tipEl = container.querySelector('.score-chart-tip');
+    const cols  = container.querySelectorAll('.sc-col');
+    const bars  = container.querySelectorAll('.sc-bar');
+    cols.forEach(col => {
+      const i = +col.dataset.i;
+      const showTip = ev => {
+        tipEl.innerHTML = tipHtml[i];
+        tipEl.style.display = 'block';
+        let left = ev.clientX + 14, top = ev.clientY - 10;
+        const r = tipEl.getBoundingClientRect();
+        if (left + r.width > window.innerWidth - 8)  left = ev.clientX - r.width - 14;
+        if (top + r.height > window.innerHeight - 8) top = window.innerHeight - r.height - 8;
+        if (top < 8) top = 8;
+        tipEl.style.left = left + 'px';
+        tipEl.style.top  = top + 'px';
+        if (bars[i]) bars[i].classList.add('is-hover');
+      };
+      col.addEventListener('mouseenter', showTip);
+      col.addEventListener('mousemove', showTip);
+      col.addEventListener('mouseleave', () => {
+        tipEl.style.display = 'none';
+        if (bars[i]) bars[i].classList.remove('is-hover');
+      });
+    });
+  }
+
   function renderPlayerCard() {
     if (!_localUser) { nav('auth'); return; }
 
@@ -11968,6 +12332,18 @@
       _pcPlayBtn.style.opacity  = _played ? '0.55' : '';
     }
 
+    // Graphique « points par partie » + cumul global
+    const chartCard = document.getElementById('pc-chart-card');
+    const chartBox  = document.getElementById('pc-score-chart');
+    if (chartCard && chartBox) {
+      if (realLb.length > 0) {
+        renderScoreChart(chartBox, lb);
+        chartCard.style.display = 'block';
+      } else {
+        chartCard.style.display = 'none';
+      }
+    }
+
     const historyCard = document.getElementById('pc-history-card');
     const historyList = document.getElementById('pc-history-list');
     if (lb.length > 0) {
@@ -12055,7 +12431,7 @@
       nav('admin');
       const savedTab     = sessionStorage.getItem('rcAdminTab');
       const savedAddMode = sessionStorage.getItem('rcAddMode');
-      if (savedTab) adminTab(savedTab === 'add' ? 'list' : savedTab);
+      if (savedTab) adminTab(savedTab === 'add' ? 'list' : (savedTab === 'messages' ? 'messagerie' : savedTab));
       if (savedAddMode) setAddMode(savedAddMode);
     }
   })();
@@ -12454,6 +12830,51 @@
       </div>`;
     box.style.display = 'block';
   }
+
+  /* ── Bandeau réseaux sociaux : marquee continu droite→gauche, sans trou ──
+     On clone le groupe modèle pour qu'une « moitié » de la piste soit toujours
+     au moins aussi large que l'écran : ainsi, dès qu'une copie sort par la
+     gauche, la suivante couvre déjà toute la largeur à droite (boucle -50 %). */
+  function setupSocialMarquee() {
+    const bar = document.querySelector('.home-social');
+    const track = bar && bar.querySelector('.home-social-track');
+    if (!track) return false;
+    const base = track.querySelector('.home-social-group');
+    if (!base) return false;
+    // Repartir d'un seul groupe modèle (visible, focusable).
+    [...track.querySelectorAll('.home-social-group')].slice(1).forEach(g => g.remove());
+    base.removeAttribute('aria-hidden');
+    base.querySelectorAll('a').forEach(a => a.removeAttribute('tabindex'));
+    const groupW = base.getBoundingClientRect().width;
+    const viewW = bar.clientWidth;
+    if (!groupW || !viewW) return false; // bandeau masqué (autre vue) : on réessaiera
+    // +1 groupe de marge : la moitié de piste reste toujours plus large que l'écran,
+    // donc aucune zone vide à droite au moment où une copie sort par la gauche.
+    const perHalf = Math.ceil(viewW / groupW) + 1;
+    const total = perHalf * 2; // deux moitiés identiques pour la boucle -50 %
+    for (let i = 1; i < total; i++) {
+      const clone = base.cloneNode(true);
+      clone.setAttribute('aria-hidden', 'true');
+      clone.querySelectorAll('a').forEach(a => a.setAttribute('tabindex', '-1'));
+      track.appendChild(clone);
+    }
+    // Vitesse constante (~70 px/s) quelle que soit la largeur de la moitié.
+    track.style.animationDuration = Math.max(12, Math.round((perHalf * groupW) / 70)) + 's';
+    return true;
+  }
+  let _socialMarqueeRaf, _socialMarqueeRetry;
+  function refreshSocialMarquee() {
+    cancelAnimationFrame(_socialMarqueeRaf);
+    _socialMarqueeRaf = requestAnimationFrame(() => {
+      // Si le bandeau est encore masqué au chargement, on réessaie peu après.
+      if (!setupSocialMarquee()) {
+        clearTimeout(_socialMarqueeRetry);
+        _socialMarqueeRetry = setTimeout(refreshSocialMarquee, 400);
+      }
+    });
+  }
+  window.addEventListener('load', refreshSocialMarquee);
+  window.addEventListener('resize', refreshSocialMarquee);
 
   </script>
 
