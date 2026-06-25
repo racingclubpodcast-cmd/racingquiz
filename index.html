@@ -360,7 +360,7 @@
     .pcard-stat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:12px 14px; }
     .pcard-stat-val { font-size:1.15rem; font-weight:800; color:var(--or); }
     .pcard-stat-label { font-size:.7rem; color:rgba(255,255,255,.38); margin-top:3px; text-transform:uppercase; letter-spacing:.3px; }
-    .pcard-section-title { font-size:.73rem; font-weight:700; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.5px; margin-bottom:10px; }
+    .pcard-section-title { font-size:.73rem; font-weight:700; color:rgba(255,255,255,.38); text-transform:uppercase; letter-spacing:.5px; margin-top:22px; margin-bottom:10px; }
     .pcard-game-row { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); }
     .pcard-game-score { font-weight:800; color:var(--or); min-width:28px; font-size:.95rem; }
     .pcard-game-date { font-size:.75rem; color:rgba(255,255,255,.4); flex:1; }
@@ -1889,6 +1889,26 @@
     .onze-coll-name { flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .onze-coll-pos { font-size:.7rem;color:var(--or);font-weight:700;flex-shrink:0; }
     .onze-coll-placed { font-size:.68rem;color:var(--vert);flex-shrink:0; }
+    .onze-coll-warn { font-size:.68rem;color:var(--or);font-weight:700;flex-shrink:0;white-space:nowrap; }
+    .onze-coll-del { flex-shrink:0;background:none;border:none;color:rgba(255,255,255,.3);font-size:.95rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;transition:all .12s; }
+    .onze-coll-del:hover { color:#e53935;background:rgba(229,57,53,.1); }
+    .onze-dash-row { padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer; }
+    .onze-dash-row:last-child { border-bottom:none; }
+    .onze-dash-row:hover { background:rgba(255,255,255,.03); }
+    .onze-dash-pname { font-weight:700;font-size:.9rem;color:#fff;margin-bottom:6px; }
+    .onze-dash-group { display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-bottom:5px; }
+    .onze-dash-label { font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;margin-right:2px; }
+    .onze-dash-label.add { color:var(--vert); }
+    .onze-dash-label.rem { color:#e57373; }
+    .onze-dash-chip { display:inline-flex;align-items:center;gap:5px;font-size:.78rem;font-weight:600;color:#fff;border-radius:20px;padding:3px 4px 3px 10px;border:1px solid rgba(255,255,255,.14); }
+    .onze-dash-chip.add { background:rgba(0,200,81,.1);border-color:rgba(0,200,81,.3); }
+    .onze-dash-chip.rem { background:rgba(229,115,115,.1);border-color:rgba(229,115,115,.3); }
+    .onze-dash-chip button { border:none;background:rgba(255,255,255,.12);color:#fff;width:18px;height:18px;border-radius:50%;cursor:pointer;font-size:.8rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0; }
+    .onze-dash-chip.add button:hover { background:var(--vert); }
+    .onze-dash-chip.rem button:hover { background:#e53935; }
+    .onze-dash-badge { font-size:.72rem;font-weight:700;border-radius:20px;padding:3px 10px; }
+    .onze-dash-badge.add { background:rgba(0,200,81,.12);color:var(--vert);border:1px solid rgba(0,200,81,.3); }
+    .onze-dash-badge.rem { background:rgba(229,115,115,.12);color:#e57373;border:1px solid rgba(229,115,115,.3); }
     .onze-cand { display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:11px 14px;margin-bottom:8px;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:600;text-align:left;transition:all .12s; }
     .onze-cand:hover { border-color:var(--or);background:rgba(255,205,0,.08); }
     .onze-cand span { font-size:.72rem;color:var(--or);font-weight:700;flex-shrink:0; }
@@ -1992,8 +2012,6 @@
         </div>
       </div>
 
-      <!-- Règles du jeu -->
-      <button class="btn btn-ghost btn-full" style="max-width:380px;margin-bottom:8px;" onclick="showRules()">Règles du jeu</button>
       <button class="btn btn-ghost btn-full" style="max-width:380px;margin-bottom:8px;" onclick="nav('leaderboard')">🏆 Classement</button>
 
       <!-- Bandeau réseaux sociaux -->
@@ -2084,16 +2102,16 @@
           <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database</button>
           <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">Générateur</button>
           <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
-          <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Joueurs<span id="joueurs-noacct-badge" class="tab-badge" title="Joueurs sans compte"></span></button>
-          <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messagerie</button>
+          <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Classement<span id="joueurs-noacct-badge" class="tab-badge" title="Joueurs sans compte"></span></button>
+          <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messages</button>
           <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
         </div>
         <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
           <option value="list">Database</option>
           <option value="generator">Générateur</option>
           <option value="planning">Planning</option>
-          <option value="joueurs">Joueurs</option>
-          <option value="messagerie">Messagerie</option>
+          <option value="joueurs">Classement</option>
+          <option value="messagerie">Messages</option>
           <option value="stats">Stats</option>
         </select>
       </div>
@@ -2653,6 +2671,8 @@
 
       <!-- Tab : joueurs -->
       <div id="at-joueurs" style="display:none;width:100%">
+        <!-- Dashboard de suivi des collections Mon Onze (divergences devinés / collectionnés) -->
+        <div id="onze-dashboard"></div>
         <div class="card" style="margin-bottom:12px;">
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
             <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
@@ -3169,7 +3189,7 @@
         <!-- Messages reçus -->
         <div class="card" id="pc-inbox-card" style="margin-bottom:12px;display:none;">
           <div class="flex-between" style="margin-bottom:10px;">
-            <div class="pcard-section-title" style="margin-bottom:0;">📬 Mes messages <span id="pc-inbox-badge" style="display:none;background:var(--rouge);color:#fff;font-size:.7rem;font-weight:800;border-radius:20px;padding:1px 8px;margin-left:4px;"></span></div>
+            <div class="pcard-section-title" style="margin-top:0;margin-bottom:0;">📬 Mes messages <span id="pc-inbox-badge" style="display:none;background:var(--rouge);color:#fff;font-size:.7rem;font-weight:800;border-radius:20px;padding:1px 8px;margin-left:4px;"></span></div>
             <button class="btn btn-ghost btn-sm" style="font-size:.72rem;padding:4px 10px;" onclick="inboxMarkAllRead()">Tout marquer lu</button>
           </div>
           <div id="pc-inbox-list"></div>
@@ -3189,12 +3209,12 @@
         </div>
 
         <div class="card" id="pc-mini-rank-card" style="display:none;margin-bottom:12px;">
-          <div class="pcard-section-title" style="margin-bottom:10px;">🏆 Classement général</div>
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">🏆 Classement général</div>
           <div id="pc-mini-rank"></div>
         </div>
 
         <div class="card" id="pc-chart-card" style="display:none;margin-bottom:12px;">
-          <div class="pcard-section-title" style="margin-bottom:10px;">📊 Progression des points</div>
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">📊 Progression des points</div>
           <div id="pc-score-chart"></div>
         </div>
 
@@ -3260,7 +3280,7 @@
 
         <div class="card" style="margin-bottom:12px;">
           <div class="flex-between" style="margin-bottom:10px;">
-            <div class="pcard-section-title" style="margin-bottom:0;">Ma collection</div>
+            <div class="pcard-section-title" style="margin-top:0;margin-bottom:0;">Ma collection</div>
             <span style="font-size:.75rem;color:rgba(255,255,255,.45);font-weight:700;" id="onze-coll-count"></span>
           </div>
           <div id="onze-collection" style="max-height:300px;overflow-y:auto;"></div>
@@ -6475,9 +6495,85 @@
     }).join('');
 
     updateNoAccountBadge();
+    renderOnzeDashboard();
   }
 
   let _pcardName = '';
+
+  /* ── Dashboard « Suivi des collections Mon Onze » (panel admin → Joueurs) ──
+     Recense, pour tous les joueurs, les divergences entre les « Qui suis-je ? »
+     réellement DEVINÉS en partie (détails de partie, statut ✓ trouvé) et leur
+     COLLECTION Mon Onze : joueurs à AJOUTER (devinés mais absents) et à RETIRER
+     (collectionnés mais jamais devinés). */
+  function _onzeDiscrepancies() {
+    const byIdQ = {};
+    LS.getQ().forEach(q => { byIdQ[q.id] = q; });
+    const lb    = LS.getLeaderboard();
+    const games = {};   // clé minuscule → parties (hors ajustements)
+    const disp  = {};   // clé minuscule → pseudo affiché
+    lb.forEach(e => {
+      if (e.adjust) return;
+      const k = (e.name || '').toLowerCase();
+      if (!k) return;
+      (games[k] = games[k] || []).push(e);
+      if (!disp[k]) disp[k] = e.name;
+    });
+    Object.values(LS.getAccounts()).forEach(a => {
+      if (a && a.pseudo) { const k = a.pseudo.toLowerCase(); if (!disp[k]) disp[k] = a.pseudo; }
+    });
+    const rows = [];
+    Object.keys(disp).forEach(k => {
+      const name = disp[k];
+      const guessed = new Set();
+      (games[k] || []).forEach(g => (Array.isArray(g.details) ? g.details : []).forEach(d => {
+        if (d && d.ok && byIdQ[d.id] && byIdQ[d.id].type === 'joueur') guessed.add(d.id);
+      }));
+      const coll = new Set(onzeForName(name).collection);
+      const toAdd    = [...guessed].filter(id => !coll.has(id) && byIdQ[id]);
+      const toRemove = [...coll].filter(id => !guessed.has(id) && byIdQ[id] && byIdQ[id].type === 'joueur');
+      if (toAdd.length || toRemove.length) rows.push({ name, toAdd, toRemove });
+    });
+    rows.sort((a, b) =>
+      (b.toAdd.length + b.toRemove.length) - (a.toAdd.length + a.toRemove.length)
+      || a.name.localeCompare(b.name, 'fr'));
+    return { rows, byIdQ };
+  }
+
+  function renderOnzeDashboard() {
+    const el = document.getElementById('onze-dashboard');
+    if (!el) return;
+    if (!adminLogged) { el.innerHTML = ''; return; }
+    const { rows, byIdQ } = _onzeDiscrepancies();
+    const titleHtml = '<span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">🃏 Suivi des collections</span>';
+    if (!rows.length) {
+      el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+        <div style="margin-bottom:6px;">${titleHtml}</div>
+        <p style="text-align:center;color:rgba(255,255,255,.4);font-size:.82rem;padding:10px 0;margin:0;">✓ Aucune divergence : toutes les collections correspondent aux joueurs devinés.</p>
+      </div>`;
+      return;
+    }
+    const totalAdd = rows.reduce((s, r) => s + r.toAdd.length, 0);
+    const totalRem = rows.reduce((s, r) => s + r.toRemove.length, 0);
+    const playerBlocks = rows.map(r => {
+      const addHtml = r.toAdd.map(id => `<span class="onze-dash-chip add">${esc(byIdQ[id].playerName)}<button data-qid="${id}" title="Ajouter à la collection" onclick="event.stopPropagation();adminAddToCollection(this.dataset.qid,this.closest('[data-pname]').dataset.pname)">＋</button></span>`).join('');
+      const remHtml = r.toRemove.map(id => `<span class="onze-dash-chip rem">${esc(byIdQ[id].playerName)}<button data-qid="${id}" title="Retirer de la collection" onclick="event.stopPropagation();adminRemoveFromCollection(this.dataset.qid,this.closest('[data-pname]').dataset.pname)">✕</button></span>`).join('');
+      return `<div class="onze-dash-row" data-pname="${esc(r.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(r.name)}">
+        <div class="onze-dash-pname">${esc(r.name)}</div>
+        ${r.toAdd.length ? `<div class="onze-dash-group"><span class="onze-dash-label add">À ajouter (${r.toAdd.length})</span>${addHtml}</div>` : ''}
+        ${r.toRemove.length ? `<div class="onze-dash-group"><span class="onze-dash-label rem">À retirer (${r.toRemove.length})</span>${remHtml}</div>` : ''}
+      </div>`;
+    }).join('');
+    el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+        ${titleHtml}
+        <span style="flex:1;"></span>
+        ${totalAdd ? `<span class="onze-dash-badge add">+${totalAdd} à ajouter</span>` : ''}
+        ${totalRem ? `<span class="onze-dash-badge rem">${totalRem} à retirer</span>` : ''}
+      </div>
+      <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Divergences entre les « Qui suis-je ? » devinés en partie et les joueurs collectionnés, pour ${rows.length} joueur${rows.length > 1 ? 's' : ''}. Touche un joueur pour ouvrir sa carte.</div>
+      ${playerBlocks}
+    </div>`;
+  }
 
   /* Ensemble des pseudos (en minuscules) masqués du classement général par l'admin. */
   function hiddenRankingSet() {
@@ -6687,24 +6783,51 @@
     const placedCount = onze.slots.filter(Boolean).length;
     const onzeComplete = placedCount === 11 && !!onze.coach;
     const totalJoueursQ = LS.getQ().filter(q => q.type === 'joueur').length;
-    // Liste détaillée des joueurs collectionnés (nom + postes + statut placé)
     const byIdQ = {};
     LS.getQ().forEach(q => { byIdQ[q.id] = q; });
+    const collSet = new Set(onze.collection);
+    // Suivi (admin) : ensemble des « Qui suis-je ? » réellement DEVINÉS par le joueur,
+    // toutes parties confondues (détails de partie, statut ✓ trouvé).
+    const guessedJoueurIds = new Set();
+    games.forEach(g => (Array.isArray(g.details) ? g.details : []).forEach(d => {
+      if (d && d.ok && byIdQ[d.id] && byIdQ[d.id].type === 'joueur') guessedJoueurIds.add(d.id);
+    }));
+    // Liste détaillée des joueurs collectionnés (nom + postes + statut placé)
+    // + marqueur admin « collectionné mais jamais deviné » et bouton de suppression.
     const collRows = onze.collection
       .map(id => byIdQ[id])
       .filter(q => q && q.type === 'joueur')
       .map(q => {
         const placed = onze.slots.includes(q.id) || onze.coach === q.id;
         const pos = (q.positions || []).length ? q.positions.join(', ') : '—';
+        const notGuessed = adminLogged && !guessedJoueurIds.has(q.id);
         return `<div class="onze-coll-row">
           <span class="onze-coll-name">${esc(q.playerName)}</span>
           <span class="onze-coll-pos">${pos}</span>
           ${placed ? '<span class="onze-coll-placed">✓ placé</span>' : ''}
+          ${notGuessed ? '<span class="onze-coll-warn" title="Collectionné mais jamais deviné en partie par ce joueur">⚠ non deviné</span>' : ''}
+          ${adminLogged ? `<button class="onze-coll-del" title="Retirer de la collection" onclick="adminRemoveFromCollection('${q.id}')">✕</button>` : ''}
         </div>`;
       }).join('');
     const collHtml = collRows
       ? `<div style="max-height:240px;overflow-y:auto;">${collRows}</div>`
       : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucun joueur collectionné.</p>';
+    const collHeaderHtml = `
+      <div class="pcard-section-title" style="margin-top:0;">🃏 Joueurs collectionnés (${onze.collection.length}/${totalJoueursQ})</div>
+      ${adminLogged ? '<div id="pcard-add-coll-msg" style="margin:0 0 6px;font-size:.78rem;display:none;"></div>' : ''}`;
+    // Suivi admin : joueurs DEVINÉS en partie mais ABSENTS de la collection.
+    const missingFromColl = [...guessedJoueurIds]
+      .filter(id => !collSet.has(id) && byIdQ[id])
+      .map(id => byIdQ[id])
+      .sort((a, b) => (a.playerName || '').localeCompare(b.playerName || '', 'fr', { sensitivity: 'base' }));
+    const trackingHtml = (adminLogged && missingFromColl.length) ? `
+      <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.25);">
+        <div style="font-size:.8rem;color:var(--or);font-weight:700;margin-bottom:6px;">⚠ Devinés mais absents de la collection (${missingFromColl.length})</div>
+        ${missingFromColl.map(q => `<div class="onze-coll-row" style="border-bottom-color:rgba(255,205,0,.12);">
+          <span class="onze-coll-name">${esc(q.playerName)}</span>
+          <button class="btn btn-ghost btn-sm" onclick="adminAddToCollection('${q.id}')" style="white-space:nowrap;padding:4px 10px;font-size:.74rem;">+ Ajouter</button>
+        </div>`).join('')}
+      </div>` : '';
     const onzeSection = `
       <div class="pcard-section-title">🎽 Mon Onze${onzeComplete ? ' <span style="color:var(--or);">· complet ✓</span>' : ''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
@@ -6713,8 +6836,9 @@
         <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">🃏 ${onze.collection.length}/${totalJoueursQ}</span>
       </div>
       <div class="onze-pitch" style="margin-bottom:12px;">${onzePitchReadonlyHtml(onze)}</div>
-      <div class="pcard-section-title">🃏 Joueurs collectionnés (${onze.collection.length}/${totalJoueursQ})</div>
-      ${collHtml}`;
+      ${collHeaderHtml}
+      ${collHtml}
+      ${trackingHtml}`;
 
     document.getElementById('pcard-content').innerHTML = `
       <div class="pcard-drag-handle"></div>
@@ -6912,6 +7036,106 @@
     await scoresFetch();
     renderJoueurs();
     openPlayerCard(_pcardName);
+  }
+
+  /* Mon Onze brut et normalisé d'un compte (préserve completedAt/bonusAwarded…). */
+  function _adminOnzeRaw(name) {
+    const key = name.toLowerCase();
+    const acc = LS.getAccounts()[key];
+    const raw = (acc && acc.onze && typeof acc.onze === 'object') ? acc.onze : {};
+    const o = Object.assign({ formation: '4-4-2', slots: Array(11).fill(null), coach: null, collection: [] }, raw);
+    if (!ONZE_FORMATIONS[o.formation]) o.formation = '4-4-2';
+    if (!Array.isArray(o.slots) || o.slots.length !== 11) o.slots = Array(11).fill(null);
+    if (o.coach === undefined) o.coach = null;
+    if (!Array.isArray(o.collection)) o.collection = [];
+    return o;
+  }
+
+  /* Écrit le Mon Onze d'un compte via la RPC admin account_admin_set_onze (crée le
+     compte sans mot de passe s'il n'existe pas) et met à jour le cache local.
+     Renvoie true si OK. */
+  async function _adminSaveOnze(name, newOnze) {
+    if (!_supa) return false;
+    const { error } = await _supa.rpc('account_admin_set_onze', { p_key: name, p_onze: newOnze });
+    if (error) return false;
+    const key = name.toLowerCase();
+    const accounts = LS.getAccounts();
+    if (!accounts[key]) accounts[key] = { pseudo: name };
+    accounts[key].onze = newOnze;
+    _backupAccounts();
+    return true;
+  }
+
+  /* Rafraîchit les vues admin après une modif de collection. Rouvre la carte joueur
+     uniquement si elle est ouverte sur ce joueur (sinon on est dans le dashboard). */
+  async function _afterOnzeChange(name) {
+    await accountsFetch();
+    renderJoueurs();   // déclenche aussi renderOnzeDashboard()
+    const ov = document.getElementById('pcard-overlay');
+    if (ov && ov.style.display === 'flex' && (_pcardName || '').toLowerCase() === name.toLowerCase()) {
+      openPlayerCard(name);
+    }
+  }
+
+  /* Ajout manuel d'un joueur de la base à la collection Mon Onze d'un joueur (admin).
+     qidArg / nameArg fournis par les boutons « + Ajouter » (carte ou dashboard) ;
+     sinon nom = carte courante et qid lu dans le sélecteur. Notifie le joueur. */
+  async function adminAddToCollection(qidArg, nameArg) {
+    const name  = nameArg || _pcardName;
+    if (!name) return;
+    const sel   = document.getElementById('pcard-add-coll');
+    const msgEl = document.getElementById('pcard-add-coll-msg');
+    const show = (text, ok) => {
+      if (!msgEl) { if (!ok) alert(text); return; }
+      msgEl.textContent   = text;
+      msgEl.style.color   = ok ? '#2ecc71' : '#e74c3c';
+      msgEl.style.display = 'block';
+    };
+
+    const qid = qidArg || (sel ? sel.value : '');
+    if (!qid) { show('Choisis un joueur à ajouter.', false); return; }
+    const q = LS.getQ().find(x => x.id === qid && x.type === 'joueur');
+    if (!q) { show('Joueur introuvable.', false); return; }
+    if (!_supa) { show('Serveur indisponible.', false); return; }
+
+    const newOnze = _adminOnzeRaw(name);
+    if (newOnze.collection.includes(qid)) { show('Ce joueur est déjà dans la collection.', false); return; }
+    newOnze.collection = newOnze.collection.concat([qid]);
+
+    if (!await _adminSaveOnze(name, newOnze)) {
+      show('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).', false);
+      return;
+    }
+
+    // Notifie le joueur (s'il a un compte) — non bloquant.
+    await playerMsgSend(name.toLowerCase(), `${q.playerName} ajouté à ta collection !`,
+      `L'admin a ajouté ${q.playerName} à ta collection Mon Onze.`);
+
+    await _afterOnzeChange(name);
+  }
+
+  /* Retrait d'un joueur de la collection Mon Onze d'un joueur (admin).
+     Le retire aussi du terrain (slots / coach) s'il y était placé.
+     nameArg fourni par le dashboard ; sinon carte courante. */
+  async function adminRemoveFromCollection(qid, nameArg) {
+    const name = nameArg || _pcardName;
+    if (!name || !qid) return;
+    const q = LS.getQ().find(x => x.id === qid);
+    const label = q ? q.playerName : 'ce joueur';
+    if (!confirm(`Retirer ${label} de la collection de ${name} ?`)) return;
+    if (!_supa) { alert('Serveur indisponible.'); return; }
+
+    const newOnze = _adminOnzeRaw(name);
+    newOnze.collection = newOnze.collection.filter(id => id !== qid);
+    newOnze.slots      = newOnze.slots.map(id => (id === qid ? null : id));
+    if (newOnze.coach === qid) newOnze.coach = null;
+
+    if (!await _adminSaveOnze(name, newOnze)) {
+      alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
+      return;
+    }
+
+    await _afterOnzeChange(name);
   }
 
   /* Render the full player list (filtered by search or letter) */
@@ -9465,11 +9689,20 @@
     session = { name, questions: [jX, jY], bonusJoueur: qX || null, idx: 0, answers: [], score: 0, maxScore, plannedDate: isPlannedSession ? (planStartDate || todayStr) : null, catchUp: !!catchUpStart };
     nav('quiz');
     renderQ(true);
+    // Première partie : on présente automatiquement les règles avant le départ.
+    const firstGame = isFirstGame(name);
     if (feat('launchOverlay')) {
       const overlay = document.getElementById('quiz-launch-overlay');
       document.getElementById('ql-title').textContent = `Prêt, ${name} ?`;
       document.getElementById('ql-sub').textContent   = '';
       overlay.style.display = 'flex';
+      // L'overlay (z-index 200) reste sous les règles (z-index 300) ; le chrono ne
+      // démarre qu'au clic « Lancer le quiz », pas besoin de différer le lancement.
+      if (firstGame) showRules();
+    } else if (firstGame) {
+      // Sans overlay, on diffère le lancement (et donc le chrono) à la fermeture des règles.
+      _pendingAfterRules = launchQuiz;
+      showRules();
     } else {
       launchQuiz();
     }
@@ -9480,6 +9713,17 @@
     startQuizTimer();
   }
 
+  // Première partie d'un joueur : aucun score (hors ajustements admin) à son nom.
+  function isFirstGame(pseudo) {
+    if (!pseudo) return true;
+    const p = pseudo.toLowerCase();
+    return !(_db.scores || []).some(s =>
+      !s.adjust && (s.name || '').toLowerCase() === p);
+  }
+
+  // Action différée à exécuter à la fermeture des règles (ex. lancer la 1ʳᵉ partie).
+  let _pendingAfterRules = null;
+
   function showRules() {
     const modal = document.getElementById('rules-modal');
     modal.style.display = 'flex';
@@ -9488,6 +9732,11 @@
 
   function closeRules() {
     document.getElementById('rules-modal').style.display = 'none';
+    if (_pendingAfterRules) {
+      const fn = _pendingAfterRules;
+      _pendingAfterRules = null;
+      fn();
+    }
   }
 
   /* ═══════════════════════════════════════════════════
@@ -10990,7 +11239,8 @@
     document.getElementById('res-badge-name').textContent = bname;
     document.getElementById('res-badge-sub').textContent  = bsub;
 
-    document.getElementById('res-list').innerHTML = answers.map(a => {
+    const resListEl = document.getElementById('res-list');
+    if (resListEl) resListEl.innerHTML = answers.map(a => {
       const cls  = a.ok ? 'r-ok' : 'r-fail';
       const icon = a.ok ? '+' : '×';
       const isJoueur = a.q.type === 'joueur';
