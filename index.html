@@ -375,6 +375,7 @@
     .gen-alpha-btn:hover { background:rgba(255,205,0,.15); color:var(--or); border-color:rgba(255,205,0,.3); }
     .gen-alpha-btn.active { background:var(--or); color:var(--noir); border-color:var(--or); }
     .gen-alpha-btn.gen-alpha-all { padding:4px 10px; }
+    .gen-bonus-cat { font-size:.72rem; font-weight:700; color:rgba(255,205,0,.6); text-transform:uppercase; letter-spacing:.6px; margin:14px 0 6px; padding:0 2px; }
     .gen-player-card { background:rgba(26,26,26,.92); border:1px solid rgba(255,205,0,.13); border-radius:10px; margin-bottom:6px; overflow:hidden; transition:border-color .15s; }
     .gen-player-card.gen-card-open { border-color:rgba(255,205,0,.45); }
     .gen-player-header { display:flex; align-items:center; gap:10px; padding:11px 14px; cursor:pointer; user-select:none; }
@@ -1792,6 +1793,27 @@
     .player-history-info { flex:1;min-width:0; }
     .player-history-score { font-weight:700;color:var(--or);font-size:.9rem; }
     .player-history-date { font-size:.72rem;color:rgba(255,255,255,.35); }
+    /* ── Historique inline dans le card stats ── */
+    .pc-hist-row { display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);cursor:pointer;transition:background .12s; }
+    .pc-hist-row:last-child { border-bottom:none; }
+    .pc-hist-row:active { background:rgba(255,255,255,.04);border-radius:6px; }
+    .pc-hist-score { font-weight:700;color:var(--or);font-size:.88rem; }
+    .pc-hist-date { font-size:.72rem;color:rgba(255,255,255,.38); }
+    .pc-hist-ok { font-size:.7rem;color:rgba(255,255,255,.28);letter-spacing:.5px; }
+    /* ── Popover détail partie (ancré sur clic, ne suit pas le curseur) ── */
+    #pc-game-popover { display:none;position:fixed;z-index:9100;left:16px;right:16px;max-width:448px;margin:0 auto;background:#1c1c1c;border:1px solid rgba(255,205,0,.25);border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.7);overflow:hidden; }
+    #pc-game-popover.open { display:block; }
+    .pc-gpop-head { display:flex;align-items:center;justify-content:space-between;padding:11px 14px 9px;border-bottom:1px solid rgba(255,255,255,.07); }
+    .pc-gpop-title { font-weight:800;font-size:.88rem;color:#fff; }
+    .pc-gpop-score { font-weight:700;color:var(--or);font-size:.82rem; }
+    .pc-gpop-close { background:none;border:none;color:rgba(255,255,255,.4);font-size:1.2rem;cursor:pointer;line-height:1;padding:0 2px; }
+    .pc-gpop-body { overflow-y:auto;padding:4px 14px 16px;max-height:55vh; }
+    .pc-gdet-row { padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05); }
+    .pc-gdet-row:last-child { border-bottom:none; }
+    .pc-gdet-label { font-size:.82rem;font-weight:600;color:#fff;line-height:1.4;margin-bottom:3px; }
+    .pc-gdet-ans { font-size:.75rem;margin-top:2px; }
+    .pc-gdet-status { font-size:.7rem;font-weight:700;margin-left:6px;white-space:nowrap; }
+    .pc-gdet-correct { color:rgba(255,255,255,.38);font-size:.72rem;margin-top:3px; }
     .player-badge-chip { display:inline-flex;align-items:center;gap:6px;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.3);border-radius:20px;padding:5px 12px;font-size:.78rem;color:var(--or);font-weight:600; }
 
     /* ── Activity grid (player card) ── */
@@ -1813,10 +1835,12 @@
     #pc-act-tip { position:fixed;z-index:9999;display:none;pointer-events:none;background:rgba(20,20,20,.97);border:1px solid rgba(255,205,0,.22);border-radius:6px;padding:5px 10px;font-size:.72rem;color:rgba(255,255,255,.85);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.5); }
 
     /* ── Graphique points par partie (player card) ── */
+    .score-chart-wrap { position:relative; }
     .score-chart-scroll { overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch; }
     .score-chart-svg { display:block;height:auto; }
     .score-chart-svg .sc-bar { fill:var(--or);transition:fill .12s;pointer-events:none; }
     .score-chart-svg .sc-bar.is-hover { fill:#ffd633; }
+    .score-chart-svg .sc-bar-future { fill:none;stroke:rgba(255,255,255,.18);stroke-width:1.5;stroke-dasharray:4 3;pointer-events:none; }
     .score-chart-svg .sc-col { fill:transparent;cursor:pointer; }
     .score-chart-svg .sc-line { fill:none;stroke:var(--rouge);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;pointer-events:none; }
     .score-chart-svg .sc-dot { fill:#fff;stroke:var(--rouge);stroke-width:2;pointer-events:none; }
@@ -1824,33 +1848,59 @@
     .score-chart-svg .sc-axis { stroke:rgba(255,255,255,.1);stroke-width:1; }
     .score-chart-svg .sc-axislbl { fill:rgba(255,255,255,.35);font-size:9px;font-family:inherit; }
     .score-chart-svg .sc-datelbl { fill:rgba(255,255,255,.5);font-size:9px;font-family:inherit; }
+    .score-chart-svg .sc-datelbl-future { fill:rgba(255,255,255,.28);font-size:9px;font-family:inherit;pointer-events:none; }
     .score-chart-svg .sc-barval { fill:var(--or);font-size:9px;font-weight:700;font-family:inherit; }
     .score-chart-legend { display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap;justify-content:center; }
     .score-chart-legend-item { display:flex;align-items:center;gap:5px;font-size:.66rem;color:rgba(255,255,255,.45); }
     .score-chart-legend-bar { width:11px;height:11px;border-radius:2px;background:var(--or);flex-shrink:0; }
     .score-chart-legend-line { width:14px;height:0;border-top:2.5px solid var(--rouge);flex-shrink:0; }
-    .score-chart-tip { position:fixed;z-index:10000;display:none;pointer-events:none;background:rgba(20,20,20,.98);border:1px solid rgba(255,205,0,.25);border-radius:8px;padding:9px 11px;font-size:.74rem;color:rgba(255,255,255,.85);box-shadow:0 6px 22px rgba(0,0,0,.55);max-width:240px; }
+    .score-chart-tip { position:absolute;z-index:500;display:none;pointer-events:none;background:rgba(20,20,20,.98);border:1px solid rgba(255,205,0,.25);border-radius:8px;padding:9px 11px;font-size:.74rem;color:rgba(255,255,255,.85);box-shadow:0 6px 22px rgba(0,0,0,.55);max-width:240px;transform:translateX(-50%); }
     .score-chart-tip .chart-tip-head { font-weight:700;color:#fff;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:5px;margin-bottom:5px;font-size:.78rem; }
     .score-chart-tip .chart-tip-q { display:flex;align-items:center;gap:6px;padding:2px 0;line-height:1.3; }
     .score-chart-tip .chart-tip-qicon { flex-shrink:0;width:14px;text-align:center; }
     .score-chart-tip .chart-tip-qlabel { flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .score-chart-tip .chart-tip-qpts { flex-shrink:0;font-weight:700;color:var(--or);white-space:nowrap; }
     .score-chart-tip .chart-tip-empty { color:rgba(255,255,255,.4);font-style:italic; }
+    .score-chart-title-btn { cursor:pointer;user-select:none;color:var(--or) !important; }
+    .score-chart-title-btn:hover { opacity:.75; }
+    /* ── Modal plein graphique ── */
+    #sc-full-modal { display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.75);align-items:center;justify-content:center;padding:16px; }
+    #sc-full-modal.open { display:flex; }
+    #sc-full-modal-box { background:#1a1a1a;border:1px solid rgba(255,205,0,.2);border-radius:14px;padding:18px 16px 14px;width:100%;max-width:760px;max-height:90vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.7); }
+    #sc-full-modal-box .sc-full-title { font-weight:700;font-size:1rem;color:var(--or);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between; }
+    #sc-full-modal-box .sc-full-close { cursor:pointer;font-size:1.2rem;color:rgba(255,255,255,.5);padding:2px 6px; }
+    #sc-full-modal-box .sc-full-close:hover { color:#fff; }
     /* ── Classement public ── */
     .lb-tab-btn { flex:1;padding:9px 2px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.6);border-radius:8px;cursor:pointer;font-size:.8rem;font-family:inherit;white-space:nowrap;transition:background .15s,color .15s; }
     @media (max-width:380px) { .lb-tab-btn { font-size:.72rem;padding:8px 1px; } }
     .lb-tab-active { background:var(--rouge);border-color:var(--rouge);color:#fff;font-weight:700; }
-    .lb-entry { display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.07); }
+    .lb-main-tab-btn { flex:1;padding:11px 4px;background:rgba(26,26,26,.92);border:1px solid rgba(255,205,0,.18);border-bottom:2px solid rgba(255,255,255,.12);color:rgba(255,255,255,.5);cursor:pointer;font-size:.88rem;font-family:inherit;font-weight:600;transition:color .15s,border-color .15s; }
+    .lb-main-tab-btn:first-child { border-radius:8px 0 0 8px; }
+    .lb-main-tab-btn:last-child  { border-radius:0 8px 8px 0;border-left:none; }
+    .lb-main-tab-btn.active { color:#fff;border-bottom-color:var(--or); }
+    .lb-tab-btn { background:rgba(26,26,26,.92); }
+    .lb-filter-wrap { position:relative;margin-bottom:14px; }
+    .lb-filter-btn { width:100%;display:flex;justify-content:space-between;align-items:center;background:rgba(26,26,26,.92);border:1px solid rgba(255,205,0,.18);border-radius:8px;padding:10px 14px;color:#fff;font-size:.86rem;cursor:pointer;font-family:inherit;transition:background .12s;text-align:left; }
+    .lb-filter-btn:hover { background:rgba(36,36,36,.95); }
+    .lb-filter-btn .lb-filter-caret { color:rgba(255,255,255,.45);font-size:.75rem;flex-shrink:0;transition:transform .15s; }
+    .lb-filter-btn.open .lb-filter-caret { transform:rotate(180deg); }
+    .lb-filter-panel { position:absolute;top:calc(100% + 4px);left:0;right:0;background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.18);border-radius:8px;z-index:300;max-height:220px;overflow-y:auto;padding:4px 0;box-shadow:0 8px 24px rgba(0,0,0,.65); }
+    .lb-filter-item { display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:.85rem;transition:background .1s;user-select:none; }
+    .lb-filter-item:hover { background:rgba(255,205,0,.07); }
+    .lb-filter-item input[type=checkbox] { accent-color:var(--or);width:15px;height:15px;cursor:pointer;flex-shrink:0; }
+    .lb-filter-actions { display:flex;gap:8px;padding:8px 14px;border-top:1px solid rgba(255,255,255,.08);margin-top:2px; }
+    .lb-entry { display:flex;align-items:center;gap:12px;padding:11px 8px;border-bottom:1px solid rgba(255,255,255,.07); }
     .lb-entry:last-child { border-bottom:none; }
-    .lb-entry.clickable { cursor:pointer;border-radius:8px;padding-left:8px;padding-right:8px;transition:background .12s; }
+    .lb-entry.clickable { cursor:pointer;border-radius:8px;transition:background .12s; }
     .lb-entry.clickable:hover { background:rgba(255,205,0,.08); }
     .lb-rank { width:32px;text-align:center;font-weight:700;font-size:.9rem;color:rgba(255,255,255,.38);flex-shrink:0; }
     .lb-rank-1 { color:#FFCD00;font-size:1.2rem; }
     .lb-rank-2 { color:#c8c8c8;font-size:1.1rem; }
     .lb-rank-3 { color:#cd7f32;font-size:1.05rem; }
     .lb-name { flex:1;font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-    .lb-right { display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0; }
+    .lb-right { display:flex;flex-direction:row;align-items:center;gap:6px;flex-shrink:0; }
     .lb-score { font-weight:700;color:var(--or);font-size:.95rem; }
+    .lb-games { font-size:.75rem;color:rgba(255,255,255,.45);font-weight:600; }
     .lb-badge-txt { font-size:.68rem;color:rgba(255,255,255,.38);white-space:nowrap; }
 
     /* ── Mini-classement général (player cards) ── */
@@ -2012,7 +2062,7 @@
         </div>
       </div>
 
-      <button class="btn btn-ghost btn-full" style="max-width:380px;margin-bottom:8px;" onclick="nav('leaderboard')">🏆 Classement</button>
+      <button class="btn btn-full" style="max-width:380px;margin-bottom:8px;background:#1a1a1a;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.1);" onclick="nav('leaderboard')">🏆 Classement</button>
 
       <!-- Bandeau réseaux sociaux -->
       <div class="home-social">
@@ -2043,16 +2093,60 @@
       <div style="width:100%;max-width:520px;padding-bottom:80px;">
         <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;">
           <button class="btn btn-ghost btn-sm mb0" onclick="nav('home')" style="padding:8px 14px;flex-shrink:0;">← Retour</button>
-          <h2 style="margin:0;font-size:1.3rem;font-family:'Calleo',sans-serif;">🏆 Classement</h2>
+          <h2 style="margin:0;font-size:1.3rem;font-family:'Calleo',sans-serif;">🏆 Classements</h2>
         </div>
-        <div style="display:flex;gap:6px;margin-bottom:14px;">
-          <button id="lb-tab-today"   class="lb-tab-btn lb-tab-active" onclick="lbSetTab('today')">Auj.</button>
-          <button id="lb-tab-week"    class="lb-tab-btn" onclick="lbSetTab('week')">Semaine</button>
-          <button id="lb-tab-all"     class="lb-tab-btn" onclick="lbSetTab('all')">Tout temps</button>
-          <button id="lb-tab-general" class="lb-tab-btn" onclick="lbSetTab('general')">Général</button>
+
+        <!-- Onglets principaux -->
+        <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.1);margin-bottom:16px;">
+          <button id="lb-main-liste"        class="lb-main-tab-btn active" onclick="lbSetMain('liste')">Liste</button>
+          <button id="lb-main-infographie"  class="lb-main-tab-btn"        onclick="lbSetMain('infographie')">Infographie</button>
         </div>
-        <div id="lb-list" class="card" style="padding:4px 16px;min-height:60px;"></div>
-        <p id="lb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:32px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
+
+        <!-- Section Liste -->
+        <div id="lb-section-liste">
+          <div style="display:flex;gap:6px;margin-bottom:14px;">
+            <button id="lb-tab-today"   class="lb-tab-btn lb-tab-active" onclick="lbSetTab('today')">Aujourd'hui</button>
+            <button id="lb-tab-general" class="lb-tab-btn"               onclick="lbSetTab('general')">All-time</button>
+          </div>
+          <div id="lb-list" class="card" style="padding:4px 16px;min-height:60px;"></div>
+          <p id="lb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:32px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
+        </div>
+
+        <!-- Section Infographie -->
+        <div id="lb-section-infographie" style="display:none;">
+          <!-- Sous-onglets Infographie -->
+          <div style="display:flex;gap:6px;margin-bottom:14px;">
+            <button id="lb-info-tab-evolution" class="lb-tab-btn lb-tab-active" onclick="lbSetInfoTab('evolution')">Évolution</button>
+            <button id="lb-info-tab-scatter"   class="lb-tab-btn"               onclick="lbSetInfoTab('scatter')">Nuage de points</button>
+          </div>
+
+          <!-- Sous-section Évolution -->
+          <div id="lb-info-evolution">
+            <div class="lb-filter-wrap">
+              <button class="lb-filter-btn" id="lb-filter-btn" onclick="lbToggleFilter(event)">
+                <span id="lb-filter-label">5 joueurs sélectionnés</span>
+                <span class="lb-filter-caret">▾</span>
+              </button>
+              <div class="lb-filter-panel" id="lb-filter-panel" style="display:none;">
+                <div id="lb-filter-items"></div>
+                <div class="lb-filter-actions">
+                  <button class="btn btn-ghost btn-sm mb0" style="font-size:.74rem;padding:5px 10px;" onclick="lbFilterSelectAll()">Tout sélectionner</button>
+                  <button class="btn btn-ghost btn-sm mb0" style="font-size:.74rem;padding:5px 10px;" onclick="lbFilterSelectTop5()">Top 5</button>
+                </div>
+              </div>
+            </div>
+            <div class="card" style="padding:14px 8px 10px;">
+              <div id="lb-chart"></div>
+            </div>
+          </div>
+
+          <!-- Sous-section Nuage de points -->
+          <div id="lb-info-scatter" style="display:none;">
+            <div class="card" style="padding:14px 8px 10px;">
+              <div id="lb-scatter"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -2102,17 +2196,15 @@
           <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database</button>
           <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">Générateur</button>
           <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
-          <button class="tab-btn" id="t-joueurs" onclick="adminTab('joueurs')">Classement<span id="joueurs-noacct-badge" class="tab-badge" title="Joueurs sans compte"></span></button>
-          <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messages</button>
           <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
+          <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messages</button>
         </div>
         <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
           <option value="list">Database</option>
           <option value="generator">Générateur</option>
           <option value="planning">Planning</option>
-          <option value="joueurs">Classement</option>
-          <option value="messagerie">Messages</option>
           <option value="stats">Stats</option>
+          <option value="messagerie">Messages</option>
         </select>
       </div>
 
@@ -2638,13 +2730,29 @@
       <!-- Tab : planning -->
       <!-- ══ Tab : generator ══ -->
       <div id="at-generator" style="display:none;width:100%">
-        <div style="padding:16px 0 0;">
+        <!-- Sous-onglets Joueurs / Bonus -->
+        <div class="add-subtabs db-subtabs" style="margin-top:16px;">
+          <button class="add-subtab active" id="gst-joueurs" onclick="genSetSubTab('joueurs')">Joueurs <span class="subtab-count" id="gstc-joueurs">0</span></button>
+          <button class="add-subtab" id="gst-bonus" onclick="genSetSubTab('bonus')">Bonus <span class="subtab-count" id="gstc-bonus">0</span></button>
+        </div>
+
+        <!-- Pane : Joueurs -->
+        <div id="gen-pane-joueurs">
           <div class="gen-search-bar">
             <input type="text" id="gen-search" placeholder="Rechercher un joueur RC Lens…" oninput="genSetLetter('');renderGeneratorList()" autocomplete="off">
             <span class="gen-stats" id="gen-stats"></span>
           </div>
           <div class="gen-alpha-bar" id="gen-alpha-bar"></div>
           <div id="gen-player-list"></div>
+        </div>
+
+        <!-- Pane : Bonus (stats sitercl.com) -->
+        <div id="gen-pane-bonus" style="display:none;">
+          <div class="gen-search-bar" style="margin-top:4px;">
+            <input type="text" id="gen-bonus-search" placeholder="Rechercher une statistique…" oninput="renderGeneratorBonusList()" autocomplete="off">
+            <span class="gen-stats" id="gen-bonus-stats"></span>
+          </div>
+          <div id="gen-bonus-list"></div>
         </div>
       </div>
 
@@ -2670,26 +2778,6 @@
       </div>
 
       <!-- Tab : joueurs -->
-      <div id="at-joueurs" style="display:none;width:100%">
-        <!-- Dashboard de suivi des collections Mon Onze (divergences devinés / collectionnés) -->
-        <div id="onze-dashboard"></div>
-        <div class="card" style="margin-bottom:12px;">
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
-            <span id="joueurs-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
-          </div>
-          <div class="joueur-search-bar">
-            <input type="text" id="joueur-search" placeholder="Rechercher un pseudo…" oninput="renderJoueurs()" autocomplete="off">
-          </div>
-          <div id="joueurs-sort-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-            <button class="btn btn-sm" id="jsort-score" onclick="setJoueurSort('score')" style="font-size:.75rem;padding:5px 10px;">Score ▾</button>
-            <button class="btn btn-ghost btn-sm" id="jsort-date" onclick="setJoueurSort('date')" style="font-size:.75rem;padding:5px 10px;">Date</button>
-            <button class="btn btn-ghost btn-sm" id="jsort-name" onclick="setJoueurSort('name')" style="font-size:.75rem;padding:5px 10px;">Nom A→Z</button>
-          </div>
-          <div id="joueurs-list"></div>
-        </div>
-      </div>
-
       <!-- Tab : messagerie -->
       <div id="at-messagerie" style="display:none;width:100%">
         <!-- Sous-onglets de la messagerie -->
@@ -2748,11 +2836,40 @@
 
       <!-- Tab : stats -->
       <div id="at-stats" style="display:none;width:100%">
-        <div class="card">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-            <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Statistiques par question</span>
+        <div class="add-subtabs">
+          <button class="add-subtab active" id="sst-classements" onclick="setStatsSubTab('classements')">Classements</button>
+          <button class="add-subtab" id="sst-questions" onclick="setStatsSubTab('questions')">Stats questions</button>
+        </div>
+
+        <!-- Pane : Classements -->
+        <div id="stats-classements-pane">
+          <!-- Dashboard de suivi des collections Mon Onze -->
+          <div id="onze-dashboard"></div>
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
+              <span id="joueurs-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
+            </div>
+            <div class="joueur-search-bar">
+              <input type="text" id="joueur-search" placeholder="Rechercher un pseudo…" oninput="renderJoueurs()" autocomplete="off">
+            </div>
+            <div id="joueurs-sort-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+              <button class="btn btn-sm" id="jsort-score" onclick="setJoueurSort('score')" style="font-size:.75rem;padding:5px 10px;">Score ▾</button>
+              <button class="btn btn-ghost btn-sm" id="jsort-date" onclick="setJoueurSort('date')" style="font-size:.75rem;padding:5px 10px;">Date</button>
+              <button class="btn btn-ghost btn-sm" id="jsort-name" onclick="setJoueurSort('name')" style="font-size:.75rem;padding:5px 10px;">Nom A→Z</button>
+            </div>
+            <div id="joueurs-list"></div>
           </div>
-          <div id="qstats-content"></div>
+        </div>
+
+        <!-- Pane : Stats questions -->
+        <div id="stats-questions-pane" style="display:none;">
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Statistiques par question</span>
+            </div>
+            <div id="qstats-content"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2916,11 +3033,6 @@
             <div class="score-circle" style="width:110px;height:110px;">
               <div class="score-num" id="res-score" style="font-size:2.5rem;"></div>
             </div>
-          </div>
-          <div class="badge-wrap" style="padding:0;margin-bottom:18px;">
-            <span class="badge-icon-big" id="res-badge-icon" style="font-size:2.2rem;"></span>
-            <div class="badge-name" id="res-badge-name" style="font-size:1rem;"></div>
-            <div class="badge-sub"  id="res-badge-sub"></div>
           </div>
         </div>
 
@@ -3138,6 +3250,9 @@
           <div style="font-size:1.1rem;font-weight:700;margin-bottom:4px;" id="pc-name">Joueur</div>
           <div id="pc-rank-display" style="margin-bottom:2px;"></div>
 
+          <!-- Historique des parties (partie supérieure du card) -->
+          <div id="pc-history-inline" style="display:none;width:100%;text-align:left;margin:12px 0 4px;"></div>
+
           <div class="player-stats-grid">
             <div class="player-stat-box">
               <div class="player-stat-val" id="pc-games">0</div>
@@ -3175,12 +3290,6 @@
             </div>
           </div>
 
-          <div id="pc-badge-wrap" style="display:none;margin-bottom:14px;">
-            <div class="player-badge-chip">
-              <span id="pc-badge-icon"></span>
-              <span id="pc-badge-name"></span>
-            </div>
-          </div>
 
           <button id="pc-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">▶ Jouer</button>
           <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
@@ -3209,7 +3318,7 @@
         </div>
 
         <div class="card" id="pc-mini-rank-card" style="display:none;margin-bottom:12px;">
-          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">🏆 Classement général</div>
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;cursor:pointer;color:var(--or);" onclick="lbSetTab('general');nav('leaderboard');">🏆 Classement général</div>
           <div id="pc-mini-rank"></div>
         </div>
 
@@ -3218,8 +3327,16 @@
           <div id="pc-score-chart"></div>
         </div>
 
-        <div class="card" id="pc-history-card" style="display:none;margin-bottom:12px;">
-          <div id="pc-history-list" style="max-height:320px;overflow-y:auto;"></div>
+        <!-- Popover détail d'une partie (ancré au clic, position fixe) -->
+        <div id="pc-game-popover">
+          <div class="pc-gpop-head">
+            <div>
+              <div class="pc-gpop-title" id="pc-modal-title"></div>
+              <div class="pc-gpop-score" id="pc-modal-score"></div>
+            </div>
+            <button class="pc-gpop-close" onclick="pcCloseGameDetail()">✕</button>
+          </div>
+          <div class="pc-gpop-body" id="pc-modal-body"></div>
         </div>
 
         <!-- Sécurité : changer son mot de passe -->
@@ -4592,7 +4709,7 @@
       // rafraîchit puis on recalcule les parties à rattraper.
       if (_localUser) Promise.all([scoresFetch(), dbPull('planning')]).then(renderHomeCatchUp);
     }
-    if (viewName === 'leaderboard') { renderLeaderboardPublic(); scoresFetch().then(() => renderLeaderboardPublic()); }
+    if (viewName === 'leaderboard') { renderLeaderboardPublic(); renderLbInfographie(); scoresFetch().then(() => { renderLeaderboardPublic(); renderLbInfographie(); }); }
     if (viewName === 'auth') {
       authSetMode('login');
       ['auth-pseudo','auth-password','auth-password-confirm'].forEach(id => {
@@ -4784,17 +4901,33 @@
     _stopJoueursPoll();
     // Rafraîchit automatiquement scores + comptes tant que l'onglet Joueurs est ouvert
     _joueursPollTimer = setInterval(() => {
-      if (sessionStorage.getItem('rcAdminTab') !== 'joueurs') { _stopJoueursPoll(); return; }
+      if (sessionStorage.getItem('rcAdminTab') !== 'stats') { _stopJoueursPoll(); return; }
       Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
     }, 15000);
   }
 
+  let _statsSubTab = 'classements';
+
+  function setStatsSubTab(sub) {
+    _statsSubTab = sub;
+    document.getElementById('sst-classements').classList.toggle('active', sub === 'classements');
+    document.getElementById('sst-questions').classList.toggle('active', sub === 'questions');
+    document.getElementById('stats-classements-pane').style.display = sub === 'classements' ? 'block' : 'none';
+    document.getElementById('stats-questions-pane').style.display   = sub === 'questions'   ? 'block' : 'none';
+    if (sub === 'classements') {
+      renderJoueurs();
+      Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
+      _startJoueursPoll();
+    } else {
+      _stopJoueursPoll();
+      renderQStats(); scoresFetch().then(() => renderQStats());
+    }
+  }
+
   function adminTab(tab) {
-    if (tab !== 'joueurs') _stopJoueursPoll();
+    if (tab !== 'stats') _stopJoueursPoll();
     updateNoAccountBadge();
-    // Si l'onglet Joueurs n'est pas ouvert, rafraîchir les comptes/scores pour
-    // afficher la notification "joueurs sans compte" sans cliquer sur l'onglet.
-    if (tab !== 'joueurs' && _supa) {
+    if (tab !== 'stats' && _supa) {
       Promise.all([scoresFetch(), accountsFetch()]).then(updateNoAccountBadge).catch(() => {});
     }
     const showList = tab === 'list';
@@ -4802,11 +4935,10 @@
     document.getElementById('t-generator').classList.toggle('active', tab === 'generator');
     document.getElementById('t-planning').classList.toggle('active', tab === 'planning');
     document.getElementById('t-settings').classList.toggle('active', tab === 'settings');
-    document.getElementById('t-joueurs').classList.toggle('active', tab === 'joueurs');
     document.getElementById('t-messagerie').classList.toggle('active', tab === 'messagerie');
     document.getElementById('t-messages').classList.toggle('active', tab === 'messagerie');
     document.getElementById('t-stats').classList.toggle('active', tab === 'stats');
-    const inMainTab = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'joueurs' || tab === 'messagerie' || tab === 'stats');
+    const inMainTab = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'messagerie' || tab === 'stats');
     document.querySelector('#view-admin .tabs-nav').style.display = inMainTab ? 'block' : 'none';
     if (inMainTab) document.getElementById('tabs-select').value = tab;
     document.getElementById('at-list').style.display      = showList ? 'block' : 'none';
@@ -4814,19 +4946,13 @@
     document.getElementById('at-settings').style.display  = tab === 'settings'  ? 'block' : 'none';
     document.getElementById('at-planning').style.display  = tab === 'planning'  ? 'block' : 'none';
     document.getElementById('at-generator').style.display = tab === 'generator' ? 'block' : 'none';
-    document.getElementById('at-joueurs').style.display   = tab === 'joueurs'   ? 'block' : 'none';
     document.getElementById('at-messagerie').style.display = tab === 'messagerie' ? 'block' : 'none';
     document.getElementById('at-stats').style.display     = tab === 'stats'     ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
     if (tab === 'list')      setDbSubTab(dbSubTab);
     if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); showSettingsPanel('db-questions'); }
     if (tab === 'planning')  { renderPlanning(); Promise.all([dbPull('planning'), scoresFetch()]).then(renderPlanning); }
-    if (tab === 'generator') renderGeneratorList();
-    if (tab === 'joueurs')   {
-      renderJoueurs();
-      Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
-      _startJoueursPoll();
-    }
+    if (tab === 'generator') { genSetSubTab(_genSubTab); genUpdateSubTabCounts(); }
     if (tab === 'messagerie') {
       setMessagerieSubTab(messagerieSubTab);
       renderMessages(); messagesFetch().then(renderMessages);
@@ -4834,7 +4960,7 @@
       accountsFetch().then(populatePmsgRecipients);
       playerMsgsFetchAdmin().then(renderPlayerMsgAdmin);
     }
-    if (tab === 'stats')     { renderQStats(); scoresFetch().then(() => renderQStats()); }
+    if (tab === 'stats') setStatsSubTab(_statsSubTab);
   }
 
   function toggleSettings() {
@@ -6299,7 +6425,7 @@
 
   // Pré-sélectionne un joueur précis (depuis sa carte) et bascule sur l'onglet.
   function composeMessageTo(key) {
-    adminTab('joueurs');
+    adminTab('messagerie');
     closePlayerCard();
     populatePmsgRecipients();
     const sel = document.getElementById('pmsg-recipient');
@@ -6394,8 +6520,8 @@
     names.forEach(k => { if (!_hasAccount(k)) n++; });
     badge.textContent = n > 0 ? String(n) : '';
     badge.classList.toggle('show', n > 0);
-    const opt = document.querySelector('#tabs-select option[value="joueurs"]');
-    if (opt) opt.textContent = n > 0 ? `Joueurs (${n} sans compte)` : 'Joueurs';
+    const opt = document.querySelector('#tabs-select option[value="stats"]');
+    if (opt) opt.textContent = n > 0 ? `Stats (${n} sans compte)` : 'Stats';
   }
 
   function renderJoueurs() {
@@ -6619,8 +6745,10 @@
   }
 
   /* HTML du mini-classement général centré sur `name` : quelques joueurs
-     au-dessus et en-dessous + lien vers le classement complet. */
-  function miniRankingHtml(name, span = 2) {
+     au-dessus et en-dessous + lien vers le classement complet.
+     noSelfClick : true depuis la vue joueur (sa propre carte) — la ligne
+     "moi" n'est pas cliquable, les autres ouvrent l'overlay. */
+  function miniRankingHtml(name, span = 2, noSelfClick = false) {
     const ranking = generalRankingList();
     if (!ranking.length) return '';
     const key = (name || '').toLowerCase().trim();
@@ -6631,18 +6759,28 @@
     const end   = Math.min(ranking.length - 1, meIdx + span);
     const medals = ['🥇', '🥈', '🥉'];
     const rows = ranking.slice(start, end + 1).map((r, i) => {
-      const pos    = start + i;
-      const isMe   = pos === meIdx;
-      const posLbl = pos < 3 ? medals[pos] : `#${pos + 1}`;
-      return `<div class="mini-rank-row clickable${isMe ? ' is-me' : ''}" data-pname="${esc(r.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(r.name)}">
+      const pos      = start + i;
+      const isMe     = pos === meIdx;
+      const posLbl   = pos < 3 ? medals[pos] : `#${pos + 1}`;
+      const clickable = !(isMe && noSelfClick);
+      return clickable
+        ? `<div class="mini-rank-row clickable${isMe ? ' is-me' : ''}" data-pname="${esc(r.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(r.name)}">
+        <span class="mini-rank-pos">${posLbl}</span>
+        <span class="mini-rank-name">${esc(r.name)}</span>
+        <span class="mini-rank-score">${r.total} pts</span>
+      </div>`
+        : `<div class="mini-rank-row is-me">
         <span class="mini-rank-pos">${posLbl}</span>
         <span class="mini-rank-name">${esc(r.name)}</span>
         <span class="mini-rank-score">${r.total} pts</span>
       </div>`;
     }).join('');
 
-    return `<div class="mini-rank">${rows}</div>
-      <a class="mini-rank-link" onclick="closePlayerCard();lbSetTab('general');nav('leaderboard');">Voir tout le classement général →</a>`;
+    const linkOnclick = noSelfClick
+      ? `lbSetTab('general');nav('leaderboard');`
+      : `closePlayerCard();lbSetTab('general');nav('leaderboard');`;
+
+    return `<div class="mini-rank">${rows}</div>`;
   }
 
   function openPlayerCard(name) {
@@ -6714,10 +6852,9 @@
     };
 
     const historyRows = games.length ? games.map(g => `
-      <div class="pcard-game-row" style="cursor:pointer;" onclick="toggleGameDetail('${g.id}')">
+      <div class="pcard-game-row" style="cursor:default;" onmouseenter="toggleGameDetail('${g.id}',true)" onmouseleave="toggleGameDetail('${g.id}',false)">
         <span class="pcard-game-score">${g.score}</span>
         <span class="pcard-game-date">${fmtFull(g.date)}</span>
-        <span id="gdet-caret-${g.id}" style="color:rgba(255,255,255,.3);font-size:.72rem;transition:transform .15s;flex-shrink:0;">▶</span>
       </div>
       <div id="gdet-${g.id}" style="display:none;padding:2px 0 10px 6px;border-bottom:1px solid rgba(255,255,255,.06);">${gameDetailHtml(g)}</div>`).join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucune partie jouée.</p>';
 
@@ -6880,7 +7017,7 @@
         </div>
       </div>
       ${onzeSection}
-      <div class="pcard-section-title">Classement général</div>
+      <div class="pcard-section-title" style="cursor:pointer;color:var(--or);" onclick="closePlayerCard();lbSetTab('general');nav('leaderboard');">Classement général</div>
       ${miniRankingHtml(name)}
       ${games.length ? '<div class="pcard-section-title">📊 Progression des points</div><div id="pcard-score-chart" style="margin-bottom:6px;"></div>' : ''}
       <div class="pcard-section-title">Historique des parties</div>
@@ -6897,13 +7034,10 @@
   }
 
   // Déroule / replie le détail d'une partie dans l'historique de la carte joueur
-  function toggleGameDetail(id) {
-    const box   = document.getElementById('gdet-' + id);
-    const caret = document.getElementById('gdet-caret-' + id);
+  function toggleGameDetail(id, show) {
+    const box = document.getElementById('gdet-' + id);
     if (!box) return;
-    const open = box.style.display !== 'none';
-    box.style.display = open ? 'none' : 'block';
-    if (caret) caret.style.transform = open ? '' : 'rotate(90deg)';
+    box.style.display = show ? 'block' : 'none';
   }
 
   async function adminResetPwd() {
@@ -7504,6 +7638,495 @@
       .filter(q => q.type === 'joueur' && /^J\d+$/.test(q.id))
       .map(q => parseInt(q.id.slice(1)));
     return 'J' + ((nums.length ? Math.max(...nums) : 0) + 1);
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     GÉNÉRATEUR BONUS — statistiques sitercl.com
+  ══════════════════════════════════════════════════════════ */
+
+  const GEN_STATS = [
+    // ── Ligue 1 : records positifs ──
+    { cat:'Ligue 1 – Bilan général',         label:'Nombre de saisons disputées en Ligue 1',                  answer:'61' },
+    { cat:'Ligue 1 – Bilan général',         label:'Classement moyen en Ligue 1',                              answer:'9,41' },
+    { cat:'Ligue 1 – Bilan général',         label:'Classement le plus fréquent en Ligue 1',                   answer:'7e (9 fois)' },
+    { cat:'Ligue 1 – Bilan général',         label:'Total de matchs joués en Ligue 1',                         answer:'2 242' },
+    { cat:'Ligue 1 – Bilan général',         label:'Nombre de victoires en Ligue 1',                           answer:'836' },
+    { cat:'Ligue 1 – Bilan général',         label:'Pourcentage de victoires en Ligue 1',                      answer:'37,29 %' },
+    { cat:'Ligue 1 – Bilan général',         label:'Nombre de matchs nuls en Ligue 1',                         answer:'603' },
+    { cat:'Ligue 1 – Bilan général',         label:'Nombre de défaites en Ligue 1',                            answer:'803' },
+    { cat:'Ligue 1 – Bilan général',         label:'Buts marqués en Ligue 1',                                  answer:'3 148' },
+    { cat:'Ligue 1 – Bilan général',         label:'Moyenne de buts marqués par match en Ligue 1',             answer:'1,40' },
+    { cat:'Ligue 1 – Bilan général',         label:'Buts encaissés en Ligue 1',                                answer:'3 113' },
+    { cat:'Ligue 1 – Bilan général',         label:'Différence de buts en Ligue 1',                            answer:'+35' },
+    { cat:'Ligue 1 – Records positifs',      label:'Meilleur classement en Ligue 1',                           answer:'1er (1997/98)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Record de points en une saison de Ligue 1',                answer:'84 (2022/23)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Record de victoires en une saison de Ligue 1',             answer:'25 (2022/23)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Minimum de défaites en une saison de Ligue 1',             answer:'4 (2022/23)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Meilleure attaque en Ligue 1 (buts marqués)',              answer:'77 buts (1956/57)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Meilleure défense en Ligue 1 (buts encaissés)',            answer:'29 buts (2022/23)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Meilleure différence de buts en Ligue 1',                  answer:'+39 (2022/23)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Plus large victoire en Ligue 1',                           answer:'10-2 contre le RC Paris (1963/64)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Plus longue série de victoires consécutives en Ligue 1',   answer:'7 matchs' },
+    { cat:'Ligue 1 – Records positifs',      label:'Plus longue série d\'invincibilité en Ligue 1',            answer:'19 matchs (2005/06)' },
+    { cat:'Ligue 1 – Records positifs',      label:'Record de victoires à domicile en une saison de Ligue 1', answer:'17 (2022/23)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Pire classement en Ligue 1',                               answer:'20e (1988/89 et 2014/15)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Minimum de points en une saison de Ligue 1',               answer:'17 (1988/89)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Minimum de victoires en une saison de Ligue 1',            answer:'3 (1988/89)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Maximum de défaites en une saison de Ligue 1',             answer:'27 (1988/89)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Pire attaque en Ligue 1 (buts marqués)',                   answer:'32 buts (1988/89 et 2014/15)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Pire défense en Ligue 1 (buts encaissés)',                 answer:'77 buts (1950/51)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Pire différence de buts en Ligue 1',                       answer:'-41 (1988/89)' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Plus large défaite en Ligue 1',                            answer:'0-6' },
+    { cat:'Ligue 1 – Records négatifs',      label:'Plus longue série de défaites consécutives en Ligue 1',    answer:'9 matchs (1988/89)' },
+    // ── Ligue 2 ──
+    { cat:'Ligue 2 – Bilan général',         label:'Nombre de saisons disputées en Ligue 2',                   answer:'18' },
+    { cat:'Ligue 2 – Bilan général',         label:'Total de matchs joués en Ligue 2',                         answer:'642' },
+    { cat:'Ligue 2 – Bilan général',         label:'Nombre de victoires en Ligue 2',                           answer:'288' },
+    { cat:'Ligue 2 – Bilan général',         label:'Nombre de matchs nuls en Ligue 2',                         answer:'187' },
+    { cat:'Ligue 2 – Bilan général',         label:'Nombre de défaites en Ligue 2',                            answer:'167' },
+    { cat:'Ligue 2 – Bilan général',         label:'Buts marqués en Ligue 2',                                  answer:'968' },
+    { cat:'Ligue 2 – Bilan général',         label:'Buts encaissés en Ligue 2',                                answer:'666' },
+    { cat:'Ligue 2 – Bilan général',         label:'Différence de buts en Ligue 2',                            answer:'+302' },
+    { cat:'Ligue 2 – Records',               label:'Meilleur classement en Ligue 2',                           answer:'1er (1949, 1973 et 2009)' },
+    { cat:'Ligue 2 – Records',               label:'Meilleure attaque en Ligue 2 (buts marqués)',              answer:'74 buts (1978/79)' },
+    { cat:'Ligue 2 – Records',               label:'Meilleure défense en Ligue 2 (buts encaissés)',            answer:'26 buts (1978/79 et 1990/91)' },
+    { cat:'Ligue 2 – Records',               label:'Plus large victoire à domicile en Ligue 2',                answer:'8-0 contre Abbeville (1989/90)' },
+    { cat:'Ligue 2 – Records',               label:'Plus large victoire à l\'extérieur en Ligue 2',            answer:'0-6 à Bourg-en-Bresse (2017/18)' },
+    { cat:'Ligue 2 – Records',               label:'Plus longue série d\'invincibilité en Ligue 2',            answer:'18 matchs (1990/91)' },
+    { cat:'Ligue 2 – Records',               label:'Record de buts à domicile en une saison de Ligue 2',       answer:'30 (2018/19)' },
+    { cat:'Ligue 2 – Records',               label:'Record de clean sheets en Ligue 2',                        answer:'20 (2018/19 et 1978/79)' },
+    { cat:'Ligue 2 – Records',               label:'Plus large défaite en Ligue 2',                            answer:'0-7 à Guingamp (2012/13)' },
+    { cat:'Ligue 2 – Records',               label:'Pire attaque en Ligue 2 (buts marqués)',                   answer:'39 buts (2012/13)' },
+    { cat:'Ligue 2 – Records',               label:'Pire défense en Ligue 2 (buts encaissés)',                 answer:'53 buts (2012/13)' },
+    { cat:'Ligue 2 – Records',               label:'Pire départ en Ligue 2',                                   answer:'0 point après 7 matchs (2017/18)' },
+    // ── Records individuels ──
+    { cat:'Records individuels',             label:'Meilleur buteur du RC Lens en Ligue 1 sur une saison',     answer:'Ahmed Oudjani (30 buts)' },
+    { cat:'Records individuels',             label:'Meilleur buteur du RC Lens en Ligue 1 au total',           answer:'Ahmed Oudjani (94 buts)' },
+    { cat:'Records individuels',             label:'Plus grand nombre de buts dans un match (toutes compétitions)', answer:'Stephan Dembicki dit Stanis (16 buts en Coupe 1942)' },
+    { cat:'Records individuels',             label:'Plus grand nombre de buts dans un match de Ligue 1',        answer:'Ahmed Oudjani (6 buts)' },
+    { cat:'Records individuels',             label:'Plus jeune joueur du RC Lens à débuter en Ligue 1',         answer:'Kalman Gerencseri (15 ans, 7 mois, 12 jours)' },
+    { cat:'Records individuels',             label:'Joueur avec le plus de matchs au RC Lens (toutes compétitions)', answer:'Éric Sikora (590 matchs)' },
+    { cat:'Records individuels',             label:'Joueur avec le plus de matchs au RC Lens en Ligue 1',       answer:'Éric Sikora (433 matchs)' },
+    { cat:'Records individuels',             label:'Record de transfert à l\'arrivée au RC Lens',               answer:'Elye Wahi (2023) – 30 M€ + 5 M€ de bonus' },
+    { cat:'Records individuels',             label:'Record de transfert au départ du RC Lens',                  answer:'Loïs Openda / Abdukodir Khusanov (~40 M€)' },
+    { cat:'Records individuels',             label:'Nombre de joueurs du RC Lens sélectionnés en équipe de France', answer:'25' },
+    { cat:'Records individuels',             label:'Joueur du RC Lens avec le plus de sélections en équipe de France', answer:'Maryan Wisnieski (33 sélections)' },
+    { cat:'Records individuels',             label:'Total de sélections en équipe de France de joueurs Lensois', answer:'129' },
+    // ── Stade ──
+    { cat:'Stade Bollaert-Delelis',          label:'Record d\'affluence au stade Bollaert-Delelis',             answer:'48 912 spectateurs (vs Olympique de Marseille, 15 février 1992)' },
+    { cat:'Stade Bollaert-Delelis',          label:'Meilleure affluence moyenne en Ligue 1',                    answer:'39 553 (2000/01)' },
+    { cat:'Stade Bollaert-Delelis',          label:'Meilleure affluence moyenne en Ligue 2',                    answer:'31 016 (2013/14)' },
+    // ── Palmarès ──
+    { cat:'Palmarès',                        label:'Année du titre de Champion de France du RC Lens',           answer:'1998' },
+    { cat:'Palmarès',                        label:'Année de la Coupe de la Ligue du RC Lens',                  answer:'1999' },
+    { cat:'Palmarès',                        label:'Années où le RC Lens a été finaliste de la Coupe de France', answer:'1948, 1975 et 1998' },
+    { cat:'Palmarès',                        label:'Meilleur résultat du RC Lens en Ligue des Champions',        answer:'2e du groupe (1999)' },
+    { cat:'Palmarès',                        label:'Meilleur résultat du RC Lens en Coupe UEFA / Europa League', answer:'Demi-finale de la Coupe UEFA (1999/00)' },
+    { cat:'Palmarès',                        label:'Plus large victoire du RC Lens en compétition européenne',   answer:'7-0 contre Avenir Beggen (1995/96)' },
+  ];
+
+  let _genSubTab = 'joueurs';
+
+  function genSetSubTab(sub) {
+    _genSubTab = sub;
+    ['joueurs','bonus'].forEach(s => {
+      document.getElementById('gst-' + s).classList.toggle('active', s === sub);
+    });
+    document.getElementById('gen-pane-joueurs').style.display = sub === 'joueurs' ? 'block' : 'none';
+    document.getElementById('gen-pane-bonus').style.display   = sub === 'bonus'   ? 'block' : 'none';
+    if (sub === 'joueurs') renderGeneratorList();
+    if (sub === 'bonus')   renderGeneratorBonusList();
+  }
+
+  function genUpdateSubTabCounts() {
+    const joueurTotal = GEN_PLAYERS.length;
+    const joueurDone  = GEN_PLAYERS.filter(n => genPlayerStatus(n) === 'done').length;
+    document.getElementById('gstc-joueurs').textContent = `${joueurDone}/${joueurTotal}`;
+    const bonusDone = GEN_STATS.filter((_, i) => genBonusStatus(i) === 'done').length;
+    document.getElementById('gstc-bonus').textContent = `${bonusDone}/${GEN_STATS.length}`;
+  }
+
+  /* ── Bonus stats state ── */
+  function genBonusLoadState() {
+    try { return JSON.parse(localStorage.getItem('rcGeneratorBonusState') || '{}'); } catch(e) { return {}; }
+  }
+  function genBonusSaveState(st) {
+    localStorage.setItem('rcGeneratorBonusState', JSON.stringify(st));
+  }
+  function genBonusStatus(idx) {
+    const db  = LS.getQ();
+    const key = 'stat_' + idx;
+    const st  = genBonusLoadState()[key];
+    const effectiveText = (st && st.customText && st.customText.trim()) ? st.customText.trim() : GEN_STATS[idx].label;
+    if (db.some(q => q.type !== 'joueur' && (q.text || '').toLowerCase() === effectiveText.toLowerCase()))
+      return 'done';
+    if (st && (st.customText || st.customAnswer || st.type)) return 'wip';
+    return 'empty';
+  }
+
+  function genBonusAutoSave(idx) {
+    const key   = 'stat_' + idx;
+    const st    = genBonusLoadState();
+    const text  = (document.getElementById(`gbs${idx}-text`)?.value  || '').trim();
+    const pts   = parseFloat(document.getElementById(`gbs${idx}-pts`)?.value)  || 1;
+    const timer = parseInt(document.getElementById(`gbs${idx}-timer`)?.value)  || 15;
+    const type  = genBonusGetCurrentType(idx);
+    const entry = { customText: text, pts, timer, type };
+
+    if (type === 'libre') {
+      entry.customAnswer = (document.getElementById(`gbs${idx}-ans`)?.value || '').trim();
+    } else if (type === 'qcm') {
+      const count = parseInt(document.getElementById(`gbs${idx}-qcm-count`)?.value) || 4;
+      const opts = [];
+      for (let i = 0; i < count; i++) opts.push((document.getElementById(`gbs${idx}-qcm-opt-${i}`)?.value || '').trim());
+      const correctBtn = document.querySelector(`#gbs${idx}-qcm-builder .qcm-correct-btn.active`);
+      const correctIdx = correctBtn ? parseInt(correctBtn.dataset.idx) : 0;
+      entry.qcmOptions = opts; entry.qcmCorrectIdx = correctIdx;
+    } else if (type === 'qcm-multi') {
+      const count = parseInt(document.getElementById(`gbs${idx}-mqcm-count`)?.value) || 4;
+      const opts = [];
+      for (let i = 0; i < count; i++) opts.push((document.getElementById(`gbs${idx}-mqcm-opt-${i}`)?.value || '').trim());
+      const correctIdxs = [...document.querySelectorAll(`#gbs${idx}-mqcm-builder .qcm-correct-btn.active`)].map(b => parseInt(b.dataset.idx));
+      entry.mqcmOptions = opts; entry.mqcmCorrectIdxs = correctIdxs;
+    } else if (type === 'multi-libre') {
+      const mlEl = document.getElementById(`gbs${idx}-ml-answers`);
+      entry.mlAnswers = mlEl ? [...mlEl.querySelectorAll('[data-canonical]')].map(inp => inp.value.trim()) : [];
+      entry.mlRequired = parseInt(document.getElementById(`gbs${idx}-ml-required`)?.value) || entry.mlAnswers.length;
+      entry.mlMaxWrong = parseInt(document.getElementById(`gbs${idx}-ml-maxwrong`)?.value) || 0;
+    }
+
+    st[key] = entry;
+    genBonusSaveState(st);
+    genBonusRefreshCardStatus(idx);
+  }
+
+  function genBonusGetCurrentType(idx) {
+    const types = ['libre','qcm','qcm-multi','multi-libre'];
+    for (const t of types) {
+      const btn = document.getElementById(`gbs${idx}-to-${t}`);
+      if (btn && btn.classList.contains('selected')) return t;
+    }
+    return 'libre';
+  }
+
+  function genBonusSetType(idx, type) {
+    ['libre','qcm','qcm-multi','multi-libre'].forEach(t => {
+      document.getElementById(`gbs${idx}-to-${t}`)?.classList.toggle('selected', t === type);
+      const sec = document.getElementById(`gbs${idx}-sec-${t}`);
+      if (sec) sec.style.display = t === type ? 'block' : 'none';
+    });
+    if (type === 'qcm')        genBonusBuildQcm(idx);
+    if (type === 'qcm-multi')  genBonusBuildMqcm(idx);
+    if (type === 'multi-libre') {
+      const mlEl = document.getElementById(`gbs${idx}-ml-answers`);
+      if (mlEl && !mlEl.children.length) genBonusRenderMl(idx, ['', '']);
+    }
+  }
+
+  function genBonusBuildQcm(idx, prefill, correctIdx) {
+    const count = parseInt(document.getElementById(`gbs${idx}-qcm-count`)?.value) || 4;
+    const ci = correctIdx !== undefined ? correctIdx : 0;
+    const letters = ['A','B','C','D'];
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      const val = prefill ? esc(prefill[i] || '') : '';
+      const isC = i === ci;
+      html += `<div class="qcm-row${isC?' is-correct':''}" id="gbs${idx}-qcm-row-${i}">
+        <div class="qcm-letter">${letters[i]}</div>
+        <input type="text" id="gbs${idx}-qcm-opt-${i}" value="${val}" placeholder="Option ${letters[i]}…" oninput="genBonusAutoSave(${idx})">
+        <button type="button" class="qcm-correct-btn${isC?' active':''}" id="gbs${idx}-qcm-btn-${i}" data-idx="${i}"
+                onclick="genBonusSetQcmCorrect(${idx},${i},${count})">✓</button>
+      </div>`;
+    }
+    const builder = document.getElementById(`gbs${idx}-qcm-builder`);
+    if (builder) builder.innerHTML = html;
+  }
+
+  function genBonusSetQcmCorrect(idx, ci, count) {
+    for (let i = 0; i < count; i++) {
+      const isC = i === ci;
+      document.getElementById(`gbs${idx}-qcm-row-${i}`)?.classList.toggle('is-correct', isC);
+      document.getElementById(`gbs${idx}-qcm-btn-${i}`)?.classList.toggle('active', isC);
+    }
+    genBonusAutoSave(idx);
+  }
+
+  function genBonusBuildMqcm(idx, prefill, correctIdxs) {
+    const count = parseInt(document.getElementById(`gbs${idx}-mqcm-count`)?.value) || 4;
+    const arr = correctIdxs ? correctIdxs.slice() : [];
+    const letters = ['A','B','C','D'];
+    let html = '';
+    for (let i = 0; i < count; i++) {
+      const val = prefill ? esc(prefill[i] || '') : '';
+      const isC = arr.includes(i);
+      html += `<div class="qcm-row${isC?' is-correct':''}" id="gbs${idx}-mqcm-row-${i}">
+        <div class="qcm-letter">${letters[i]}</div>
+        <input type="text" id="gbs${idx}-mqcm-opt-${i}" value="${val}" placeholder="Option ${letters[i]}…" oninput="genBonusAutoSave(${idx})">
+        <button type="button" class="qcm-correct-btn${isC?' active':''}" id="gbs${idx}-mqcm-btn-${i}" data-idx="${i}"
+                onclick="genBonusToggleMqcmCorrect(${idx},${i},${count})">✓</button>
+      </div>`;
+    }
+    const builder = document.getElementById(`gbs${idx}-mqcm-builder`);
+    if (builder) builder.innerHTML = html;
+  }
+
+  function genBonusToggleMqcmCorrect(idx, ci, count) {
+    const btn = document.getElementById(`gbs${idx}-mqcm-btn-${ci}`);
+    const row = document.getElementById(`gbs${idx}-mqcm-row-${ci}`);
+    const isNowActive = btn && !btn.classList.contains('active');
+    btn?.classList.toggle('active', isNowActive);
+    row?.classList.toggle('is-correct', isNowActive);
+    genBonusAutoSave(idx);
+  }
+
+  function genBonusRenderMl(idx, answers) {
+    const el = document.getElementById(`gbs${idx}-ml-answers`);
+    if (!el) return;
+    el.innerHTML = answers.map((a, i) => `
+      <div class="ml-answer-row" id="gbs${idx}-ml-row-${i}">
+        <div class="ml-main-row">
+          <input type="text" id="gbs${idx}-ml-${i}" data-canonical="1" value="${esc(a)}" placeholder="Réponse ${i+1}…" oninput="genBonusAutoSave(${idx})">
+          <button type="button" class="btn btn-ghost btn-sm" onclick="genBonusRemoveMl(${idx},${i})" style="padding:8px 10px;">✕</button>
+        </div>
+      </div>`).join('');
+    const reqEl = document.getElementById(`gbs${idx}-ml-required`);
+    if (reqEl) { reqEl.max = answers.length; if (!reqEl.value || parseInt(reqEl.value) > answers.length) reqEl.value = answers.length; }
+  }
+
+  function genBonusAddMl(idx) {
+    const el = document.getElementById(`gbs${idx}-ml-answers`);
+    if (!el) return;
+    const current = [...el.querySelectorAll('[data-canonical]')].map(inp => inp.value.trim());
+    genBonusRenderMl(idx, [...current, '']);
+    setTimeout(() => document.getElementById(`gbs${idx}-ml-${current.length}`)?.focus(), 40);
+  }
+
+  function genBonusRemoveMl(idx, i) {
+    const el = document.getElementById(`gbs${idx}-ml-answers`);
+    if (!el) return;
+    const current = [...el.querySelectorAll('[data-canonical]')].map(inp => inp.value.trim());
+    if (current.length <= 1) return;
+    current.splice(i, 1);
+    genBonusRenderMl(idx, current);
+  }
+
+  function genBonusRefreshCardStatus(idx) {
+    const card   = document.getElementById(`gen-bc-${idx}`);
+    const badge  = card?.querySelector('.gen-status-badge');
+    if (!badge) return;
+    const status = genBonusStatus(idx);
+    badge.className = 'gen-status-badge ' + (status === 'done' ? 'gen-status-done' : status === 'wip' ? 'gen-status-wip' : 'gen-status-empty');
+    badge.textContent = status === 'done' ? '✓ Transféré' : status === 'wip' ? '✏ En cours' : '— Vide';
+    genUpdateSubTabCounts();
+  }
+
+  function genBonusToggle(idx) {
+    const card = document.getElementById(`gen-bc-${idx}`);
+    const form = document.getElementById(`gen-bf-${idx}`);
+    if (!card || !form) return;
+    const isOpen = card.classList.contains('gen-card-open');
+    if (isOpen) {
+      genBonusAutoSave(idx);
+      card.classList.remove('gen-card-open');
+      form.style.display = 'none';
+    } else {
+      card.classList.add('gen-card-open');
+      form.style.display = 'block';
+      genBonusRenderForm(idx);
+    }
+  }
+
+  function genBonusRenderForm(idx) {
+    const stat   = GEN_STATS[idx];
+    const key    = 'stat_' + idx;
+    const saved  = genBonusLoadState()[key] || {};
+    const isDone = genBonusStatus(idx) === 'done';
+    const text   = saved.customText !== undefined ? saved.customText : stat.label;
+    const pts    = saved.pts   !== undefined ? saved.pts   : 1;
+    const timer  = saved.timer !== undefined ? saved.timer : 15;
+    const type   = saved.type  || 'libre';
+    const dis    = isDone ? 'disabled' : '';
+    const disStyle = isDone ? 'background:rgba(255,255,255,.04);color:rgba(255,255,255,.5);' : '';
+    const form   = document.getElementById(`gen-bf-${idx}`);
+    if (!form) return;
+
+    const typeBtn = (t, label) => {
+      const sel = t === type;
+      return `<button type="button" class="btn btn-sm${sel ? '' : ' btn-ghost'} gbs-type-btn${sel ? ' selected' : ''}" id="gbs${idx}-to-${t}" ${isDone ? 'disabled' : ''} onclick="genBonusSetType(${idx},'${t}')">${label}</button>`;
+    };
+
+    /* Libre answer */
+    const ans = saved.customAnswer !== undefined ? saved.customAnswer : stat.answer;
+    const secLibre = `
+      <div id="gbs${idx}-sec-libre" style="${type !== 'libre' ? 'display:none;' : ''}margin-bottom:10px;">
+        <label class="field-label">Réponse correcte <span style="font-weight:400;color:rgba(255,255,255,.35);font-size:.72rem;">(modifiable)</span></label>
+        <input type="text" id="gbs${idx}-ans" value="${esc(ans)}" placeholder="${esc(stat.answer)}" maxlength="300" ${dis} oninput="genBonusAutoSave(${idx})" style="${disStyle}">
+      </div>`;
+
+    /* QCM */
+    const qcmCount = saved.qcmOptions ? saved.qcmOptions.length : 4;
+    const secQcm = `
+      <div id="gbs${idx}-sec-qcm" style="${type !== 'qcm' ? 'display:none;' : ''}margin-bottom:10px;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <label class="field-label" style="margin:0;">Nb options</label>
+          <input type="number" id="gbs${idx}-qcm-count" value="${qcmCount}" min="2" max="4" style="max-width:60px;" ${dis} oninput="genBonusBuildQcm(${idx})">
+        </div>
+        <div id="gbs${idx}-qcm-builder"></div>
+      </div>`;
+
+    /* QCM-multi */
+    const mqcmCount = saved.mqcmOptions ? saved.mqcmOptions.length : 4;
+    const secMqcm = `
+      <div id="gbs${idx}-sec-qcm-multi" style="${type !== 'qcm-multi' ? 'display:none;' : ''}margin-bottom:10px;">
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <label class="field-label" style="margin:0;">Nb options</label>
+          <input type="number" id="gbs${idx}-mqcm-count" value="${mqcmCount}" min="2" max="4" style="max-width:60px;" ${dis} oninput="genBonusBuildMqcm(${idx})">
+        </div>
+        <div id="gbs${idx}-mqcm-builder"></div>
+      </div>`;
+
+    /* Multi-libre */
+    const mlReq = saved.mlRequired !== undefined ? saved.mlRequired : '';
+    const mlMw  = saved.mlMaxWrong !== undefined ? saved.mlMaxWrong : 0;
+    const secMl = `
+      <div id="gbs${idx}-sec-multi-libre" style="${type !== 'multi-libre' ? 'display:none;' : ''}margin-bottom:10px;">
+        <div id="gbs${idx}-ml-answers"></div>
+        <button type="button" class="btn btn-ghost btn-sm" style="margin-top:6px;font-size:.75rem;" ${dis} onclick="genBonusAddMl(${idx})">+ Ajouter une réponse</button>
+        <div style="display:flex;gap:12px;margin-top:8px;flex-wrap:wrap;">
+          <div><label class="field-label" style="font-size:.73rem;">Réponses requises</label>
+            <input type="number" id="gbs${idx}-ml-required" value="${mlReq}" min="1" style="max-width:70px;" ${dis} oninput="genBonusAutoSave(${idx})"></div>
+          <div><label class="field-label" style="font-size:.73rem;">Erreurs max</label>
+            <input type="number" id="gbs${idx}-ml-maxwrong" value="${mlMw}" min="0" style="max-width:70px;" ${dis} oninput="genBonusAutoSave(${idx})"></div>
+        </div>
+      </div>`;
+
+    form.innerHTML = `<div style="padding:14px 14px 4px;">
+      <div style="margin-bottom:10px;">
+        <label class="field-label">Question <span style="font-weight:400;color:rgba(255,255,255,.35);font-size:.72rem;">(modifiable)</span></label>
+        <input type="text" id="gbs${idx}-text" value="${esc(text)}" placeholder="${esc(stat.label)}" maxlength="300" ${dis} oninput="genBonusAutoSave(${idx})" style="${disStyle}">
+      </div>
+      <div style="margin-bottom:10px;">
+        <label class="field-label">Type de réponse</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${typeBtn('libre','Libre')}
+          ${typeBtn('qcm','QCM')}
+          ${typeBtn('qcm-multi','Multi QCM')}
+          ${typeBtn('multi-libre','Liste')}
+        </div>
+      </div>
+      ${secLibre}${secQcm}${secMqcm}${secMl}
+      <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;">
+        <div><label class="field-label">Points</label>
+          <input type="number" id="gbs${idx}-pts" value="${pts}" min="0.5" max="99" step="0.5" style="max-width:90px;" ${dis} oninput="genBonusAutoSave(${idx})"></div>
+        <div><label class="field-label">Timer (s)</label>
+          <input type="number" id="gbs${idx}-timer" value="${timer}" min="5" max="300" style="max-width:90px;" ${dis} oninput="genBonusAutoSave(${idx})"></div>
+      </div>
+      ${isDone
+        ? `<div class="alert alert-success" style="margin-top:10px;">✓ Déjà présent dans la Database.</div>`
+        : `<div class="gen-form-actions">
+            <button class="gen-transfer-btn" onclick="genBonusTransfer(${idx})">⬆ Transférer à Database</button>
+            <button class="btn btn-ghost btn-sm" onclick="genBonusClear(${idx})">Réinitialiser</button>
+           </div>
+           <div id="gen-berr-${idx}" class="alert alert-error" style="display:none;margin-top:8px;"></div>`
+      }
+    </div>`;
+
+    /* Initialise les builders après insertion dans le DOM */
+    if (type === 'qcm')        genBonusBuildQcm(idx, saved.qcmOptions, saved.qcmCorrectIdx);
+    if (type === 'qcm-multi')  genBonusBuildMqcm(idx, saved.mqcmOptions, saved.mqcmCorrectIdxs);
+    if (type === 'multi-libre') genBonusRenderMl(idx, saved.mlAnswers && saved.mlAnswers.length ? saved.mlAnswers : ['', '']);
+  }
+
+  function genBonusClear(idx) {
+    const key = 'stat_' + idx;
+    const st  = genBonusLoadState();
+    delete st[key];
+    genBonusSaveState(st);
+    genBonusRenderForm(idx);
+    genBonusRefreshCardStatus(idx);
+  }
+
+  function genBonusTransfer(idx) {
+    const stat  = GEN_STATS[idx];
+    const key   = 'stat_' + idx;
+    const errEl = document.getElementById(`gen-berr-${idx}`);
+    const err   = msg => { if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; } };
+    genBonusAutoSave(idx);
+    const saved = genBonusLoadState()[key] || {};
+    const text  = (saved.customText && saved.customText.trim()) ? saved.customText.trim() : stat.label;
+    const pts   = Math.max(0.5, saved.pts || 1);
+    const timer = Math.max(5, saved.timer || 15);
+    const type  = saved.type || 'libre';
+    if (!text) { err('Veuillez saisir la question.'); return; }
+    if (errEl) errEl.style.display = 'none';
+
+    let q = { id: null, text, type, active: true, points: pts, timerDuration: timer, tags: [], createdAt: Date.now() };
+
+    if (type === 'libre') {
+      const ans = (saved.customAnswer && saved.customAnswer.trim()) ? saved.customAnswer.trim() : stat.answer;
+      if (!ans) { err('Veuillez saisir la réponse.'); return; }
+      q.answers = [ans]; q.answer = ans;
+    } else if (type === 'qcm') {
+      const opts = saved.qcmOptions || [];
+      if (opts.length < 2 || opts.some(o => !o.trim())) { err('Veuillez remplir toutes les options QCM.'); return; }
+      q.options = opts; q.correctIdx = saved.qcmCorrectIdx || 0;
+    } else if (type === 'qcm-multi') {
+      const opts = saved.mqcmOptions || [];
+      if (opts.length < 2 || opts.some(o => !o.trim())) { err('Veuillez remplir toutes les options.'); return; }
+      if (!saved.mqcmCorrectIdxs || !saved.mqcmCorrectIdxs.length) { err('Veuillez sélectionner au moins une bonne réponse.'); return; }
+      q.options = opts; q.correctIdxs = saved.mqcmCorrectIdxs;
+    } else if (type === 'multi-libre') {
+      const answers = (saved.mlAnswers || []).filter(a => a.trim());
+      if (answers.length < 1) { err('Veuillez saisir au moins une réponse.'); return; }
+      q.mlAnswers = answers; q.mlRequired = saved.mlRequired || answers.length; q.mlMaxWrong = saved.mlMaxWrong || 0;
+    }
+
+    const arr = LS.getQ();
+    q.id = nextQuestionCode(arr);
+    arr.push(q);
+    LS.saveQ(arr);
+    const qc = document.getElementById('qcount'); if (qc) qc.textContent = arr.length;
+    genBonusRenderForm(idx);
+    genBonusRefreshCardStatus(idx);
+  }
+
+  function renderGeneratorBonusList() {
+    const list    = document.getElementById('gen-bonus-list');
+    const statsEl = document.getElementById('gen-bonus-stats');
+    if (!list) return;
+    const search = (document.getElementById('gen-bonus-search')?.value || '').trim().toLowerCase();
+    const total  = GEN_STATS.length;
+    const done   = GEN_STATS.filter((_, i) => genBonusStatus(i) === 'done').length;
+    if (statsEl) statsEl.textContent = `${done} / ${total} transférés`;
+
+    let lastCat = null;
+    let html = '';
+    GEN_STATS.forEach((stat, idx) => {
+      if (search && !stat.label.toLowerCase().includes(search) && !stat.answer.toLowerCase().includes(search) && !stat.cat.toLowerCase().includes(search)) return;
+      if (stat.cat !== lastCat) {
+        html += `<div class="gen-bonus-cat">${esc(stat.cat)}</div>`;
+        lastCat = stat.cat;
+      }
+      const status = genBonusStatus(idx);
+      const badgeClass = status === 'done' ? 'gen-status-done' : status === 'wip' ? 'gen-status-wip' : 'gen-status-empty';
+      const badgeLabel = status === 'done' ? '✓ Transféré' : status === 'wip' ? '✏ En cours' : '— Vide';
+      html += `
+      <div class="gen-player-card" id="gen-bc-${idx}">
+        <div class="gen-player-header" onclick="genBonusToggle(${idx})">
+          <span class="gen-player-name" style="font-size:.82rem;">${esc(stat.label)}</span>
+          <span style="font-size:.78rem;color:rgba(255,205,0,.75);font-weight:600;margin-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:120px;" title="${esc(stat.answer)}">${esc(stat.answer)}</span>
+          <span class="gen-status-badge ${badgeClass}" style="flex-shrink:0;">${badgeLabel}</span>
+          <span class="gen-toggle-icon">▸</span>
+        </div>
+        <div class="gen-player-form" id="gen-bf-${idx}" style="display:none;"></div>
+      </div>`;
+    });
+    if (!html) {
+      list.innerHTML = '<p style="color:rgba(255,255,255,.35);font-style:italic;padding:20px 0;">Aucune statistique trouvée.</p>';
+    } else {
+      list.innerHTML = html;
+    }
+    genUpdateSubTabCounts();
   }
 
   /* Migration one-shot : IDs numériques "1","2"… → "Q1","Q2"… / "J1","J2"… */
@@ -10241,7 +10864,7 @@
     stopQuizTimer();
     const pts = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
     if (ok) session.score += pts;
-    if (ok && q.type === 'joueur') collectPlayer(q);
+    // collectPlayer est appelé dans showResults() une fois la partie terminée
     session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0, indiceIdx: q.type === 'joueur' ? quizJoueurIndiceIdx : undefined });
     inp.disabled = true;
     document.getElementById('qz-libre-btn').disabled = true;
@@ -11059,22 +11682,128 @@
         <div class="lb-name" style="${isMe ? 'color:var(--or);font-weight:800;' : ''}">${esc(e.name)}</div>
         <div class="lb-right">
           <span class="lb-score" style="${isMe ? 'color:#fff;' : ''}">${e.score} pts</span>
-          <span class="lb-badge-txt">${esc(e.badgeLevel || '')}</span>
         </div>
       </div>`;
     }).join('');
   }
 
   /* ─── Classement public ─── */
-  let _lbTab = 'today';
+  let _lbTab     = 'today';
+  let _lbMainTab = 'liste';
+  let _lbInfoTab = 'evolution';
+  let _lbChartFilter = null; // null = non initialisé → top 5 par défaut
+
+  function lbSetMain(tab) {
+    _lbMainTab = tab;
+    ['liste', 'infographie'].forEach(t => {
+      const btn = document.getElementById('lb-main-' + t);
+      if (btn) btn.classList.toggle('active', t === tab);
+      const sec = document.getElementById('lb-section-' + t);
+      if (sec) sec.style.display = t === tab ? '' : 'none';
+    });
+    if (tab === 'infographie') renderLbInfographie();
+  }
 
   function lbSetTab(tab) {
+    // Si on arrive depuis un lien externe (mini-classement), basculer sur "Liste"
+    if (_lbMainTab !== 'liste') lbSetMain('liste');
     _lbTab = tab;
-    ['today', 'week', 'all', 'general'].forEach(t => {
+    ['today', 'general'].forEach(t => {
       const btn = document.getElementById('lb-tab-' + t);
       if (btn) btn.classList.toggle('lb-tab-active', t === tab);
     });
     renderLeaderboardPublic();
+  }
+
+  /* ── Infographie : filtre joueurs ── */
+  function lbGetAllPlayers() {
+    return generalRankingList(); // [{name, total}] trié par score desc
+  }
+
+  function lbInitFilter() {
+    if (_lbChartFilter !== null) return; // déjà initialisé
+    const top5 = lbGetAllPlayers().slice(0, 5).map(r => r.name.toLowerCase());
+    _lbChartFilter = new Set(top5);
+  }
+
+  function lbSetInfoTab(tab) {
+    _lbInfoTab = tab;
+    ['evolution', 'scatter'].forEach(t => {
+      const btn = document.getElementById('lb-info-tab-' + t);
+      if (btn) btn.classList.toggle('lb-tab-active', t === tab);
+      const sec = document.getElementById('lb-info-' + t);
+      if (sec) sec.style.display = t === tab ? '' : 'none';
+    });
+    renderLbInfographie();
+  }
+
+  function renderLbInfographie() {
+    const section = document.getElementById('lb-section-infographie');
+    if (!section || section.style.display === 'none') return;
+    if (_lbInfoTab === 'scatter') {
+      renderLeaderboardScatter(document.getElementById('lb-scatter'));
+      return;
+    }
+    lbInitFilter();
+    _lbRenderFilterPanel();
+    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+  }
+
+  function _lbRenderFilterPanel() {
+    const players  = lbGetAllPlayers();
+    const itemsEl  = document.getElementById('lb-filter-items');
+    const labelEl  = document.getElementById('lb-filter-label');
+    if (!itemsEl || !labelEl) return;
+
+    const selected = [...(_lbChartFilter || [])];
+    labelEl.textContent = selected.length === players.length
+      ? 'Tous les joueurs'
+      : selected.length === 1 ? '1 joueur sélectionné'
+      : `${selected.length} joueurs sélectionnés`;
+
+    itemsEl.innerHTML = players.map(r => {
+      const key     = r.name.toLowerCase();
+      const checked = _lbChartFilter && _lbChartFilter.has(key);
+      return `<label class="lb-filter-item">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="lbFilterToggle(this,'${key.replace(/'/g,"\\'")}')">
+        <span>${esc(r.name)}</span>
+        <span style="margin-left:auto;color:var(--or);font-weight:700;font-size:.78rem;">${r.total} pts</span>
+      </label>`;
+    }).join('');
+  }
+
+  function lbToggleFilter(e) {
+    e && e.stopPropagation();
+    const panel = document.getElementById('lb-filter-panel');
+    const btn   = document.getElementById('lb-filter-btn');
+    if (!panel) return;
+    const open = panel.style.display === 'none';
+    panel.style.display = open ? '' : 'none';
+    if (btn) btn.classList.toggle('open', open);
+    if (open) {
+      // Fermer si clic ailleurs
+      const close = ev => { if (!panel.contains(ev.target) && ev.target !== btn) { panel.style.display='none'; btn && btn.classList.remove('open'); document.removeEventListener('click', close); } };
+      setTimeout(() => document.addEventListener('click', close), 0);
+    }
+  }
+
+  function lbFilterToggle(cb, key) {
+    if (!_lbChartFilter) _lbChartFilter = new Set();
+    if (cb.checked) _lbChartFilter.add(key); else _lbChartFilter.delete(key);
+    _lbRenderFilterPanel();
+    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+  }
+
+  function lbFilterSelectAll() {
+    _lbChartFilter = new Set(lbGetAllPlayers().map(r => r.name.toLowerCase()));
+    _lbRenderFilterPanel();
+    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+  }
+
+  function lbFilterSelectTop5() {
+    _lbChartFilter = new Set(lbGetAllPlayers().slice(0, 5).map(r => r.name.toLowerCase()));
+    _lbRenderFilterPanel();
+    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
   }
 
   function renderLeaderboardPublic() {
@@ -11104,8 +11833,23 @@
     // Exclut les ajustements ET les joueurs masqués du classement par l'admin.
     const hidden = hiddenRankingSet();
     const realLb = lb.filter(e => !e.adjust && !hidden.has((e.name || '').toLowerCase().trim()));
-    let data;
-    if (_lbTab === 'general')   data = generalRankingList().map(r => ({ name: r.name, score: r.total, badgeLevel: '' }));
+    let data, totalSessions = 0;
+    if (_lbTab === 'general') {
+      // Dénominateur : sessions du planning dont la startDate ≤ aujourd'hui et non supprimées
+      const plan = LS.getPlanning();
+      totalSessions = Object.entries(plan).filter(([d, dp]) => !dp._deleted && d <= todayStr).length;
+      // Numérateur : nombre d'entrées de jeu (non-adjust) par joueur
+      const gamesPerPlayer = {};
+      realLb.filter(e => e.date).forEach(e => {
+        const key = (e.name || '').toLowerCase().trim();
+        if (!key) return;
+        gamesPerPlayer[key] = (gamesPerPlayer[key] || 0) + 1;
+      });
+      data = generalRankingList().map(r => ({
+        name: r.name, score: r.total, badgeLevel: '',
+        gamesPlayed: gamesPerPlayer[r.name.toLowerCase().trim()] || 0
+      }));
+    }
     else if (_lbTab === 'today') data = bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr));
     else if (_lbTab === 'week') data = bestPerPlayer(realLb.filter(e => e.date && new Date(e.date) >= weekAgo));
     else                        data = bestPerPlayer(realLb);
@@ -11131,15 +11875,235 @@
       const rowAttrs = clickable
         ? ` data-pname="${esc(e.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(e.name)}"`
         : '';
+      const gamesHtml = (clickable && totalSessions > 0)
+        ? `<span class="lb-games">${e.gamesPlayed}/${totalSessions}</span>`
+        : '';
       return `<div class="${rowCls}"${rowAttrs}>
         <div class="lb-rank${rankCls}">${rankHtml}</div>
         <div class="lb-name">${esc(e.name)}</div>
         <div class="lb-right">
-          <span class="lb-score">${e.score} pts</span>
-          <span class="lb-badge-txt">${esc(e.badgeLevel || '')}</span>
+          ${gamesHtml}<span class="lb-score">${e.score} pts</span>
         </div>
       </div>`;
     }).join('');
+
+  }
+
+  function renderLeaderboardChart(container, filterSet) {
+    const lb     = LS.getLeaderboard();
+    const hidden = hiddenRankingSet();
+    const real   = lb.filter(e => !e.adjust && e.date
+      && !hidden.has((e.name || '').toLowerCase().trim()));
+
+    // Regrouper par joueur
+    const pMap = {};
+    real.forEach(e => {
+      const key = (e.name || '').toLowerCase().trim();
+      if (!key) return;
+      if (!pMap[key]) pMap[key] = { name: e.name, games: [] };
+      pMap[key].games.push({ date: e.date.slice(0, 10), score: Number(e.score) || 0 });
+    });
+    const players = Object.values(pMap);
+    if (!players.length) { container.innerHTML = ''; return; }
+
+    // Trier les parties de chaque joueur par date
+    players.forEach(p => {
+      p.games.sort((a, b) => a.date.localeCompare(b.date));
+      let cum = 0;
+      p.cumByDate = {};
+      p.games.forEach(g => { cum += g.score; p.cumByDate[g.date] = cum; });
+      p.total = cum + onzeBonusForName(p.name);
+    });
+
+    // Trier les joueurs par score total décroissant
+    players.sort((a, b) => b.total - a.total);
+
+    // Appliquer le filtre (Set de clés en minuscules)
+    const filtered = filterSet && filterSet.size
+      ? players.filter(p => filterSet.has(p.name.toLowerCase()))
+      : players.slice(0, 5);
+    if (!filtered.length) { container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);padding:24px 0;font-size:.85rem;">Aucun joueur sélectionné.</p>'; return; }
+
+    // Axe X : dates des joueurs sélectionnés uniquement
+    const filteredKeys = new Set(filtered.map(p => p.name.toLowerCase()));
+    const filteredReal = real.filter(e => filteredKeys.has((e.name||'').toLowerCase()));
+    const allDates = [...new Set(filteredReal.map(e => e.date.slice(0, 10)))].sort();
+    if (!allDates.length) { container.innerHTML = ''; return; }
+
+    // Séries temporelles par joueur filtré (step function)
+    filtered.forEach(p => {
+      let last = 0;
+      const firstDate = p.games[0].date;
+      p.series = allDates.map(d => {
+        if (d < firstDate) return null;
+        if (p.cumByDate[d] !== undefined) last = p.cumByDate[d];
+        return last;
+      });
+      const bonus = onzeBonusForName(p.name);
+      if (bonus > 0) {
+        for (let i = p.series.length - 1; i >= 0; i--) {
+          if (p.series[i] !== null) { p.series[i] += bonus; break; }
+        }
+      }
+    });
+
+    const maxCum = Math.max(1, ...filtered.map(p => p.total));
+    const nDates = allDates.length;
+
+    // Géométrie
+    const padL = 34, padR = 8, padT = 14, padB = 22, plotH = 130;
+    const slotW = nDates === 1 ? 60 : Math.max(24, Math.min(56, 280 / (nDates - 1)));
+    const plotW = nDates === 1 ? 60 : slotW * (nDates - 1);
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const baseY = padT + plotH;
+    const xS = i => padL + (nDates === 1 ? plotW / 2 : i * slotW);
+    const yS = v => baseY - (v / maxCum) * plotH;
+
+    const COLORS = ['#FFD700','#E3061A','#4FC3F7','#81C784','#FF8A65','#CE93D8','#4DB6AC','#F48FB1','#AED581','#90A4AE'];
+    const fmtD = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }); };
+
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg">`;
+
+    for (let t = 0; t <= 4; t++) {
+      const val = (maxCum * t) / 4;
+      const y = yS(val);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+    }
+
+    const step = Math.max(1, Math.ceil(nDates / 4));
+    allDates.forEach((d, i) => {
+      if (i % step !== 0 && i !== nDates - 1) return;
+      svg += `<text class="sc-datelbl" x="${xS(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtD(d)}</text>`;
+    });
+
+    filtered.forEach((p, pi) => {
+      const color = COLORS[pi % COLORS.length];
+      const pts = p.series.map((v, i) => v !== null ? `${xS(i).toFixed(1)},${yS(v).toFixed(1)}` : null);
+      let seg = [];
+      pts.forEach(pt => {
+        if (pt) { seg.push(pt); }
+        else if (seg.length > 1) { svg += `<polyline points="${seg.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`; seg = []; }
+        else { seg = []; }
+      });
+      if (seg.length > 1) svg += `<polyline points="${seg.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+      const lastIdx = p.series.reduceRight((acc, v, i) => acc === -1 && v !== null ? i : acc, -1);
+      if (lastIdx >= 0) svg += `<circle cx="${xS(lastIdx).toFixed(1)}" cy="${yS(p.series[lastIdx]).toFixed(1)}" r="3.5" fill="${color}" stroke="#1a1a1a" stroke-width="1.5"/>`;
+    });
+
+    svg += '</svg>';
+
+    const legend = filtered.map((p, pi) => {
+      const color = COLORS[pi % COLORS.length];
+      return `<div class="score-chart-legend-item"><span style="display:inline-block;width:14px;height:0;border-top:2.5px solid ${color};flex-shrink:0;"></span>${esc(p.name)}</div>`;
+    }).join('');
+
+    container.innerHTML = `${svg}<div class="score-chart-legend" style="margin-top:10px;">${legend}</div>`;
+  }
+
+  /* ── Nuage de points : 1 point par joueur (X=parties, Y=total) ── */
+  function renderLeaderboardScatter(container) {
+    if (!container) return;
+    const lb     = LS.getLeaderboard();
+    const hidden = hiddenRankingSet();
+
+    // Construire la liste joueurs avec nb parties et total
+    const pMap = {};
+    lb.forEach(e => {
+      const raw = (e.name || '').trim();
+      if (!raw) return;
+      const key = raw.toLowerCase();
+      if (hidden.has(key)) return;
+      if (!pMap[key]) pMap[key] = { name: raw, total: 0, games: 0 };
+      pMap[key].total += Number(e.score) || 0;
+      if (!e.adjust) pMap[key].games++;
+    });
+    Object.values(pMap).forEach(o => { o.total += onzeBonusForName(o.name); });
+    const players = Object.values(pMap).filter(p => p.games > 0);
+    if (!players.length) { container.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);padding:24px 0;font-size:.85rem;">Aucune donnée.</p>'; return; }
+
+    // Géométrie
+    const padL = 38, padR = 12, padT = 16, padB = 28, plotW = 320, plotH = 160;
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const maxG = Math.max(...players.map(p => p.games));
+    const maxP = Math.max(...players.map(p => p.total));
+    const xS = g => padL + (maxG <= 1 ? plotW / 2 : (g / maxG) * plotW);
+    const yS = v => padT + plotH - (maxP <= 0 ? 0 : (v / maxP) * plotH);
+
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;" xmlns="http://www.w3.org/2000/svg">`;
+
+    // Grille Y
+    for (let t = 0; t <= 4; t++) {
+      const val = (maxP * t) / 4;
+      const y   = yS(val);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(padL + plotW).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3.5).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+    }
+    // Grille X
+    const xTicks = Math.min(maxG, 5);
+    for (let t = 0; t <= xTicks; t++) {
+      const g = Math.round((maxG * t) / xTicks);
+      const x = xS(g);
+      svg += `<line class="sc-axis" x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${(padT + plotH).toFixed(1)}"/>`;
+      svg += `<text class="sc-datelbl" x="${x.toFixed(1)}" y="${(padT + plotH + 14).toFixed(1)}" text-anchor="middle">${g}</text>`;
+    }
+    // Libellés axes
+    svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle" font-size="8">Parties jouées</text>`;
+    svg += `<text class="sc-axislbl" x="8" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="8" transform="rotate(-90,8,${(padT + plotH / 2).toFixed(1)})">Points</text>`;
+
+    // Points
+    players.forEach(p => {
+      const cx = xS(p.games), cy = yS(p.total);
+      const safeName = esc(p.name).replace(/"/g, '&quot;');
+      svg += `<circle class="sc-scatter-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7"
+        data-name="${safeName}" data-total="${p.total}" data-games="${p.games}"
+        style="fill:#1a3a6e;stroke:#4a6fa5;stroke-width:1.5;cursor:pointer;transition:fill .12s;"/>`;
+    });
+    svg += '</svg>';
+
+    container.innerHTML = svg;
+
+    // Tooltip dans body pour éviter tout décalage lié aux transforms/overflow des parents
+    let tip = document.getElementById('scatter-tooltip-global');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'scatter-tooltip-global';
+      tip.style.cssText = 'position:fixed;display:none;z-index:10000;pointer-events:none;' +
+        'background:rgba(20,20,20,.97);border:1px solid rgba(74,111,165,.6);border-radius:8px;' +
+        'padding:9px 12px;font-size:.78rem;color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.6);white-space:nowrap;';
+      document.body.appendChild(tip);
+    }
+
+    container.querySelectorAll('.sc-scatter-dot').forEach(dot => {
+      dot.addEventListener('mouseenter', e => {
+        dot.style.fill = '#2d5fa0';
+        tip.innerHTML = `<div style="font-weight:700;margin-bottom:4px;">${dot.dataset.name}</div>` +
+          `<div style="color:var(--or);">${dot.dataset.total} pts</div>` +
+          `<div style="color:rgba(255,255,255,.55);font-size:.72rem;">${dot.dataset.games} partie${dot.dataset.games > 1 ? 's' : ''}</div>`;
+        tip.style.display = 'block';
+        const tw = tip.offsetWidth, th = tip.offsetHeight;
+        const left = Math.max(4, Math.min(e.clientX + 14, window.innerWidth - tw - 8));
+        const top  = Math.max(4, e.clientY - th - 12);
+        tip.style.left = left + 'px';
+        tip.style.top  = top  + 'px';
+      });
+      dot.addEventListener('mousemove', e => {
+        if (tip.style.display === 'none') return;
+        const tw = tip.offsetWidth, th = tip.offsetHeight;
+        const left = Math.max(4, Math.min(e.clientX + 14, window.innerWidth - tw - 8));
+        const top  = Math.max(4, e.clientY - th - 12);
+        tip.style.left = left + 'px';
+        tip.style.top  = top  + 'px';
+      });
+      dot.addEventListener('mouseleave', () => {
+        dot.style.fill = '#1a3a6e';
+        tip.style.display = 'none';
+      });
+      dot.addEventListener('click', () => {
+        tip.style.display = 'none';
+        if (dot.dataset.name) openPlayerCard(dot.dataset.name);
+      });
+    });
   }
 
   /* Réponse donnée par le joueur, en texte lisible, selon le type de question.
@@ -11174,7 +12138,7 @@
     const { name, score, maxScore, answers, questions } = session;
     const ratio = maxScore > 0 ? score / maxScore : 0;
 
-    const badgeLevel = ratio === 1 ? 'Légende de Bollaert' : ratio >= 0.7 ? 'Fidèle des Sang et Or' : ratio >= 0.4 ? 'Supporter du virage' : 'Touriste à Bollaert';
+    const badgeLevel = '';
     const j0ok = answers.length >= 1 && answers[0].ok && answers[0].q && answers[0].q.type === 'joueur';
     const j1ok = answers.length >= 2 && answers[1].ok && answers[1].q && answers[1].q.type === 'joueur';
     const joueurAnswered = (j0ok ? 1 : 0) + (j1ok ? 1 : 0);
@@ -11202,6 +12166,9 @@
       beta: isBeta
     });
 
+    // Valider la collection Mon Onze une fois la partie terminée
+    answers.forEach((a, i) => { if (a.ok && a.q && a.q.type === 'joueur') collectPlayer(a.q, i * 800); });
+
     // Chaînage du rattrapage : le score venant d'être inséré dans _db.scores,
     // getMissedSessions exclut déjà la partie terminée. S'il reste des sessions
     // passées non jouées, le bouton du bas relance la plus ancienne ; sinon retour accueil.
@@ -11228,16 +12195,6 @@
 
     document.getElementById('res-name').textContent  = `Bravo ${name} !`;
     document.getElementById('res-score').textContent = score;
-
-    let icon, bname, bsub;
-    if (ratio === 1)        { icon = ''; bname = 'Légende de Bollaert !';  bsub = 'Score parfait — tu es un vrai Sang et Or !'; }
-    else if (ratio >= 0.7)  { icon = ''; bname = 'Fidèle des Sang et Or'; bsub = 'Excellent niveau de connaissance !'; }
-    else if (ratio >= 0.4)  { icon = ''; bname = 'Supporter du virage';   bsub = 'Bonne connaissance du club !'; }
-    else                    { icon = ''; bname = 'Touriste à Bollaert';  bsub = 'Il faut revoir les classiques du RCL !'; }
-
-    document.getElementById('res-badge-icon').textContent = icon;
-    document.getElementById('res-badge-name').textContent = bname;
-    document.getElementById('res-badge-sub').textContent  = bsub;
 
     const resListEl = document.getElementById('res-list');
     if (resListEl) resListEl.innerHTML = answers.map(a => {
@@ -11610,12 +12567,23 @@
         errEl.style.display = 'block'; return;
       }
       const prof = res.profile;
-      accounts[pseudo.toLowerCase()] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
+      const key  = pseudo.toLowerCase();
+      // Fusionner la collection locale en attente avec les données serveur
+      const pending = _onzePendingGet(key);
+      if (pending && Array.isArray(pending.collection) && pending.collection.length) {
+        if (!prof.onze || typeof prof.onze !== 'object') prof.onze = {};
+        if (!Array.isArray(prof.onze.collection)) prof.onze.collection = [];
+        const merged = Array.from(new Set([...prof.onze.collection, ...pending.collection]));
+        if (merged.length > prof.onze.collection.length) prof.onze.collection = merged;
+      }
+      accounts[key] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
       _backupAccounts();
       _localUser = { pseudo: prof.pseudo };
       LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
       nav('player-card');
+      // Synchroniser vers Supabase si la collection a été enrichie localement
+      if (pending && Array.isArray(pending.collection) && pending.collection.length) _onzeSave();
     }
   }
 
@@ -11844,11 +12812,20 @@
         return;
       }
       const prof = res.profile;
-      accounts[pseudo.toLowerCase()] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
+      const key  = pseudo.toLowerCase();
+      const pending = _onzePendingGet(key);
+      if (pending && Array.isArray(pending.collection) && pending.collection.length) {
+        if (!prof.onze || typeof prof.onze !== 'object') prof.onze = {};
+        if (!Array.isArray(prof.onze.collection)) prof.onze.collection = [];
+        const merged = Array.from(new Set([...prof.onze.collection, ...pending.collection]));
+        if (merged.length > prof.onze.collection.length) prof.onze.collection = merged;
+      }
+      accounts[key] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
       _backupAccounts();
       _localUser = { pseudo: prof.pseudo };
       LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
+      if (pending && Array.isArray(pending.collection) && pending.collection.length) _onzeSave();
       // Joueur qui se connecte (potentiellement après plusieurs sessions manquées) :
       // on rafraîchit l'état partagé pour proposer les parties à rattraper.
       Promise.all([scoresFetch(), dbPull('planning')]).then(renderHomeCatchUp);
@@ -11963,16 +12940,40 @@
     return a;
   }
 
+  const _ONZE_PENDING_PREFIX = 'rc_onze_pending_';
+
+  function _onzePendingSave(key, onze) {
+    try { localStorage.setItem(_ONZE_PENDING_PREFIX + key, JSON.stringify(onze)); } catch {}
+  }
+  function _onzePendingGet(key) {
+    try { const v = localStorage.getItem(_ONZE_PENDING_PREFIX + key); return v ? JSON.parse(v) : null; } catch { return null; }
+  }
+  function _onzePendingClear(key) {
+    try { localStorage.removeItem(_ONZE_PENDING_PREFIX + key); } catch {}
+  }
+
   function _onzeSave() {
     if (!_localUser) return;
     const key = _localUser.pseudo.toLowerCase();
     _backupAccounts();
-    if (!_supa) return;
+    if (!_supa) { const a = _db.accounts[key]; _onzePendingSave(key, a ? a.onze : null); return; }
     const tok = _getAuthToken();
-    if (!tok) { console.warn('[Onze] non sauvegardé : session expirée, reconnecte-toi.'); return; }
+    if (!tok) {
+      const a = _db.accounts[key];
+      _onzePendingSave(key, a ? a.onze : null);
+      console.warn('[Onze] non sauvegardé : session expirée, reconnecte-toi. La collection sera synchronisée à la prochaine connexion.');
+      return;
+    }
     const a = _db.accounts[key];
     _supa.rpc('account_set_onze', { p_pseudo: _localUser.pseudo, p_token: tok, p_onze: a ? a.onze : null })
-      .then(({ data, error }) => { if (error || data === false) console.warn('[Onze] sauvegarde refusée par le serveur', error); });
+      .then(({ data, error }) => {
+        if (error || data === false) {
+          _onzePendingSave(key, a ? a.onze : null);
+          console.warn('[Onze] sauvegarde refusée par le serveur', error);
+        } else {
+          _onzePendingClear(key);
+        }
+      });
   }
 
   /* ── Lecture seule (overlay admin) ── */
@@ -12013,21 +13014,20 @@
   }
 
   /* Appelé quand un joueur connecté devine un "Qui suis-je ?" en partie réelle */
-  function collectPlayer(q) {
+  function collectPlayer(q, toastDelay = 1200) {
     if (!q || q.type !== 'joueur') return;
     const a = _onzeAccount();
     if (!a) return;
     if (a.onze.collection.includes(q.id)) return;
     a.onze.collection.push(q.id);
     _onzeSave();
-    // Toast décalé pour ne pas chevaucher le popup Bonne réponse
     setTimeout(() => {
       const t = document.createElement('div');
       t.className = 'onze-toast';
       t.textContent = `🎽 ${q.playerName} rejoint ta collection !`;
       document.body.appendChild(t);
       setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, 2600);
-    }, 1200);
+    }, toastDelay);
   }
 
   /* Onze "complet" = 11 joueurs placés + entraîneur (coach) placé. */
@@ -12268,6 +13268,125 @@
      `rawGames` = lignes de leaderboard du joueur (parties + ajustements).
      Seules les vraies parties (hors `adjust`) sont tracées.
   ──────────────────────────────────────────────────────────────────── */
+  /* Construit le SVG + listeners pour un ensemble de colonnes.
+     cols     = [{type:'played'|'future', game?, date, cumAfter?}]
+     maxCum   = valeur max pour l'axe Y
+     slot/barW/padL/padR/padT/padB/plotH = géométrie partagée
+     Retourne { svgHtml, tipHtml[], colCxPx[] }  */
+  function _buildScoreChartSvg(cols, maxCum, { slot, barW, padL, padR, padT, padB, plotH, qById, fmtDate }) {
+    const plotW = slot * cols.length;
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const baseY = padT + plotH;
+    const yScale = v => baseY - (v / maxCum) * plotH;
+    const cx = i => padL + slot * i + slot / 2;
+
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+
+    // Graduations
+    const ticks = 4;
+    for (let t = 0; t <= ticks; t++) {
+      const val = (maxCum * t) / ticks;
+      const y = yScale(val);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+    }
+
+    // Barres
+    const playedCxs = [];
+    const playedCums = [];
+    cols.forEach((col, i) => {
+      if (col.type === 'played') {
+        const v = Number(col.game.score) || 0;
+        const x = cx(i) - barW / 2;
+        const y = yScale(v);
+        const h = baseY - y;
+        svg += `<rect class="sc-bar" data-bar="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3"/>`;
+        if (v > 0) svg += `<text class="sc-barval" x="${cx(i).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle">${v}</text>`;
+        svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
+        playedCxs.push({ i, cx: cx(i) });
+        playedCums.push(col.cumAfter || 0);
+      } else {
+        // Colonne future : contour tireté
+        const minBarH = plotH * 0.18;
+        const x = cx(i) - barW / 2;
+        svg += `<rect class="sc-bar-future" x="${x.toFixed(1)}" y="${(baseY - minBarH).toFixed(1)}" width="${barW.toFixed(1)}" height="${minBarH.toFixed(1)}" rx="3"/>`;
+        svg += `<text class="sc-datelbl-future" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
+      }
+    });
+
+    // Courbe cumul (uniquement les colonnes jouées)
+    if (playedCxs.length > 1) {
+      const pts = playedCxs.map((p, j) => `${p.cx.toFixed(1)},${yScale(playedCums[j]).toFixed(1)}`).join(' ');
+      svg += `<polyline class="sc-line" points="${pts}"/>`;
+    }
+    playedCxs.forEach((p, j) => {
+      svg += `<circle class="sc-dot" cx="${p.cx.toFixed(1)}" cy="${yScale(playedCums[j]).toFixed(1)}" r="3.5"/>`;
+    });
+
+    // Zones de survol
+    cols.forEach((col, i) => {
+      svg += `<rect class="sc-col" data-i="${i}" data-type="${col.type}" x="${(cx(i) - slot / 2).toFixed(1)}" y="${padT}" width="${slot}" height="${plotH}"/>`;
+    });
+
+    svg += '</svg>';
+
+    // Infobulles
+    const tipHtml = cols.map(col => {
+      if (col.type === 'future') {
+        return `<div class="chart-tip-head">${fmtDate(col.date)}</div><div class="chart-tip-empty">Partie à venir</div>`;
+      }
+      const g = col.game;
+      const dets = Array.isArray(g.details) ? g.details : [];
+      const rows = dets.map(de => {
+        const q = qById[de.id];
+        const isBonus = !!de.bonus;
+        const isJoueur = q && q.type === 'joueur';
+        const label = q ? (isJoueur ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+        const pts = Number(de.pts) || 0;
+        const icon = isBonus ? '⭐' : (isJoueur ? '🎽' : '•');
+        const okIcon = de.ok ? '<span style="color:var(--vert);">✓</span>' : '<span style="color:var(--rouge);">✗</span>';
+        return `<div class="chart-tip-q"><span class="chart-tip-qicon">${icon}</span><span class="chart-tip-qlabel">${esc(label)}</span><span class="chart-tip-qpts">${okIcon} ${pts} pt${pts > 1 ? 's' : ''}</span></div>`;
+      }).join('');
+      return `<div class="chart-tip-head">${fmtDate(col.date)} · ${Number(g.score) || 0} pts · cumul ${col.cumAfter || 0} pts</div>${rows || '<div class="chart-tip-empty">Aucun détail enregistré.</div>'}`;
+    });
+
+    // Positions centrales des colonnes (px) pour ancrer la tooltip statique
+    const colCxPx = cols.map((_, i) => cx(i));
+
+    return { svgHtml: svg, tipHtml, colCxPx, W, padL };
+  }
+
+  function _attachScoreChartTip(container, tipEl, tipHtml, colCxPx) {
+    const cols = container.querySelectorAll('.sc-col');
+    const bars = container.querySelectorAll('.sc-bar');
+    cols.forEach(col => {
+      const i = +col.dataset.i;
+      col.addEventListener('mouseenter', () => {
+        tipEl.innerHTML = tipHtml[i];
+        tipEl.style.display = 'block';
+        // Centrer la tooltip au-dessus de la colonne (position absolue dans .score-chart-wrap)
+        const scrollEl = container.querySelector('.score-chart-scroll') || container;
+        const svgEl = container.querySelector('.score-chart-svg');
+        const svgRect = svgEl ? svgEl.getBoundingClientRect() : scrollEl.getBoundingClientRect();
+        const wrapRect = container.closest('.score-chart-wrap')
+          ? container.closest('.score-chart-wrap').getBoundingClientRect()
+          : svgRect;
+        // Position X : centre de colonne relatif au wrap
+        const absX = svgRect.left - wrapRect.left + colCxPx[i];
+        // Position Y : juste au-dessus du SVG
+        const absY = svgRect.top - wrapRect.top - 4;
+        tipEl.style.left = absX + 'px';
+        tipEl.style.top  = absY + 'px';
+        tipEl.style.transform = 'translate(-50%, -100%)';
+        if (bars[i]) bars[i].classList.add('is-hover');
+      });
+      col.addEventListener('mouseleave', () => {
+        tipEl.style.display = 'none';
+        if (bars[i]) bars[i].classList.remove('is-hover');
+      });
+    });
+  }
+
   function renderScoreChart(container, rawGames) {
     if (!container) return;
     const games = (rawGames || [])
@@ -12278,121 +13397,138 @@
     if (games.length < 1) { container.style.display = 'none'; container.innerHTML = ''; return; }
     container.style.display = '';
 
-    // Libellés de questions pour les infobulles
     const qById = {};
     LS.getQ().forEach(q => { qById[q.id] = q; });
 
-    // Cumul progressif des scores de parties
+    // Cumul progressif
     let run = 0;
-    const cums = games.map(g => (run += (Number(g.score) || 0)));
-    const maxBar = Math.max(1, ...games.map(g => Number(g.score) || 0));
-    const maxCum = Math.max(1, cums[cums.length - 1]);
+    const playedCols = games.map(g => {
+      run += (Number(g.score) || 0);
+      return { type: 'played', game: g, date: (g.date || '').slice(0, 10), cumAfter: run };
+    });
+    const maxCum = Math.max(1, run);
 
-    // Géométrie
-    const padL = 30, padR = 38, padT = 18, padB = 30, plotH = 150;
-    const slot = games.length === 1 ? 90 : Math.max(40, Math.min(72, 360 / games.length));
-    const barW = Math.min(30, slot * 0.5);
-    const plotW = slot * games.length;
-    const W = padL + plotW + padR, H = padT + plotH + padB;
-    const baseY = padT + plotH;
-    const yBar = v => baseY - (v / maxBar) * plotH;
-    const yCum = v => baseY - (v / maxCum) * plotH;
-    const cx = i => padL + slot * i + slot / 2;
+    // Sessions futures depuis le planning
+    const today = planningTodayStr();
+    const plan = LS.getPlanning();
+    const playedDates = new Set(playedCols.map(c => c.date));
+    const futureCols = Object.keys(plan)
+      .filter(d => !plan[d]._deleted && d > today && !playedDates.has(d))
+      .sort()
+      .slice(0, 20)
+      .map(d => ({ type: 'future', date: d }));
+
+    const allCols = [...playedCols, ...futureCols];
+
     const fmtDate = iso => {
-      const d = new Date(iso);
+      const d = new Date(iso + 'T12:00:00');
       return isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
     };
 
-    // ── Construction SVG ──
-    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+    // ── Vue compacte (6 colonnes, géométrie adaptée à la largeur du conteneur) ──
+    const MAX_VISIBLE = 6;
+    const padL = 30, padR = 12, padT = 18, padB = 30, plotH = 150;
+    const availW = (container.offsetWidth || 320) - 2; // -2 pour éviter tout arrondi
+    const slot   = Math.floor((availW - padL - padR) / MAX_VISIBLE);
+    const barW   = Math.min(24, Math.floor(slot * 0.45));
+    const GEO = { slot, barW, padL, padR, padT, padB, plotH, qById, fmtDate };
 
-    // Lignes de repère + graduations (axe gauche = points/partie)
-    const ticks = 4;
-    for (let t = 0; t <= ticks; t++) {
-      const val = (maxBar * t) / ticks;
-      const y = yBar(val);
-      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
-      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
-    }
-    // Graduation droite (cumul) : 0 et max
-    svg += `<text class="sc-axislbl" x="${W - padR + 5}" y="${(yCum(maxCum) + 3).toFixed(1)}" text-anchor="start" style="fill:var(--rouge);">${maxCum}</text>`;
+    // Compléter avec des colonnes vides si nécessaire pour toujours atteindre MAX_VISIBLE
+    const paddedCols = [...allCols];
+    while (paddedCols.length < MAX_VISIBLE) paddedCols.push({ type: 'future', date: '' });
+    const compactCols = paddedCols.slice(Math.max(0, paddedCols.length - MAX_VISIBLE));
+    const { svgHtml, tipHtml, colCxPx } = _buildScoreChartSvg(compactCols, maxCum, GEO);
 
-    // Barres + valeur au-dessus + date en dessous
-    games.forEach((g, i) => {
-      const v = Number(g.score) || 0;
-      const x = cx(i) - barW / 2;
-      const y = yBar(v);
-      const h = baseY - y;
-      svg += `<rect class="sc-bar" data-bar="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3"/>`;
-      svg += `<text class="sc-barval" x="${cx(i).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle">${v}</text>`;
-      svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(g.date)}</text>`;
-    });
+    const hasMore = allCols.length > MAX_VISIBLE;
+    const moreHint = hasMore
+      ? `<div style="font-size:.65rem;color:rgba(255,255,255,.35);text-align:center;margin-top:4px;">Cliquez sur le titre pour voir toutes les parties (${allCols.length})</div>`
+      : '';
 
-    // Courbe de cumul
-    const linePts = cums.map((c, i) => `${cx(i).toFixed(1)},${yCum(c).toFixed(1)}`).join(' ');
-    if (games.length > 1) svg += `<polyline class="sc-line" points="${linePts}"/>`;
-    cums.forEach((c, i) => {
-      svg += `<circle class="sc-dot" cx="${cx(i).toFixed(1)}" cy="${yCum(c).toFixed(1)}" r="3.5"/>`;
-    });
-
-    // Zones de survol (toute la colonne) — dessinées en dernier pour capter
-    // le survol par-dessus barres, courbe et points.
-    games.forEach((g, i) => {
-      svg += `<rect class="sc-col" data-i="${i}" x="${(cx(i) - slot / 2).toFixed(1)}" y="${padT}" width="${slot}" height="${plotH}"/>`;
-    });
-
-    svg += '</svg>';
-
-    // ── Infobulles : détail des questions par partie ──
-    const tipHtml = games.map(g => {
-      const dets = Array.isArray(g.details) ? g.details : [];
-      const rows = dets.map(de => {
-        const q = qById[de.id];
-        const isBonus = !!de.bonus;
-        const isJoueur = q && q.type === 'joueur';
-        const label = q ? (isJoueur ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
-        const pts = Number(de.pts) || 0;
-        const icon = isBonus ? '⭐' : (isJoueur ? '🎽' : '•');
-        const okIcon = de.ok
-          ? '<span style="color:var(--vert);">✓</span>'
-          : '<span style="color:var(--rouge);">✗</span>';
-        return `<div class="chart-tip-q"><span class="chart-tip-qicon">${icon}</span><span class="chart-tip-qlabel">${esc(label)}</span><span class="chart-tip-qpts">${okIcon} ${pts} pt${pts > 1 ? 's' : ''}</span></div>`;
-      }).join('');
-      return `<div class="chart-tip-head">${fmtDate(g.date)} · ${Number(g.score) || 0} pts</div>${rows || '<div class="chart-tip-empty">Aucun détail enregistré.</div>'}`;
-    });
-
-    // ── Montage DOM ──
     container.innerHTML =
-      `<div class="score-chart-scroll">${svg}</div>` +
+      `<div class="score-chart-wrap">` +
+        `<div class="score-chart-scroll">${svgHtml}</div>` +
+        `<div class="score-chart-tip"></div>` +
+      `</div>` +
       `<div class="score-chart-legend">` +
         `<div class="score-chart-legend-item"><span class="score-chart-legend-bar"></span>Points par partie</div>` +
         `<div class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul global</div>` +
       `</div>` +
-      `<div class="score-chart-tip"></div>`;
+      moreHint;
 
     const tipEl = container.querySelector('.score-chart-tip');
-    const cols  = container.querySelectorAll('.sc-col');
-    const bars  = container.querySelectorAll('.sc-bar');
-    cols.forEach(col => {
-      const i = +col.dataset.i;
-      const showTip = ev => {
-        tipEl.innerHTML = tipHtml[i];
-        tipEl.style.display = 'block';
-        let left = ev.clientX + 14, top = ev.clientY - 10;
-        const r = tipEl.getBoundingClientRect();
-        if (left + r.width > window.innerWidth - 8)  left = ev.clientX - r.width - 14;
-        if (top + r.height > window.innerHeight - 8) top = window.innerHeight - r.height - 8;
-        if (top < 8) top = 8;
-        tipEl.style.left = left + 'px';
-        tipEl.style.top  = top + 'px';
-        if (bars[i]) bars[i].classList.add('is-hover');
-      };
-      col.addEventListener('mouseenter', showTip);
-      col.addEventListener('mousemove', showTip);
-      col.addEventListener('mouseleave', () => {
-        tipEl.style.display = 'none';
-        if (bars[i]) bars[i].classList.remove('is-hover');
-      });
+    _attachScoreChartTip(container.querySelector('.score-chart-wrap'), tipEl, tipHtml, colCxPx);
+
+    // ── Rendre le titre cliquable pour le plein graphique ──
+    const titleEl = container.closest('.card, [class*="pcard"]')
+      ? (container.closest('.card')?.querySelector('.pcard-section-title, [style*="margin-top:0"]') || null)
+      : null;
+    // Cherche le titre immédiatement précédent dans le DOM
+    const prevTitle = container.previousElementSibling?.classList?.contains('pcard-section-title')
+      ? container.previousElementSibling
+      : container.parentElement?.querySelector('.pcard-section-title');
+
+    [titleEl, prevTitle].filter(Boolean).forEach(el => {
+      if (el._scChartBound) return;
+      el._scChartBound = true;
+      el.classList.add('score-chart-title-btn');
+      el.title = 'Cliquez pour voir toutes les parties';
+      el.addEventListener('click', () => _openScoreChartFull(allCols, maxCum, GEO, fmtDate));
+    });
+  }
+
+  function _openScoreChartFull(allCols, maxCum, GEO, fmtDate) {
+    let modal = document.getElementById('sc-full-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'sc-full-modal';
+      modal.innerHTML =
+        `<div id="sc-full-modal-box">` +
+          `<div class="sc-full-title">` +
+            `<span>📊 Progression des points — toutes les parties</span>` +
+            `<span class="sc-full-close" title="Fermer">✕</span>` +
+          `</div>` +
+          `<div id="sc-full-chart-area"></div>` +
+          `<div class="score-chart-legend" style="margin-top:10px;">` +
+            `<div class="score-chart-legend-item"><span class="score-chart-legend-bar"></span>Points par partie</div>` +
+            `<div class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul global</div>` +
+          `</div>` +
+          `<div class="score-chart-tip" id="sc-full-tip"></div>` +
+        `</div>`;
+      document.body.appendChild(modal);
+      modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+      modal.querySelector('.sc-full-close').addEventListener('click', () => modal.classList.remove('open'));
+    }
+
+    modal.classList.add('open');
+
+    // Calcul de la largeur disponible après rendu (le modal est maintenant visible)
+    requestAnimationFrame(() => {
+      const box = modal.querySelector('#sc-full-modal-box');
+      const area = modal.querySelector('#sc-full-chart-area');
+      const availFull = (box ? box.clientWidth - 32 : 700); // 32 = padding 16px×2
+      const modalPadL = 30, modalPadR = 12;
+
+      // Nombre de colonnes à afficher : max entre allCols.length et ce qui remplit la largeur
+      const maxSlot = 64;
+      const minSlot = 36;
+      const colsFit = Math.floor((availFull - modalPadL - modalPadR) / minSlot);
+      const totalCols = Math.max(allCols.length, colsFit);
+
+      // Compléter allCols avec des slots vides pour remplir
+      const fullPadded = [...allCols];
+      while (fullPadded.length < totalCols) fullPadded.push({ type: 'future', date: '' });
+
+      const slotFull = Math.min(maxSlot, Math.floor((availFull - modalPadL - modalPadR) / fullPadded.length));
+      const barWFull = Math.min(22, Math.floor(slotFull * 0.45));
+      const geoFull = { ...GEO, slot: slotFull, barW: barWFull, padL: modalPadL, padR: modalPadR };
+
+      const { svgHtml, tipHtml, colCxPx } = _buildScoreChartSvg(fullPadded, maxCum, geoFull);
+
+      area.innerHTML = `<div class="score-chart-wrap"><div class="score-chart-scroll">${svgHtml}</div></div>`;
+
+      const tipEl = modal.querySelector('#sc-full-tip');
+      area.querySelector('.score-chart-wrap').appendChild(tipEl);
+      _attachScoreChartTip(area.querySelector('.score-chart-wrap'), tipEl, tipHtml, colCxPx);
     });
   }
 
@@ -12434,7 +13570,21 @@
     const miniRankCard = document.getElementById('pc-mini-rank-card');
     const miniRankEl   = document.getElementById('pc-mini-rank');
     if (miniRankCard && miniRankEl) {
-      const miniHtml = miniRankingHtml(name);
+      const fullRanking = generalRankingList();
+      let miniHtml = miniRankingHtml(name, 2, true);
+      if (!miniHtml && fullRanking.length) {
+        // Le joueur n'est pas encore classé : affiche le top-5 + note
+        const medals = ['🥇', '🥈', '🥉'];
+        const top5 = fullRanking.slice(0, 5).map((r, i) => {
+          const posLbl = i < 3 ? medals[i] : `#${i + 1}`;
+          return `<div class="mini-rank-row">
+            <span class="mini-rank-pos">${posLbl}</span>
+            <span class="mini-rank-name">${esc(r.name)}</span>
+            <span class="mini-rank-score">${r.total} pts</span>
+          </div>`;
+        }).join('');
+        miniHtml = `<div class="mini-rank">${top5}</div>`;
+      }
       if (miniHtml) {
         miniRankEl.innerHTML = miniHtml;
         miniRankCard.style.display = '';
@@ -12550,28 +13700,12 @@
           if (!t) return;
           tip.textContent   = t;
           tip.style.display = 'block';
-          tip.style.left    = (ev.clientX + 14) + 'px';
-          tip.style.top     = (ev.clientY - 34) + 'px';
-        });
-        cell.addEventListener('mousemove', ev => {
-          tip.style.left = (ev.clientX + 14) + 'px';
-          tip.style.top  = (ev.clientY - 34) + 'px';
+          const r = cell.getBoundingClientRect();
+          tip.style.left = Math.min(r.right + 6, window.innerWidth - 220) + 'px';
+          tip.style.top  = (r.top - 4) + 'px';
         });
         cell.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
       });
-    }
-
-    let bestBadge = null;
-    for (const badge of _BADGE_ORDER) {
-      if (lb.some(e => e.badgeLevel === badge)) { bestBadge = badge; break; }
-    }
-    const badgeWrap = document.getElementById('pc-badge-wrap');
-    if (bestBadge) {
-      document.getElementById('pc-badge-icon').textContent = _BADGE_ICONS[bestBadge] || '🏅';
-      document.getElementById('pc-badge-name').textContent = bestBadge;
-      badgeWrap.style.display = 'block';
-    } else {
-      badgeWrap.style.display = 'none';
     }
 
     const _pcPlayBtn  = document.getElementById('pc-play-btn');
@@ -12586,36 +13720,132 @@
     const chartCard = document.getElementById('pc-chart-card');
     const chartBox  = document.getElementById('pc-score-chart');
     if (chartCard && chartBox) {
-      if (realLb.length > 0) {
-        renderScoreChart(chartBox, lb);
-        chartCard.style.display = 'block';
-      } else {
-        chartCard.style.display = 'none';
-      }
+      renderScoreChart(chartBox, lb);
+      chartCard.style.display = chartBox.style.display === 'none' ? 'none' : '';
     }
 
-    const historyCard = document.getElementById('pc-history-card');
-    const historyList = document.getElementById('pc-history-list');
-    if (lb.length > 0) {
-      const sorted = [...lb].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
-      historyList.innerHTML = sorted.map((e, i) => {
-        const d       = e.date ? new Date(e.date) : null;
-        const dateStr = d ? d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'2-digit' }) : '';
-        const icon    = _BADGE_ICONS[e.badgeLevel] || '🎯';
-        const scoreStr = `${e.score} pts`;
-        return `<div class="player-history-item">
-          <div style="font-size:1.3rem;min-width:26px;text-align:center;">${icon}</div>
-          <div class="player-history-info">
-            <div class="player-history-score">${scoreStr}</div>
-            ${e.badgeLevel ? `<div style="font-size:.72rem;color:rgba(255,255,255,.4);">${e.badgeLevel}</div>` : ''}
-          </div>
-          ${dateStr ? `<div class="player-history-date">${dateStr}</div>` : ''}
+    // ── Historique inline (partie supérieure du card stats) ──
+    const historyInline = document.getElementById('pc-history-inline');
+    const realGames = realLb.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+    if (historyInline) {
+      if (realGames.length > 0) {
+        _pcHistoryData = realGames;
+        const rowsHtml = realGames.map((e, i) => {
+          const d = e.date ? new Date(e.date) : null;
+          const dateStr = d ? d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short', year:'2-digit' }) : '';
+          const dets = Array.isArray(e.details) ? e.details : [];
+          const ok = dets.filter(d => d.ok).length;
+          const total = dets.length;
+          const okLabel = total > 0 ? `${ok}/${total}` : '';
+          return `<div class="pc-hist-row" data-idx="${i}">
+            <span class="pc-hist-date">${dateStr}</span>
+            <span class="pc-hist-ok">${okLabel}</span>
+            <span class="pc-hist-score">${e.score} pts</span>
+          </div>`;
+        }).join('');
+        historyInline.innerHTML = `<div class="pcard-section-title" style="margin-top:0;margin-bottom:6px;color:var(--or);">Historique des parties</div>${rowsHtml}`;
+        historyInline.style.display = '';
+        historyInline.querySelectorAll('.pc-hist-row').forEach(row => {
+          row.addEventListener('mouseenter', function() {
+            pcShowGameDetail(parseInt(this.dataset.idx, 10), this);
+          });
+          row.addEventListener('mouseleave', function(e) {
+            const pop = document.getElementById('pc-game-popover');
+            if (pop && pop.contains(e.relatedTarget)) return;
+            pcCloseGameDetail();
+          });
+        });
+      } else {
+        historyInline.style.display = 'none';
+      }
+    }
+  }
+
+  let _pcHistoryData = [];
+
+  function pcShowGameDetail(idx, rowEl) {
+    const g = _pcHistoryData[idx];
+    if (!g) return;
+    const d = g.date ? new Date(g.date) : null;
+    const dateStr = d ? d.toLocaleDateString('fr-FR', { day:'2-digit', month:'long', year:'numeric' }) : '';
+    document.getElementById('pc-modal-title').textContent = dateStr;
+    document.getElementById('pc-modal-score').textContent = `${g.score} pts`;
+
+    const qById = {};
+    LS.getQ().forEach(q => { qById[q.id] = q; });
+
+    const dets = Array.isArray(g.details) ? g.details : [];
+    let bodyHtml = '';
+    if (dets.length === 0) {
+      bodyHtml = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:20px 0;">Aucun détail enregistré pour cette partie.</p>';
+    } else {
+      bodyHtml = dets.map(det => {
+        const q = qById[det.id];
+        const isBonus = !!det.bonus;
+        const label = q ? (q.type === 'joueur' ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+        const playerAnsRaw = (det.playerAns != null) ? String(det.playerAns).trim() : '';
+        const playerAnsHtml = playerAnsRaw
+          ? `<span style="color:#ff8c00;font-weight:600;">${esc(playerAnsRaw)}</span>`
+          : `<span style="color:rgba(255,255,255,.3);font-style:italic;">aucune réponse</span>`;
+        const statusHtml = det.ok
+          ? `<span class="pc-gdet-status" style="color:var(--vert);">✓</span>`
+          : `<span class="pc-gdet-status" style="color:var(--rouge);">✗</span>`;
+        const correctAns = pcCorrectAnswerText(q);
+        const correctHtml = (!det.ok && correctAns)
+          ? `<div class="pc-gdet-correct">Bonne réponse : <strong style="color:rgba(255,255,255,.65);">${esc(correctAns)}</strong></div>`
+          : '';
+        const bonusTag = isBonus ? `<span style="color:var(--or);font-size:.68rem;font-weight:700;margin-right:4px;">BONUS</span>` : '';
+        return `<div class="pc-gdet-row">
+          <div class="pc-gdet-label">${bonusTag}${esc(label)}${statusHtml}</div>
+          <div class="pc-gdet-ans">Réponse : ${playerAnsHtml}</div>
+          ${correctHtml}
         </div>`;
       }).join('');
-      historyCard.style.display = 'block';
-    } else {
-      historyCard.style.display = 'none';
     }
+    document.getElementById('pc-modal-body').innerHTML = bodyHtml;
+
+    // Positionner le popover juste sous la ligne cliquée, sans suivre le curseur
+    const pop = document.getElementById('pc-game-popover');
+    pop.classList.add('open');
+    if (rowEl) {
+      const rect = rowEl.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      if (spaceBelow >= 120) {
+        pop.style.top    = (rect.bottom + 6) + 'px';
+        pop.style.bottom = '';
+      } else {
+        pop.style.top    = '';
+        pop.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
+      }
+    } else {
+      pop.style.top = '40%';
+      pop.style.bottom = '';
+    }
+
+    // Fermer quand la souris quitte le popover sans retourner sur une ligne d'historique
+    pop.onmouseleave = function(e) {
+      if (e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('.pc-hist-row')) return;
+      pcCloseGameDetail();
+    };
+  }
+
+  function _pcPopoverOutside(e) {
+    const pop = document.getElementById('pc-game-popover');
+    if (pop && !pop.contains(e.target)) { pcCloseGameDetail(); }
+    else { document.addEventListener('click', _pcPopoverOutside, { once: true, capture: true }); }
+  }
+
+  function pcCloseGameDetail() {
+    document.getElementById('pc-game-popover').classList.remove('open');
+  }
+
+  function pcCorrectAnswerText(q) {
+    if (!q) return '';
+    if (q.type === 'joueur') return q.playerName || '';
+    if (q.type === 'qcm') return (q.options && q.correctIdx != null) ? (q.options[q.correctIdx] || '') : (q.answer || '');
+    if (q.type === 'multi') return (q.correctIdxs || []).map(i => (q.options||[])[i]).filter(Boolean).join(', ');
+    if (q.type === 'multi-libre') return (q.mlAnswers||[]).join(', ');
+    return q.answer || (Array.isArray(q.answers) ? q.answers[0] : '') || '';
   }
 
   function pcUploadAvatar(input) {
@@ -12681,7 +13911,7 @@
       nav('admin');
       const savedTab     = sessionStorage.getItem('rcAdminTab');
       const savedAddMode = sessionStorage.getItem('rcAddMode');
-      if (savedTab) adminTab(savedTab === 'add' ? 'list' : (savedTab === 'messages' ? 'messagerie' : savedTab));
+      if (savedTab) adminTab(savedTab === 'add' ? 'list' : (savedTab === 'messages' ? 'messagerie' : (savedTab === 'joueurs' ? 'stats' : savedTab)));
       if (savedAddMode) setAddMode(savedAddMode);
     }
   })();
