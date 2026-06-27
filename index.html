@@ -2044,6 +2044,9 @@
         <div id="home-auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
         <button id="home-auth-btn" class="btn btn-red btn-full" data-mode="login" onclick="homeAuthSubmit()">Se connecter</button>
         <p style="text-align:center;margin-top:12px;font-size:.74rem;color:rgba(255,255,255,.4);line-height:1.45;">Un compte est nécessaire pour jouer. Crée-le en quelques secondes, c'est gratuit. Si vous avez oublié votre mot de passe, contactez-nous en utilisant la fonctionnalité ci-dessous.</p>
+        <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:12px;margin-top:4px;">
+          <button class="btn btn-full mb0" style="background:#1a1a1a;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.1);" onclick="nav('leaderboard')">🏆 Classement</button>
+        </div>
       </div>
 
       <!-- Section jouer (affichée après auth ou mode anonyme) -->
@@ -2061,8 +2064,6 @@
           <button id="home-logout-btn" class="btn btn-danger btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
         </div>
       </div>
-
-      <button class="btn btn-full" style="max-width:380px;margin-bottom:8px;background:#1a1a1a;color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.1);" onclick="nav('leaderboard')">🏆 Classement</button>
 
       <!-- Bandeau réseaux sociaux -->
       <div class="home-social">
@@ -3403,6 +3404,11 @@
           <div id="onze-collection" style="max-height:300px;overflow-y:auto;"></div>
         </div>
 
+        <div class="card" id="onze-archives-card" style="margin-bottom:12px;display:none;">
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">🏆 Onzes archivés</div>
+          <div id="onze-archives"></div>
+        </div>
+
         <button class="btn btn-ghost btn-full mb0" onclick="nav('player-card')">← Retour au profil</button>
       </div>
     </div>
@@ -4640,11 +4646,16 @@
     return Number.isFinite(v) && v >= 0 ? v : 0;
   }
 
-  /* Bonus "Onze complet" effectivement attribué à un joueur (par pseudo) — 0 si non attribué. */
+  /* Bonus "Onze complet" cumulé pour un joueur (somme de toutes ses archives). */
   function onzeBonusForName(name) {
     const acc = LS.getAccounts()[(name || '').toLowerCase().trim()];
-    const b   = acc && acc.onze ? Number(acc.onze.bonusAwarded) : 0;
-    return Number.isFinite(b) && b > 0 ? b : 0;
+    if (!acc || !acc.onze) return 0;
+    const archives = Array.isArray(acc.onze.archives) ? acc.onze.archives : [];
+    const fromArchives = archives.reduce((s, ar) => s + (Number(ar.bonusAwarded) || 0), 0);
+    // Rétrocompat : bonus top-level (ancienne structure avant archives)
+    const legacy = (archives.length === 0 && acc.onze.bonusAwarded != null)
+      ? (Number(acc.onze.bonusAwarded) || 0) : 0;
+    return fromArchives + legacy;
   }
 
   function setOnzeBonusPoints(val) {
@@ -6965,6 +6976,17 @@
           <button class="btn btn-ghost btn-sm" onclick="adminAddToCollection('${q.id}')" style="white-space:nowrap;padding:4px 10px;font-size:.74rem;">+ Ajouter</button>
         </div>`).join('')}
       </div>` : '';
+    const fmtDateShort = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const archivesHtml = onze.archives.length ? onze.archives.slice().reverse().map((ar, idx) => {
+      const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
+      const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
+      return `<div style="margin-bottom:14px;">
+        <div style="font-size:.74rem;font-weight:700;color:var(--or);margin-bottom:6px;">
+          Onze #${onze.archives.length - idx} — ${fmtDateShort(ar.validatedAt)}${pts}
+        </div>
+        <div class="onze-pitch">${onzePitchReadonlyHtml(arOnze)}</div>
+      </div>`;
+    }).join('') : '';
     const onzeSection = `
       <div class="pcard-section-title">🎽 Mon Onze${onzeComplete ? ' <span style="color:var(--or);">· complet ✓</span>' : ''}</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
@@ -6975,7 +6997,8 @@
       <div class="onze-pitch" style="margin-bottom:12px;">${onzePitchReadonlyHtml(onze)}</div>
       ${collHeaderHtml}
       ${collHtml}
-      ${trackingHtml}`;
+      ${trackingHtml}
+      ${archivesHtml ? `<div class="pcard-section-title" style="margin-top:16px;">🏆 Onzes archivés (${onze.archives.length})</div>${archivesHtml}` : ''}`;
 
     document.getElementById('pcard-content').innerHTML = `
       <div class="pcard-drag-handle"></div>
@@ -10201,7 +10224,12 @@
 
   function handlePlayBtn() {
     const _pseudo = _localUser ? _localUser.pseudo : null;
-    if (_pseudo && hasPlayedToday(_pseudo)) { showAlreadyPlayedPopup(); return; }
+    if (_pseudo && hasPlayedToday(_pseudo)) {
+      const missed = getMissedSessions(_pseudo);
+      if (missed.length) { startCatchUp(missed[0].startDate); return; }
+      showAlreadyPlayedPopup();
+      return;
+    }
     if (_localUser) {
       document.getElementById('player-name').value = _localUser.pseudo;
       startQuiz();
@@ -10278,8 +10306,12 @@
     }
     const isPlannedSession = !!(todayPlan.j1 && todayPlan.j2) && !todayPlan._deleted;
 
-    // Aucune session planifiée : on bloque le lancement (pas de fallback rotation)
+    // Aucune session planifiée : si le joueur a des rattrapages, on les enchaîne
     if (!isPlannedSession) {
+      if (!catchUpStart) {
+        const missed = getMissedSessions(name);
+        if (missed.length) { startCatchUp(missed[0].startDate); return; }
+      }
       showNoSessionPopup();
       return;
     }
@@ -11865,8 +11897,8 @@
     }
     if (empty) empty.style.display = 'none';
 
-    // Dans le classement général, chaque ligne ouvre la carte du joueur cliqué.
-    const clickable = _lbTab === 'general';
+    // Toutes les tabs sont cliquables (carte joueur accessible à tous).
+    const clickable = true;
     const medals = ['🥇', '🥈', '🥉'];
     list.innerHTML = data.slice(0, 50).map((e, i) => {
       const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
@@ -12937,6 +12969,8 @@
     if (!ONZE_FORMATIONS[a.onze.formation]) a.onze.formation = '4-4-2';
     if (!Array.isArray(a.onze.slots) || a.onze.slots.length !== 11) a.onze.slots = Array(11).fill(null);
     if (a.onze.coach === undefined) a.onze.coach = null;
+    if (!Array.isArray(a.onze.usedInOnze)) a.onze.usedInOnze = [];
+    if (!Array.isArray(a.onze.archives)) a.onze.archives = [];
     return a;
   }
 
@@ -12982,10 +13016,12 @@
     const a    = LS.getAccounts()[(name || '').toLowerCase()];
     const onze = (a && a.onze && typeof a.onze === 'object') ? a.onze : {};
     return {
-      formation:  ONZE_FORMATIONS[onze.formation] ? onze.formation : '4-4-2',
-      slots:      (Array.isArray(onze.slots) && onze.slots.length === 11) ? onze.slots : Array(11).fill(null),
-      coach:      onze.coach || null,
-      collection: Array.isArray(onze.collection) ? onze.collection : []
+      formation:   ONZE_FORMATIONS[onze.formation] ? onze.formation : '4-4-2',
+      slots:       (Array.isArray(onze.slots) && onze.slots.length === 11) ? onze.slots : Array(11).fill(null),
+      coach:       onze.coach || null,
+      collection:  Array.isArray(onze.collection) ? onze.collection : [],
+      usedInOnze:  Array.isArray(onze.usedInOnze) ? onze.usedInOnze : [],
+      archives:    Array.isArray(onze.archives) ? onze.archives : []
     };
   }
 
@@ -13051,6 +13087,41 @@
     }
   }
 
+  /* Archive le Onze en cours (appelé sur clic "Valider mon Onze"). */
+  function archiveCurrentOnze() {
+    const a = _onzeAccount();
+    if (!a || !onzeIsComplete(a.onze)) return;
+    const pts = onzeBonusPoints();
+    const archive = {
+      formation:    a.onze.formation,
+      slots:        [...a.onze.slots],
+      coach:        a.onze.coach,
+      validatedAt:  Date.now(),
+      bonusAwarded: pts
+    };
+    if (!Array.isArray(a.onze.archives)) a.onze.archives = [];
+    a.onze.archives.push(archive);
+    // Verrouiller les joueurs utilisés
+    if (!Array.isArray(a.onze.usedInOnze)) a.onze.usedInOnze = [];
+    const usedIds = [...a.onze.slots.filter(Boolean)];
+    if (a.onze.coach) usedIds.push(a.onze.coach);
+    usedIds.forEach(id => { if (!a.onze.usedInOnze.includes(id)) a.onze.usedInOnze.push(id); });
+    // Réinitialiser le Onze courant
+    a.onze.slots      = Array(11).fill(null);
+    a.onze.coach      = null;
+    a.onze.completedAt = null;
+    a.onze.bonusAwarded = null;
+    _onzeSave();
+    if (pts > 0) {
+      const t = document.createElement('div');
+      t.className = 'onze-toast';
+      t.textContent = `🏆 Onze validé et archivé ! +${pts} pts bonus`;
+      document.body.appendChild(t);
+      setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, 3200);
+    }
+    renderOnze();
+  }
+
   /* ── Rendu de l'écran Mon Onze ── */
   function renderOnze() {
     if (!_localUser) { nav('auth'); return; }
@@ -13093,15 +13164,11 @@
     document.getElementById('onze-count').textContent = `${placedCount}/11${onze.coach ? ' + ENT' : ''}`;
     const banner = document.getElementById('onze-complete-banner');
     if (onzeIsComplete(onze)) {
-      if (!onze.completedAt) {
-        onze.completedAt = Date.now();
-        _onzeSave();
-        onOnzeComplete();
-      }
-      const bonus = Number(onze.bonusAwarded) || 0;
-      banner.textContent = bonus > 0
-        ? `🏆 Onze + coach complet ! +${bonus} pts bonus`
-        : '🏆 Onze + coach complet !';
+      const bonus = onzeBonusPoints();
+      banner.innerHTML = (bonus > 0
+        ? `🏆 Onze + coach complet ! (+${bonus} pts au moment de la validation)<br>`
+        : '🏆 Onze + coach complet !<br>')
+        + `<button class="btn btn-gold" style="margin-top:10px;font-size:.85rem;padding:8px 20px;" onclick="archiveCurrentOnze()">✅ Valider et archiver ce Onze</button>`;
       banner.style.display = 'block';
     } else if (placedCount === 11 && !onze.coach) {
       banner.textContent = '🎽 Place ton entraîneur (case ENT) pour valider ton Onze !';
@@ -13120,13 +13187,38 @@
       collEl.innerHTML = onze.collection.map(id => {
         const q = byId[id];
         const placed = onze.slots.includes(id) || onze.coach === id;
+        const locked = Array.isArray(onze.usedInOnze) && onze.usedInOnze.includes(id);
         const pos = (q.positions || []).length ? q.positions.join(', ') : '—';
         return `<div class="onze-coll-row">
           <span class="onze-coll-name">${esc(q.playerName)}</span>
           <span class="onze-coll-pos">${pos}</span>
           ${placed ? '<span class="onze-coll-placed">✓ placé</span>' : ''}
+          ${locked && !placed ? '<span class="onze-coll-placed" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.4);">🔒 archivé</span>' : ''}
         </div>`;
       }).join('');
+    }
+
+    // Archives
+    const archivesEl   = document.getElementById('onze-archives');
+    const archivesCard = document.getElementById('onze-archives-card');
+    if (archivesEl) {
+      const archives = Array.isArray(onze.archives) ? onze.archives : [];
+      if (archivesCard) archivesCard.style.display = archives.length ? 'block' : 'none';
+      if (!archives.length) {
+        archivesEl.innerHTML = '';
+      } else {
+        const fmtDate = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+        archivesEl.innerHTML = archives.map((ar, idx) => {
+          const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
+          const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
+          return `<div style="margin-bottom:16px;">
+            <div style="font-size:.75rem;font-weight:700;color:var(--or);margin-bottom:6px;">
+              Onze #${idx + 1} — ${fmtDate(ar.validatedAt)}${pts}
+            </div>
+            <div class="onze-pitch" style="margin-bottom:0;">${onzePitchReadonlyHtml(arOnze)}</div>
+          </div>`;
+        }).reverse().join('');
+      }
     }
   }
 
@@ -13168,9 +13260,10 @@
       isCoach ? 'Entraîneur (coach)' : `${s.label || s.acc[0]} — ${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}`;
 
     const current = isCoach ? onze.coach : onze.slots[i];
-    const used    = id => onze.slots.includes(id) || onze.coach === id;
+    const usedInCurrent = id => onze.slots.includes(id) || onze.coach === id;
+    const locked = new Set(Array.isArray(onze.usedInOnze) ? onze.usedInOnze : []);
     const candidates = onze.collection
-      .filter(id => id !== current && !used(id))
+      .filter(id => id !== current && !usedInCurrent(id) && !locked.has(id))
       .map(id => byId[id])
       .filter(q => q && slotAccepts(s, q));
 
