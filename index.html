@@ -770,7 +770,9 @@
     .add-subtab.active .subtab-count {
       background: rgba(255,205,0,.22);
     }
-    /* Fond sombre derrière les sous-onglets de la database */
+    /* Fond sombre derrière les sous-onglets (référence : database ;
+       appliqué à tous les onglets du panel admin : Stats, Database,
+       Générateur, Messages) */
     .db-subtabs {
       background: rgba(0,0,0,.45);
       border: 1px solid rgba(255,255,255,.08);
@@ -1854,6 +1856,39 @@
     .score-chart-legend-item { display:flex;align-items:center;gap:5px;font-size:.66rem;color:rgba(255,255,255,.45); }
     .score-chart-legend-bar { width:11px;height:11px;border-radius:2px;background:var(--or);flex-shrink:0; }
     .score-chart-legend-line { width:14px;height:0;border-top:2.5px solid var(--rouge);flex-shrink:0; }
+    .score-chart-legend-missed { width:11px;height:11px;border-radius:2px;flex-shrink:0;background:repeating-linear-gradient(45deg,#FFCD00,#FFCD00 3px,#111 3px,#111 6px);border:1px solid #FFCD00; }
+    /* ── Onglet Activité (admin → Stats) ── */
+    .activity-recent-box { margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px; }
+    .activity-recent-box .arb-title { font-size:.72rem;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px; }
+    .activity-signup-row { display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.82rem; }
+    .activity-signup-row:last-child { border-bottom:none; }
+    .activity-signup-row .asr-pseudo { font-weight:600;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .activity-signup-row .asr-date { font-size:.72rem;color:rgba(255,255,255,.4);flex-shrink:0; }
+    .activity-games-title { background:none;border:none;cursor:pointer;font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;padding:0;font-family:inherit;display:inline-flex;align-items:center;gap:6px; }
+    .activity-games-title:hover { color:#ffd633; }
+    .activity-games-info { font-size:.78rem;opacity:.7;font-weight:400; }
+    /* Liste « toutes les parties » : barre de défilement à la charte (rouge → or) */
+    #all-games-list { scrollbar-width:thin;scrollbar-color:var(--or) transparent; }
+    #all-games-list::-webkit-scrollbar { width:8px; }
+    #all-games-list::-webkit-scrollbar-track { background:transparent;margin:6px 0; }
+    #all-games-list::-webkit-scrollbar-thumb { background:linear-gradient(var(--rouge), var(--or));border-radius:99px;border:2px solid transparent;background-clip:padding-box; }
+    #all-games-list::-webkit-scrollbar-thumb:hover { background:var(--or);background-clip:padding-box;border:2px solid transparent; }
+    .activity-game-card { display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:background .12s,border-color .12s; }
+    .activity-game-card:hover { background:rgba(255,205,0,.08);border-color:rgba(255,205,0,.3); }
+    .activity-game-card:last-child { margin-bottom:0; }
+    .activity-game-card .agc-name { font-weight:700;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .activity-game-card .agc-date { font-size:.72rem;color:rgba(255,255,255,.4);flex-shrink:0; }
+    .activity-game-card .agc-score { font-weight:800;color:var(--or);font-size:1.05rem;flex-shrink:0; }
+    .activity-game-card .agc-bar { height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;flex:1.4;min-width:60px;max-width:160px; }
+    .activity-game-card .agc-bar > span { display:block;height:100%;background:linear-gradient(90deg,var(--rouge),var(--or));border-radius:3px; }
+    /* Infobulle détail d'une partie (clic) */
+    #game-detail-head .gdp-name { font-size:1rem;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    #game-detail-head .gdp-meta { font-size:.74rem;font-weight:700;color:var(--or); }
+    #game-detail-body { scrollbar-width:thin;scrollbar-color:var(--or) transparent; }
+    #game-detail-body::-webkit-scrollbar { width:8px; }
+    #game-detail-body::-webkit-scrollbar-track { background:transparent;margin:6px 0; }
+    #game-detail-body::-webkit-scrollbar-thumb { background:linear-gradient(var(--rouge), var(--or));border-radius:99px;border:2px solid transparent;background-clip:padding-box; }
+    #game-detail-body::-webkit-scrollbar-thumb:hover { background:var(--or);background-clip:padding-box;border:2px solid transparent; }
     .score-chart-tip { position:absolute;z-index:500;display:none;pointer-events:none;background:rgba(20,20,20,.98);border:1px solid rgba(255,205,0,.25);border-radius:8px;padding:9px 11px;font-size:.74rem;color:rgba(255,255,255,.85);box-shadow:0 6px 22px rgba(0,0,0,.55);max-width:240px;transform:translateX(-50%); }
     .score-chart-tip .chart-tip-head { font-weight:700;color:#fff;border-bottom:1px solid rgba(255,255,255,.12);padding-bottom:5px;margin-bottom:5px;font-size:.78rem; }
     .score-chart-tip .chart-tip-q { display:flex;align-items:center;gap:6px;padding:2px 0;line-height:1.3; }
@@ -2040,6 +2075,15 @@
           <input type="password" id="home-password-confirm" placeholder="Répéter le mot de passe"
                  onkeydown="if(event.key==='Enter')homeAuthSubmit()">
         </div>
+        <div id="home-ref-group" class="form-group" style="display:none;">
+          <label class="field-label">Code parrain <span style="color:rgba(255,255,255,.35);font-weight:400;">(facultatif)</span></label>
+          <input type="text" id="home-ref-code" placeholder="Ex: A7K9PQ" maxlength="6"
+                 style="text-transform:uppercase;letter-spacing:2px;"
+                 onkeydown="if(event.key==='Enter')homeAuthSubmit()">
+          <p style="margin:6px 0 0;font-size:.75rem;color:rgba(255,255,255,.38);line-height:1.4;">
+            Un ami t'a invité ? Saisis son code : il gagnera des points dès que tu joueras ta première partie.
+          </p>
+        </div>
         <div id="home-auth-error" class="alert alert-error" style="display:none;margin-bottom:12px;"></div>
         <div id="home-auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
         <button id="home-auth-btn" class="btn btn-red btn-full" data-mode="login" onclick="homeAuthSubmit()">Se connecter</button>
@@ -2054,6 +2098,8 @@
         <button id="home-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">Jouer</button>
         <!-- Rattrapage : parties passées non jouées (joueur ayant pris le train en route) -->
         <div id="home-catchup" style="display:none;margin-top:12px;"></div>
+        <!-- Classement accessible avant de lancer la partie -->
+        <button class="btn btn-full" style="margin-top:10px;background:rgba(255,205,0,.08);color:var(--or);border:1px solid rgba(255,205,0,.25);font-weight:600;" onclick="nav('leaderboard')">🏆 Classement</button>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
           <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
@@ -2194,17 +2240,17 @@
 
       <div class="tabs-nav">
         <div class="tabs">
+          <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
           <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database</button>
           <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">Générateur</button>
           <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
-          <button class="tab-btn" id="t-stats" onclick="adminTab('stats')">Stats</button>
           <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messages</button>
         </div>
         <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
+          <option value="stats">Stats</option>
           <option value="list">Database</option>
           <option value="generator">Générateur</option>
           <option value="planning">Planning</option>
-          <option value="stats">Stats</option>
           <option value="messagerie">Messages</option>
         </select>
       </div>
@@ -2512,6 +2558,7 @@
             <div class="settings-cat-header">Jeu</div>
             <nav class="settings-nav">
               <button class="settings-nav-item" id="snav-game-onze"      onclick="showSettingsPanel('game-onze')">Mon Onze</button>
+              <button class="settings-nav-item" id="snav-game-referral"  onclick="showSettingsPanel('game-referral')">Parrainage</button>
             </nav>
             <div class="settings-cat-header">Apparence</div>
             <nav class="settings-nav">
@@ -2619,6 +2666,30 @@
                 </div>
                 <button class="btn btn-gold btn-full" id="btn-save-onze-bonus" onclick="saveOnzeBonus()">💾 Sauvegarder les réglages</button>
                 <div id="onze-bonus-save-status" style="margin-top:10px;"></div>
+              </div>
+            </div>
+
+            <!-- Panel : Parrainage -->
+            <div id="settings-panel-game-referral" class="settings-panel">
+              <div class="card">
+                <h3>🤝 Parrainage</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Points attribués <strong>lorsqu'un filleul joue sa première vraie partie</strong> (pas à la simple inscription, pour éviter les faux comptes). Le crédit n'est versé qu'une seule fois par filleul. Mettez une valeur à <strong>0</strong> pour désactiver la récompense correspondante.</p>
+                <div class="form-group">
+                  <label class="field-label">Points pour le parrain</label>
+                  <input type="number" id="referral-parrain-input" min="0" max="1000" step="1" placeholder="Ex : 5"
+                         oninput="setReferralPts('parrain', this.value)" style="max-width:160px;">
+                </div>
+                <div class="form-group">
+                  <label class="field-label">Points pour le filleul</label>
+                  <input type="number" id="referral-filleul-input" min="0" max="1000" step="1" placeholder="Ex : 0"
+                         oninput="setReferralPts('filleul', this.value)" style="max-width:160px;">
+                </div>
+                <button class="btn btn-gold btn-full" id="btn-save-referral" onclick="saveReferralPts()">💾 Sauvegarder les réglages</button>
+                <div id="referral-save-status" style="margin-top:10px;"></div>
+                <p style="font-size:.74rem;color:rgba(255,255,255,.32);margin:12px 0 0;line-height:1.45;">
+                  ⚙️ Le barème est appliqué côté serveur (trigger Supabase). Nécessite la migration
+                  <code>supabase-referral-migration.sql</code> exécutée dans Supabase.
+                </p>
               </div>
             </div>
 
@@ -2732,7 +2803,7 @@
       <!-- ══ Tab : generator ══ -->
       <div id="at-generator" style="display:none;width:100%">
         <!-- Sous-onglets Joueurs / Bonus -->
-        <div class="add-subtabs db-subtabs" style="margin-top:16px;">
+        <div class="add-subtabs db-subtabs">
           <button class="add-subtab active" id="gst-joueurs" onclick="genSetSubTab('joueurs')">Joueurs <span class="subtab-count" id="gstc-joueurs">0</span></button>
           <button class="add-subtab" id="gst-bonus" onclick="genSetSubTab('bonus')">Bonus <span class="subtab-count" id="gstc-bonus">0</span></button>
         </div>
@@ -2782,7 +2853,7 @@
       <!-- Tab : messagerie -->
       <div id="at-messagerie" style="display:none;width:100%">
         <!-- Sous-onglets de la messagerie -->
-        <div class="add-subtabs">
+        <div class="add-subtabs db-subtabs">
           <button class="add-subtab active" id="mst-send" onclick="setMessagerieSubTab('send')">Envoyer un message</button>
           <button class="add-subtab" id="mst-sent" onclick="setMessagerieSubTab('sent')">Messages envoyés</button>
           <button class="add-subtab" id="mst-received" onclick="setMessagerieSubTab('received')">Messages reçus</button>
@@ -2837,29 +2908,92 @@
 
       <!-- Tab : stats -->
       <div id="at-stats" style="display:none;width:100%">
-        <div class="add-subtabs">
+        <div class="add-subtabs db-subtabs">
           <button class="add-subtab active" id="sst-classements" onclick="setStatsSubTab('classements')">Classements</button>
+          <button class="add-subtab" id="sst-activite" onclick="setStatsSubTab('activite')">Activité</button>
           <button class="add-subtab" id="sst-questions" onclick="setStatsSubTab('questions')">Stats questions</button>
         </div>
 
         <!-- Pane : Classements -->
         <div id="stats-classements-pane">
+          <!-- Classement général (liste + infographie), même code que la vue joueur -->
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">🏆 Classement général</span>
+            </div>
+
+            <!-- Onglets principaux -->
+            <div style="display:flex;border-bottom:2px solid rgba(255,255,255,.1);margin-bottom:16px;">
+              <button id="alb-main-liste"       class="lb-main-tab-btn active" onclick="lbSetMain('liste','alb')">Liste</button>
+              <button id="alb-main-infographie" class="lb-main-tab-btn"        onclick="lbSetMain('infographie','alb')">Infographie</button>
+            </div>
+
+            <!-- Section Liste -->
+            <div id="alb-section-liste">
+              <div style="display:flex;gap:6px;margin-bottom:14px;">
+                <button id="alb-tab-general" class="lb-tab-btn lb-tab-active" onclick="lbSetTab('general','alb')">All-time</button>
+                <button id="alb-tab-today"   class="lb-tab-btn"               onclick="lbSetTab('today','alb')">Aujourd'hui</button>
+              </div>
+              <div id="alb-list" style="padding:0 4px;min-height:60px;"></div>
+              <p id="alb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:24px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
+            </div>
+
+            <!-- Section Infographie -->
+            <div id="alb-section-infographie" style="display:none;">
+              <div style="display:flex;gap:6px;margin-bottom:14px;">
+                <button id="alb-info-tab-evolution" class="lb-tab-btn lb-tab-active" onclick="lbSetInfoTab('evolution','alb')">Évolution</button>
+                <button id="alb-info-tab-scatter"   class="lb-tab-btn"               onclick="lbSetInfoTab('scatter','alb')">Nuage de points</button>
+              </div>
+
+              <!-- Sous-section Évolution -->
+              <div id="alb-info-evolution">
+                <div class="lb-filter-wrap">
+                  <button class="lb-filter-btn" id="alb-filter-btn" onclick="lbToggleFilter(event,'alb')">
+                    <span id="alb-filter-label">5 joueurs sélectionnés</span>
+                    <span class="lb-filter-caret">▾</span>
+                  </button>
+                  <div class="lb-filter-panel" id="alb-filter-panel" style="display:none;">
+                    <div id="alb-filter-items"></div>
+                    <div class="lb-filter-actions">
+                      <button class="btn btn-ghost btn-sm mb0" style="font-size:.74rem;padding:5px 10px;" onclick="lbFilterSelectAll('alb')">Tout sélectionner</button>
+                      <button class="btn btn-ghost btn-sm mb0" style="font-size:.74rem;padding:5px 10px;" onclick="lbFilterSelectTop5('alb')">Top 5</button>
+                    </div>
+                  </div>
+                </div>
+                <div style="padding:14px 0 4px;"><div id="alb-chart"></div></div>
+              </div>
+
+              <!-- Sous-section Nuage de points -->
+              <div id="alb-info-scatter" style="display:none;">
+                <div style="padding:14px 0 4px;"><div id="alb-scatter"></div></div>
+              </div>
+            </div>
+          </div>
+
           <!-- Dashboard de suivi des collections Mon Onze -->
           <div id="onze-dashboard"></div>
+        </div>
+
+        <!-- Pane : Activité -->
+        <div id="stats-activite-pane" style="display:none;">
+          <!-- Évolution des inscrits -->
           <div class="card" style="margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Classement des joueurs</span>
-              <span id="joueurs-count" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Évolution des inscrits</span>
+              <span id="activity-signup-total" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
             </div>
-            <div class="joueur-search-bar">
-              <input type="text" id="joueur-search" placeholder="Rechercher un pseudo…" oninput="renderJoueurs()" autocomplete="off">
+            <div id="activity-signup-chart"></div>
+            <div id="activity-recent-signups" class="activity-recent-box"></div>
+          </div>
+
+          <!-- Dernières parties jouées -->
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+              <button type="button" class="activity-games-title" onclick="showAllGamesPopup()" title="Voir toutes les parties jouées">
+                Dernières parties jouées <span class="activity-games-info">ⓘ</span>
+              </button>
             </div>
-            <div id="joueurs-sort-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
-              <button class="btn btn-sm" id="jsort-score" onclick="setJoueurSort('score')" style="font-size:.75rem;padding:5px 10px;">Score ▾</button>
-              <button class="btn btn-ghost btn-sm" id="jsort-date" onclick="setJoueurSort('date')" style="font-size:.75rem;padding:5px 10px;">Date</button>
-              <button class="btn btn-ghost btn-sm" id="jsort-name" onclick="setJoueurSort('name')" style="font-size:.75rem;padding:5px 10px;">Nom A→Z</button>
-            </div>
-            <div id="joueurs-list"></div>
+            <div id="activity-recent-games"></div>
           </div>
         </div>
 
@@ -3229,6 +3363,15 @@
           <input type="password" id="auth-password-confirm" placeholder="Répéter le mot de passe"
                  onkeydown="if(event.key==='Enter')authSubmit()">
         </div>
+        <div id="auth-ref-group" class="form-group" style="display:none;">
+          <label class="field-label">Code parrain <span style="color:rgba(255,255,255,.35);font-weight:400;">(facultatif)</span></label>
+          <input type="text" id="auth-ref-code" placeholder="Ex: A7K9PQ" maxlength="6"
+                 style="text-transform:uppercase;letter-spacing:2px;"
+                 onkeydown="if(event.key==='Enter')authSubmit()">
+          <p style="margin:6px 0 0;font-size:.75rem;color:rgba(255,255,255,.38);line-height:1.4;">
+            Un ami t'a invité ? Saisis son code : il gagnera des points dès que tu joueras ta première partie.
+          </p>
+        </div>
 
         <div id="auth-error"   class="alert alert-error"   style="display:none;margin-bottom:12px;"></div>
         <div id="auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
@@ -3242,7 +3385,10 @@
     <div class="view" id="view-player-card">
       <div style="width:100%;max-width:480px;padding-bottom:80px;">
 
-        <div class="card tc" style="margin-bottom:12px;">
+        <div class="card tc" style="margin-bottom:12px;position:relative;">
+          <button onclick="nav('player-settings')" title="Réglages du compte"
+                  style="position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;font-size:1.25rem;color:rgba(255,255,255,.45);padding:4px;line-height:1;transition:color .15s;"
+                  onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='rgba(255,255,255,.45)'">⚙️</button>
           <div class="pc-avatar-wrap" onclick="document.getElementById('pc-avatar-input').click()" title="Changer la photo">
             <div class="player-card-avatar" id="pc-avatar"></div>
             <div class="pc-avatar-upload-btn">📷</div>
@@ -3318,13 +3464,26 @@
           </div>
         </div>
 
+        <!-- Parrainage : code partageable du joueur -->
+        <div class="card" id="pc-referral-card" style="display:none;margin-bottom:12px;">
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:6px;">🤝 Parraine un ami</div>
+          <p style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;margin:0 0 12px;" id="pc-referral-text">
+            Partage ton code. Dès qu'un ami crée son compte avec et joue sa première partie, tu gagnes <strong style="color:var(--or);" id="pc-referral-pts">5 points</strong>.
+          </p>
+          <div style="display:flex;gap:8px;align-items:stretch;">
+            <div id="pc-referral-code" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;letter-spacing:4px;color:var(--or);background:rgba(255,205,0,.08);border:1px dashed rgba(255,205,0,.35);border-radius:10px;padding:10px;">——————</div>
+            <button id="pc-referral-share" class="btn btn-gold" style="flex-shrink:0;padding:0 16px;margin:0;" onclick="pcShareReferral()">Partager</button>
+          </div>
+          <div id="pc-referral-msg" style="margin-top:8px;font-size:.76rem;color:var(--or);display:none;text-align:center;"></div>
+        </div>
+
         <div class="card" id="pc-mini-rank-card" style="display:none;margin-bottom:12px;">
           <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;cursor:pointer;color:var(--or);" onclick="lbSetTab('general');nav('leaderboard');">🏆 Classement général</div>
           <div id="pc-mini-rank"></div>
         </div>
 
         <div class="card" id="pc-chart-card" style="display:none;margin-bottom:12px;">
-          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">📊 Progression des points</div>
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">📊 Scoring</div>
           <div id="pc-score-chart"></div>
         </div>
 
@@ -3340,44 +3499,51 @@
           <div class="pc-gpop-body" id="pc-modal-body"></div>
         </div>
 
-        <!-- Sécurité : changer son mot de passe -->
-        <div class="card" id="pc-security-card" style="margin-bottom:12px;">
-          <button id="pc-pwd-toggle" class="btn btn-ghost btn-full mb0" onclick="pcTogglePwdForm()"
-                  style="display:flex;align-items:center;justify-content:space-between;font-size:.88rem;">
-            <span>🔒 Modifier mon mot de passe</span>
-            <span style="opacity:.5;">›</span>
-          </button>
-          <div id="pc-pwd-form" style="display:none;margin-top:14px;">
-            <div class="form-group">
-              <label class="field-label">Mot de passe actuel</label>
-              <input type="password" id="pc-pwd-current" placeholder="Mot de passe actuel"
-                     onkeydown="if(event.key==='Enter')pcChangePwd()">
-            </div>
-            <div class="form-group">
-              <label class="field-label">Nouveau mot de passe</label>
-              <input type="password" id="pc-pwd-new" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
-                     onkeydown="if(event.key==='Enter')pcChangePwd()">
-              <div class="alert alert-info" style="margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
-                <strong>Ton nouveau mot de passe doit contenir :</strong>
-                <ul style="margin:6px 0 0;padding-left:18px;">
-                  <li>au moins <strong>7 caractères</strong></li>
-                  <li>au moins une <strong>majuscule</strong></li>
-                  <li>au moins un <strong>chiffre</strong></li>
-                  <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
-                </ul>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="field-label">Confirmer le nouveau mot de passe</label>
-              <input type="password" id="pc-pwd-confirm" placeholder="Répéter le nouveau mot de passe"
-                     onkeydown="if(event.key==='Enter')pcChangePwd()">
-            </div>
-            <div id="pc-pwd-msg" style="margin-bottom:10px;font-size:.8rem;display:none;"></div>
-            <button class="btn btn-red btn-full mb0" onclick="pcChangePwd()">Valider le nouveau mot de passe</button>
-          </div>
+        <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════ RÉGLAGES JOUEUR ═══ -->
+    <div class="view" id="view-player-settings">
+      <div style="width:100%;max-width:480px;padding-bottom:80px;">
+
+        <div class="card" style="margin-bottom:12px;">
+          <h3 style="margin:0 0 4px;">⚙️ Réglages du compte</h3>
+          <div id="ps-pseudo-display" style="font-size:.8rem;color:rgba(255,255,255,.45);"></div>
         </div>
 
-        <button class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+        <!-- Changer le mot de passe -->
+        <div class="card" style="margin-bottom:12px;">
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:14px;">🔒 Modifier mon mot de passe</div>
+          <div class="form-group">
+            <label class="field-label">Mot de passe actuel</label>
+            <input type="password" id="pc-pwd-current" placeholder="Mot de passe actuel"
+                   onkeydown="if(event.key==='Enter')pcChangePwd()">
+          </div>
+          <div class="form-group">
+            <label class="field-label">Nouveau mot de passe</label>
+            <input type="password" id="pc-pwd-new" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
+                   onkeydown="if(event.key==='Enter')pcChangePwd()">
+            <div class="alert alert-info" style="margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
+              <strong>Ton nouveau mot de passe doit contenir :</strong>
+              <ul style="margin:6px 0 0;padding-left:18px;">
+                <li>au moins <strong>7 caractères</strong></li>
+                <li>au moins une <strong>majuscule</strong></li>
+                <li>au moins un <strong>chiffre</strong></li>
+                <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
+              </ul>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Confirmer le nouveau mot de passe</label>
+            <input type="password" id="pc-pwd-confirm" placeholder="Répéter le nouveau mot de passe"
+                   onkeydown="if(event.key==='Enter')pcChangePwd()">
+          </div>
+          <div id="pc-pwd-msg" style="margin-bottom:10px;font-size:.8rem;display:none;"></div>
+          <button class="btn btn-red btn-full mb0" onclick="pcChangePwd()">Valider le nouveau mot de passe</button>
+        </div>
+
+        <button class="btn btn-ghost btn-full mb0" onclick="nav('player-card')">← Retour au profil</button>
       </div>
     </div>
 
@@ -3748,6 +3914,32 @@
           Un mot d'allemand par jour, pour briller en tribune.
         </p>
         <button class="btn btn-ghost btn-full mb0" onclick="closeGermanWord()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════ TOUTES LES PARTIES JOUÉES ═══ -->
+  <div id="all-games-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeAllGamesPopup()">
+    <div class="modal-inner" style="max-width:520px;">
+      <div class="card" style="margin-bottom:0;display:flex;flex-direction:column;max-height:82vh;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-shrink:0;">
+          <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Toutes les parties jouées</span>
+          <button class="btn btn-ghost btn-sm" onclick="closeAllGamesPopup()">✕</button>
+        </div>
+        <div id="all-games-list" style="overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════ DÉTAIL D'UNE PARTIE ═══ -->
+  <div id="game-detail-modal" class="modal-overlay" style="display:none;z-index:300;" onclick="if(event.target===this)closeGameDetailPopup()">
+    <div class="modal-inner" style="max-width:440px;">
+      <div class="card" style="margin-bottom:0;display:flex;flex-direction:column;max-height:82vh;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;flex-shrink:0;">
+          <div id="game-detail-head" style="display:flex;flex-direction:column;gap:3px;min-width:0;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="closeGameDetailPopup()">✕</button>
+        </div>
+        <div id="game-detail-body" style="overflow-y:auto;"></div>
       </div>
     </div>
   </div>
@@ -4233,9 +4425,26 @@
       const { data, error } = await _supa.rpc('accounts_public');
       if (error) { console.warn('[Supabase] lecture accounts impossible:', error); return false; }
       const map = {};
-      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, avatar: r.avatar || undefined, onze: r.onze || undefined }; });
+      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, avatar: r.avatar || undefined, onze: r.onze || undefined, referralCode: r.referral_code || undefined }; });
       _db.accounts = map;
       _backupAccounts();
+      return true;
+    } catch { return false; }
+  }
+
+  /* Métadonnées d'inscription (admin uniquement) : pseudo + date de création.
+     L'admin est authentifié via Supabase Auth → policy "accounts admin full" autorise
+     la lecture directe de created_at (jamais exposé par la RPC publique accounts_public). */
+  let _accountsMeta = [];
+  async function accountsMetaFetch() {
+    if (!_supa) return false;
+    try {
+      const { data, error } = await _supa
+        .from('accounts')
+        .select('key, pseudo, created_at')
+        .order('created_at', { ascending: true });
+      if (error) { console.warn('[Supabase] lecture accounts (meta) impossible:', error); return false; }
+      _accountsMeta = (data || []).map(r => ({ pseudo: r.pseudo || r.key, created_at: r.created_at }));
       return true;
     } catch { return false; }
   }
@@ -4246,14 +4455,19 @@
   function _getAuthToken() { try { return localStorage.getItem(AUTH_TOKEN_KEY) || null; } catch { return null; } }
   function _setAuthToken(t) { try { t ? localStorage.setItem(AUTH_TOKEN_KEY, t) : localStorage.removeItem(AUTH_TOKEN_KEY); } catch {} }
 
-  /* Inscription serveur : renvoie { ok, token } ou { error: 'taken'|'weak'|'no_supa'|'other' }. */
-  async function _rpcSignup(pseudo, pwd) {
+  /* Inscription serveur : renvoie { ok, token } ou { error: 'taken'|'weak'|'bad_ref'|'no_supa'|'other' }.
+     ref = code parrain optionnel (ignoré si vide). */
+  async function _rpcSignup(pseudo, pwd, ref) {
     if (!_supa) return { error: 'no_supa' };
-    const { data, error } = await _supa.rpc('account_signup', { p_pseudo: pseudo, p_pwd: pwd });
+    const args = { p_pseudo: pseudo, p_pwd: pwd };
+    const refClean = (ref || '').trim();
+    if (refClean) args.p_ref = refClean;
+    const { data, error } = await _supa.rpc('account_signup', args);
     if (error) {
       const m = error.message || '';
       if (/pseudo_taken/.test(m)) return { error: 'taken' };
       if (/weak_password/.test(m)) return { error: 'weak' };
+      if (/bad_ref|self_ref/.test(m)) return { error: 'bad_ref' };
       return { error: 'other', detail: m };
     }
     _setAuthToken(data);
@@ -4514,6 +4728,8 @@
     catJoueur     : true,
     betaTest      : false,
     onzeBonusPoints: 10,
+    referralParrainPts: 5,
+    referralFilleulPts: 0,
   };
 
   function feat(key) {
@@ -4692,6 +4908,50 @@
         </div>`;
   }
 
+  /* Barème de parrainage (réglé dans Réglages › Jeu › Parrainage, appliqué côté serveur). */
+  function referralParrainPoints() {
+    const v = Number(feat('referralParrainPts'));
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+  function referralFilleulPoints() {
+    const v = Number(feat('referralFilleulPts'));
+    return Number.isFinite(v) && v >= 0 ? v : 0;
+  }
+
+  function setReferralPts(which, val) {
+    let n = Math.round(Number(val));
+    if (!Number.isFinite(n) || n < 0) n = 0;
+    if (n > 1000) n = 1000;
+    const saved = LS.getFeatures();
+    saved[which === 'parrain' ? 'referralParrainPts' : 'referralFilleulPts'] = n;
+    LS.saveFeatures(saved);
+    const st = document.getElementById('referral-save-status');
+    if (st) st.innerHTML = '';
+  }
+
+  async function saveReferralPts() {
+    const btn    = document.getElementById('btn-save-referral');
+    const status = document.getElementById('referral-save-status');
+    if (!btn || !status) return;
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ Sauvegarde en cours…';
+    status.innerHTML = '';
+
+    const ok = await dbPush('features');
+
+    btn.disabled    = false;
+    btn.textContent = '💾 Sauvegarder les réglages';
+
+    status.innerHTML = ok
+      ? `<div style="padding:10px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);font-size:.8rem;">
+          ✅ <strong>Barème enregistré dans Supabase</strong> — parrain ${referralParrainPoints()} pts · filleul ${referralFilleulPoints()} pts
+        </div>`
+      : `<div style="padding:10px 13px;border-radius:8px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);font-size:.8rem;">
+          ⚠️ <strong>Erreur Supabase</strong> — réglage actif en mémoire uniquement.
+        </div>`;
+  }
+
   /* ═══════════════════════════════════════════════════
      NAVIGATION
   ═══════════════════════════════════════════════════ */
@@ -4712,8 +4972,16 @@
     if (viewName === 'admin')        { setDbSubTab('joueur'); renderAdminDashboard(); }
     if (viewName === 'midbreak')     { showMidbreakContent(); }
     if (viewName === 'player-name')  initPlayerName();
-    if (viewName === 'player-card')  { renderPlayerCard(); renderInbox(); scoresFetch().then(() => renderPlayerCard()); inboxFetch().then(renderInbox); }
+    if (viewName === 'player-card')  { renderPlayerCard(); renderInbox(); scoresFetch().then(() => renderPlayerCard()); accountsFetch().then(() => renderPlayerCard()); inboxFetch().then(renderInbox); }
     if (viewName === 'onze')         { renderOnze(); accountsFetch().then(() => renderOnze()); }
+    if (viewName === 'player-settings') {
+      const el = document.getElementById('ps-pseudo-display');
+      if (el && _localUser) el.textContent = _localUser.pseudo;
+      ['pc-pwd-current','pc-pwd-new','pc-pwd-confirm'].forEach(id => {
+        const f = document.getElementById(id); if (f) f.value = '';
+      });
+      const msg = document.getElementById('pc-pwd-msg'); if (msg) msg.style.display = 'none';
+    }
     if (viewName === 'home')  {
       updateHomeAuthArea();
       // Le planning et les scores peuvent être périmés au chargement : on les
@@ -4922,17 +5190,208 @@
   function setStatsSubTab(sub) {
     _statsSubTab = sub;
     document.getElementById('sst-classements').classList.toggle('active', sub === 'classements');
+    document.getElementById('sst-activite').classList.toggle('active', sub === 'activite');
     document.getElementById('sst-questions').classList.toggle('active', sub === 'questions');
     document.getElementById('stats-classements-pane').style.display = sub === 'classements' ? 'block' : 'none';
+    document.getElementById('stats-activite-pane').style.display    = sub === 'activite'    ? 'block' : 'none';
     document.getElementById('stats-questions-pane').style.display   = sub === 'questions'   ? 'block' : 'none';
     if (sub === 'classements') {
       renderJoueurs();
-      Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
+      renderAdminLeaderboard();
+      Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); renderAdminLeaderboard(); });
       _startJoueursPoll();
+    } else if (sub === 'activite') {
+      _stopJoueursPoll();
+      renderActivite();
+      Promise.all([scoresFetch(), accountsMetaFetch()]).then(renderActivite);
     } else {
       _stopJoueursPoll();
       renderQStats(); scoresFetch().then(() => renderQStats());
     }
+  }
+
+  /* ════════════════ Onglet Activité (admin → Stats) ════════════════ */
+  function renderActivite() {
+    renderSignupChart();
+    renderRecentSignups();
+    renderRecentGames();
+  }
+
+  // Liste des comptes triés par date d'inscription (croissant). Replie sur les
+  // comptes connus (sans date) si l'admin n'a pas encore chargé les métadonnées.
+  function _signupEntries() {
+    if (_accountsMeta && _accountsMeta.length) {
+      return _accountsMeta
+        .filter(a => a.created_at)
+        .map(a => ({ pseudo: a.pseudo, date: new Date(a.created_at) }))
+        .filter(a => !isNaN(a.date))
+        .sort((a, b) => a.date - b.date);
+    }
+    return [];
+  }
+
+  // Courbe cumulée du nombre d'inscrits dans le temps (X = dates, Y = inscrits).
+  function renderSignupChart() {
+    const el = document.getElementById('activity-signup-chart');
+    const totalEl = document.getElementById('activity-signup-total');
+    if (!el) return;
+    const entries = _signupEntries();
+    if (totalEl) totalEl.textContent = entries.length ? `${entries.length} inscrit${entries.length > 1 ? 's' : ''}` : '';
+
+    if (!entries.length) {
+      el.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun inscrit pour l\'instant.<br>La courbe apparaîtra dès les premiers comptes créés.</p>';
+      return;
+    }
+
+    // Cumul par jour
+    const fmtKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const byDay = {};
+    entries.forEach(e => { const k = fmtKey(e.date); byDay[k] = (byDay[k] || 0) + 1; });
+    const days = Object.keys(byDay).sort();
+    let cum = 0;
+    const series = days.map(d => { cum += byDay[d]; return { day: d, cum }; });
+    const maxCum = Math.max(1, cum);
+    const n = series.length;
+
+    const padL = 40, padR = 10, padT = 14, padB = 34, plotH = 130;
+    const slotW = n === 1 ? 60 : Math.max(24, Math.min(56, 300 / (n - 1)));
+    const plotW = n === 1 ? 60 : slotW * (n - 1);
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const baseY = padT + plotH;
+    const xS = i => padL + (n === 1 ? plotW / 2 : i * slotW);
+    const yS = v => baseY - (v / maxCum) * plotH;
+    const fmtD = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }); };
+
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;" xmlns="http://www.w3.org/2000/svg">`;
+    const ticks = Math.min(4, maxCum);
+    for (let t = 0; t <= ticks; t++) {
+      const val = (maxCum * t) / ticks;
+      const y = yS(val);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+    }
+    const step = Math.max(1, Math.ceil(n / 4));
+    series.forEach((s, i) => {
+      if (i % step !== 0 && i !== n - 1) return;
+      svg += `<text class="sc-datelbl" x="${xS(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtD(s.day)}</text>`;
+    });
+    // Titres des axes (X = date, Y = nombre d'inscrits)
+    svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle" font-size="6">Date</text>`;
+    svg += `<text class="sc-axislbl" x="8" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="6" transform="rotate(-90,8,${(padT + plotH / 2).toFixed(1)})">Nombre d'inscrits</text>`;
+    const pts = series.map((s, i) => `${xS(i).toFixed(1)},${yS(s.cum).toFixed(1)}`);
+    if (pts.length > 1) svg += `<polyline class="sc-line" points="${pts.join(' ')}"/>`;
+    series.forEach((s, i) => { svg += `<circle class="sc-dot" data-i="${i}" cx="${xS(i).toFixed(1)}" cy="${yS(s.cum).toFixed(1)}" r="3"/>`; });
+    // Zones de survol invisibles (une tranche verticale par point) pour la tooltip
+    const hitW = n === 1 ? plotW : slotW;
+    series.forEach((s, i) => {
+      svg += `<rect class="sc-col" data-i="${i}" x="${(xS(i) - hitW / 2).toFixed(1)}" y="${padT}" width="${hitW.toFixed(1)}" height="${plotH}"/>`;
+    });
+    svg += '</svg>';
+
+    // Tooltip : date + nombre d'inscrits cumulé à cette date
+    const fmtFull = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }); };
+    el.innerHTML = `<div style="position:relative;">${svg}<div class="score-chart-tip" id="signup-chart-tip"></div></div>`;
+
+    const wrap  = el.firstElementChild;
+    const svgEl = wrap.querySelector('svg');
+    const tipEl = wrap.querySelector('#signup-chart-tip');
+    wrap.querySelectorAll('.sc-col').forEach(col => {
+      const i = +col.dataset.i;
+      const s = series[i];
+      const dot = wrap.querySelector(`.sc-dot[data-i="${i}"]`);
+      col.addEventListener('mouseenter', () => {
+        tipEl.innerHTML = `<div class="chart-tip-head">${fmtFull(s.day)}</div><div style="text-align:center;"><strong style="color:var(--or);font-size:1.05rem;">${s.cum}</strong> inscrit${s.cum > 1 ? 's' : ''}</div>`;
+        tipEl.style.display = 'block';
+        const scale = svgEl.getBoundingClientRect().width / W;
+        tipEl.style.left = (xS(i) * scale).toFixed(1) + 'px';
+        tipEl.style.top  = (yS(s.cum) * scale - 8).toFixed(1) + 'px';
+        tipEl.style.transform = 'translate(-50%, -100%)';
+        if (dot) dot.setAttribute('r', '5');
+      });
+      col.addEventListener('mouseleave', () => {
+        tipEl.style.display = 'none';
+        if (dot) dot.setAttribute('r', '3');
+      });
+    });
+  }
+
+  // Fenêtre : les 5 derniers inscrits.
+  function renderRecentSignups() {
+    const el = document.getElementById('activity-recent-signups');
+    if (!el) return;
+    const entries = _signupEntries();
+    if (!entries.length) { el.innerHTML = ''; return; }
+    const fmt = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const last5 = entries.slice(-5).reverse();
+    el.innerHTML = `<div class="arb-title">5 derniers inscrits</div>` + last5.map(e =>
+      `<div class="activity-signup-row"><span class="asr-pseudo">${esc(e.pseudo)}</span><span class="asr-date">${fmt(e.date)}</span></div>`
+    ).join('');
+  }
+
+  // Parties réelles (hors ajustements admin) triées par date décroissante.
+  // Conserve l'objet partie complet (id, details) pour le détail au clic, et met
+  // en cache la liste triée dans _activityGames (l'index sert d'identifiant de clic).
+  let _activityGames = [];
+  function _playedGames() {
+    _activityGames = (LS.getLeaderboard() || [])
+      .filter(g => !g.adjust && g.date)
+      .map(g => ({ ...g, score: Number(g.score) || 0, maxScore: Number(g.maxScore) || 0, _date: new Date(g.date) }))
+      .filter(g => !isNaN(g._date))
+      .sort((a, b) => b._date - a._date);
+    return _activityGames;
+  }
+
+  function _gameCardHtml(g, idx) {
+    const fmt = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    const pct = g.maxScore > 0 ? Math.max(0, Math.min(100, Math.round(g.score / g.maxScore * 100))) : 0;
+    const max = g.maxScore > 0 ? `<span style="font-size:.72rem;color:rgba(255,255,255,.4);font-weight:600;">/${g.maxScore}</span>` : '';
+    return `<div class="activity-game-card" onclick="showGameDetailPopup(${idx})" title="Voir le détail de la partie">
+      <span class="agc-name">${esc(g.name)}</span>
+      <span class="agc-bar"><span style="width:${pct}%;"></span></span>
+      <span class="agc-score">${g.score}${max}</span>
+      <span class="agc-date">${fmt(g._date)}</span>
+    </div>`;
+  }
+
+  // Infographie : les 5 dernières parties jouées.
+  function renderRecentGames() {
+    const el = document.getElementById('activity-recent-games');
+    if (!el) return;
+    const games = _playedGames();
+    if (!games.length) {
+      el.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucune partie jouée pour l\'instant.</p>';
+      return;
+    }
+    el.innerHTML = games.slice(0, 5).map((g, i) => _gameCardHtml(g, i)).join('');
+  }
+
+  function showAllGamesPopup() {
+    const el = document.getElementById('all-games-list');
+    const games = _playedGames();
+    if (el) {
+      el.innerHTML = games.length
+        ? games.map((g, i) => _gameCardHtml(g, i)).join('')
+        : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucune partie jouée pour l\'instant.</p>';
+    }
+    document.getElementById('all-games-modal').style.display = 'flex';
+  }
+  function closeAllGamesPopup() {
+    document.getElementById('all-games-modal').style.display = 'none';
+  }
+
+  // Détail d'une partie (réponses) affiché en infobulle au clic sur une carte.
+  function showGameDetailPopup(idx) {
+    const g = _activityGames[idx];
+    if (!g) return;
+    const fmt = d => { try { return new Date(d).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch { return ''; } };
+    const head = document.getElementById('game-detail-head');
+    const body = document.getElementById('game-detail-body');
+    if (head) head.innerHTML = `<span class="gdp-name">${esc(g.name)}</span><span class="gdp-meta">${g.score}${g.maxScore > 0 ? `/${g.maxScore}` : ''} pts · ${fmt(g.date)}</span>`;
+    if (body) body.innerHTML = gameDetailHtml(g);
+    document.getElementById('game-detail-modal').style.display = 'flex';
+  }
+  function closeGameDetailPopup() {
+    document.getElementById('game-detail-modal').style.display = 'none';
   }
 
   function adminTab(tab) {
@@ -5034,6 +5493,14 @@
       const inp = document.getElementById('onze-bonus-input');
       if (inp) inp.value = onzeBonusPoints();
       const st = document.getElementById('onze-bonus-save-status');
+      if (st) st.innerHTML = '';
+    }
+    if (id === 'game-referral') {
+      const pInp = document.getElementById('referral-parrain-input');
+      const fInp = document.getElementById('referral-filleul-input');
+      if (pInp) pInp.value = referralParrainPoints();
+      if (fInp) fInp.value = referralFilleulPoints();
+      const st = document.getElementById('referral-save-status');
       if (st) st.innerHTML = '';
     }
   }
@@ -6540,7 +7007,10 @@
     const accts  = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
     const listEl = document.getElementById('joueurs-list');
     const countEl = document.getElementById('joueurs-count');
-    if (!listEl) return;
+    // La liste de gestion « Classement des joueurs » a été retirée (redondante avec
+    // le classement général). On conserve néanmoins le badge « sans compte » et le
+    // dashboard Mon Onze, normalement rafraîchis en fin de fonction.
+    if (!listEl) { updateNoAccountBadge(); renderOnzeDashboard(); return; }
 
     // Grouper par pseudo (parties jouées)
     const map = {};
@@ -6624,7 +7094,7 @@
         <div class="joueur-avatar">${initial}</div>
         <div style="flex:1;min-width:0;">
           <div class="joueur-pseudo" style="display:flex;align-items:center;gap:7px;">${dot}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</span>${hiddenTag}</div>
-          <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · depuis le ${fmtDate(p.firstDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}${adjLabel}</div>
+          <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · dernière le ${fmtDate(p.lastDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}${adjLabel}</div>
         </div>
         <div class="joueur-score-val">${p.totalScore}</div>
         <button onclick="event.stopPropagation();deletePlayerByName(this.closest('[data-pname]').dataset.pname)" title="Supprimer ce joueur" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
@@ -6766,8 +7236,13 @@
     const meIdx = ranking.findIndex(r => r.name.toLowerCase() === key);
     if (meIdx < 0) return '';
 
-    const start = Math.max(0, meIdx - span);
-    const end   = Math.min(ranking.length - 1, meIdx + span);
+    const _window = 2 * span + 1;
+    let start = Math.max(0, meIdx - span);
+    let end   = Math.min(ranking.length - 1, meIdx + span);
+    // Compenser si rogné en bas (dernier, avant-dernier…)
+    if (end - start + 1 < _window) start = Math.max(0, end - _window + 1);
+    // Compenser si rogné en haut (premier, deuxième…)
+    if (end - start + 1 < _window) end   = Math.min(ranking.length - 1, start + _window - 1);
     const medals = ['🥇', '🥈', '🥉'];
     const rows = ranking.slice(start, end + 1).map((r, i) => {
       const pos      = start + i;
@@ -6831,36 +7306,6 @@
            + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
     };
     const fmtShort = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
-
-    // Lookup question par id pour afficher le libellé / nom du joueur dans le détail
-    const qByIdPc = {};
-    LS.getQ().forEach(q => { qByIdPc[q.id] = q; });
-
-    // Détail d'une partie : réponses données aux « Qui suis-je ? » et au bonus
-    const gameDetailHtml = (g) => {
-      const dets = Array.isArray(g.details) ? g.details : [];
-      const rows = dets.map(d => {
-        const q       = qByIdPc[d.id];
-        const isBonus = !!d.bonus;
-        const label   = q ? (q.type === 'joueur' ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
-        const ansRaw  = (d.playerAns != null) ? String(d.playerAns).trim() : '';
-        const ansHtml = ansRaw
-          ? `<em style="color:#ff8c00;font-style:normal;font-weight:600;">${esc(ansRaw)}</em>`
-          : `<span style="color:rgba(255,255,255,.3);font-style:italic;">aucune réponse</span>`;
-        const statusHtml = d.ok
-          ? `<span style="color:var(--vert);font-weight:700;white-space:nowrap;">✓ trouvé${d.indiceIdx != null ? ` · indice ${d.indiceIdx + 1}` : ''}</span>`
-          : `<span style="color:var(--rouge);font-weight:700;white-space:nowrap;">✗ raté</span>`;
-        return `<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);">
-          <div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:#fff;">
-            ${isBonus ? '<span style="color:var(--or);" title="Question bonus">⭐</span>' : '<span style="opacity:.55;">🎽</span>'}
-            <span style="flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;">${esc(label)}</span>
-            ${statusHtml}
-          </div>
-          <div style="font-size:.76rem;color:rgba(255,255,255,.55);margin-top:3px;padding-left:24px;">Réponse : ${ansHtml}</div>
-        </div>`;
-      }).join('');
-      return rows || '<div style="padding:8px 0;font-size:.78rem;color:rgba(255,255,255,.35);">Aucun détail enregistré pour cette partie.</div>';
-    };
 
     const historyRows = games.length ? games.map(g => `
       <div class="pcard-game-row" style="cursor:default;" onmouseenter="toggleGameDetail('${g.id}',true)" onmouseleave="toggleGameDetail('${g.id}',false)">
@@ -7042,7 +7487,7 @@
       ${onzeSection}
       <div class="pcard-section-title" style="cursor:pointer;color:var(--or);" onclick="closePlayerCard();lbSetTab('general');nav('leaderboard');">Classement général</div>
       ${miniRankingHtml(name)}
-      ${games.length ? '<div class="pcard-section-title">📊 Progression des points</div><div id="pcard-score-chart" style="margin-bottom:6px;"></div>' : ''}
+      ${games.length ? '<div class="pcard-section-title">📊 Scoring</div><div id="pcard-score-chart" style="margin-bottom:6px;"></div>' : ''}
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
       ${adminLogged ? adjustSection + accountSection : ''}
@@ -7061,6 +7506,35 @@
     const box = document.getElementById('gdet-' + id);
     if (!box) return;
     box.style.display = show ? 'block' : 'none';
+  }
+
+  /* Détail d'une partie : réponses données aux « Qui suis-je ? » et au bonus.
+     Réutilisé par la carte joueur (historique) et l'onglet Stats → Activité. */
+  function gameDetailHtml(g) {
+    const qById = {};
+    LS.getQ().forEach(q => { qById[q.id] = q; });
+    const dets = Array.isArray(g.details) ? g.details : [];
+    const rows = dets.map(d => {
+      const q       = qById[d.id];
+      const isBonus = !!d.bonus;
+      const label   = q ? (q.type === 'joueur' ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+      const ansRaw  = (d.playerAns != null) ? String(d.playerAns).trim() : '';
+      const ansHtml = ansRaw
+        ? `<em style="color:#ff8c00;font-style:normal;font-weight:600;">${esc(ansRaw)}</em>`
+        : `<span style="color:rgba(255,255,255,.3);font-style:italic;">aucune réponse</span>`;
+      const statusHtml = d.ok
+        ? `<span style="color:var(--vert);font-weight:700;white-space:nowrap;">✓ trouvé${d.indiceIdx != null ? ` · indice ${d.indiceIdx + 1}` : ''}</span>`
+        : `<span style="color:var(--rouge);font-weight:700;white-space:nowrap;">✗ raté</span>`;
+      return `<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+        <div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:#fff;">
+          ${isBonus ? '<span style="color:var(--or);" title="Question bonus">⭐</span>' : '<span style="opacity:.55;">🎽</span>'}
+          <span style="flex:1;min-width:0;font-weight:600;overflow:hidden;text-overflow:ellipsis;">${esc(label)}</span>
+          ${statusHtml}
+        </div>
+        <div style="font-size:.76rem;color:rgba(255,255,255,.55);margin-top:3px;padding-left:24px;">Réponse : ${ansHtml}</div>
+      </div>`;
+    }).join('');
+    return rows || '<div style="padding:8px 0;font-size:.78rem;color:rgba(255,255,255,.35);">Aucun détail enregistré pour cette partie.</div>';
   }
 
   async function adminResetPwd() {
@@ -11719,32 +12193,37 @@
     }).join('');
   }
 
-  /* ─── Classement public ─── */
-  let _lbTab     = 'today';
-  let _lbMainTab = 'liste';
-  let _lbInfoTab = 'evolution';
-  let _lbChartFilter = null; // null = non initialisé → top 5 par défaut
+  /* ─── Classement public + réplique admin (architecture partagée) ─── */
+  // Un même jeu de fonctions pilote le classement côté joueur (préfixe DOM « lb »)
+  // et sa réplique dans le panel admin → Stats → Classements (préfixe « alb »).
+  // Chaque « scope » garde son propre état (onglet actif, filtre joueurs…).
+  const _lbStates = {
+    lb:  { tab: 'today',   main: 'liste', info: 'evolution', filter: null },
+    alb: { tab: 'general', main: 'liste', info: 'evolution', filter: null }, // admin : classement général par défaut
+  };
+  const _lbEl = id => document.getElementById(id);
 
-  function lbSetMain(tab) {
-    _lbMainTab = tab;
+  function lbSetMain(tab, pfx = 'lb') {
+    const st = _lbStates[pfx]; st.main = tab;
     ['liste', 'infographie'].forEach(t => {
-      const btn = document.getElementById('lb-main-' + t);
+      const btn = _lbEl(`${pfx}-main-${t}`);
       if (btn) btn.classList.toggle('active', t === tab);
-      const sec = document.getElementById('lb-section-' + t);
+      const sec = _lbEl(`${pfx}-section-${t}`);
       if (sec) sec.style.display = t === tab ? '' : 'none';
     });
-    if (tab === 'infographie') renderLbInfographie();
+    if (tab === 'infographie') renderLbInfographie(pfx);
   }
 
-  function lbSetTab(tab) {
+  function lbSetTab(tab, pfx = 'lb') {
+    const st = _lbStates[pfx];
     // Si on arrive depuis un lien externe (mini-classement), basculer sur "Liste"
-    if (_lbMainTab !== 'liste') lbSetMain('liste');
-    _lbTab = tab;
+    if (st.main !== 'liste') lbSetMain('liste', pfx);
+    st.tab = tab;
     ['today', 'general'].forEach(t => {
-      const btn = document.getElementById('lb-tab-' + t);
+      const btn = _lbEl(`${pfx}-tab-${t}`);
       if (btn) btn.classList.toggle('lb-tab-active', t === tab);
     });
-    renderLeaderboardPublic();
+    renderLbList(pfx);
   }
 
   /* ── Infographie : filtre joueurs ── */
@@ -11752,42 +12231,45 @@
     return generalRankingList(); // [{name, total}] trié par score desc
   }
 
-  function lbInitFilter() {
-    if (_lbChartFilter !== null) return; // déjà initialisé
+  function lbInitFilter(pfx = 'lb') {
+    const st = _lbStates[pfx];
+    if (st.filter !== null) return; // déjà initialisé
     const top5 = lbGetAllPlayers().slice(0, 5).map(r => r.name.toLowerCase());
-    _lbChartFilter = new Set(top5);
+    st.filter = new Set(top5);
   }
 
-  function lbSetInfoTab(tab) {
-    _lbInfoTab = tab;
+  function lbSetInfoTab(tab, pfx = 'lb') {
+    const st = _lbStates[pfx]; st.info = tab;
     ['evolution', 'scatter'].forEach(t => {
-      const btn = document.getElementById('lb-info-tab-' + t);
+      const btn = _lbEl(`${pfx}-info-tab-${t}`);
       if (btn) btn.classList.toggle('lb-tab-active', t === tab);
-      const sec = document.getElementById('lb-info-' + t);
+      const sec = _lbEl(`${pfx}-info-${t}`);
       if (sec) sec.style.display = t === tab ? '' : 'none';
     });
-    renderLbInfographie();
+    renderLbInfographie(pfx);
   }
 
-  function renderLbInfographie() {
-    const section = document.getElementById('lb-section-infographie');
+  function renderLbInfographie(pfx = 'lb') {
+    const st = _lbStates[pfx];
+    const section = _lbEl(`${pfx}-section-infographie`);
     if (!section || section.style.display === 'none') return;
-    if (_lbInfoTab === 'scatter') {
-      renderLeaderboardScatter(document.getElementById('lb-scatter'));
+    if (st.info === 'scatter') {
+      renderLeaderboardScatter(_lbEl(`${pfx}-scatter`));
       return;
     }
-    lbInitFilter();
-    _lbRenderFilterPanel();
-    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+    lbInitFilter(pfx);
+    _lbRenderFilterPanel(pfx);
+    renderLeaderboardChart(_lbEl(`${pfx}-chart`), st.filter);
   }
 
-  function _lbRenderFilterPanel() {
+  function _lbRenderFilterPanel(pfx = 'lb') {
+    const st = _lbStates[pfx];
     const players  = lbGetAllPlayers();
-    const itemsEl  = document.getElementById('lb-filter-items');
-    const labelEl  = document.getElementById('lb-filter-label');
+    const itemsEl  = _lbEl(`${pfx}-filter-items`);
+    const labelEl  = _lbEl(`${pfx}-filter-label`);
     if (!itemsEl || !labelEl) return;
 
-    const selected = [...(_lbChartFilter || [])];
+    const selected = [...(st.filter || [])];
     labelEl.textContent = selected.length === players.length
       ? 'Tous les joueurs'
       : selected.length === 1 ? '1 joueur sélectionné'
@@ -11795,19 +12277,19 @@
 
     itemsEl.innerHTML = players.map(r => {
       const key     = r.name.toLowerCase();
-      const checked = _lbChartFilter && _lbChartFilter.has(key);
+      const checked = st.filter && st.filter.has(key);
       return `<label class="lb-filter-item">
-        <input type="checkbox" ${checked ? 'checked' : ''} onchange="lbFilterToggle(this,'${key.replace(/'/g,"\\'")}')">
+        <input type="checkbox" ${checked ? 'checked' : ''} onchange="lbFilterToggle(this,'${key.replace(/'/g,"\\'")}','${pfx}')">
         <span>${esc(r.name)}</span>
         <span style="margin-left:auto;color:var(--or);font-weight:700;font-size:.78rem;">${r.total} pts</span>
       </label>`;
     }).join('');
   }
 
-  function lbToggleFilter(e) {
+  function lbToggleFilter(e, pfx = 'lb') {
     e && e.stopPropagation();
-    const panel = document.getElementById('lb-filter-panel');
-    const btn   = document.getElementById('lb-filter-btn');
+    const panel = _lbEl(`${pfx}-filter-panel`);
+    const btn   = _lbEl(`${pfx}-filter-btn`);
     if (!panel) return;
     const open = panel.style.display === 'none';
     panel.style.display = open ? '' : 'none';
@@ -11819,27 +12301,41 @@
     }
   }
 
-  function lbFilterToggle(cb, key) {
-    if (!_lbChartFilter) _lbChartFilter = new Set();
-    if (cb.checked) _lbChartFilter.add(key); else _lbChartFilter.delete(key);
-    _lbRenderFilterPanel();
-    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+  function lbFilterToggle(cb, key, pfx = 'lb') {
+    const st = _lbStates[pfx];
+    if (!st.filter) st.filter = new Set();
+    if (cb.checked) st.filter.add(key); else st.filter.delete(key);
+    _lbRenderFilterPanel(pfx);
+    renderLeaderboardChart(_lbEl(`${pfx}-chart`), st.filter);
   }
 
-  function lbFilterSelectAll() {
-    _lbChartFilter = new Set(lbGetAllPlayers().map(r => r.name.toLowerCase()));
-    _lbRenderFilterPanel();
-    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+  function lbFilterSelectAll(pfx = 'lb') {
+    const st = _lbStates[pfx];
+    st.filter = new Set(lbGetAllPlayers().map(r => r.name.toLowerCase()));
+    _lbRenderFilterPanel(pfx);
+    renderLeaderboardChart(_lbEl(`${pfx}-chart`), st.filter);
   }
 
-  function lbFilterSelectTop5() {
-    _lbChartFilter = new Set(lbGetAllPlayers().slice(0, 5).map(r => r.name.toLowerCase()));
-    _lbRenderFilterPanel();
-    renderLeaderboardChart(document.getElementById('lb-chart'), _lbChartFilter);
+  function lbFilterSelectTop5(pfx = 'lb') {
+    const st = _lbStates[pfx];
+    st.filter = new Set(lbGetAllPlayers().slice(0, 5).map(r => r.name.toLowerCase()));
+    _lbRenderFilterPanel(pfx);
+    renderLeaderboardChart(_lbEl(`${pfx}-chart`), st.filter);
   }
 
-  function renderLeaderboardPublic() {
-    _lbTab = _lbTab || 'today';
+  // Rétro-compat : l'ancien nom reste appelé par nav() et les cartes joueur.
+  function renderLeaderboardPublic() { renderLbList('lb'); }
+
+  // Rafraîchit la réplique admin (Stats → Classements) selon l'onglet courant.
+  function renderAdminLeaderboard() {
+    const st = _lbStates.alb;
+    if (st.main === 'infographie') renderLbInfographie('alb');
+    else renderLbList('alb');
+  }
+
+  // Calcule les données du classement (liste) pour l'onglet demandé.
+  // Renvoie { data:[{name,score,gamesPlayed}], totalSessions }.
+  function _lbComputeListData(tab) {
     const lb = LS.getLeaderboard();
     const now = new Date();
     const todayStr = now.toISOString().slice(0, 10);
@@ -11866,7 +12362,7 @@
     const hidden = hiddenRankingSet();
     const realLb = lb.filter(e => !e.adjust && !hidden.has((e.name || '').toLowerCase().trim()));
     let data, totalSessions = 0;
-    if (_lbTab === 'general') {
+    if (tab === 'general') {
       // Dénominateur : sessions du planning dont la startDate ≤ aujourd'hui et non supprimées
       const plan = LS.getPlanning();
       totalSessions = Object.entries(plan).filter(([d, dp]) => !dp._deleted && d <= todayStr).length;
@@ -11882,12 +12378,19 @@
         gamesPlayed: gamesPerPlayer[r.name.toLowerCase().trim()] || 0
       }));
     }
-    else if (_lbTab === 'today') data = bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr));
-    else if (_lbTab === 'week') data = bestPerPlayer(realLb.filter(e => e.date && new Date(e.date) >= weekAgo));
-    else                        data = bestPerPlayer(realLb);
+    else if (tab === 'today') data = bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr));
+    else if (tab === 'week') data = bestPerPlayer(realLb.filter(e => e.date && new Date(e.date) >= weekAgo));
+    else                     data = bestPerPlayer(realLb);
 
-    const list  = document.getElementById('lb-list');
-    const empty = document.getElementById('lb-empty');
+    return { data, totalSessions };
+  }
+
+  function renderLbList(pfx = 'lb') {
+    const st = _lbStates[pfx]; st.tab = st.tab || 'today';
+    const { data, totalSessions } = _lbComputeListData(st.tab);
+
+    const list  = _lbEl(`${pfx}-list`);
+    const empty = _lbEl(`${pfx}-empty`);
     if (!list) return;
 
     if (!data.length) {
@@ -11900,7 +12403,9 @@
     // Toutes les tabs sont cliquables (carte joueur accessible à tous).
     const clickable = true;
     const medals = ['🥇', '🥈', '🥉'];
-    list.innerHTML = data.slice(0, 50).map((e, i) => {
+    // Côté joueur : top 50 ; côté admin (« alb ») : 100 % des inscrits.
+    const rows = pfx === 'alb' ? data : data.slice(0, 50);
+    list.innerHTML = rows.map((e, i) => {
       const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
       const rowCls   = clickable ? 'lb-entry clickable' : 'lb-entry';
@@ -12540,6 +13045,8 @@
     document.getElementById('auth-tab-login').classList.toggle('active', !isSignup);
     document.getElementById('auth-tab-signup').classList.toggle('active', isSignup);
     document.getElementById('auth-confirm-group').style.display  = isSignup ? 'block' : 'none';
+    const authRefGroup = document.getElementById('auth-ref-group');
+    if (authRefGroup) authRefGroup.style.display = isSignup ? 'block' : 'none';
     document.getElementById('auth-pseudo-hint').style.display    = isSignup ? 'block' : 'none';
     const authPwdWarn = document.getElementById('auth-pwd-warning');
     if (authPwdWarn) authPwdWarn.style.display = isSignup ? 'block' : 'none';
@@ -12577,10 +13084,13 @@
       if (accounts[pseudo.toLowerCase()]) {
         errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; return;
       }
-      const res = await _rpcSignup(pseudo, pwd);
+      const refEl = document.getElementById('auth-ref-code');
+      const ref   = refEl ? refEl.value : '';
+      const res = await _rpcSignup(pseudo, pwd, ref);
       if (!res.ok) {
         errEl.textContent = res.error === 'taken' ? 'Ce pseudo est déjà utilisé.'
           : res.error === 'weak' ? 'Mot de passe trop faible.'
+          : res.error === 'bad_ref' ? 'Code parrain invalide. Vérifie-le ou laisse le champ vide.'
           : 'Inscription impossible pour le moment. Réessaie.';
         errEl.style.display = 'block'; return;
       }
@@ -12628,23 +13138,7 @@
     nav('home');
   }
 
-  /* Ouvre/ferme le formulaire « Modifier mon mot de passe » de la carte joueur. */
-  function pcTogglePwdForm() {
-    const form = document.getElementById('pc-pwd-form');
-    if (!form) return;
-    const open = form.style.display === 'none' || !form.style.display;
-    form.style.display = open ? 'block' : 'none';
-    if (open) {
-      ['pc-pwd-current','pc-pwd-new','pc-pwd-confirm'].forEach(id => {
-        const el = document.getElementById(id); if (el) el.value = '';
-      });
-      const msg = document.getElementById('pc-pwd-msg'); if (msg) msg.style.display = 'none';
-      const cur = document.getElementById('pc-pwd-current');
-      if (cur) setTimeout(() => cur.focus(), 60);
-    }
-  }
-
-  /* Changement de mot de passe par le joueur lui-même (depuis sa carte joueur).
+  /* Changement de mot de passe par le joueur lui-même (depuis la page réglages).
      Vérifie le mot de passe actuel via account_login, puis applique le nouveau via
      account_change_pwd (jeton requis ; renvoie un jeton neuf). */
   async function pcChangePwd() {
@@ -12688,15 +13182,14 @@
     }
     if (data) _setAuthToken(data);   // nouveau jeton renvoyé par le serveur
 
-    if (curEl)  curEl.value  = '';
-    if (newEl)  newEl.value  = '';
-    if (confEl) confEl.value = '';
     show('Mot de passe modifié avec succès ✓', true);
     setTimeout(() => {
-      const f = document.getElementById('pc-pwd-form');
-      if (f) f.style.display = 'none';
+      if (curEl)  curEl.value  = '';
+      if (newEl)  newEl.value  = '';
+      if (confEl) confEl.value = '';
       if (msgEl) msgEl.style.display = 'none';
-    }, 2500);
+      nav('player-card');
+    }, 1800);
   }
 
   function updateHomeAuthArea() {
@@ -12773,6 +13266,8 @@
     const pseudoHint   = document.getElementById('home-pseudo-hint');
     const pwdWarn      = document.getElementById('home-pwd-warning');
     if (confirmGroup) confirmGroup.style.display = isSignup ? 'block' : 'none';
+    const refGroup = document.getElementById('home-ref-group');
+    if (refGroup)     refGroup.style.display     = isSignup ? 'block' : 'none';
     if (pseudoHint)   pseudoHint.style.display   = isSignup ? 'block' : 'none';
     if (pwdWarn)      pwdWarn.style.display      = isSignup ? 'block' : 'none';
     const btn = document.getElementById('home-auth-btn');
@@ -12817,11 +13312,14 @@
         if (errEl) { errEl.textContent = 'Ce pseudo est déjà utilisé.'; errEl.style.display = 'block'; }
         return;
       }
-      const res = await _rpcSignup(pseudo, pwd);
+      const refEl = document.getElementById('home-ref-code');
+      const ref   = refEl ? refEl.value : '';
+      const res = await _rpcSignup(pseudo, pwd, ref);
       if (!res.ok) {
         if (errEl) {
           errEl.textContent = res.error === 'taken' ? 'Ce pseudo est déjà utilisé.'
             : res.error === 'weak' ? 'Mot de passe trop faible.'
+            : res.error === 'bad_ref' ? 'Code parrain invalide. Vérifie-le ou laisse le champ vide.'
             : 'Inscription impossible pour le moment. Réessaie.';
           errEl.style.display = 'block';
         }
@@ -13373,7 +13871,10 @@
     const yScale = v => baseY - (v / maxCum) * plotH;
     const cx = i => padL + slot * i + slot / 2;
 
-    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">` +
+      `<defs><pattern id="sc-missed-stripe" patternUnits="userSpaceOnUse" width="6" height="6" patternTransform="rotate(45)">` +
+      `<rect width="3" height="6" fill="#FFCD00"/><rect x="3" width="3" height="6" fill="#111111"/>` +
+      `</pattern></defs>`;
 
     // Graduations
     const ticks = 4;
@@ -13398,6 +13899,12 @@
         svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
         playedCxs.push({ i, cx: cx(i) });
         playedCums.push(col.cumAfter || 0);
+      } else if (col.type === 'missed') {
+        // Colonne rayée jaune/noir = partie à rattraper
+        const minBarH = plotH * 0.22;
+        const x = cx(i) - barW / 2;
+        svg += `<rect fill="url(#sc-missed-stripe)" stroke="#FFCD00" stroke-width="1" x="${x.toFixed(1)}" y="${(baseY - minBarH).toFixed(1)}" width="${barW.toFixed(1)}" height="${minBarH.toFixed(1)}" rx="3"/>`;
+        svg += `<text class="sc-datelbl-future" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
       } else {
         // Colonne future : contour tireté
         const minBarH = plotH * 0.18;
@@ -13425,6 +13932,9 @@
 
     // Infobulles
     const tipHtml = cols.map(col => {
+      if (col.type === 'missed') {
+        return `<div class="chart-tip-head">${fmtDate(col.date)}</div><div class="chart-tip-empty" style="color:#FFCD00;">Partie à rattraper</div>`;
+      }
       if (col.type === 'future') {
         return `<div class="chart-tip-head">${fmtDate(col.date)}</div><div class="chart-tip-empty">Partie à venir</div>`;
       }
@@ -13511,7 +14021,12 @@
       .slice(0, 20)
       .map(d => ({ type: 'future', date: d }));
 
-    const allCols = [...playedCols, ...futureCols];
+    // Sessions passées non jouées (rattrapages) — visibles uniquement pour le joueur connecté
+    const missedSessions = _localUser ? getMissedSessions(_localUser.pseudo) : [];
+    const missedCols = missedSessions.map(m => ({ type: 'missed', date: m.startDate }));
+
+    const allCols = [...playedCols, ...missedCols, ...futureCols]
+      .sort((a, b) => (a.date || '9999') < (b.date || '9999') ? -1 : 1);
 
     const fmtDate = iso => {
       const d = new Date(iso + 'T12:00:00');
@@ -13537,6 +14052,14 @@
       ? `<div style="font-size:.65rem;color:rgba(255,255,255,.35);text-align:center;margin-top:4px;">Cliquez sur le titre pour voir toutes les parties (${allCols.length})</div>`
       : '';
 
+    const missedBtn = missedSessions.length
+      ? `<button class="btn btn-ghost btn-full mb0" onclick="startCatchUp('${missedSessions[0].startDate}')"
+           style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:.82rem;">
+           <span style="flex:1;color:rgba(255,255,255,.85);">${missedSessions.length} partie${missedSessions.length > 1 ? 's' : ''} à rattraper</span>
+           <span style="color:var(--or);font-weight:700;white-space:nowrap;">Rattraper →</span>
+         </button>`
+      : '';
+
     container.innerHTML =
       `<div class="score-chart-wrap">` +
         `<div class="score-chart-scroll">${svgHtml}</div>` +
@@ -13545,8 +14068,10 @@
       `<div class="score-chart-legend">` +
         `<div class="score-chart-legend-item"><span class="score-chart-legend-bar"></span>Points par partie</div>` +
         `<div class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul global</div>` +
+        (missedSessions.length ? `<div class="score-chart-legend-item"><span class="score-chart-legend-missed"></span>À rattraper</div>` : '') +
       `</div>` +
-      moreHint;
+      moreHint +
+      missedBtn;
 
     const tipEl = container.querySelector('.score-chart-tip');
     _attachScoreChartTip(container.querySelector('.score-chart-wrap'), tipEl, tipHtml, colCxPx);
@@ -13577,7 +14102,7 @@
       modal.innerHTML =
         `<div id="sc-full-modal-box">` +
           `<div class="sc-full-title">` +
-            `<span>📊 Progression des points — toutes les parties</span>` +
+            `<span>📊 Scoring — toutes les parties</span>` +
             `<span class="sc-full-close" title="Fermer">✕</span>` +
           `</div>` +
           `<div id="sc-full-chart-area"></div>` +
@@ -13625,6 +14150,34 @@
     });
   }
 
+  /* Partage du code de parrainage : Web Share API si dispo, sinon copie presse-papiers. */
+  async function pcShareReferral() {
+    if (!_localUser) return;
+    const account = LS.getAccounts()[_localUser.pseudo.toLowerCase()];
+    const code = account && account.referralCode;
+    if (!code) return;
+    const msgEl = document.getElementById('pc-referral-msg');
+    const text = `Rejoins-moi sur le Quiz RC Lens ! Crée ton compte avec mon code parrain ${code} 🩸💛 ${location.origin}${location.pathname}`;
+    const flash = (t) => {
+      if (!msgEl) return;
+      msgEl.textContent = t;
+      msgEl.style.display = 'block';
+      setTimeout(() => { msgEl.style.display = 'none'; }, 2500);
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Quiz RC Lens', text });
+        return;
+      }
+    } catch { /* partage annulé : on tente la copie */ }
+    try {
+      await navigator.clipboard.writeText(text);
+      flash('Invitation copiée ✓');
+    } catch {
+      flash(`Ton code : ${code}`);
+    }
+  }
+
   function renderPlayerCard() {
     if (!_localUser) { nav('auth'); return; }
 
@@ -13643,6 +14196,24 @@
       avatarEl.innerHTML  = '';
       avatarEl.textContent    = name[0].toUpperCase();
       avatarEl.style.fontSize = '2rem';
+    }
+
+    // Carte parrainage : code partageable du joueur (récupéré via accounts_public)
+    const refCard = document.getElementById('pc-referral-card');
+    const refCodeEl = document.getElementById('pc-referral-code');
+    const refCode = account && account.referralCode;
+    if (refCard && refCodeEl) {
+      if (refCode) {
+        refCodeEl.textContent = refCode;
+        const ptsEl = document.getElementById('pc-referral-pts');
+        if (ptsEl) {
+          const pp = referralParrainPoints();
+          ptsEl.textContent = `${pp} point${pp > 1 ? 's' : ''}`;
+        }
+        refCard.style.display = '';
+      } else {
+        refCard.style.display = 'none';
+      }
     }
 
     // Classement général (score total cumulé + bonus Onze)
