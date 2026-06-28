@@ -406,11 +406,18 @@
     .planning-day-date { font-size: .82rem; color: rgba(255,255,255,.6); flex: 1; }
     .planning-today-badge { font-size: .7rem; font-weight: 700; background: var(--or); color: var(--noir); padding: 2px 8px; border-radius: 99px; text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
     .planning-slot { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; cursor: pointer; transition: background .15s; }
+    .planning-slot.planning-slot-bonus { align-items: flex-start; }
     .planning-slot:hover { background: rgba(255,255,255,.06); }
     .planning-slot-label { font-size: .72rem; font-weight: 600; color: rgba(255,255,255,.35); min-width: 98px; text-transform: uppercase; letter-spacing: .3px; flex-shrink: 0; }
-    .planning-slot-value { font-size: .83rem; flex: 1; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .planning-slot-bonus .planning-slot-label { padding-top: 2px; }
+    .planning-slot-value { font-size: .83rem; flex: 1; min-width: 0; color: rgba(255,255,255,.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* Bonus : la question est affichée en intégralité (retour à la ligne, pas de troncature). */
+    .planning-slot-value-full { white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.35; }
     .planning-empty { color: rgba(255,255,255,.22) !important; font-style: italic; }
     .planning-slot-edit { font-size: .7rem; color: rgba(255,205,0,.4); flex-shrink: 0; }
+    /* Bouton « modifier les paramètres » d'une question planifiée (ouvre l'éditeur Database). */
+    .planning-slot-editq { flex-shrink: 0; background: rgba(255,205,0,.12); border: 1px solid rgba(255,205,0,.3); color: var(--or); border-radius: 6px; padding: 3px 8px; font-size: .72rem; font-weight: 700; cursor: pointer; line-height: 1; transition: background .15s; align-self: center; }
+    .planning-slot-editq:hover { background: rgba(255,205,0,.24); }
     .planning-day-mid { border-left: 3px solid rgba(255,205,0,.45); }
     .planning-range-badge { font-size:.68rem;font-weight:700;color:var(--or);background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:6px;padding:2px 8px;white-space:nowrap;flex-shrink:0; }
     .planning-slot input[type="date"] { background:transparent;border:none;color:rgba(255,255,255,.85);font-size:.83rem;flex:1;cursor:pointer;font-family:inherit;outline:none;min-width:0;width:100%; }
@@ -2244,14 +2251,12 @@
           <button class="tab-btn active" id="t-list" onclick="adminTab('list')">Database</button>
           <button class="tab-btn" id="t-generator" onclick="adminTab('generator')">Générateur</button>
           <button class="tab-btn" id="t-planning" onclick="adminTab('planning')">Planning</button>
-          <button class="tab-btn" id="t-messagerie" onclick="adminTab('messagerie')">Messages</button>
         </div>
         <select class="tabs-select" id="tabs-select" onchange="adminTab(this.value)" aria-label="Onglet d'administration">
           <option value="stats">Stats</option>
           <option value="list">Database</option>
           <option value="generator">Générateur</option>
           <option value="planning">Planning</option>
-          <option value="messagerie">Messages</option>
         </select>
       </div>
 
@@ -2552,13 +2557,13 @@
             <nav class="settings-nav">
               <button class="settings-nav-item" id="snav-db-questions"  onclick="showSettingsPanel('db-questions')">Base de questions</button>
               <button class="settings-nav-item" id="snav-db-categories" onclick="showSettingsPanel('db-categories')">Catégories de questions</button>
-              <button class="settings-nav-item" id="snav-db-features"   onclick="showSettingsPanel('db-features')">Fonctionnalités</button>
               <button class="settings-nav-item" id="snav-db-tags"       onclick="showSettingsPanel('db-tags')">Tags</button>
             </nav>
             <div class="settings-cat-header">Jeu</div>
             <nav class="settings-nav">
               <button class="settings-nav-item" id="snav-game-onze"      onclick="showSettingsPanel('game-onze')">Mon Onze</button>
               <button class="settings-nav-item" id="snav-game-referral"  onclick="showSettingsPanel('game-referral')">Parrainage</button>
+              <button class="settings-nav-item" id="snav-game-midbreak"  onclick="showSettingsPanel('game-midbreak')">Pause fraîcheur</button>
             </nav>
             <div class="settings-cat-header">Apparence</div>
             <nav class="settings-nav">
@@ -2587,8 +2592,12 @@
                 </div>
                 <div id="import-saved-info"></div>
               </div>
+            </div>
 
+            <!-- Panel : Pause fraîcheur -->
+            <div id="settings-panel-game-midbreak" class="settings-panel">
               <div class="card">
+                <button class="btn btn-ghost btn-sm mb0" style="float:right;width:auto;padding:6px 12px;font-size:.78rem;" onclick="openMidbreakPreview()" title="Visualiser la pause fraîcheur">👁 Visualiser</button>
                 <h3>Chargement de contenus</h3>
                 <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:16px;">Ces contenus sont affichés aléatoirement sur la Pause fraîcheur. Supporte les liens Google Drive, YouTube et images en ligne.</p>
                 <div style="padding:14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.15);margin-bottom:14px;">
@@ -2612,7 +2621,6 @@
                   </div>
                 </div>
                 <div id="media-list"></div>
-                <button class="btn btn-ghost btn-full mb0" style="margin-top:14px;" onclick="openMidbreakPreview()">👁 Visualiser la pause fraîcheur</button>
               </div>
             </div>
 
@@ -2622,19 +2630,6 @@
                 <h3>Catégories de questions</h3>
                 <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez une catégorie entière. Les catégories désactivées sont exclues lors du lancement d'une partie.</p>
                 <div id="categories-list"></div>
-              </div>
-            </div>
-
-            <!-- Panel : Fonctionnalités -->
-            <div id="settings-panel-db-features" class="settings-panel">
-              <div class="card" style="margin-bottom:16px;">
-                <h3>Fonctionnalités</h3>
-                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Activez ou désactivez les fonctionnalités du quiz.</p>
-                <div id="features-list"></div>
-              </div>
-              <div style="margin-bottom:16px;">
-                <button class="btn btn-gold btn-full" id="btn-save-settings" onclick="saveSettings()">💾 Sauvegarder les réglages</button>
-                <div id="settings-save-status" style="margin-top:10px;"></div>
               </div>
             </div>
 
@@ -4023,6 +4018,7 @@
   let currentType = 'libre';
   let correctIdx  = 0;
   let editId      = null;
+  let planningEditOpen = false;   // l'éditeur Database a-t-il été ouvert depuis le planning ?
   let editCorrectIdx  = 0;
   let editCurrentType = 'libre';
   let contactCurrentType   = 'error';
@@ -4779,81 +4775,6 @@
     saved[key]  = !feat(key);
     LS.saveFeatures(saved);
     renderCategoriesPanel();
-    resetSettingsSaveStatus();
-  }
-
-  async function saveSettings() {
-    const btn    = document.getElementById('btn-save-settings');
-    const status = document.getElementById('settings-save-status');
-    if (!btn || !status) return;
-
-    btn.disabled    = true;
-    btn.textContent = '⏳ Sauvegarde en cours…';
-    status.innerHTML = '';
-
-    const ok = await dbPush('features');
-
-    btn.disabled    = false;
-    btn.textContent = '💾 Sauvegarder les réglages';
-
-    if (ok) {
-      status.innerHTML = `
-        <div style="padding:10px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);font-size:.8rem;">
-          ✅ <strong>Réglages sauvegardés dans Supabase</strong> — appliqués pour tous les joueurs
-        </div>`;
-      localStorage.setItem('rcSettingsSaved', new Date().toISOString());
-    } else {
-      status.innerHTML = `
-        <div style="padding:10px 13px;border-radius:8px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);font-size:.8rem;">
-          ⚠️ <strong>Erreur Supabase</strong> — réglages actifs en mémoire uniquement. Vérifiez l'URL et la clé dans le code.
-        </div>`;
-    }
-  }
-
-  function resetSettingsSaveStatus() {
-    const status = document.getElementById('settings-save-status');
-    if (status) status.innerHTML = '';
-  }
-
-  const FEATURES_META = [
-    { key: 'timer',          label: 'Compte à rebours',         desc: 'Chronomètre sur chaque question' },
-    { key: 'launchOverlay',  label: 'Écran de lancement',       desc: 'Écran "Prêt ?" avant de commencer' },
-    { key: 'midbreak',       label: 'Pause fraîcheur',          desc: 'Pause à mi-chemin avec contenu média' },
-    { key: 'scoreSidebar',   label: 'Barre de scores latérale', desc: 'Récapitulatif des points (grand écran)' },
-    { key: 'shuffle',        label: 'Mélange des questions',    desc: 'Ordre aléatoire à chaque partie' },
-    { key: 'scoreSummary',   label: 'Récapitulatif de score',   desc: 'Points gagnés affichés après chaque réponse' },
-    { key: 'bonusQuestions', label: 'Questions bonus',          desc: 'Posées après une bonne réponse' },
-    { key: 'contact',        label: 'Contactez-nous',           desc: 'Formulaire de signalement et proposition' },
-    { key: 'betaTest',       label: '🔵 Mode bêta test',        desc: 'Les parties jouées ne marquent pas les questions/joueurs comme utilisés — pratique pour les tests' },
-  ];
-
-  function renderFeaturesPanel() {
-    const el = document.getElementById('features-list');
-    if (!el) return;
-    el.innerHTML = FEATURES_META.map((f, idx) => {
-      const on  = feat(f.key);
-      const sep = idx < FEATURES_META.length - 1 ? 'border-bottom:1px solid rgba(255,255,255,.06);' : '';
-      return `
-        <div style="display:flex;align-items:center;gap:12px;padding:11px 0;${sep}">
-          <label class="media-toggle" title="${on ? 'Désactiver' : 'Activer'}">
-            <input type="checkbox" ${on ? 'checked' : ''} onchange="toggleFeature('${f.key}')">
-            <span class="media-toggle-track"></span>
-            <span class="media-toggle-thumb"></span>
-          </label>
-          <div style="flex:1;">
-            <div style="font-weight:700;font-size:.88rem;">${f.label}</div>
-            <div style="font-size:.75rem;color:rgba(255,255,255,.4);margin-top:2px;">${f.desc}</div>
-          </div>
-        </div>`;
-    }).join('');
-  }
-
-  function toggleFeature(key) {
-    const saved = LS.getFeatures();
-    saved[key]  = !feat(key);
-    LS.saveFeatures(saved);
-    renderFeaturesPanel();
-    resetSettingsSaveStatus();
   }
 
   /* ── Bonus "Onze complet" (réglages) ── */
@@ -5405,7 +5326,6 @@
     document.getElementById('t-generator').classList.toggle('active', tab === 'generator');
     document.getElementById('t-planning').classList.toggle('active', tab === 'planning');
     document.getElementById('t-settings').classList.toggle('active', tab === 'settings');
-    document.getElementById('t-messagerie').classList.toggle('active', tab === 'messagerie');
     document.getElementById('t-messages').classList.toggle('active', tab === 'messagerie');
     document.getElementById('t-stats').classList.toggle('active', tab === 'stats');
     const inMainTab = (tab === 'list' || tab === 'planning' || tab === 'generator' || tab === 'messagerie' || tab === 'stats');
@@ -5420,7 +5340,7 @@
     document.getElementById('at-stats').style.display     = tab === 'stats'     ? 'block' : 'none';
     sessionStorage.setItem('rcAdminTab', tab);
     if (tab === 'list')      setDbSubTab(dbSubTab);
-    if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderFeaturesPanel(); renderCategoriesPanel(); showSettingsPanel('db-questions'); }
+    if (tab === 'settings')  { renderTagManage(); renderMediaList(); renderCategoriesPanel(); showSettingsPanel('db-questions'); }
     if (tab === 'planning')  { renderPlanning(); Promise.all([dbPull('planning'), scoresFetch()]).then(renderPlanning); }
     if (tab === 'generator') { genSetSubTab(_genSubTab); genUpdateSubTabCounts(); }
     if (tab === 'messagerie') {
@@ -5798,12 +5718,21 @@
       ? `<span class="planning-used-badge badge-game">✓ joué</span>` : '';
 
     const makeSlotHtml = (label, q, slot, pickDs, isJoueur) => {
+      const isBonus = slot === 'bonus';
+      // Le bonus est affiché en intégralité ; les joueurs restent tronqués (nom court).
+      const fullText = isJoueur ? (q && (q.playerName || q.id)) : (q && (q.text || q.id));
       const val = q
-        ? `<span class="planning-slot-value">${isJoueur ? '👤 ' : ''}${planningTrunc(q.playerName || q.text || q.id, 38)}</span>`
+        ? `<span class="planning-slot-value${isBonus ? ' planning-slot-value-full' : ''}">${isJoueur ? '👤 ' : ''}${esc(isBonus ? fullText : planningTrunc(fullText, 38))}</span>`
         : `<span class="planning-slot-value planning-empty">— non planifié —</span>`;
-      return `<div class="planning-slot" onclick="openPlanningPicker('${pickDs}','${slot}')">
+      // Bouton d'édition rapide : ouvre l'éditeur Database par-dessus le planning.
+      const editQBtn = q
+        ? `<button class="planning-slot-editq" title="Modifier les paramètres de la question"
+             onclick="event.stopPropagation();openPlanningQuestionEditor('${esc(q.id)}')">⚙ Modifier</button>`
+        : '';
+      return `<div class="planning-slot${isBonus ? ' planning-slot-bonus' : ''}" onclick="openPlanningPicker('${pickDs}','${slot}')">
         <span class="planning-slot-label">${label}</span>${val}
         ${usedBadge(q)}
+        ${editQBtn}
         <span class="planning-slot-edit">✎</span>
       </div>`;
     };
@@ -6039,6 +5968,14 @@
   let pickerCurrentId = null;
   let pickerIsBeta    = false;
 
+  // (Re)construit la liste des questions candidates pour le slot courant à partir
+  // des données fraîches. Appelé à l'ouverture du picker et après une édition à la volée.
+  function buildPickerPool() {
+    const allQ     = getActiveQ();
+    const isJoueur = pickerSlot === 'j1' || pickerSlot === 'j2';
+    pickerPool     = isJoueur ? allQ.filter(q => q.type === 'joueur') : allQ.filter(q => q.type !== 'joueur');
+  }
+
   function openPlanningPicker(dateStr, slot) {
     // Résoudre vers le startDate de la session qui couvre ce jour
     const activePlan = getActivePlanForDate(dateStr);
@@ -6052,9 +5989,7 @@
     const labels   = { j1: 'Qui suis-je 1', j2: 'Qui suis-je 2', bonus: 'Question bonus' };
     titleEl.textContent = labels[slot] || slot;
 
-    const allQ       = getActiveQ();
-    const isJoueur   = slot === 'j1' || slot === 'j2';
-    pickerPool       = isJoueur ? allQ.filter(q => q.type === 'joueur') : allQ.filter(q => q.type !== 'joueur');
+    buildPickerPool();
     pickerCurrentId  = (LS.getPlanning()[sessionStart] || {})[slot] || null;
     pickerPendingId  = pickerCurrentId;
     pickerTagFilter  = [];
@@ -6144,6 +6079,8 @@
         ${codeBadge}
         <span class="picker-item-label" style="flex:1;color:${sel ? 'var(--or)' : 'inherit'};display:flex;align-items:center;gap:6px;flex-wrap:wrap;min-width:0;">${sel ? '✓ ' : ''}${label}${tagChips}</span>
         <span style="display:flex;gap:4px;align-items:center;flex-shrink:0;">${badges}</span>
+        <button class="planning-slot-editq" style="align-self:center;" title="Modifier les paramètres de la question"
+          onclick="event.stopPropagation();openPlanningQuestionEditor('${esc(q.id)}')">⚙</button>
       </div>`;
     }).join('');
   }
@@ -9817,8 +9754,36 @@
   }
 
   function closeEditModal() {
-    document.getElementById('edit-modal').style.display = 'none';
+    const m = document.getElementById('edit-modal');
+    m.style.display = 'none';
+    m.style.zIndex = '';            // restaure le z-index par défaut (CSS)
     editId = null;
+    // Si ouvert depuis le planning : rafraîchir la carte du jour et le picker
+    // (le texte / les paramètres de la question ont pu changer).
+    if (planningEditOpen) {
+      planningEditOpen = false;
+      refreshPlanningAfterEdit();
+    }
+  }
+
+  // Ouvre l'éditeur Database complet par-dessus le planning (ou son picker),
+  // pour modifier à la volée tous les paramètres de la question planifiée.
+  function openPlanningQuestionEditor(id) {
+    planningEditOpen = true;
+    openEditModal(id);
+    const m = document.getElementById('edit-modal');
+    if (m) m.style.zIndex = '1100';  // au-dessus du picker (z-index 900)
+  }
+
+  // Réaffiche le planning et, si le picker est encore ouvert, sa liste à jour.
+  function refreshPlanningAfterEdit() {
+    if (typeof renderPlanning === 'function') renderPlanning();
+    const pov = document.getElementById('planning-picker-overlay');
+    if (pov && pov.style.display !== 'none') {
+      buildPickerPool();
+      renderPlanningPickerFilter();
+      renderPlanningPickerList();
+    }
   }
 
   function setEditType(t) {
