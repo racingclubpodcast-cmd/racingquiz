@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
@@ -1935,6 +1935,10 @@
     .lb-entry:last-child { border-bottom:none; }
     .lb-entry.clickable { cursor:pointer;border-radius:8px;transition:background .12s; }
     .lb-entry.clickable:hover { background:rgba(255,205,0,.08); }
+    /* Pseudo de joueur cliquable (ouvre la carte joueur) — affordance générique,
+       réutilisée partout où un pseudo de compte est affiché (joueur + admin). */
+    .player-link { cursor:pointer;transition:color .15s; }
+    .player-link:hover { color:var(--or);text-decoration:underline;text-underline-offset:2px; }
     .lb-rank { width:32px;text-align:center;font-weight:700;font-size:.9rem;color:rgba(255,255,255,.38);flex-shrink:0; }
     .lb-rank-1 { color:#FFCD00;font-size:1.2rem; }
     .lb-rank-2 { color:#c8c8c8;font-size:1.1rem; }
@@ -2105,6 +2109,8 @@
         <button id="home-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">Jouer</button>
         <!-- Rattrapage : parties passées non jouées (joueur ayant pris le train en route) -->
         <div id="home-catchup" style="display:none;margin-top:12px;"></div>
+        <!-- Incitation : joueurs collectionnés non encore positionnés dans Mon Onze -->
+        <div id="home-onze-nudge" style="display:none;margin-top:12px;"></div>
         <!-- Classement accessible avant de lancer la partie -->
         <button class="btn btn-full" style="margin-top:10px;background:rgba(255,205,0,.08);color:var(--or);border:1px solid rgba(255,205,0,.25);font-weight:600;" onclick="nav('leaderboard')">🏆 Classement</button>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
@@ -2289,7 +2295,7 @@
               <div id="db-filter-menu" class="db-filter-menu" style="display:none;">
                 <div class="db-filter-section-label">Type</div>
                 <div class="db-filter-option" onclick="dbToggleFilter('joueur')">
-                  <span class="db-filter-check" id="dbfc-joueur">○</span> 🎽 Qui suis-je ?
+                  <span class="db-filter-check" id="dbfc-joueur">○</span> 🎽 Joueurs
                 </div>
                 <div class="db-filter-option" onclick="dbToggleFilter('bonus')">
                   <span class="db-filter-check" id="dbfc-bonus">○</span> ⭐ Bonus
@@ -2380,7 +2386,7 @@
         <!-- Sub-tabs Question / Joueur -->
         <div class="add-subtabs">
           <button class="add-subtab active" id="ast-question" onclick="setAddMode('question')">Question</button>
-          <button class="add-subtab" id="ast-joueur" onclick="setAddMode('joueur')">Qui suis-je ?</button>
+          <button class="add-subtab" id="ast-joueur" onclick="setAddMode('joueur')">Joueurs</button>
         </div>
 
         <!-- ── Panel : Question (workflow existant) ── -->
@@ -2904,8 +2910,8 @@
       <!-- Tab : stats -->
       <div id="at-stats" style="display:none;width:100%">
         <div class="add-subtabs db-subtabs">
-          <button class="add-subtab active" id="sst-classements" onclick="setStatsSubTab('classements')">Classements</button>
           <button class="add-subtab" id="sst-activite" onclick="setStatsSubTab('activite')">Activité</button>
+          <button class="add-subtab active" id="sst-classements" onclick="setStatsSubTab('classements')">Classements</button>
           <button class="add-subtab" id="sst-questions" onclick="setStatsSubTab('questions')">Stats questions</button>
         </div>
 
@@ -3610,7 +3616,7 @@
 
       <!-- Deviner les joueurs -->
       <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
-        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">« Qui suis-je ? » — deviner les joueurs</p>
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">Deviner les joueurs</p>
         <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.6;margin-bottom:8px;">Des indices se dévoilent un par un. Plus tu trouves <strong style="color:#fff;">tôt</strong>, plus tu marques de points.</p>
         <ul style="color:rgba(255,255,255,.7);font-size:.83rem;line-height:1.65;padding-left:18px;margin:0;">
           <li>Le 1ᵉʳ indice rapporte le plus (jusqu'à <strong style="color:#fff;">5 pts</strong>), puis la valeur diminue à chaque indice révélé.</li>
@@ -4293,7 +4299,7 @@
       const tag   = isErr ? '⚠ Erreur' : '💡 Proposition';
       const tagBg = isErr ? 'rgba(227,6,19,.15)' : 'rgba(255,205,0,.15)';
       const tagFg = isErr ? '#ff6b6b' : '#ffcd00';
-      const author = m.author ? esc(m.author) : 'Anonyme';
+      const authorHtml = m.author ? playerLink(m.author) : '<span style="color:rgba(255,255,255,.4);">Anonyme</span>';
       let bodyHtml;
       if (isErr) {
         bodyHtml = (m.question_ref ? `<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:6px;"><strong>Question :</strong> ${esc(m.question_ref)}</div>` : '')
@@ -4308,7 +4314,7 @@
           <span style="font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:6px;background:${tagBg};color:${tagFg};">${tag}</span>
           ${m.handled ? '<span style="font-size:.7rem;color:#9be29b;font-weight:600;">✓ traité</span>' : ''}
           <span style="flex:1;"></span>
-          <span style="font-size:.72rem;color:rgba(255,255,255,.4);">${esc(author)} · ${fmt(m.created_at)}</span>
+          <span style="font-size:.72rem;color:rgba(255,255,255,.4);">${authorHtml} · ${fmt(m.created_at)}</span>
         </div>
         ${bodyHtml}
         <div style="display:flex;gap:8px;margin-top:10px;justify-content:flex-end;">
@@ -4734,7 +4740,7 @@
   }
 
   const CATEGORIES_META = [
-    { key: 'catJoueur',    label: 'Qui suis-je ?', desc: 'Questions de type "Qui suis-je ?"',          typeFilter: q => q.type === 'joueur' },
+    { key: 'catJoueur',    label: 'Joueurs', desc: 'Questions de type "Joueurs" (Qui suis-je ?)',          typeFilter: q => q.type === 'joueur' },
     { key: 'catQuestions', label: 'Bonus',          desc: 'Questions classiques (Libre, QCM, Liste…)', typeFilter: q => q.type !== 'joueur' },
   ];
 
@@ -5245,7 +5251,7 @@
     const fmt = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
     const last5 = entries.slice(-5).reverse();
     el.innerHTML = `<div class="arb-title">5 derniers inscrits</div>` + last5.map(e =>
-      `<div class="activity-signup-row"><span class="asr-pseudo">${esc(e.pseudo)}</span><span class="asr-date">${fmt(e.date)}</span></div>`
+      `<div class="activity-signup-row"><span class="asr-pseudo">${playerLink(e.pseudo)}</span><span class="asr-date">${fmt(e.date)}</span></div>`
     ).join('');
   }
 
@@ -5267,7 +5273,7 @@
     const pct = g.maxScore > 0 ? Math.max(0, Math.min(100, Math.round(g.score / g.maxScore * 100))) : 0;
     const max = g.maxScore > 0 ? `<span style="font-size:.72rem;color:rgba(255,255,255,.4);font-weight:600;">/${g.maxScore}</span>` : '';
     return `<div class="activity-game-card" onclick="showGameDetailPopup(${idx})" title="Voir le détail de la partie">
-      <span class="agc-name">${esc(g.name)}</span>
+      <span class="agc-name">${playerLink(g.name)}</span>
       <span class="agc-bar"><span style="width:${pct}%;"></span></span>
       <span class="agc-score">${g.score}${max}</span>
       <span class="agc-date">${fmt(g._date)}</span>
@@ -5307,7 +5313,7 @@
     const fmt = d => { try { return new Date(d).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch { return ''; } };
     const head = document.getElementById('game-detail-head');
     const body = document.getElementById('game-detail-body');
-    if (head) head.innerHTML = `<span class="gdp-name">${esc(g.name)}</span><span class="gdp-meta">${g.score}${g.maxScore > 0 ? `/${g.maxScore}` : ''} pts · ${fmt(g.date)}</span>`;
+    if (head) head.innerHTML = `<span class="gdp-name">${playerLink(g.name)}</span><span class="gdp-meta">${g.score}${g.maxScore > 0 ? `/${g.maxScore}` : ''} pts · ${fmt(g.date)}</span>`;
     if (body) body.innerHTML = gameDetailHtml(g);
     document.getElementById('game-detail-modal').style.display = 'flex';
   }
@@ -5450,6 +5456,19 @@
     return `${y}-${m}-${day}`;
   }
   function planningTodayStr() { const d = new Date(); return planningDateStr(d); }
+
+  // Nombre de journées d'une saison complète : J1 → J34.
+  const SEASON_MATCHDAYS = 34;
+  // Parties « possibles à jouer » à ce jour : sessions du planning non supprimées
+  // dont la date de début (journée) est ≤ aujourd'hui, plafonné à la longueur d'une
+  // saison (SEASON_MATCHDAYS) pour rester cohérent avec « sur 34 ». Sert de
+  // dénominateur au ratio « X jouées / Y possibles » (classement, cartes joueur).
+  function playableSessionsSoFar() {
+    const plan  = LS.getPlanning();
+    const today = planningTodayStr();
+    const n = Object.entries(plan).filter(([d, dp]) => dp && !dp._deleted && d <= today).length;
+    return Math.min(n, SEASON_MATCHDAYS);
+  }
 
   // Retourne la session du planning qui couvre dateStr (startDate <= dateStr <= endDate).
   // En cas de chevauchement, privilégie la session avec la startDate la plus récente.
@@ -5617,10 +5636,10 @@
     if (!el) return;
     const stock = computePlanningStock();
     el.innerHTML = `<div class="card" style="margin-bottom:12px;">
-      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,205,0,.7);font-weight:700;margin-bottom:10px;">📊 Stock de questions disponibles</div>
+      <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,205,0,.7);font-weight:700;margin-bottom:10px;">Stock de questions disponibles</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        ${planningStockCardHtml('👤 Qui suis-je ?', stock.joueur)}
-        ${planningStockCardHtml('🎁 Bonus', stock.bonus)}
+        ${planningStockCardHtml('Joueurs', stock.joueur)}
+        ${planningStockCardHtml('Bonus', stock.bonus)}
       </div>
     </div>`;
   }
@@ -5774,8 +5793,8 @@
           <button class="btn btn-danger btn-sm" style="padding:4px 10px;font-size:.7rem;" onclick="event.stopPropagation();clearDayPlan('${startDs}')" title="Supprimer la session">✕</button>
         </div>
         <div class="planning-mid-info">← Session du ${planningFmtDs(startDs)} → ${planningFmtDs(endDs)}</div>
-        ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', startDs, true)}
-        ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', startDs, true)}
+        ${makeSlotHtml('Joueurs 1', j1Q, 'j1', startDs, true)}
+        ${makeSlotHtml('Joueurs 2', j2Q, 'j2', startDs, true)}
         ${makeSlotHtml('Bonus', bonusQ, 'bonus', startDs, false)}
       </div>`;
     }
@@ -5811,8 +5830,8 @@
       </div>
       ${startDateSlot}
       ${endDateSlot}
-      ${makeSlotHtml('Qui suis-je 1', j1Q, 'j1', ds, true)}
-      ${makeSlotHtml('Qui suis-je 2', j2Q, 'j2', ds, true)}
+      ${makeSlotHtml('Joueurs 1', j1Q, 'j1', ds, true)}
+      ${makeSlotHtml('Joueurs 2', j2Q, 'j2', ds, true)}
       ${makeSlotHtml('Bonus', bonusQ, 'bonus', ds, false)}
     </div>`;
   }
@@ -5986,7 +6005,7 @@
     const overlay  = document.getElementById('planning-picker-overlay');
     const titleEl  = document.getElementById('picker-title');
     const listEl   = document.getElementById('picker-list');
-    const labels   = { j1: 'Qui suis-je 1', j2: 'Qui suis-je 2', bonus: 'Question bonus' };
+    const labels   = { j1: 'Joueurs 1', j2: 'Joueurs 2', bonus: 'Question bonus' };
     titleEl.textContent = labels[slot] || slot;
 
     buildPickerPool();
@@ -6283,7 +6302,7 @@
     const regulars = allQ.filter(q => q.type !== 'joueur');
 
     if (joueurs.length < 2) {
-      alert('Il faut au moins 2 questions "Qui suis-je ?" actives pour générer un planning.');
+      alert('Il faut au moins 2 questions "Joueurs" actives pour générer un planning.');
       return;
     }
 
@@ -6896,7 +6915,7 @@
       const broadcast = !m.recipient_key;
       const dest = broadcast
         ? '📢 Tous les joueurs'
-        : '👤 ' + esc((accts[m.recipient_key] && accts[m.recipient_key].pseudo) || m.recipient_key);
+        : '👤 ' + playerLink((accts[m.recipient_key] && accts[m.recipient_key].pseudo) || m.recipient_key);
       const readCnt = Array.isArray(m.read_by) ? m.read_by.length : 0;
       const readLbl = broadcast
         ? `${readCnt} lecture${readCnt > 1 ? 's' : ''}`
@@ -7114,7 +7133,7 @@
         ${totalAdd ? `<span class="onze-dash-badge add">+${totalAdd} à ajouter</span>` : ''}
         ${totalRem ? `<span class="onze-dash-badge rem">${totalRem} à retirer</span>` : ''}
       </div>
-      <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Divergences entre les « Qui suis-je ? » devinés en partie et les joueurs collectionnés, pour ${rows.length} joueur${rows.length > 1 ? 's' : ''}. Touche un joueur pour ouvrir sa carte.</div>
+      <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Divergences entre les joueurs devinés en partie et les joueurs collectionnés, pour ${rows.length} joueur${rows.length > 1 ? 's' : ''}. Touche un joueur pour ouvrir sa carte.</div>
       ${playerBlocks}
     </div>`;
   }
@@ -7206,6 +7225,26 @@
     return `<div class="mini-rank">${rows}</div>`;
   }
 
+  /* Pseudo de joueur cliquable → ouvre sa carte (overlay openPlayerCard).
+     Réutilisé PARTOUT où un pseudo de COMPTE est affiché (mode joueur ET admin)
+     pour respecter « un clic sur un pseudo ouvre sa carte ».
+     `event.stopPropagation()` permet d'imbriquer le lien dans une ligne qui a déjà
+     son propre onclick (ex. carte de partie de l'Activité → détail de la partie) :
+     le clic sur le pseudo ouvre la carte, le reste de la ligne garde son action.
+     opts : { cls, style, label } (label = HTML déjà prêt, sinon le nom est échappé). */
+  function playerLink(name, opts) {
+    opts = opts || {};
+    const raw = name == null ? '' : String(name);
+    const n   = raw.trim();
+    if (!n) return opts.label != null ? opts.label : esc(raw);
+    const cls   = 'player-link' + (opts.cls ? ' ' + opts.cls : '');
+    const style = opts.style ? ` style="${opts.style}"` : '';
+    const label = opts.label != null ? opts.label : esc(n);
+    return `<span class="${cls}" data-pname="${esc(n)}"${style}`
+         + ` onclick="event.stopPropagation();openPlayerCard(this.dataset.pname)"`
+         + ` title="Voir la carte de ${esc(n)}">${label}</span>`;
+  }
+
   function openPlayerCard(name) {
     _pcardName = name;
     const lb    = LS.getLeaderboard();
@@ -7220,6 +7259,7 @@
     const firstDate  = timestamps.length ? new Date(Math.min(...timestamps)) : null;
     const bestScore  = games.length ? Math.max(...games.map(g => g.score)) : 0;
     const avgScore   = games.length ? (games.reduce((s, g) => s + g.score, 0) / games.length).toFixed(1) : '—';
+    const playableSoFar = playableSessionsSoFar();
     const adjustPts  = adjustments.reduce((s, g) => s + (Number(g.score) || 0), 0);
     const onzeBonus  = onzeBonusForName(name);
     const totalScore = all.reduce((s, g) => s + (Number(g.score) || 0), 0) + onzeBonus;
@@ -7382,6 +7422,68 @@
       ${trackingHtml}
       ${archivesHtml ? `<div class="pcard-section-title" style="margin-top:16px;">🏆 Onzes archivés (${onze.archives.length})</div>${archivesHtml}` : ''}`;
 
+    // Récapitulatif parrainage : points générés par le joueur comme parrain ou filleul.
+    // Tout est dérivé des lignes d'ajustement (`adjust=true`) créées par le trigger Supabase :
+    //   · parrain → note « Parrainage : <pseudo du filleul> » (le nom du filleul est dans la note)
+    //   · filleul → note « Bonus de bienvenue (parrainage) » ; le parrain est l'auteur de la
+    //     ligne « Parrainage : <ce joueur> », ce qui permet de retrouver son pseudo sans champ dédié.
+    const REF_PARR_PREFIX = 'Parrainage : ';
+    const REF_WELCOME_NOTE = 'Bonus de bienvenue (parrainage)';
+    const lcName = (name || '').toLowerCase();
+    const filleuls = lb
+      .filter(e => e.adjust && (e.name || '').toLowerCase() === lcName
+                   && typeof e.note === 'string' && e.note.startsWith(REF_PARR_PREFIX))
+      .map(e => ({ filleul: e.note.slice(REF_PARR_PREFIX.length), pts: Number(e.score) || 0 }));
+    const parrainTotal = filleuls.reduce((s, f) => s + f.pts, 0);
+    const parrainEntry = lb.find(e => e.adjust && typeof e.note === 'string'
+                                      && e.note.toLowerCase() === (REF_PARR_PREFIX + name).toLowerCase());
+    const parrainName = parrainEntry ? parrainEntry.name : null;
+    const filleulTotal = lb
+      .filter(e => e.adjust && (e.name || '').toLowerCase() === lcName && e.note === REF_WELCOME_NOTE)
+      .reduce((s, e) => s + (Number(e.score) || 0), 0);
+    const referralTotal = parrainTotal + filleulTotal;
+    // Bloc « partager mon code parrain » — uniquement sur SA PROPRE carte (joueur connecté).
+    const isMyCard = _localUser && (_localUser.pseudo || '').toLowerCase() === lcName;
+    const myReferralCode = isMyCard ? ((LS.getAccounts()[lcName] || {}).referralCode || null) : null;
+    const shareBlock = myReferralCode ? `
+      <div style="margin-top:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px;">
+        <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;margin-bottom:8px;">Partage ton code parrain. Dès qu'un ami crée son compte avec et joue sa première partie, vous gagnez des points tous les deux.</div>
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;letter-spacing:3px;color:var(--or);background:rgba(255,205,0,.08);border:1px dashed rgba(255,205,0,.35);border-radius:10px;padding:8px;">${esc(myReferralCode)}</div>
+          <button class="btn btn-gold" style="flex-shrink:0;padding:0 16px;margin:0;" onclick="pcShareReferral('pcard-referral-msg')">Partager</button>
+        </div>
+        <div id="pcard-referral-msg" style="margin-top:8px;font-size:.76rem;color:var(--or);display:none;text-align:center;"></div>
+      </div>` : '';
+    const refRows = [];
+    if (parrainName) refRows.push(`<div class="pcard-game-row" style="align-items:center;">
+        <span style="flex:1;min-width:0;">
+          <span style="display:block;color:rgba(255,255,255,.45);font-size:.72rem;">Ton parrain</span>
+          <span style="display:block;color:#fff;font-weight:600;">${playerLink(parrainName)}</span>
+        </span>
+        <span class="pcard-game-score" style="color:var(--or);">${filleulTotal > 0 ? `+${filleulTotal}` : '—'}</span>
+      </div>`);
+    filleuls.forEach(f => refRows.push(`<div class="pcard-game-row" style="align-items:center;">
+        <span style="flex:1;min-width:0;">
+          <span style="display:block;color:rgba(255,255,255,.45);font-size:.72rem;">Filleul</span>
+          <span style="display:block;color:#fff;font-weight:600;">${playerLink(f.filleul)}</span>
+        </span>
+        <span class="pcard-game-score" style="color:var(--or);">+${f.pts}</span>
+      </div>`));
+    const referralSection = `
+      <div class="pcard-section-title">Parrainage</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:110px;background:rgba(255,205,0,.06);border:1px solid rgba(255,205,0,.2);border-radius:10px;padding:8px 10px;text-align:center;">
+          <div style="color:var(--or);font-weight:800;font-size:1.1rem;">${filleuls.length}</div>
+          <div style="color:rgba(255,255,255,.5);font-size:.72rem;">Filleul${filleuls.length > 1 ? 's' : ''}</div>
+        </div>
+        <div style="flex:1;min-width:110px;background:rgba(255,205,0,.06);border:1px solid rgba(255,205,0,.2);border-radius:10px;padding:8px 10px;text-align:center;">
+          <div style="color:var(--or);font-weight:800;font-size:1.1rem;">+${referralTotal}</div>
+          <div style="color:rgba(255,255,255,.5);font-size:.72rem;">Points générés</div>
+        </div>
+      </div>
+      ${refRows.length ? refRows.join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:8px 0;">Aucun parrainage pour le moment.</p>'}
+      ${shareBlock}`;
+
     document.getElementById('pcard-content').innerHTML = `
       <div class="pcard-drag-handle"></div>
       <div class="pcard-header">
@@ -7404,9 +7506,9 @@
           <div class="pcard-stat-val">${onzeBonus > 0 ? `🎽 +${onzeBonus}` : '—'}</div>
           <div class="pcard-stat-label">Bonus Onze</div>
         </div>
-        <div class="pcard-stat">
-          <div class="pcard-stat-val">${games.length}</div>
-          <div class="pcard-stat-label">Partie${games.length > 1 ? 's' : ''} jouée${games.length > 1 ? 's' : ''}</div>
+        <div class="pcard-stat" title="${games.length} partie(s) jouée(s) sur ${playableSoFar} possible(s) à ce jour · ${SEASON_MATCHDAYS} sur la saison">
+          <div class="pcard-stat-val">${games.length}/${playableSoFar}<span style="font-size:.6em;opacity:.55;font-weight:700;"> sur ${SEASON_MATCHDAYS}</span></div>
+          <div class="pcard-stat-label">Parties jouées</div>
         </div>
         <div class="pcard-stat">
           <div class="pcard-stat-val">${bestScore}</div>
@@ -7425,6 +7527,7 @@
       <div class="pcard-section-title" style="cursor:pointer;color:var(--or);" onclick="closePlayerCard();lbSetTab('general');nav('leaderboard');">Classement général</div>
       ${miniRankingHtml(name)}
       ${games.length ? '<div class="pcard-section-title">📊 Scoring</div><div id="pcard-score-chart" style="margin-bottom:6px;"></div>' : ''}
+      ${referralSection}
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
       ${adminLogged ? adjustSection + accountSection : ''}
@@ -7454,7 +7557,7 @@
     const rows = dets.map(d => {
       const q       = qById[d.id];
       const isBonus = !!d.bonus;
-      const label   = q ? (q.type === 'joueur' ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+      const label   = q ? (q.type === 'joueur' ? (q.playerName || 'Joueur') : q.text) : '(question supprimée)';
       const ansRaw  = (d.playerAns != null) ? String(d.playerAns).trim() : '';
       const ansHtml = ansRaw
         ? `<em style="color:#ff8c00;font-style:normal;font-weight:600;">${esc(ansRaw)}</em>`
@@ -9066,7 +9169,7 @@
     function renderItem(q, i) {
       const typeLabel = q.type === 'qcm'         ? `QCM — ${q.options.length} choix`
                       : q.type === 'qcm-multi'   ? `QCM multiple — ${q.options.length} choix`
-                      : q.type === 'joueur'       ? `Qui suis-je ? — ${(q.indices||[]).length} indices · ${(q.positions||[]).length ? q.positions.join(', ') : '⚠ poste à assigner'}`
+                      : q.type === 'joueur'       ? `Joueurs — ${(q.indices||[]).length} indices · ${(q.positions||[]).length ? q.positions.join(', ') : '⚠ poste à assigner'}`
                       : q.type === 'multi-libre'  ? `Liste`
                       : 'Libre';
       const answerLabel = q.type === 'qcm'
@@ -9074,7 +9177,7 @@
         : q.type === 'qcm-multi'
         ? `Bonnes réponses : <strong>${esc(q.answer)}</strong>`
         : q.type === 'joueur'
-        ? `Qui suis-je ? : <strong>${esc(q.playerName)}</strong>`
+        ? `Joueurs : <strong>${esc(q.playerName)}</strong>`
         : q.type === 'multi-libre'
         ? `Réponses : <strong>${(q.mlAnswers||[]).map(esc).join('</strong>, <strong>')}</strong>`
         : q.answers && q.answers.length > 1
@@ -9357,7 +9460,7 @@
   }
 
   const DB_FILTER_LABELS = {
-    'joueur':   '🎽 Qui suis-je ?',
+    'joueur':   '🎽 Joueurs',
     'bonus':    '⭐ Bonus',
     'with-tag': '🏷 Avec tag',
     'no-tag':   'Sans tag',
@@ -10362,7 +10465,7 @@
 
     const isJoueur  = q.type === 'joueur';
     const isMlL     = q.type === 'multi-libre';
-    const tBadge    = isJoueur ? 'Qui suis-je ?' : isMlL ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
+    const tBadge    = isJoueur ? 'Joueurs' : isMlL ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
     document.getElementById('tq-badge').textContent    = tBadge;
     document.getElementById('tq-question').textContent = isJoueur ? '' : q.text;
     document.getElementById('tq-question').style.display = isJoueur ? 'none' : '';
@@ -10651,6 +10754,52 @@
                style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
          <span style="flex:1;color:rgba(255,255,255,.85);">${esc(label)}</span>
          <span style="color:var(--or);font-weight:700;white-space:nowrap;">Rattraper →</span>
+       </button>`;
+  }
+
+  // Joueurs de la collection que le joueur pourrait encore positionner sur son
+  // terrain Mon Onze : non placés, non verrouillés par un Onze déjà archivé, et
+  // pour lesquels il reste une case compatible libre (formation courante + case
+  // entraîneur). Sert à l'inciter à composer son Onze. Renvoie la liste d'ids.
+  function getUnplacedCollected(pseudo) {
+    if (!pseudo) return [];
+    const onze = onzeForName(pseudo);
+    if (!onze.collection.length) return [];
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+    const placed = new Set([...onze.slots, onze.coach].filter(Boolean));
+    const locked = new Set(onze.usedInOnze);
+    // Cases libres de la formation courante (+ case entraîneur si vide)
+    const freeSlots = ONZE_FORMATIONS[onze.formation].filter((s, i) => !onze.slots[i]);
+    if (!onze.coach) freeSlots.push({ acc: ['ENT'] });
+    if (!freeSlots.length) return [];
+    const out = [];
+    for (const id of onze.collection) {
+      const q = byId[id];
+      if (!q || q.type !== 'joueur') continue;
+      if (placed.has(id) || locked.has(id)) continue;
+      if (freeSlots.some(s => slotAccepts(s, q))) out.push(id);
+    }
+    return out;
+  }
+
+  // Rend, au même endroit que le rattrapage (sous le bouton « Jouer »), une
+  // incitation à placer les joueurs collectionnés non encore positionnés, avec
+  // un lien direct vers la page Mon Onze.
+  function renderHomeOnzeNudge() {
+    const box = document.getElementById('home-onze-nudge');
+    if (!box) return;
+    const unplaced = _localUser ? getUnplacedCollected(_localUser.pseudo) : [];
+    if (!unplaced.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const n = unplaced.length;
+    box.style.display = 'block';
+    box.innerHTML =
+      `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">🎽 ${n} joueur${n > 1 ? 's' : ''} à placer dans ton Onze</div>
+       <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Tu as collectionné des joueurs qui ne sont pas encore sur le terrain. Place-les pour composer ton Onze idéal !</div>
+       <button class="btn btn-ghost btn-full mb0" onclick="nav('onze')"
+               style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
+         <span style="flex:1;color:rgba(255,255,255,.85);">Mon Onze</span>
+         <span style="color:var(--or);font-weight:700;white-space:nowrap;">Placer →</span>
        </button>`;
   }
 
@@ -10973,7 +11122,7 @@
     document.getElementById('qz-progress').style.width = isBonusJoueur ? '100%' : `${(idx / tot) * 100}%`;
     const isJoueur   = q.type === 'joueur';
     const isMlLibre  = q.type === 'multi-libre';
-    const badgeText  = isJoueur ? (isBonusJoueur ? 'Qui suis-je ? — Bonus' : 'Qui suis-je ?') : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
+    const badgeText  = isJoueur ? (isBonusJoueur ? 'Joueurs — Bonus' : 'Joueurs') : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
     document.getElementById('qz-badge').textContent    = badgeText;
     document.getElementById('qz-question').textContent = isJoueur ? '' : q.text;
     document.getElementById('qz-question').style.display = isJoueur ? 'none' : '';
@@ -12148,7 +12297,7 @@
       const rankCls  = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
       const rowStyle = isMe ? 'background:rgba(255,205,0,.07);border-radius:8px;margin:0 -8px;padding:0 8px;' : '';
-      return `<div class="lb-entry" style="${rowStyle}">
+      return `<div class="lb-entry clickable" style="${rowStyle}" data-pname="${esc(e.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(e.name)}">
         <div class="lb-rank${rankCls}">${rankHtml}</div>
         <div class="lb-name" style="${isMe ? 'color:var(--or);font-weight:800;' : ''}">${esc(e.name)}</div>
         <div class="lb-right">
@@ -12328,9 +12477,8 @@
     const realLb = lb.filter(e => !e.adjust && !hidden.has((e.name || '').toLowerCase().trim()));
     let data, totalSessions = 0;
     if (tab === 'general') {
-      // Dénominateur : sessions du planning dont la startDate ≤ aujourd'hui et non supprimées
-      const plan = LS.getPlanning();
-      totalSessions = Object.entries(plan).filter(([d, dp]) => !dp._deleted && d <= todayStr).length;
+      // Dénominateur : parties possibles à jouer à ce jour (sessions ≤ aujourd'hui)
+      totalSessions = playableSessionsSoFar();
       // Numérateur : nombre d'entrées de jeu (non-adjust) par joueur
       const gamesPerPlayer = {};
       realLb.filter(e => e.date).forEach(e => {
@@ -12378,7 +12526,7 @@
         ? ` data-pname="${esc(e.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(e.name)}"`
         : '';
       const gamesHtml = (clickable && totalSessions > 0)
-        ? `<span class="lb-games">${e.gamesPlayed}/${totalSessions}</span>`
+        ? `<span class="lb-games" title="${e.gamesPlayed} partie(s) jouée(s) sur ${totalSessions} possible(s) à ce jour · ${SEASON_MATCHDAYS} sur la saison">${e.gamesPlayed}/${totalSessions}<span style="opacity:.55;"> sur ${SEASON_MATCHDAYS}</span></span>`
         : '';
       return `<div class="${rowCls}"${rowAttrs}>
         <div class="lb-rank${rankCls}">${rankHtml}</div>
@@ -12452,8 +12600,8 @@
     const maxCum = Math.max(1, ...filtered.map(p => p.total));
     const nDates = allDates.length;
 
-    // Géométrie
-    const padL = 34, padR = 8, padT = 14, padB = 22, plotH = 130;
+    // Géométrie (police + trait + points réduits)
+    const padL = 30, padR = 8, padT = 12, padB = 20, plotH = 130;
     const slotW = nDates === 1 ? 60 : Math.max(24, Math.min(56, 280 / (nDates - 1)));
     const plotW = nDates === 1 ? 60 : slotW * (nDates - 1);
     const W = padL + plotW + padR, H = padT + plotH + padB;
@@ -12462,21 +12610,21 @@
     const yS = v => baseY - (v / maxCum) * plotH;
 
     const COLORS = ['#FFD700','#E3061A','#4FC3F7','#81C784','#FF8A65','#CE93D8','#4DB6AC','#F48FB1','#AED581','#90A4AE'];
-    const fmtD = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }); };
 
-    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg">`;
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;" xmlns="http://www.w3.org/2000/svg">`;
 
     for (let t = 0; t <= 4; t++) {
       const val = (maxCum * t) / 4;
       const y = yS(val);
       svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
-      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+      svg += `<text class="sc-axislbl" x="${padL - 4}" y="${(y + 2.5).toFixed(1)}" text-anchor="end" font-size="7">${Math.round(val)}</text>`;
     }
 
+    // Axe X : journée (J1, J2, … J34 sur une saison) au lieu de la date
     const step = Math.max(1, Math.ceil(nDates / 4));
     allDates.forEach((d, i) => {
       if (i % step !== 0 && i !== nDates - 1) return;
-      svg += `<text class="sc-datelbl" x="${xS(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtD(d)}</text>`;
+      svg += `<text class="sc-datelbl" x="${xS(i).toFixed(1)}" y="${(baseY + 12).toFixed(1)}" text-anchor="middle" font-size="7">J${i + 1}</text>`;
     });
 
     filtered.forEach((p, pi) => {
@@ -12485,22 +12633,59 @@
       let seg = [];
       pts.forEach(pt => {
         if (pt) { seg.push(pt); }
-        else if (seg.length > 1) { svg += `<polyline points="${seg.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`; seg = []; }
+        else if (seg.length > 1) { svg += `<polyline points="${seg.join(' ')}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>`; seg = []; }
         else { seg = []; }
       });
-      if (seg.length > 1) svg += `<polyline points="${seg.join(' ')}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
-      const lastIdx = p.series.reduceRight((acc, v, i) => acc === -1 && v !== null ? i : acc, -1);
-      if (lastIdx >= 0) svg += `<circle cx="${xS(lastIdx).toFixed(1)}" cy="${yS(p.series[lastIdx]).toFixed(1)}" r="3.5" fill="${color}" stroke="#1a1a1a" stroke-width="1.5"/>`;
+      if (seg.length > 1) svg += `<polyline points="${seg.join(' ')}" fill="none" stroke="${color}" stroke-width="1.3" stroke-linejoin="round" stroke-linecap="round"/>`;
+      // Un point survolable à chaque partie réellement jouée par le joueur
+      const safeName = esc(p.name).replace(/"/g, '&quot;');
+      p.series.forEach((v, i) => {
+        if (v === null) return;
+        const isGame = p.cumByDate[allDates[i]] !== undefined;
+        const isLast = i === p.series.length - 1 || p.series.slice(i + 1).every(x => x === null);
+        if (!isGame && !isLast) return;
+        const cx = xS(i).toFixed(1), cy = yS(v).toFixed(1);
+        svg += `<circle class="evo-dot" cx="${cx}" cy="${cy}" r="2.2" fill="${color}" stroke="#1a1a1a" stroke-width="1"/>`;
+        svg += `<circle class="evo-hit" cx="${cx}" cy="${cy}" r="7" fill="transparent" style="cursor:pointer;"
+          data-name="${safeName}" data-pts="${Math.round(v)}" data-partie="${i + 1}"/>`;
+      });
     });
 
     svg += '</svg>';
 
     const legend = filtered.map((p, pi) => {
       const color = COLORS[pi % COLORS.length];
-      return `<div class="score-chart-legend-item"><span style="display:inline-block;width:14px;height:0;border-top:2.5px solid ${color};flex-shrink:0;"></span>${esc(p.name)}</div>`;
+      return `<div class="score-chart-legend-item"><span style="display:inline-block;width:14px;height:0;border-top:2px solid ${color};flex-shrink:0;"></span>${playerLink(p.name)}</div>`;
     }).join('');
 
     container.innerHTML = `${svg}<div class="score-chart-legend" style="margin-top:10px;">${legend}</div>`;
+
+    // Infobulle au survol d'un point : nom du joueur + points
+    let tip = document.getElementById('evo-tooltip-global');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'evo-tooltip-global';
+      tip.style.cssText = 'position:fixed;display:none;z-index:10000;pointer-events:none;' +
+        'background:rgba(20,20,20,.97);border:1px solid rgba(255,215,0,.5);border-radius:8px;' +
+        'padding:8px 11px;font-size:.76rem;color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.6);white-space:nowrap;';
+      document.body.appendChild(tip);
+    }
+    const place = e => {
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      tip.style.left = Math.max(4, Math.min(e.clientX + 14, window.innerWidth - tw - 8)) + 'px';
+      tip.style.top  = Math.max(4, e.clientY - th - 12) + 'px';
+    };
+    container.querySelectorAll('.evo-hit').forEach(hit => {
+      hit.addEventListener('mouseenter', e => {
+        tip.innerHTML = `<div style="font-weight:700;margin-bottom:3px;">${hit.dataset.name}</div>` +
+          `<div style="color:var(--or);">${hit.dataset.pts} pts</div>` +
+          `<div style="color:rgba(255,255,255,.55);font-size:.7rem;">J${hit.dataset.partie}</div>`;
+        tip.style.display = 'block';
+        place(e);
+      });
+      hit.addEventListener('mousemove', e => { if (tip.style.display !== 'none') place(e); });
+      hit.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+    });
   }
 
   /* ── Nuage de points : 1 point par joueur (X=parties, Y=total) ── */
@@ -12695,7 +12880,7 @@
       }
     }
 
-    document.getElementById('res-name').textContent  = `Bravo ${name} !`;
+    document.getElementById('res-name').innerHTML  = `Bravo ${playerLink(name)} !`;
     document.getElementById('res-score').textContent = score;
 
     const resListEl = document.getElementById('res-list');
@@ -12771,7 +12956,7 @@
 
   function openContactFromQuiz() {
     const q = session.questions && session.questions[session.idx];
-    openContact('error', q ? (q.type === 'joueur' ? `Qui suis-je ? : ${q.playerName}` : q.text) : '');
+    openContact('error', q ? (q.type === 'joueur' ? `Joueurs : ${q.playerName}` : q.text) : '');
   }
 
   // Bouton « Contactez-nous » de la page d'accueil : réservé aux joueurs
@@ -13213,6 +13398,9 @@
       });
     }
 
+    // Incitation à placer les joueurs collectionnés (même zone que le rattrapage)
+    renderHomeOnzeNudge();
+
     // Bouton « Contactez-nous » : masqué si la fonctionnalité est désactivée ;
     // l'invite « connecte-toi » est réinitialisée à chaque rafraîchissement.
     const contactBtn  = document.getElementById('home-contact-btn');
@@ -13645,7 +13833,7 @@
     document.getElementById('onze-coll-count').textContent = `${onze.collection.length} / ${totalJoueurs} joueur${totalJoueurs > 1 ? 's' : ''}`;
     const collEl = document.getElementById('onze-collection');
     if (!onze.collection.length) {
-      collEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:14px 0;">Aucun joueur collectionné pour l\'instant.<br>Devine des joueurs « Qui suis-je ? » en partie pour les ajouter ici !</p>';
+      collEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:14px 0;">Aucun joueur collectionné pour l\'instant.<br>Devine des joueurs en partie pour les ajouter ici !</p>';
     } else {
       collEl.innerHTML = onze.collection.map(id => {
         const q = byId[id];
@@ -13909,7 +14097,7 @@
         const q = qById[de.id];
         const isBonus = !!de.bonus;
         const isJoueur = q && q.type === 'joueur';
-        const label = q ? (isJoueur ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+        const label = q ? (isJoueur ? (q.playerName || 'Joueur') : q.text) : '(question supprimée)';
         const pts = Number(de.pts) || 0;
         const icon = isBonus ? '⭐' : (isJoueur ? '🎽' : '•');
         const okIcon = de.ok ? '<span style="color:var(--vert);">✓</span>' : '<span style="color:var(--rouge);">✗</span>';
@@ -14115,13 +14303,14 @@
     });
   }
 
-  /* Partage du code de parrainage : Web Share API si dispo, sinon copie presse-papiers. */
-  async function pcShareReferral() {
+  /* Partage du code de parrainage : Web Share API si dispo, sinon copie presse-papiers.
+     `msgId` permet de cibler la zone de message (carte joueur principale OU overlay). */
+  async function pcShareReferral(msgId = 'pc-referral-msg') {
     if (!_localUser) return;
     const account = LS.getAccounts()[_localUser.pseudo.toLowerCase()];
     const code = account && account.referralCode;
     if (!code) return;
-    const msgEl = document.getElementById('pc-referral-msg');
+    const msgEl = document.getElementById(msgId);
     const text = `Rejoins-moi sur le Quiz RC Lens ! Crée ton compte avec mon code parrain ${code} 🩸💛 ${location.origin}${location.pathname}`;
     const flash = (t) => {
       if (!msgEl) return;
@@ -14206,7 +14395,7 @@
         const medals = ['🥇', '🥈', '🥉'];
         const top5 = fullRanking.slice(0, 5).map((r, i) => {
           const posLbl = i < 3 ? medals[i] : `#${i + 1}`;
-          return `<div class="mini-rank-row">
+          return `<div class="mini-rank-row clickable" data-pname="${esc(r.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(r.name)}">
             <span class="mini-rank-pos">${posLbl}</span>
             <span class="mini-rank-name">${esc(r.name)}</span>
             <span class="mini-rank-score">${r.total} pts</span>
@@ -14225,10 +14414,13 @@
     const lb = allLb.filter(e => e.name.toLowerCase() === name.toLowerCase());
     const realLb = lb.filter(e => !e.adjust);
     const games  = realLb.length;
+    const playableSoFar = playableSessionsSoFar();
     const best   = games ? Math.max(...realLb.map(e => Number(e.score) || 0)) : 0;
     const onzeBonus  = onzeBonusForName(name);
     const totalScore = lb.reduce((s, e) => s + (Number(e.score) || 0), 0) + onzeBonus;
-    document.getElementById('pc-games').textContent = games;
+    const pcGamesEl = document.getElementById('pc-games');
+    pcGamesEl.innerHTML = `${games}/${playableSoFar}<span style="font-size:.5em;opacity:.55;font-weight:700;"> sur ${SEASON_MATCHDAYS}</span>`;
+    if (pcGamesEl.parentElement) pcGamesEl.parentElement.title = `${games} partie(s) jouée(s) sur ${playableSoFar} possible(s) à ce jour · ${SEASON_MATCHDAYS} sur la saison`;
     document.getElementById('pc-best').textContent  = best;
     document.getElementById('pc-total').textContent = totalScore;
     document.getElementById('pc-total-lbl').textContent = onzeBonus > 0
@@ -14411,7 +14603,7 @@
       bodyHtml = dets.map(det => {
         const q = qById[det.id];
         const isBonus = !!det.bonus;
-        const label = q ? (q.type === 'joueur' ? (q.playerName || 'Qui suis-je ?') : q.text) : '(question supprimée)';
+        const label = q ? (q.type === 'joueur' ? (q.playerName || 'Joueur') : q.text) : '(question supprimée)';
         const playerAnsRaw = (det.playerAns != null) ? String(det.playerAns).trim() : '';
         const playerAnsHtml = playerAnsRaw
           ? `<span style="color:#ff8c00;font-weight:600;">${esc(playerAnsRaw)}</span>`
@@ -14591,8 +14783,8 @@
     {
       id: 'db-joueurs',
       group: 'Base de données',
-      label: 'Ajouter les premières questions "Qui suis-je ?"',
-      sub: 'Onglet Ajouter → Qui suis-je ?',
+      label: 'Ajouter les premières questions "Joueurs"',
+      sub: 'Onglet Ajouter → Joueurs',
     },
     /* ── Comptes joueurs (Auth) ── */
     {
@@ -14854,7 +15046,7 @@
       return s;
     };
 
-    html += renderSection('🎽 Qui suis-je ?', joueurRows);
+    html += renderSection('🎽 Joueurs', joueurRows);
     html += renderSection('❓ Autres questions', otherRows);
     el.innerHTML = html;
   }
@@ -14910,7 +15102,7 @@
         : `<span style="color:var(--vert);font-weight:700;">trouvé</span>`;
       return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.78rem;">
         <span style="color:var(--vert);">✓</span>
-        <span style="flex:1;color:rgba(255,255,255,.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span>
+        <span style="flex:1;color:rgba(255,255,255,.85);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${playerLink(a.name)}</span>
         ${indiceTxt}
         <span style="color:rgba(255,255,255,.3);font-size:.7rem;white-space:nowrap;">${fmtDate(a.date)}</span>
       </div>`;
@@ -14924,7 +15116,7 @@
             : `<span style="color:var(--rouge);font-size:.74rem;">non trouvé</span>`);
       return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:.78rem;">
         <span style="color:var(--rouge);">✗</span>
-        <span style="flex:1;color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(a.name)}</span>
+        <span style="flex:1;color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${playerLink(a.name)}</span>
         ${ansTxt}
         <span style="color:rgba(255,255,255,.3);font-size:.7rem;white-space:nowrap;">${fmtDate(a.date)}</span>
       </div>`;
