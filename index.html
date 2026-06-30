@@ -1790,6 +1790,14 @@
     /* ── Player card ── */
     .pc-avatar-wrap { position:relative;width:80px;height:80px;margin:0 auto 14px;cursor:pointer;flex-shrink:0; }
     .pc-avatar-upload-btn { position:absolute;bottom:0;right:0;width:24px;height:24px;border-radius:50%;background:var(--or);border:2px solid #161616;display:flex;align-items:center;justify-content:center;font-size:.65rem;pointer-events:none; }
+    .ob-task { display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06); }
+    .ob-task:last-child { border-bottom:none;padding-bottom:0; }
+    .ob-task.ob-done .ob-title { color:rgba(255,255,255,.35);text-decoration:line-through; }
+    .ob-task.ob-done .ob-pts { color:var(--or); }
+    .ob-check { font-size:1rem;flex-shrink:0;width:22px;text-align:center; }
+    .ob-label { flex:1;min-width:0; }
+    .ob-title { font-size:.85rem;font-weight:700;color:#fff; }
+    .ob-pts { font-size:.72rem;color:rgba(255,255,255,.4);margin-top:1px; }
     .player-card-avatar { width:80px;height:80px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;color:#fff;margin:0;border:3px solid var(--or);overflow:hidden;flex-shrink:0; }
     .player-card-avatar img { width:100%;height:100%;object-fit:cover; }
     .pc-rank-badge { display:inline-flex;align-items:center;gap:5px;background:rgba(255,205,0,.08);border:1px solid rgba(255,205,0,.22);border-radius:20px;padding:4px 12px;font-size:.78rem;color:var(--or);font-weight:700;margin-bottom:14px; }
@@ -2971,8 +2979,6 @@
             </div>
           </div>
 
-          <!-- Dashboard de suivi des collections Mon Onze -->
-          <div id="onze-dashboard"></div>
         </div>
 
         <!-- Pane : Activité -->
@@ -2988,7 +2994,7 @@
           </div>
 
           <!-- Dernières parties jouées -->
-          <div class="card">
+          <div class="card" style="margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
               <button type="button" class="activity-games-title" onclick="showAllGamesPopup()" title="Voir toutes les parties jouées">
                 Dernières parties jouées <span class="activity-games-info">ⓘ</span>
@@ -2996,6 +3002,12 @@
             </div>
             <div id="activity-recent-games"></div>
           </div>
+
+          <!-- Suivi des collections Mon Onze -->
+          <div id="onze-dashboard"></div>
+
+          <!-- Suivi des bonus de bienvenue -->
+          <div id="onboarding-dashboard"></div>
         </div>
 
         <!-- Pane : Stats questions -->
@@ -3441,6 +3453,33 @@
 
           <button id="pc-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">▶ Jouer</button>
           <button class="btn btn-danger btn-full mb0" onclick="authSignOut()">Se déconnecter</button>
+        </div>
+
+        <!-- Onboarding checklist -->
+        <div class="card" id="pc-onboarding-card" style="margin-bottom:12px;display:none;">
+          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">Bonus de bienvenue</div>
+          <p style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;margin:0 0 10px;">Complète ces étapes pour gagner des points bonus !</p>
+          <div class="ob-task" id="ob-task-pp">
+            <div class="ob-label">
+              <div class="ob-title">Ajouter une photo de profil</div>
+              <div class="ob-pts">+1 pt</div>
+            </div>
+            <button id="ob-btn-pp" class="btn btn-gold btn-sm" onclick="document.getElementById('pc-avatar-input').click()" style="flex-shrink:0;">Ajouter</button>
+          </div>
+          <div class="ob-task" id="ob-task-yt">
+            <div class="ob-label">
+              <div class="ob-title">S'abonner à la chaîne YouTube</div>
+              <div class="ob-pts">+1 pt</div>
+            </div>
+            <button id="ob-btn-yt" class="btn btn-gold btn-sm" onclick="onboardingClaimYt()" style="flex-shrink:0;">S'abonner</button>
+          </div>
+          <div class="ob-task">
+            <div class="ob-label">
+              <div class="ob-title">Parrainer un ami</div>
+              <div class="ob-pts">Gagne des points par filleul</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pc-referral-card').scrollIntoView({behavior:'smooth'})" style="flex-shrink:0;">Voir →</button>
+          </div>
         </div>
 
         <!-- Messages reçus -->
@@ -4427,7 +4466,7 @@
       const { data, error } = await _supa.rpc('accounts_public');
       if (error) { console.warn('[Supabase] lecture accounts impossible:', error); return false; }
       const map = {};
-      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, avatar: r.avatar || undefined, onze: r.onze || undefined, referralCode: r.referral_code || undefined }; });
+      (data || []).forEach(r => { map[r.key] = { pseudo: r.pseudo, avatar: r.avatar || (_db.accounts[r.key] && _db.accounts[r.key].avatar) || undefined, onze: r.onze || undefined, referralCode: r.referral_code || undefined, onboardingPpPending: !!r.onboarding_pp_pending, onboardingYtPending: !!r.onboarding_yt_pending }; });
       _db.accounts = map;
       _backupAccounts();
       return true;
@@ -5130,7 +5169,7 @@
     } else if (sub === 'activite') {
       _stopJoueursPoll();
       renderActivite();
-      Promise.all([scoresFetch(), accountsMetaFetch()]).then(renderActivite);
+      Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
     } else {
       _stopJoueursPoll();
       renderQStats(); scoresFetch().then(() => renderQStats());
@@ -5142,6 +5181,8 @@
     renderSignupChart();
     renderRecentSignups();
     renderRecentGames();
+    renderOnzeDashboard();
+    renderOnboardingDashboard();
   }
 
   // Liste des comptes triés par date d'inscription (croissant). Replie sur les
@@ -7136,6 +7177,110 @@
       <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Divergences entre les joueurs devinés en partie et les joueurs collectionnés, pour ${rows.length} joueur${rows.length > 1 ? 's' : ''}. Touche un joueur pour ouvrir sa carte.</div>
       ${playerBlocks}
     </div>`;
+  }
+
+  function renderOnboardingDashboard() {
+    const el = document.getElementById('onboarding-dashboard');
+    if (!el) return;
+    if (!adminLogged) { el.innerHTML = ''; return; }
+
+    const lb       = LS.getLeaderboard();
+    const accounts = LS.getAccounts();
+    const keys     = Object.keys(accounts);
+
+    if (!keys.length) {
+      el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+        <div style="margin-bottom:6px;"><span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Bonus de bienvenue</span></div>
+        <p style="text-align:center;color:rgba(255,255,255,.4);font-size:.82rem;padding:10px 0;margin:0;">Aucun joueur inscrit.</p>
+      </div>`;
+      return;
+    }
+
+    const ppSet = new Set();
+    const ytSet = new Set();
+    lb.forEach(e => {
+      if (!e.adjust) return;
+      const k = (e.name || '').toLowerCase().trim();
+      if (e.note === 'Bonus inscription : photo de profil')    ppSet.add(k);
+      if (e.note === 'Bonus inscription : abonnement YouTube') ytSet.add(k);
+    });
+
+    const players = keys.map(k => ({
+      pseudo:    accounts[k].pseudo || k,
+      ppDone:    ppSet.has(k),
+      ppPending: !ppSet.has(k) && !!accounts[k].onboardingPpPending,
+      ytDone:    ytSet.has(k),
+      ytPending: !ytSet.has(k) && !!accounts[k].onboardingYtPending,
+    })).sort((a, b) => {
+      const s = p => (p.ppPending ? 4 : !p.ppDone ? 1 : 0) + (p.ytPending ? 4 : !p.ytDone ? 1 : 0);
+      return s(b) - s(a) || a.pseudo.localeCompare(b.pseudo, 'fr');
+    });
+
+    const total   = players.length;
+    const ppDoneN = players.filter(p => p.ppDone).length;
+    const ytDoneN = players.filter(p => p.ytDone).length;
+    const allDone = players.filter(p => p.ppDone && p.ytDone).length;
+    const ppPendN = players.filter(p => p.ppPending).length;
+    const ytPendN = players.filter(p => p.ytPending).length;
+
+    const okBtn = (pseudo, task) => adminSupaAuthed
+      ? `<button title="Annuler le bonus" onclick="adminRevokeOnboarding('${esc(pseudo)}','${task}')" style="background:none;border:none;cursor:pointer;color:#00C851;font-weight:700;font-size:.82rem;padding:2px 4px;line-height:1;border-radius:3px;" onmouseover="this.style.color='#ff4444';this.style.background='rgba(255,68,68,.1)'" onmouseout="this.style.color='#00C851';this.style.background='none'">✓</button>`
+      : `<span style="color:#00C851;font-weight:700;">✓</span>`;
+    const nok  = () => `<span style="color:rgba(255,255,255,.22);">✗</span>`;
+    const pend = c => `<span style="color:rgba(255,205,0,.7);font-style:italic;">${c}</span>`;
+
+    const valBtn = (pseudo, task) => adminSupaAuthed
+      ? `<button class="btn btn-gold btn-sm" style="font-size:.7rem;padding:3px 9px;margin:0;line-height:1.4;" onclick="adminValidateOnboarding('${esc(pseudo)}','${task}')">Valider</button>`
+      : pend('En attente');
+
+    const rows = players.map(p => {
+      const ppCell = p.ppDone ? okBtn(p.pseudo, 'pp') : p.ppPending ? valBtn(p.pseudo, 'pp') : nok();
+      const ytCell = p.ytDone ? okBtn(p.pseudo, 'yt') : p.ytPending ? valBtn(p.pseudo, 'yt') : nok();
+      return `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);">
+        <span style="flex:1;font-size:.84rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${playerLink(p.pseudo)}</span>
+        <span style="width:60px;text-align:center;font-size:.82rem;">${ppCell}</span>
+        <span style="width:80px;text-align:center;font-size:.82rem;">${ytCell}</span>
+      </div>`;
+    }).join('');
+
+    const ppHeader = ppPendN ? `Photo<br><span style="color:rgba(255,205,0,.7);">${ppPendN} en attente</span>` : `Photo<br>${ppDoneN}/${total}`;
+    const ytHeader = ytPendN ? `YouTube<br><span style="color:rgba(255,205,0,.7);">${ytPendN} en attente</span>` : `YouTube<br>${ytDoneN}/${total}`;
+
+    el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap;">
+        <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Bonus de bienvenue</span>
+        <span style="flex:1;"></span>
+        <span style="font-size:.76rem;color:rgba(255,255,255,.4);">${allDone}/${total} tout fait</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:0 0 7px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:2px;">
+        <span style="flex:1;font-size:.73rem;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.4px;">Joueur</span>
+        <span style="width:60px;text-align:center;font-size:.73rem;color:rgba(255,255,255,.38);">${ppHeader}</span>
+        <span style="width:80px;text-align:center;font-size:.73rem;color:rgba(255,255,255,.38);">${ytHeader}</span>
+      </div>
+      ${rows}
+    </div>`;
+  }
+
+  async function adminValidateOnboarding(pseudo, task) {
+    if (!adminSupaAuthed || !_supa) return;
+    const { data, error } = await _supa.rpc('account_admin_validate_onboarding', { p_pseudo: pseudo, p_task: task });
+    if (error) { console.warn('[AdminOnboarding] erreur validation:', error); return; }
+    if (data) {
+      await Promise.all([scoresFetch(), accountsFetch()]);
+      renderOnboardingDashboard();
+    }
+  }
+
+  async function adminRevokeOnboarding(pseudo, task) {
+    if (!adminSupaAuthed || !_supa) return;
+    const label = task === 'pp' ? 'photo de profil' : 'abonnement YouTube';
+    if (!confirm(`Annuler le bonus « ${label} » de ${pseudo} ?`)) return;
+    const { data, error } = await _supa.rpc('account_admin_revoke_onboarding', { p_pseudo: pseudo, p_task: task });
+    if (error) { console.warn('[AdminOnboarding] erreur révocation:', error); return; }
+    if (data) {
+      await Promise.all([scoresFetch(), accountsFetch()]);
+      renderOnboardingDashboard();
+    }
   }
 
   /* Ensemble des pseudos (en minuscules) masqués du classement général par l'admin. */
@@ -13246,7 +13391,7 @@
       }
       accounts[pseudo.toLowerCase()] = { pseudo };
       _backupAccounts();
-      _localUser = { pseudo };
+      _localUser = { pseudo, onboardingPpDone: false, onboardingPpPending: false, onboardingYtDone: false, onboardingYtPending: false };
       LS.setLoggedPseudo(pseudo);
       updateHomeAuthArea();
       nav('player-card');
@@ -13270,7 +13415,7 @@
       }
       accounts[key] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
       _backupAccounts();
-      _localUser = { pseudo: prof.pseudo };
+      _localUser = { pseudo: prof.pseudo, onboardingPpDone: !!prof.onboarding_pp_done, onboardingPpPending: !!prof.onboarding_pp_pending, onboardingYtDone: !!prof.onboarding_yt_done, onboardingYtPending: !!prof.onboarding_yt_pending };
       LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
       nav('player-card');
@@ -14580,6 +14725,8 @@
         historyInline.style.display = 'none';
       }
     }
+
+    renderOnboardingCard();
   }
 
   let _pcHistoryData = [];
@@ -14669,6 +14816,60 @@
     return q.answer || (Array.isArray(q.answers) ? q.answers[0] : '') || '';
   }
 
+  function renderOnboardingCard() {
+    const card = document.getElementById('pc-onboarding-card');
+    if (!card || !_localUser) { if (card) card.style.display = 'none'; return; }
+    const ppDone = !!_localUser.onboardingPpDone;
+    const ytDone = !!_localUser.onboardingYtDone;
+    if (ppDone && ytDone) { card.style.display = 'none'; return; }
+    card.style.display = '';
+
+    const applyPendingState = (task, btn, isPending, isDone) => {
+      const existMsg = task.querySelector('.ob-pending-msg');
+      if (isDone || !isPending) {
+        if (isDone) { task.classList.add('ob-done'); btn.style.display = 'none'; }
+        else        { task.classList.remove('ob-done'); btn.style.display = ''; }
+        if (existMsg) existMsg.remove();
+      } else {
+        task.classList.remove('ob-done'); btn.style.display = 'none';
+        if (!existMsg) {
+          const s = document.createElement('span');
+          s.className = 'ob-pending-msg';
+          s.style.cssText = 'font-size:.74rem;color:rgba(255,205,0,.65);font-style:italic;flex-shrink:0;';
+          s.textContent = 'En attente de validation';
+          task.appendChild(s);
+        }
+      }
+    };
+
+    const ppTask = document.getElementById('ob-task-pp');
+    const ppBtn  = document.getElementById('ob-btn-pp');
+    if (ppTask && ppBtn) { ppTask.style.display = ''; applyPendingState(ppTask, ppBtn, !!_localUser.onboardingPpPending, ppDone); }
+    const ytTask = document.getElementById('ob-task-yt');
+    const ytBtn  = document.getElementById('ob-btn-yt');
+    if (ytTask && ytBtn) { ytTask.style.display = ''; applyPendingState(ytTask, ytBtn, !!_localUser.onboardingYtPending, ytDone); }
+  }
+
+  async function claimOnboardingTask(task) {
+    if (!_localUser || !_supa) return;
+    const tok = _getAuthToken();
+    if (!tok) return;
+    const { data, error } = await _supa.rpc('account_claim_onboarding', {
+      p_pseudo: _localUser.pseudo, p_token: tok, p_task: task
+    });
+    if (error) { console.warn('[Onboarding] claim error:', error); return; }
+    if (data === true) {
+      if (task === 'pp') _localUser.onboardingPpPending = true;
+      if (task === 'yt') _localUser.onboardingYtPending = true;
+      renderOnboardingCard();
+    }
+  }
+
+  function onboardingClaimYt() {
+    window.open('https://www.youtube.com/@LeRacingClubPodcast', '_blank', 'noopener');
+    claimOnboardingTask('yt');
+  }
+
   function pcUploadAvatar(input) {
     if (!input.files || !input.files[0] || !_localUser) return;
     const file = input.files[0];
@@ -14691,6 +14892,7 @@
       const avatarEl = document.getElementById('pc-avatar');
       if (avatarEl) { avatarEl.innerHTML = `<img src="${dataUrl}" alt="">`; avatarEl.style.fontSize = ''; }
       updateHomeAuthArea();
+      if (_localUser && !_localUser.onboardingPpDone && !_localUser.onboardingPpPending) claimOnboardingTask('pp');
     };
     reader.readAsDataURL(file);
     input.value = '';
@@ -14713,6 +14915,24 @@
       console.error('[Supabase] initDB échoué :', e);
     } finally {
       if (loadingEl) loadingEl.style.display = 'none';
+    }
+    // Rafraîchit _localUser avec les données Supabase chargées (avatar, état onboarding)
+    if (_localUser) {
+      const _key = _localUser.pseudo.toLowerCase();
+      const _acc = _db.accounts[_key];
+      if (_acc) {
+        const _ppPending = !!_acc.onboardingPpPending;
+        const _ytPending = !!_acc.onboardingYtPending;
+        const _lb = LS.getLeaderboard();
+        const _hasPpBonus = _lb.some(e => e.adjust && e.note === 'Bonus inscription : photo de profil'    && (e.name || '').toLowerCase() === _key);
+        const _hasYtBonus = _lb.some(e => e.adjust && e.note === 'Bonus inscription : abonnement YouTube' && (e.name || '').toLowerCase() === _key);
+        _localUser.onboardingPpPending = _ppPending;
+        _localUser.onboardingYtPending = _ytPending;
+        // ppDone : bonus accordé OU avatar déjà présent et non en attente (comptes antérieurs au backfill)
+        _localUser.onboardingPpDone = _hasPpBonus || (!_ppPending && !!_acc.avatar);
+        _localUser.onboardingYtDone = _hasYtBonus;
+      }
+      updateHomeAuthArea();
     }
     // Restaure la session Supabase Auth de l'admin (persistée par supabase-js)
     if (_supa) {
