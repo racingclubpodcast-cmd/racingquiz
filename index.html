@@ -1892,8 +1892,9 @@
     .activity-game-card:hover { background:rgba(255,205,0,.08);border-color:rgba(255,205,0,.3); }
     .activity-game-card:last-child { margin-bottom:0; }
     .activity-game-card .agc-name { font-weight:700;color:#fff;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-    .activity-game-card .agc-date { font-size:.72rem;color:rgba(255,255,255,.4);flex-shrink:0; }
-    .activity-game-card .agc-score { font-weight:800;color:var(--or);font-size:1.05rem;flex-shrink:0; }
+    .activity-game-card .agc-date { font-size:.72rem;color:rgba(255,255,255,.4);flex-shrink:0;font-variant-numeric:tabular-nums; }
+    /* Largeur fixe : un score à demi-point (« 12,5 ») ne décale pas la barre des autres lignes. */
+    .activity-game-card .agc-score { font-weight:800;color:var(--or);font-size:1.05rem;flex-shrink:0;min-width:60px;font-variant-numeric:tabular-nums; }
     .activity-game-card .agc-bar { height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;flex:1.4;min-width:60px;max-width:160px; }
     .activity-game-card .agc-bar > span { display:block;height:100%;background:linear-gradient(90deg,var(--rouge),var(--or));border-radius:3px; }
     /* Infobulle détail d'une partie (clic) */
@@ -1953,8 +1954,9 @@
     .lb-rank-3 { color:#cd7f32;font-size:1.05rem; }
     .lb-name { flex:1;font-weight:600;font-size:.9rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
     .lb-right { display:flex;flex-direction:row;align-items:center;gap:6px;flex-shrink:0; }
-    .lb-score { font-weight:700;color:var(--or);font-size:.95rem; }
-    .lb-games { font-size:.75rem;color:rgba(255,255,255,.45);font-weight:600; }
+    /* Largeur fixe : un score à demi-point (« 45,5 pts ») ne décale pas le « x/x sur 34 » des autres lignes. */
+    .lb-score { font-weight:700;color:var(--or);font-size:.95rem;min-width:62px;text-align:right;font-variant-numeric:tabular-nums; }
+    .lb-games { font-size:.75rem;color:rgba(255,255,255,.45);font-weight:600;font-variant-numeric:tabular-nums; }
     .lb-badge-txt { font-size:.68rem;color:rgba(255,255,255,.38);white-space:nowrap; }
 
     /* ── Mini-classement général (player cards) ── */
@@ -4044,6 +4046,18 @@
     </div>
   </div>
 
+  <!-- ════════════════════════ RAPPEL BONUS DE BIENVENUE (avant la partie) ═══ -->
+  <div id="ob-reminder-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;align-items:center;justify-content:center;padding:16px;">
+    <div style="background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.28);border-radius:18px;padding:26px 24px;width:min(94vw,400px);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.65);">
+      <div style="font-weight:800;font-size:1.05rem;color:var(--or);margin-bottom:10px;">Des points bonus t'attendent&nbsp;!</div>
+      <p style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5;margin:0 0 12px;">
+        Avant de lancer ta partie, un petit rappel&nbsp;:
+      </p>
+      <div id="ob-reminder-tasks" style="text-align:left;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:10px;padding:4px 12px;margin-bottom:18px;"></div>
+      <button class="btn btn-gold btn-full mb0" onclick="obReminderPlay()">▶ Jouer</button>
+    </div>
+  </div>
+
   <script>
   /* ═══════════════════════════════════════════════════
      STATE
@@ -5044,6 +5058,9 @@
       errEl.style.display = 'none';
       document.getElementById('admin-pwd').value = '';
       nav('admin');
+      // À la connexion, ouvrir directement Stats → Activité (PC + smartphone)
+      _statsSubTab = 'activite';
+      adminTab('stats');
       // Rappel hebdomadaire de backup
       const lastBackup = localStorage.getItem('rc_last_backup');
       const sevenDays = 7 * 24 * 60 * 60 * 1000;
@@ -5509,6 +5526,19 @@
     const today = planningTodayStr();
     const n = Object.entries(plan).filter(([d, dp]) => dp && !dp._deleted && d <= today).length;
     return Math.min(n, SEASON_MATCHDAYS);
+  }
+
+  // Journées de la saison : sessions planifiées (j1 & j2, non supprimées) triées par
+  // date de début et numérotées J1, J2, … Le numéro identifie la PARTIE (journée),
+  // indépendamment de la date à laquelle elle est jouée ou de sa durée (multi-jours).
+  // Renvoie [{ startDate, endDate, plan, num }].
+  function planningMatchdays() {
+    const plan = LS.getPlanning() || {};
+    return Object.entries(plan)
+      .filter(([, dp]) => dp && !dp._deleted && dp.j1 && dp.j2)
+      .map(([ds, dp]) => ({ startDate: ds, endDate: dp.endDate || ds, plan: dp }))
+      .sort((a, b) => (a.startDate < b.startDate ? -1 : 1))
+      .map((m, i) => ({ ...m, num: i + 1 }));
   }
 
   // Retourne la session du planning qui couvre dateStr (startDate <= dateStr <= endDate).
@@ -10819,6 +10849,23 @@
       !s.beta && s.plannedDate === startDate && (s.name || '').toLowerCase() === p);
   }
 
+  // Vrai si le joueur a joué une partie (hors bêta) dont la DATE DE JEU tombe dans la
+  // fenêtre [startDs, endDs] d'une session. Nécessaire pour les sessions multi-jours :
+  // une partie jouée un jour autre que la date de début (sans plannedDate exact) ne doit
+  // pas faire apparaître la session comme « à rattraper ». On ignore les parties déjà
+  // rattachées à une AUTRE session (plannedDate différent) pour éviter les faux positifs.
+  function hasPlayedInWindow(pseudo, startDs, endDs) {
+    if (!pseudo || !startDs) return false;
+    const p   = pseudo.toLowerCase();
+    const end = endDs || startDs;
+    return (_db.scores || []).some(s => {
+      if (s.beta || (s.name || '').toLowerCase() !== p) return false;
+      if (s.plannedDate && s.plannedDate !== startDs) return false;
+      const d = (s.date || '').slice(0, 10);
+      return d && d >= startDs && d <= end;
+    });
+  }
+
   function hasPlayedToday(pseudo) {
     if (!pseudo) return false;
     const todayStr   = planningTodayStr();
@@ -10844,7 +10891,8 @@
       const endDs = dp.endDate || startDs;
       if (endDs >= today) continue;                          // encore en cours / à venir
       if (!jIds.has(dp.j1) || !jIds.has(dp.j2)) continue;    // joueur retiré de la base
-      if (hasPlayedSession(pseudo, startDs)) continue;       // déjà rattrapée
+      if (hasPlayedSession(pseudo, startDs)) continue;       // déjà rattrapée (plannedDate)
+      if (hasPlayedInWindow(pseudo, startDs, endDs)) continue; // jouée un des jours (multi-jours)
       out.push({ startDate: startDs, endDate: endDs, plan: dp });
     }
     out.sort((a, b) => (a.startDate < b.startDate ? -1 : 1));
@@ -11068,6 +11116,12 @@
       showNoSessionPopup();
       return;
     }
+
+    // Rappel bonus de bienvenue (photo de profil / abonnement YouTube manquants) :
+    // affiché une fois toutes les vérifications passées, juste avant le départ.
+    // « ▶ Jouer » relance startQuiz en sautant le rappel (_obReminderBypass).
+    if (!_obReminderBypass && showOnboardingReminder(() => { _obReminderBypass = true; startQuiz(catchUpStart); })) return;
+    _obReminderBypass = false;
 
     const calcMax = q => q.type === 'joueur'
       ? (q.indicePts ? q.indicePts[0] : 5) + (q.bonus && q.bonus.text ? (q.bonus.points || 1) : 0)
@@ -14194,7 +14248,7 @@
         const h = baseY - y;
         svg += `<rect class="sc-bar" data-bar="${i}" x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${barW.toFixed(1)}" height="${Math.max(0, h).toFixed(1)}" rx="3"/>`;
         if (v > 0) svg += `<text class="sc-barval" x="${cx(i).toFixed(1)}" y="${(y - 4).toFixed(1)}" text-anchor="middle">${v}</text>`;
-        svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
+        svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${col.label || ''}</text>`;
         playedCxs.push({ i, cx: cx(i) });
         playedCums.push(col.cumAfter || 0);
       } else if (col.type === 'missed') {
@@ -14202,13 +14256,13 @@
         const minBarH = plotH * 0.22;
         const x = cx(i) - barW / 2;
         svg += `<rect fill="url(#sc-missed-stripe)" stroke="#FFCD00" stroke-width="1" x="${x.toFixed(1)}" y="${(baseY - minBarH).toFixed(1)}" width="${barW.toFixed(1)}" height="${minBarH.toFixed(1)}" rx="3"/>`;
-        svg += `<text class="sc-datelbl-future" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
+        svg += `<text class="sc-datelbl-future" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${col.label || ''}</text>`;
       } else {
         // Colonne future : contour tireté
         const minBarH = plotH * 0.18;
         const x = cx(i) - barW / 2;
         svg += `<rect class="sc-bar-future" x="${x.toFixed(1)}" y="${(baseY - minBarH).toFixed(1)}" width="${barW.toFixed(1)}" height="${minBarH.toFixed(1)}" rx="3"/>`;
-        svg += `<text class="sc-datelbl-future" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtDate(col.date)}</text>`;
+        svg += `<text class="sc-datelbl-future" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${col.label || ''}</text>`;
       }
     });
 
@@ -14230,11 +14284,16 @@
 
     // Infobulles
     const tipHtml = cols.map(col => {
+      // En-tête : « JN » + date (ou plage de dates pour une session multi-jours)
+      const dateStr = (col.endDate && col.endDate !== col.date)
+        ? `${fmtDate(col.date)} → ${fmtDate(col.endDate)}`
+        : fmtDate(col.date);
+      const prefix = col.label ? `${col.label} · ` : '';
       if (col.type === 'missed') {
-        return `<div class="chart-tip-head">${fmtDate(col.date)}</div><div class="chart-tip-empty" style="color:#FFCD00;">Partie à rattraper</div>`;
+        return `<div class="chart-tip-head">${prefix}${dateStr}</div><div class="chart-tip-empty" style="color:#FFCD00;">Partie à rattraper</div>`;
       }
       if (col.type === 'future') {
-        return `<div class="chart-tip-head">${fmtDate(col.date)}</div><div class="chart-tip-empty">Partie à venir</div>`;
+        return `<div class="chart-tip-head">${prefix}${dateStr}</div><div class="chart-tip-empty">Partie à venir</div>`;
       }
       const g = col.game;
       const dets = Array.isArray(g.details) ? g.details : [];
@@ -14248,7 +14307,7 @@
         const okIcon = de.ok ? '<span style="color:var(--vert);">✓</span>' : '<span style="color:var(--rouge);">✗</span>';
         return `<div class="chart-tip-q"><span class="chart-tip-qicon">${icon}</span><span class="chart-tip-qlabel">${esc(label)}</span><span class="chart-tip-qpts">${okIcon} ${pts} pt${pts > 1 ? 's' : ''}</span></div>`;
       }).join('');
-      return `<div class="chart-tip-head">${fmtDate(col.date)} · ${Number(g.score) || 0} pts · cumul ${col.cumAfter || 0} pts</div>${rows || '<div class="chart-tip-empty">Aucun détail enregistré.</div>'}`;
+      return `<div class="chart-tip-head">${prefix}${dateStr} · ${Number(g.score) || 0} pts · cumul ${col.cumAfter || 0} pts</div>${rows || '<div class="chart-tip-empty">Aucun détail enregistré.</div>'}`;
     });
 
     // Positions centrales des colonnes (px) pour ancrer la tooltip statique
@@ -14301,35 +14360,59 @@
     const qById = {};
     LS.getQ().forEach(q => { qById[q.id] = q; });
 
-    // Cumul progressif
-    let run = 0;
-    const playedCols = games.map(g => {
-      run += (Number(g.score) || 0);
-      return { type: 'played', game: g, date: (g.date || '').slice(0, 10), cumAfter: run };
-    });
-    const maxCum = Math.max(1, run);
-
-    // Sessions futures depuis le planning
-    const today = planningTodayStr();
-    const plan = LS.getPlanning();
-    const playedDates = new Set(playedCols.map(c => c.date));
-    const futureCols = Object.keys(plan)
-      .filter(d => !plan[d]._deleted && d > today && !playedDates.has(d))
-      .sort()
-      .slice(0, 20)
-      .map(d => ({ type: 'future', date: d }));
-
-    // Sessions passées non jouées (rattrapages) — visibles uniquement pour le joueur connecté
-    const missedSessions = _localUser ? getMissedSessions(_localUser.pseudo) : [];
-    const missedCols = missedSessions.map(m => ({ type: 'missed', date: m.startDate }));
-
-    const allCols = [...playedCols, ...missedCols, ...futureCols]
-      .sort((a, b) => (a.date || '9999') < (b.date || '9999') ? -1 : 1);
-
     const fmtDate = iso => {
       const d = new Date(iso + 'T12:00:00');
       return isNaN(d) ? '' : d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit' });
     };
+
+    // Chaque colonne référence une JOURNÉE (partie), pas une date : J1, J2, … issus du
+    // planning (planningMatchdays). Une session multi-jours = une seule colonne.
+    const today     = planningTodayStr();
+    const mdList    = planningMatchdays();
+    const mdByStart = new Map(mdList.map(m => [m.startDate, m]));
+
+    // Journée d'une partie jouée : via plannedDate (date de début de sa session), sinon
+    // via la session couvrant sa date de jeu (multi-jours), sinon aucune (legacy/bêta).
+    const matchdayForGame = g => {
+      if (g.plannedDate && mdByStart.has(g.plannedDate)) return mdByStart.get(g.plannedDate);
+      const d = (g.date || '').slice(0, 10);
+      return mdList.find(m => d && d >= m.startDate && d <= m.endDate) || null;
+    };
+
+    // Cumul progressif (ordre chronologique de jeu)
+    let run = 0;
+    const playedCols = games.map(g => {
+      run += (Number(g.score) || 0);
+      const md = matchdayForGame(g);
+      return { type: 'played', game: g, date: (g.date || '').slice(0, 10),
+               startDate: md ? md.startDate : null, num: md ? md.num : null, cumAfter: run };
+    });
+    const maxCum = Math.max(1, run);
+    const playedStarts = new Set(playedCols.map(c => c.startDate).filter(Boolean));
+
+    // Journées passées non jouées (rattrapages) — visibles uniquement pour le joueur connecté
+    const missedSessions = _localUser ? getMissedSessions(_localUser.pseudo) : [];
+    const missedCols = missedSessions
+      .filter(m => !playedStarts.has(m.startDate))
+      .map(m => { const md = mdByStart.get(m.startDate);
+        return { type: 'missed', date: m.startDate, startDate: m.startDate, endDate: m.endDate, num: md ? md.num : null }; });
+
+    // Journées à venir (sessions planifiées après aujourd'hui, non jouées)
+    const futureCols = mdList
+      .filter(m => m.startDate > today && !playedStarts.has(m.startDate))
+      .slice(0, 20)
+      .map(m => ({ type: 'future', date: m.startDate, startDate: m.startDate, num: m.num }));
+
+    // Tri par numéro de journée (les colonnes sans numéro — legacy — passent par la date)
+    const allCols = [...playedCols, ...missedCols, ...futureCols]
+      .sort((a, b) => {
+        const ka = a.num != null ? a.num : Infinity, kb = b.num != null ? b.num : Infinity;
+        if (ka !== kb) return ka - kb;
+        return (a.date || '9999') < (b.date || '9999') ? -1 : 1;
+      });
+
+    // Libellé d'axe : « JN » si la journée est connue, sinon repli sur la date (legacy).
+    allCols.forEach(c => { c.label = (c.num != null) ? 'J' + c.num : (c.date ? fmtDate(c.date) : ''); });
 
     // ── Vue compacte (6 colonnes, géométrie adaptée à la largeur du conteneur) ──
     const MAX_VISIBLE = 6;
@@ -14862,12 +14945,77 @@
       if (task === 'pp') _localUser.onboardingPpPending = true;
       if (task === 'yt') _localUser.onboardingYtPending = true;
       renderOnboardingCard();
+      renderObReminderTasks();
     }
   }
 
   function onboardingClaimYt() {
     window.open('https://www.youtube.com/@LeRacingClubPodcast', '_blank', 'noopener');
     claimOnboardingTask('yt');
+  }
+
+  /* ── Rappel bonus de bienvenue avant la partie ──
+     Affiché au lancement d'une partie tant que la photo de profil et/ou
+     l'abonnement YouTube ne sont ni confirmés ni déclarés (pending).
+     Seules les étapes encore manquantes sont rappelées ; « ▶ Jouer »
+     reprend le lancement là où il s'était arrêté. */
+  let _obReminderResume = null;   // continuation du lancement de partie
+  let _obReminderShown  = null;   // tâches affichées à l'ouverture { pp, yt }
+  let _obReminderBypass = false;  // « ▶ Jouer » : relancer startQuiz sans ré-afficher le rappel
+
+  function onboardingMissingTasks() {
+    if (!_localUser) return { pp: false, yt: false };
+    return {
+      pp: !_localUser.onboardingPpDone && !_localUser.onboardingPpPending,
+      yt: !_localUser.onboardingYtDone && !_localUser.onboardingYtPending,
+    };
+  }
+
+  function renderObReminderTasks() {
+    const el = document.getElementById('ob-reminder-tasks');
+    if (!el || !_localUser || !_obReminderShown) return;
+    const pendingMsg = '<span style="font-size:.74rem;color:rgba(255,205,0,.65);font-style:italic;flex-shrink:0;">En attente de validation</span>';
+    const row = (title, pts, action, isPending) => `
+      <div class="ob-task">
+        <div class="ob-label">
+          <div class="ob-title">${title}</div>
+          <div class="ob-pts">${pts}</div>
+        </div>
+        ${isPending ? pendingMsg : action}
+      </div>`;
+    let html = '';
+    if (_obReminderShown.pp) {
+      html += row('Ajouter une photo de profil', '+1 pt',
+        `<button class="btn btn-gold btn-sm" style="flex-shrink:0;margin:0;" onclick="document.getElementById('pc-avatar-input').click()">Ajouter</button>`,
+        !!_localUser.onboardingPpPending || !!_localUser.onboardingPpDone);
+    }
+    if (_obReminderShown.yt) {
+      html += row('S\'abonner à la chaîne YouTube', '+1 pt',
+        `<button class="btn btn-gold btn-sm" style="flex-shrink:0;margin:0;" onclick="onboardingClaimYt()">S'abonner</button>`,
+        !!_localUser.onboardingYtPending || !!_localUser.onboardingYtDone);
+    }
+    el.innerHTML = html;
+  }
+
+  // Ouvre le rappel si nécessaire ; retourne true si la pop-up a été affichée.
+  function showOnboardingReminder(resume) {
+    const miss = onboardingMissingTasks();
+    if (!miss.pp && !miss.yt) return false;
+    _obReminderResume = resume;
+    _obReminderShown  = { pp: miss.pp, yt: miss.yt };
+    renderObReminderTasks();
+    const ov = document.getElementById('ob-reminder-overlay');
+    if (ov) ov.style.display = 'flex';
+    return true;
+  }
+
+  function obReminderPlay() {
+    const ov = document.getElementById('ob-reminder-overlay');
+    if (ov) ov.style.display = 'none';
+    _obReminderShown = null;
+    const fn = _obReminderResume;
+    _obReminderResume = null;
+    if (fn) fn();
   }
 
   function pcUploadAvatar(input) {
@@ -14933,6 +15081,25 @@
         _localUser.onboardingYtDone = _hasYtBonus;
       }
       updateHomeAuthArea();
+    }
+    // Re-synchroniser la collection Mon Onze si un push précédent a échoué (token expiré, réseau).
+    // accountsFetch() vient de charger les données Supabase : on fusionne le pending avant de repousser.
+    if (_localUser && _supa) {
+      const _pendKey = _localUser.pseudo.toLowerCase();
+      const _pend = _onzePendingGet(_pendKey);
+      if (_pend && Array.isArray(_pend.collection) && _pend.collection.length) {
+        const _acc = _db.accounts[_pendKey];
+        if (_acc) {
+          if (!_acc.onze || typeof _acc.onze !== 'object') _acc.onze = {};
+          if (!Array.isArray(_acc.onze.collection)) _acc.onze.collection = [];
+          const _merged = Array.from(new Set([..._acc.onze.collection, ..._pend.collection]));
+          if (_merged.length > _acc.onze.collection.length) {
+            _acc.onze.collection = _merged;
+            _backupAccounts();
+          }
+        }
+        _onzeSave();
+      }
     }
     // Restaure la session Supabase Auth de l'admin (persistée par supabase-js)
     if (_supa) {
