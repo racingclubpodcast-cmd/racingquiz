@@ -15117,10 +15117,16 @@
       nav('admin-login');
     } else if (adminLogged) {
       nav('admin');
-      const savedTab     = sessionStorage.getItem('rcAdminTab');
-      const savedAddMode = sessionStorage.getItem('rcAddMode');
-      if (savedTab) adminTab(savedTab === 'add' ? 'list' : (savedTab === 'messages' ? 'messagerie' : (savedTab === 'joueurs' ? 'stats' : savedTab)));
-      if (savedAddMode) setAddMode(savedAddMode);
+      if (window.matchMedia('(max-width: 480px)').matches) {
+        // Sur smartphone, le panel admin s'ouvre toujours sur Stats → Activité
+        _statsSubTab = 'activite';
+        adminTab('stats');
+      } else {
+        const savedTab     = sessionStorage.getItem('rcAdminTab');
+        const savedAddMode = sessionStorage.getItem('rcAddMode');
+        if (savedTab) adminTab(savedTab === 'add' ? 'list' : (savedTab === 'messages' ? 'messagerie' : (savedTab === 'joueurs' ? 'stats' : savedTab)));
+        if (savedAddMode) setAddMode(savedAddMode);
+      }
     }
   })();
 
