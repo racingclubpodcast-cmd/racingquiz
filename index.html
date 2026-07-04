@@ -356,6 +356,45 @@
     .pcard-name { font-size:1.15rem; font-weight:800; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; }
     .pcard-close { background:rgba(255,255,255,.08); border:none; color:rgba(255,255,255,.55); border-radius:50%; width:34px; height:34px; cursor:pointer; font-size:1rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:background .12s; }
     .pcard-close:hover { background:rgba(255,255,255,.15); color:#fff; }
+    .pcard-versus { background:rgba(255,205,0,.1); border:1px solid rgba(255,205,0,.4); color:var(--or); border-radius:18px; height:34px; padding:0 12px; cursor:pointer; font-size:.82rem; font-weight:800; letter-spacing:.5px; display:flex; align-items:center; gap:3px; flex-shrink:0; transition:background .12s,transform .12s; }
+    .pcard-versus span { opacity:.55; font-weight:700; font-size:.7rem; }
+    .pcard-versus:hover { background:rgba(255,205,0,.2); transform:translateY(-1px); }
+    /* ══ 1 vs 1 overlay ══ */
+    .vs-overlay { position:fixed; inset:0; z-index:400; background:rgba(0,0,0,.82); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; padding:16px; }
+    .vs-panel { background:#161616; border:1px solid rgba(255,205,0,.25); border-radius:18px; width:100%; max-width:480px; max-height:88vh; overflow-y:auto; padding:18px 18px 22px; animation:pcardUp .2s ease; scrollbar-width:thin; scrollbar-color:var(--or) transparent; }
+    .vs-panel::-webkit-scrollbar { width:8px; }
+    .vs-panel::-webkit-scrollbar-thumb { background:linear-gradient(var(--rouge),var(--or)); border-radius:99px; border:2px solid transparent; background-clip:padding-box; }
+    .vs-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; }
+    .vs-title { font-weight:800; font-size:1.05rem; color:#fff; display:flex; align-items:center; gap:8px; }
+    .vs-title b { color:var(--or); }
+    .vs-search { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.15); background:rgba(255,255,255,.06); color:#fff; font-size:.9rem; margin-bottom:10px; }
+    .vs-list { max-height:52vh; overflow-y:auto; display:flex; flex-direction:column; gap:5px; }
+    .vs-opt { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:10px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); cursor:pointer; transition:background .12s; text-align:left; color:#fff; }
+    .vs-opt:hover { background:rgba(255,205,0,.1); border-color:rgba(255,205,0,.3); }
+    .vs-opt-av { width:30px; height:30px; border-radius:50%; background:var(--rouge); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; color:#fff; flex-shrink:0; overflow:hidden; }
+    .vs-opt-av img { width:100%; height:100%; object-fit:cover; }
+    .vs-opt-name { flex:1; min-width:0; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .vs-opt-pts { color:var(--or); font-weight:700; font-size:.82rem; flex-shrink:0; }
+    /* Bandeau des deux joueurs comparés */
+    .vs-players { display:flex; align-items:stretch; gap:0; margin-bottom:14px; }
+    .vs-side { flex:1; min-width:0; text-align:center; display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .vs-side-av { width:56px; height:56px; border-radius:50%; background:var(--rouge); border:2px solid var(--or); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.4rem; color:#fff; overflow:hidden; }
+    .vs-side-av img { width:100%; height:100%; object-fit:cover; }
+    .vs-side-name { font-weight:700; color:#fff; font-size:.9rem; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .vs-mid { display:flex; align-items:center; justify-content:center; width:44px; flex-shrink:0; font-weight:900; color:var(--or); font-size:.95rem; }
+    /* Lignes de stats comparées */
+    .vs-row { display:flex; align-items:center; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.06); }
+    .vs-cell { flex:1; text-align:center; font-weight:800; font-size:1.02rem; color:#fff; }
+    .vs-cell.win { color:var(--or); }
+    .vs-cell.win::after { content:' ▲'; font-size:.62rem; vertical-align:middle; }
+    .vs-label { width:120px; flex-shrink:0; text-align:center; font-size:.68rem; color:rgba(255,255,255,.5); font-weight:600; text-transform:uppercase; letter-spacing:.3px; line-height:1.2; }
+    .vs-pitches { display:flex; gap:10px; margin-top:14px; }
+    .vs-pitch-col { flex:1; min-width:0; }
+    .vs-pitch-col > .vs-pitch-cap { text-align:center; font-size:.74rem; font-weight:700; color:rgba(255,255,255,.7); margin-bottom:6px; }
+    .vs-share-bar { display:flex; justify-content:center; margin-top:18px; }
+    .vs-share-btn { background:rgba(255,205,0,.12); border:1px solid rgba(255,205,0,.4); color:var(--or); width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .12s,transform .12s; }
+    .vs-share-btn:hover { background:rgba(255,205,0,.25); transform:translateY(-1px); }
+    .vs-share-msg { text-align:center; font-size:.78rem; color:var(--or); margin-top:8px; min-height:1em; }
     .pcard-stats { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:20px; }
     .pcard-stat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:10px; padding:12px 14px; }
     .pcard-stat-val { font-size:1.15rem; font-weight:800; color:var(--or); }
@@ -1836,16 +1875,19 @@
     /* ── Activity grid (player card) ── */
     .pc-act-section { margin:14px 0 10px; }
     .pc-act-title { font-size:.7rem;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.5px;margin-bottom:7px; }
-    .pc-act-scroll { overflow-x:auto;padding-bottom:4px; }
-    .pc-act-grid { display:flex;gap:3px;width:max-content; }
-    .pc-act-col { display:flex;flex-direction:column;gap:3px; }
-    .pc-act-cell { width:12px;height:12px;border-radius:2px;flex-shrink:0;cursor:default;transition:opacity .1s; }
-    .pc-act-cell:hover { opacity:.75; }
-    .pac-empty  { background:rgba(255,255,255,.07); }
-    .pac-red    { background:#c0392b; }
-    .pac-yellow { background:#c99b10; }
-    .pac-green  { background:#27ae60; }
-    .pac-dgreen { background:#0d6e35; }
+    .pc-act-scroll { padding-bottom:4px; }
+    /* Cadrillage de saison : 34 journées (J1→J34) en carrés de dimension égale, 2 rangées de 17. */
+    .pc-act-grid { display:grid;grid-template-columns:repeat(17,1fr);gap:4px;width:100%; }
+    .pc-act-cell { aspect-ratio:1;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.5rem;font-weight:700;color:rgba(255,255,255,.6);text-shadow:0 1px 2px rgba(0,0,0,.6);cursor:default;transition:opacity .1s,transform .1s; }
+    .pc-act-cell.clickable { cursor:pointer; }
+    .pc-act-cell.clickable:hover { transform:scale(1.12); }
+    .pc-act-cell:not(.clickable):hover { opacity:.75; }
+    .pac-empty   { background:rgba(255,255,255,.07); }
+    .pac-catchup { background:repeating-linear-gradient(45deg,#FFCD00,#FFCD00 3px,#111111 3px,#111111 6px);box-shadow:inset 0 0 0 1px rgba(255,205,0,.55); }
+    .pac-red     { background:#c0392b; }
+    .pac-yellow  { background:#c99b10; }
+    .pac-green   { background:#27ae60; }
+    .pac-dgreen  { background:#0d6e35; }
     .pc-act-legend { display:flex;align-items:center;gap:10px;margin-top:7px;flex-wrap:wrap;justify-content:center; }
     .pc-act-legend-item { display:flex;align-items:center;gap:4px;font-size:.63rem;color:rgba(255,255,255,.3); }
     .pc-act-legend-cell { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
@@ -1949,6 +1991,8 @@
     .player-link { cursor:pointer;transition:color .15s; }
     .player-link:hover { color:var(--or);text-decoration:underline;text-underline-offset:2px; }
     .lb-rank { width:32px;text-align:center;font-weight:700;font-size:.9rem;color:rgba(255,255,255,.38);flex-shrink:0; }
+    .lb-avatar { width:30px;height:30px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,205,0,.25); }
+    .lb-avatar img { width:100%;height:100%;object-fit:cover; }
     .lb-rank-1 { color:#FFCD00;font-size:1.2rem; }
     .lb-rank-2 { color:#c8c8c8;font-size:1.1rem; }
     .lb-rank-3 { color:#cd7f32;font-size:1.05rem; }
@@ -2175,8 +2219,8 @@
         <!-- Section Liste -->
         <div id="lb-section-liste">
           <div style="display:flex;gap:6px;margin-bottom:14px;">
-            <button id="lb-tab-today"   class="lb-tab-btn lb-tab-active" onclick="lbSetTab('today')">Aujourd'hui</button>
-            <button id="lb-tab-general" class="lb-tab-btn"               onclick="lbSetTab('general')">All-time</button>
+            <button id="lb-tab-general" class="lb-tab-btn lb-tab-active" onclick="lbSetTab('general')">All-time</button>
+            <button id="lb-tab-today"   class="lb-tab-btn"               onclick="lbSetTab('today')">Aujourd'hui</button>
           </div>
           <div id="lb-list" class="card" style="padding:4px 16px;min-height:60px;"></div>
           <p id="lb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:32px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
@@ -3401,6 +3445,8 @@
       <div style="width:100%;max-width:480px;padding-bottom:80px;">
 
         <div class="card tc" style="margin-bottom:12px;position:relative;">
+          <button class="pcard-versus" onclick="openVersusSelf()" title="Se comparer à un autre joueur (1 vs 1)"
+                  style="position:absolute;top:10px;left:10px;">1<span>vs</span>1</button>
           <button onclick="nav('player-settings')" title="Réglages du compte"
                   style="position:absolute;top:10px;right:10px;background:none;border:none;cursor:pointer;font-size:1.25rem;color:rgba(255,255,255,.45);padding:4px;line-height:1;transition:color .15s;"
                   onmouseover="this.style.color='var(--or)'" onmouseout="this.style.color='rgba(255,255,255,.45)'">⚙️</button>
@@ -3444,7 +3490,7 @@
               <div class="pc-act-grid" id="pc-act-grid"></div>
             </div>
             <div class="pc-act-legend">
-              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-empty"></div>Aucune partie</div>
+              <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-catchup"></div>Partie à rattraper</div>
               <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-red"></div>0 joueur</div>
               <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-yellow"></div>1 joueur</div>
               <div class="pc-act-legend-item"><div class="pc-act-legend-cell pac-green"></div>2 joueurs</div>
@@ -5061,17 +5107,6 @@
       // À la connexion, ouvrir directement Stats → Activité (PC + smartphone)
       _statsSubTab = 'activite';
       adminTab('stats');
-      // Rappel hebdomadaire de backup
-      const lastBackup = localStorage.getItem('rc_last_backup');
-      const sevenDays = 7 * 24 * 60 * 60 * 1000;
-      if (!lastBackup || (Date.now() - new Date(lastBackup).getTime()) > sevenDays) {
-        const since = lastBackup
-          ? `Dernier backup : ${new Date(lastBackup).toLocaleDateString('fr-FR')}.`
-          : 'Aucun backup enregistré.';
-        if (confirm(`⚠️ Rappel sauvegarde\n\n${since}\nVoulez-vous faire un backup maintenant ?`)) {
-          backupNow();
-        }
-      }
     } else {
       errEl.style.display = 'block';
       document.getElementById('admin-pwd').value = '';
@@ -7670,6 +7705,7 @@
         ${adminLogged ? `<button class="pcard-close" onclick="toggleHiddenFromRanking()" title="${hiddenRank ? 'Réafficher dans le classement' : 'Masquer du classement'}" style="display:inline-flex;align-items:center;justify-content:center;${hiddenRank ? 'color:var(--or);' : ''}">${hiddenRank
           ? `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`
           : `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>`}</button>` : ''}
+        ${!adminLogged ? `<button class="pcard-versus" onclick="openVersus()" title="Se comparer à un autre joueur (1 vs 1)">1<span>vs</span>1</button>` : ''}
         <button class="pcard-close" onclick="closePlayerCard()">✕</button>
       </div>
       <div class="pcard-stats">
@@ -7709,11 +7745,170 @@
     `;
     document.getElementById('pcard-overlay').style.display = 'flex';
     // Graphique points par partie + cumul (après injection du HTML)
-    renderScoreChart(document.getElementById('pcard-score-chart'), all);
+    renderScoreChart(document.getElementById('pcard-score-chart'), all, name);
   }
 
   function closePlayerCard() {
     document.getElementById('pcard-overlay').style.display = 'none';
+  }
+
+  /* ══════════ 1 vs 1 : comparaison de deux cartes joueur ══════════ */
+  let _vsLeft = null;   // pseudo de gauche (propriétaire de la carte ouverte)
+  let _vsRight = null;  // pseudo de droite (adversaire choisi)
+
+  // Avatar HTML (photo du compte sinon initiale) — réutilisé dans le sélecteur et le bandeau.
+  function vsAvatarHtml(name, cls) {
+    const acc = LS.getAccounts()[(name || '').toLowerCase()];
+    const av  = acc && acc.avatar;
+    const inner = av ? `<img src="${av}" alt="">` : esc((name || '?').charAt(0).toUpperCase());
+    return `<div class="${cls}">${inner}</div>`;
+  }
+
+  // Agrège les 7 stats confrontées pour un pseudo.
+  function versusStats(name) {
+    const lb    = LS.getLeaderboard();
+    const key   = (name || '').toLowerCase();
+    const all   = lb.filter(e => (e.name || '').toLowerCase() === key);
+    const games = all.filter(e => !e.adjust);
+    const onzeBonus  = onzeBonusForName(name);
+    const totalScore = all.reduce((s, g) => s + (Number(g.score) || 0), 0) + onzeBonus;
+    const bestScore  = games.length ? Math.max(...games.map(g => Number(g.score) || 0)) : 0;
+    const avgScore   = games.length ? (games.reduce((s, g) => s + (Number(g.score) || 0), 0) / games.length) : 0;
+    const onze = onzeForName(name);
+    const placed = onze.slots.filter(Boolean).length;
+    const currentComplete = placed === 11 && !!onze.coach;
+    const archives = onze.archives.length;
+    return {
+      name, onze, placed, currentComplete, archives,
+      totalScore, bestScore, onzeBonus, avgScore,
+      completed: archives + (currentComplete ? 1 : 0)
+    };
+  }
+
+  // Étape 1 : ouvrir le sélecteur d'adversaire (infobulle).
+  // `name` = joueur de gauche ; par défaut la carte ouverte (overlay), sinon le joueur connecté.
+  function openVersus(name) {
+    _vsLeft  = name || _pcardName || (_localUser && _localUser.pseudo) || null;
+    if (!_vsLeft) return;
+    _vsRight = null;
+    renderVersusSelect();
+    document.getElementById('vs-overlay').style.display = 'flex';
+  }
+
+  // Entrée « 1 vs 1 » depuis la carte de profil (vue joueur) : compare le joueur connecté.
+  function openVersusSelf() {
+    openVersus(_localUser ? _localUser.pseudo : null);
+  }
+
+  function closeVersus() {
+    document.getElementById('vs-overlay').style.display = 'none';
+  }
+
+  function renderVersusSelect(filter = '') {
+    const meKey = (_vsLeft || '').toLowerCase();
+    const f = filter.trim().toLowerCase();
+    const opts = generalRankingList()
+      .filter(r => r.name.toLowerCase() !== meKey)
+      .filter(r => !f || r.name.toLowerCase().includes(f));
+    const rows = opts.length ? opts.map(r => `
+      <button class="vs-opt" onclick="showVersus('${esc(r.name).replace(/'/g, "\\'")}')">
+        ${vsAvatarHtml(r.name, 'vs-opt-av')}
+        <span class="vs-opt-name">${esc(r.name)}</span>
+        <span class="vs-opt-pts">${r.total} pts</span>
+      </button>`).join('')
+      : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:16px 0;">Aucun joueur trouvé.</p>';
+    document.getElementById('vs-content').innerHTML = `
+      <div class="vs-head">
+        <div class="vs-title">⚔️ <span>1<b> vs </b>1</span></div>
+        <button class="pcard-close" onclick="closeVersus()">✕</button>
+      </div>
+      <p style="color:rgba(255,255,255,.55);font-size:.82rem;margin:0 0 10px;">Choisis le joueur que tu veux affronter, <b style="color:#fff;">${esc(_vsLeft)}</b>.</p>
+      <input class="vs-search" type="text" id="vs-search" placeholder="Rechercher un joueur…" oninput="renderVersusSelect(this.value)" value="${esc(filter)}" autocomplete="off">
+      <div class="vs-list">${rows}</div>`;
+    const inp = document.getElementById('vs-search');
+    if (inp && filter) { inp.focus(); inp.setSelectionRange(filter.length, filter.length); }
+  }
+
+  // Étape 2 : afficher la confrontation des deux joueurs.
+  function showVersus(name) {
+    _vsRight = name;
+    const a = versusStats(_vsLeft);
+    const b = versusStats(_vsRight);
+    const fmt = (n) => Number.isInteger(n) ? String(n) : n.toFixed(1);
+
+    // Une ligne comparative ; higher = true → la plus grande valeur gagne.
+    const row = (label, va, vb, disp) => {
+      const dA = disp ? disp(va) : fmt(va);
+      const dB = disp ? disp(vb) : fmt(vb);
+      const aWin = va > vb, bWin = vb > va;
+      return `<div class="vs-row">
+        <div class="vs-cell${aWin ? ' win' : ''}">${dA}</div>
+        <div class="vs-label">${label}</div>
+        <div class="vs-cell${bWin ? ' win' : ''}">${dB}</div>
+      </div>`;
+    };
+
+    const rowsHtml =
+      row('Points', a.totalScore, b.totalScore) +
+      row('Meilleur score', a.bestScore, b.bestScore) +
+      row('Points bonus', a.onzeBonus, b.onzeBonus) +
+      row('Score moyen', a.avgScore, b.avgScore) +
+      row('Onze complétés', a.completed, b.completed) +
+      row('Onze actuel', a.placed, b.placed, v => `${v}/11`) +
+      row('Onzes archivés', a.archives, b.archives);
+
+    document.getElementById('vs-content').innerHTML = `
+      <div class="vs-head">
+        <div class="vs-title">⚔️ <span>1<b> vs </b>1</span></div>
+        <div style="display:flex;gap:8px;">
+          <button class="pcard-close" onclick="renderVersusSelect()" title="Changer d'adversaire">↺</button>
+          <button class="pcard-close" onclick="closeVersus()">✕</button>
+        </div>
+      </div>
+      <div class="vs-players">
+        <div class="vs-side">${vsAvatarHtml(a.name, 'vs-side-av')}<div class="vs-side-name">${esc(a.name)}</div></div>
+        <div class="vs-mid">VS</div>
+        <div class="vs-side">${vsAvatarHtml(b.name, 'vs-side-av')}<div class="vs-side-name">${esc(b.name)}</div></div>
+      </div>
+      ${rowsHtml}
+      <div class="vs-pitches">
+        <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(a.name)}</div><div class="onze-pitch">${onzePitchReadonlyHtml(a.onze)}</div></div>
+        <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(b.name)}</div><div class="onze-pitch">${onzePitchReadonlyHtml(b.onze)}</div></div>
+      </div>
+      <div class="vs-share-bar">
+        <button class="vs-share-btn" onclick="shareVersus()" title="Partager cette comparaison" aria-label="Partager">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        </button>
+      </div>
+      <div class="vs-share-msg" id="vs-share-msg"></div>`;
+  }
+
+  async function shareVersus() {
+    if (!_vsLeft || !_vsRight) return;
+    const a = versusStats(_vsLeft);
+    const b = versusStats(_vsRight);
+    const fmt = (n) => Number.isInteger(n) ? String(n) : n.toFixed(1);
+    const line = (label, va, vb) => `${label} : ${fmt(va)} vs ${fmt(vb)}`;
+    const text =
+      `⚔️ 1 vs 1 — Quiz RC Lens 🩸💛\n${a.name} vs ${b.name}\n\n`
+      + line('Points', a.totalScore, b.totalScore) + '\n'
+      + line('Meilleur score', a.bestScore, b.bestScore) + '\n'
+      + line('Points bonus', a.onzeBonus, b.onzeBonus) + '\n'
+      + line('Score moyen', a.avgScore, b.avgScore) + '\n'
+      + line('Onze complétés', a.completed, b.completed) + '\n'
+      + line('Onzes archivés', a.archives, b.archives) + '\n\n'
+      + `${location.origin}${location.pathname}`;
+    const msgEl = document.getElementById('vs-share-msg');
+    const flash = (t) => { if (msgEl) { msgEl.textContent = t; setTimeout(() => { if (msgEl) msgEl.textContent = ''; }, 2500); } };
+    try {
+      if (navigator.share) { await navigator.share({ title: 'Quiz RC Lens — 1 vs 1', text }); return; }
+    } catch { /* partage annulé : on tente la copie */ }
+    try {
+      await navigator.clipboard.writeText(text);
+      flash('Comparaison copiée ✓');
+    } catch {
+      flash('Impossible de partager sur cet appareil');
+    }
   }
 
   // Déroule / replie le détail d'une partie dans l'historique de la carte joueur
@@ -10859,7 +11054,7 @@
     const p   = pseudo.toLowerCase();
     const end = endDs || startDs;
     return (_db.scores || []).some(s => {
-      if (s.beta || (s.name || '').toLowerCase() !== p) return false;
+      if (s.beta || s.adjust || (s.name || '').toLowerCase() !== p) return false;
       if (s.plannedDate && s.plannedDate !== startDs) return false;
       const d = (s.date || '').slice(0, 10);
       return d && d >= startDs && d <= end;
@@ -10982,6 +11177,22 @@
   function renderHomeOnzeNudge() {
     const box = document.getElementById('home-onze-nudge');
     if (!box) return;
+    // Priorité : Onze complet mais pas encore validé → avertir que la validation
+    // est nécessaire pour toucher le bonus et démarrer une nouvelle collection.
+    const onze = _localUser ? onzeForName(_localUser.pseudo) : null;
+    if (onze && onzeIsComplete(onze)) {
+      const bonus = onzeBonusPoints();
+      box.style.display = 'block';
+      box.innerHTML =
+        `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">🏆 Ton Onze est complet !</div>
+         <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Valide-le pour ${bonus > 0 ? `recevoir tes <strong style="color:var(--or);">+${bonus} pts bonus</strong> et ` : ''}démarrer une nouvelle collection Mon Onze.</div>
+         <button class="btn btn-ghost btn-full mb0" onclick="nav('onze')"
+                 style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
+           <span style="flex:1;color:rgba(255,255,255,.85);">Mon Onze</span>
+           <span style="color:var(--or);font-weight:700;white-space:nowrap;">Valider →</span>
+         </button>`;
+      return;
+    }
     const unplaced = _localUser ? getUnplacedCollected(_localUser.pseudo) : [];
     if (!unplaced.length) { box.style.display = 'none'; box.innerHTML = ''; return; }
     const n = unplaced.length;
@@ -12511,7 +12722,7 @@
   // et sa réplique dans le panel admin → Stats → Classements (préfixe « alb »).
   // Chaque « scope » garde son propre état (onglet actif, filtre joueurs…).
   const _lbStates = {
-    lb:  { tab: 'today',   main: 'liste', info: 'evolution', filter: null },
+    lb:  { tab: 'general', main: 'liste', info: 'evolution', filter: null },
     alb: { tab: 'general', main: 'liste', info: 'evolution', filter: null }, // admin : classement général par défaut
   };
   const _lbEl = id => document.getElementById(id);
@@ -12729,6 +12940,7 @@
         : '';
       return `<div class="${rowCls}"${rowAttrs}>
         <div class="lb-rank${rankCls}">${rankHtml}</div>
+        ${vsAvatarHtml(e.name, 'lb-avatar')}
         <div class="lb-name">${esc(e.name)}</div>
         <div class="lb-right">
           ${gamesHtml}<span class="lb-score">${e.score} pts</span>
@@ -13475,6 +13687,9 @@
       nav('player-card');
       // Synchroniser vers Supabase si la collection a été enrichie localement
       if (pending && Array.isArray(pending.collection) && pending.collection.length) _onzeSave();
+      // Auto-réconciliation : ré-ajoute les joueurs devinés en partie mais absents
+      // de la collection (push précédent perdu — le jeton vient d'être renouvelé)
+      syncCollectionFromScores();
     }
   }
 
@@ -13709,8 +13924,9 @@
       updateHomeAuthArea();
       if (pending && Array.isArray(pending.collection) && pending.collection.length) _onzeSave();
       // Joueur qui se connecte (potentiellement après plusieurs sessions manquées) :
-      // on rafraîchit l'état partagé pour proposer les parties à rattraper.
-      Promise.all([scoresFetch(), dbPull('planning')]).then(renderHomeCatchUp);
+      // on rafraîchit l'état partagé pour proposer les parties à rattraper, puis
+      // on ré-ajoute à la collection les joueurs devinés dont le push a été perdu.
+      Promise.all([scoresFetch(), dbPull('planning')]).then(() => { syncCollectionFromScores(); renderHomeCatchUp(); });
     }
   }
 
@@ -13916,6 +14132,32 @@
     }, toastDelay);
   }
 
+  /* Auto-réconciliation : ré-ajoute à la collection du joueur connecté tout
+     « Qui suis-je ? » deviné en partie (scores.details, ok) mais absent de sa
+     collection — cas d'un push account_set_onze perdu (jeton invalidé par une
+     connexion sur un autre appareil, réseau, session expirée). N'enlève jamais
+     rien. Appelée à la connexion et au démarrage de l'app. */
+  function syncCollectionFromScores() {
+    const a = _onzeAccount();
+    if (!a) return;
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+    if (!Object.keys(byId).length) return; // base de questions pas encore chargée
+    const key = _localUser.pseudo.toLowerCase();
+    const missing = [];
+    LS.getLeaderboard().forEach(e => {
+      if (e.adjust || (e.name || '').toLowerCase() !== key) return;
+      (Array.isArray(e.details) ? e.details : []).forEach(d => {
+        if (d && d.ok && byId[d.id] && byId[d.id].type === 'joueur'
+            && !a.onze.collection.includes(d.id) && !missing.includes(d.id)) missing.push(d.id);
+      });
+    });
+    if (!missing.length) return;
+    a.onze.collection = a.onze.collection.concat(missing);
+    console.info('[Onze] auto-réconciliation :', missing.join(', '), 'ré-ajouté(s) à la collection');
+    _onzeSave();
+  }
+
   /* Onze "complet" = 11 joueurs placés + entraîneur (coach) placé. */
   function onzeIsComplete(onze) {
     return onze.slots.filter(Boolean).length === 11 && !!onze.coach;
@@ -13981,10 +14223,14 @@
     const byId = {};
     allQ.forEach(q => { byId[q.id] = q; });
 
-    // Purge des références vers des questions supprimées
-    onze.collection = onze.collection.filter(id => byId[id] && byId[id].type === 'joueur');
-    onze.slots      = onze.slots.map(id => (id && byId[id]) ? id : null);
-    if (onze.coach && (!byId[onze.coach] || byId[onze.coach].type !== 'joueur')) onze.coach = null;
+    // Purge des références vers des questions supprimées — uniquement si la base
+    // de questions est chargée, sinon on viderait la collection à tort (cache
+    // service worker périmé, Supabase pas encore répondu)
+    if (allQ.length) {
+      onze.collection = onze.collection.filter(id => byId[id] && byId[id].type === 'joueur');
+      onze.slots      = onze.slots.map(id => (id && byId[id]) ? id : null);
+      if (onze.coach && (!byId[onze.coach] || byId[onze.coach].type !== 'joueur')) onze.coach = null;
+    }
 
     // Sélecteur de formation
     document.getElementById('onze-formations').innerHTML = Object.keys(ONZE_FORMATIONS).map(f =>
@@ -14018,6 +14264,7 @@
       banner.innerHTML = (bonus > 0
         ? `🏆 Onze + coach complet ! (+${bonus} pts au moment de la validation)<br>`
         : '🏆 Onze + coach complet !<br>')
+        + `<div style="margin-top:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);line-height:1.5;">⚠️ Valide ton Onze pour ${bonus > 0 ? 'recevoir tes points bonus et ' : ''}démarrer une nouvelle collection : tant qu'il n'est pas archivé, tu ne peux pas composer un nouveau Onze.</div>`
         + `<button class="btn btn-gold" style="margin-top:10px;font-size:.85rem;padding:8px 20px;" onclick="archiveCurrentOnze()">✅ Valider et archiver ce Onze</button>`;
       banner.style.display = 'block';
     } else if (placedCount === 11 && !onze.coach) {
@@ -14347,7 +14594,7 @@
     });
   }
 
-  function renderScoreChart(container, rawGames) {
+  function renderScoreChart(container, rawGames, pseudo) {
     if (!container) return;
     const games = (rawGames || [])
       .filter(g => g && !g.adjust)
@@ -14390,8 +14637,10 @@
     const maxCum = Math.max(1, run);
     const playedStarts = new Set(playedCols.map(c => c.startDate).filter(Boolean));
 
-    // Journées passées non jouées (rattrapages) — visibles uniquement pour le joueur connecté
-    const missedSessions = _localUser ? getMissedSessions(_localUser.pseudo) : [];
+    // Journées passées non jouées (rattrapages) — calculées pour le joueur dont la carte
+    // est affichée (`pseudo`), PAS pour l'utilisateur connecté : la carte d'un autre joueur
+    // (vue admin ou mini-classement) doit refléter SES rattrapages, pas les nôtres.
+    const missedSessions = pseudo ? getMissedSessions(pseudo) : [];
     const missedCols = missedSessions
       .filter(m => !playedStarts.has(m.startDate))
       .map(m => { const md = mdByStart.get(m.startDate);
@@ -14433,7 +14682,10 @@
       ? `<div style="font-size:.65rem;color:rgba(255,255,255,.35);text-align:center;margin-top:4px;">Cliquez sur le titre pour voir toutes les parties (${allCols.length})</div>`
       : '';
 
-    const missedBtn = missedSessions.length
+    // Bouton « Rattraper » : uniquement sur sa propre carte (startCatchUp joue
+    // toujours au nom de l'utilisateur connecté).
+    const isOwnCard = !!(_localUser && pseudo && _localUser.pseudo.toLowerCase() === pseudo.toLowerCase());
+    const missedBtn = (missedSessions.length && isOwnCard)
       ? `<button class="btn btn-ghost btn-full mb0" onclick="startCatchUp('${missedSessions[0].startDate}')"
            style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:.82rem;">
            <span style="flex:1;color:rgba(255,255,255,.85);">${missedSessions.length} partie${missedSessions.length > 1 ? 's' : ''} à rattraper</span>
@@ -14686,57 +14938,72 @@
     const actSection = document.getElementById('pc-act-section');
     const actGrid    = document.getElementById('pc-act-grid');
     if (actSection && actGrid) {
-      const WEEKS = 28;
-      const fmtLocalKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      // Cadrillage de saison : une case par journée J1→J34 (planningMatchdays).
+      // Couleur = meilleure performance du joueur sur cette journée ; une journée
+      // passée non jouée est « à rattraper » (case cliquable → lance le rattrapage).
+      const mdList    = planningMatchdays();
+      const mdByStart = new Map(mdList.map(m => [m.startDate, m]));
+      const mdByNum   = new Map(mdList.map(m => [m.num, m]));
+      const today     = planningTodayStr();
 
-      // Build day → best-performance map from leaderboard (local dates)
-      const dayMap = {};
-      lb.forEach(e => {
-        if (!e.date) return;
-        const key = fmtLocalKey(new Date(e.date));
-        if (!dayMap[key]) dayMap[key] = { ja: 0, bonus: false, pts: 0 };
+      // Journée (num) d'une partie jouée : via plannedDate, sinon via la session couvrant sa date.
+      const matchdayNumForGame = g => {
+        if (g.plannedDate && mdByStart.has(g.plannedDate)) return mdByStart.get(g.plannedDate).num;
+        const d = (g.date || '').slice(0, 10);
+        const m = mdList.find(mm => d && d >= mm.startDate && d <= mm.endDate);
+        return m ? m.num : null;
+      };
+
+      // Meilleure performance par journée jouée (parties réelles uniquement)
+      const perfByNum = {};
+      realLb.forEach(e => {
+        const num = matchdayNumForGame(e);
+        if (num == null) return;
+        if (!perfByNum[num]) perfByNum[num] = { ja: 0, bonus: false, pts: 0 };
         const ja = e.joueurAnswered != null ? e.joueurAnswered : 0;
-        if (ja > dayMap[key].ja) dayMap[key].ja = ja;
-        if (e.bonusGot) dayMap[key].bonus = true;
-        dayMap[key].pts += Number(e.score) || 0;
+        if (ja > perfByNum[num].ja) perfByNum[num].ja = ja;
+        if (e.bonusGot) perfByNum[num].bonus = true;
+        perfByNum[num].pts += Number(e.score) || 0;
       });
 
-      // Grid: last column = week containing today, always visible
-      const now = new Date();
-      const todayKey = fmtLocalKey(now);
-      const todayDow = (now.getDay() + 6) % 7; // 0=Mon
-      const mondayThisWeek = new Date(now);
-      mondayThisWeek.setDate(now.getDate() - todayDow);
-      mondayThisWeek.setHours(0, 0, 0, 0);
-      const gridStart = new Date(mondayThisWeek);
-      gridStart.setDate(mondayThisWeek.getDate() - (WEEKS - 1) * 7);
+      // Journée « à rattraper » : sa session a commencé (date de début ≤ aujourd'hui),
+      // ses deux joueurs sont disponibles dans la base, et elle n'a pas encore été jouée
+      // par ce joueur. Inclut les sessions EN COURS (non encore expirées) — case cliquable.
+      const jIds   = new Set(getActiveQ().filter(q => q.type === 'joueur').map(q => q.id));
+      const isBeta = feat('betaTest');
+      const isCatchupMd = md => {
+        if (!md || isBeta) return false;
+        const dp = md.plan;
+        if (!dp || dp._deleted || !dp.j1 || !dp.j2) return false;
+        if (md.startDate > today) return false;                     // pas encore commencée
+        if (!jIds.has(dp.j1) || !jIds.has(dp.j2)) return false;     // joueurs retirés de la base
+        return !hasPlayedSession(name, md.startDate)
+            && !hasPlayedInWindow(name, md.startDate, md.endDate);
+      };
 
       let html = '';
-      const cur = new Date(gridStart);
-      for (let w = 0; w < WEEKS; w++) {
-        html += '<div class="pc-act-col">';
-        for (let d = 0; d < 7; d++) {
-          const key    = fmtLocalKey(cur);
-          const entry  = dayMap[key];
-          const future = key > todayKey;
-          let cls = 'pac-empty';
-          let tip = '';
-          if (!future && entry) {
-            cls = entry.ja >= 2 && entry.bonus ? 'pac-dgreen'
-                : entry.ja >= 2               ? 'pac-green'
-                : entry.ja === 1              ? 'pac-yellow'
-                :                               'pac-red';
-            const fmtD = cur.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' });
-            const bonusTxt = entry.bonus ? ' + bonus' : '';
-            tip = `${fmtD} — ${entry.ja}/2 joueur${bonusTxt} — ${entry.pts} pts`;
-          } else if (!future) {
-            const fmtD = cur.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' });
-            tip = `${fmtD} — pas de partie`;
-          }
-          html += `<div class="pc-act-cell ${cls}" data-tip="${tip}"></div>`;
-          cur.setDate(cur.getDate() + 1);
+      for (let num = 1; num <= SEASON_MATCHDAYS; num++) {
+        const perf = perfByNum[num];
+        const md   = mdByNum.get(num);
+        const jLabel = 'J' + num;
+        let cls, tip, clickAttr = '';
+        if (perf) {
+          cls = perf.ja >= 2 && perf.bonus ? 'pac-dgreen'
+              : perf.ja >= 2               ? 'pac-green'
+              : perf.ja === 1              ? 'pac-yellow'
+              :                              'pac-red';
+          const bonusTxt = perf.bonus ? ' + bonus' : '';
+          tip = `${jLabel} — ${perf.ja}/2 joueur${bonusTxt} — ${perf.pts} pts`;
+        } else if (isCatchupMd(md)) {
+          cls = 'pac-catchup clickable';
+          clickAttr = ` onclick="startCatchUp('${md.startDate}')"`;
+          tip = `${jLabel} — partie à rattraper`;
+        } else {
+          cls = 'pac-empty';
+          tip = md ? (md.startDate > today ? `${jLabel} — à venir` : `${jLabel} — pas de partie`)
+                   : `${jLabel} — non planifiée`;
         }
-        html += '</div>';
+        html += `<div class="pc-act-cell ${cls}" data-tip="${tip}"${clickAttr}>${num}</div>`;
       }
       actGrid.innerHTML = html;
       actSection.style.display = 'block';
@@ -14769,7 +15036,7 @@
     const chartCard = document.getElementById('pc-chart-card');
     const chartBox  = document.getElementById('pc-score-chart');
     if (chartCard && chartBox) {
-      renderScoreChart(chartBox, lb);
+      renderScoreChart(chartBox, lb, name);
       chartCard.style.display = chartBox.style.display === 'none' ? 'none' : '';
     }
 
@@ -15100,6 +15367,9 @@
         }
         _onzeSave();
       }
+      // Auto-réconciliation : ré-ajoute les joueurs devinés en partie mais absents
+      // de la collection (push précédent perdu — jeton invalidé, réseau…)
+      syncCollectionFromScores();
     }
     // Restaure la session Supabase Auth de l'admin (persistée par supabase-js)
     if (_supa) {
@@ -15575,6 +15845,11 @@
   <!-- ══ Player Card overlay ══ -->
   <div id="pcard-overlay" class="pcard-overlay" style="display:none;" onclick="if(event.target===this)closePlayerCard()">
     <div class="pcard-panel" id="pcard-content"></div>
+  </div>
+
+  <!-- ══ 1 vs 1 overlay ══ -->
+  <div id="vs-overlay" class="vs-overlay" style="display:none;" onclick="if(event.target===this)closeVersus()">
+    <div class="vs-panel" id="vs-content"></div>
   </div>
   <script>
     if ('serviceWorker' in navigator) {
