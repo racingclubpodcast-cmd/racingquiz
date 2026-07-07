@@ -388,9 +388,15 @@
     .vs-cell.win { color:var(--or); }
     .vs-cell.win::after { content:' ▲'; font-size:.62rem; vertical-align:middle; }
     .vs-label { width:120px; flex-shrink:0; text-align:center; font-size:.68rem; color:rgba(255,255,255,.5); font-weight:600; text-transform:uppercase; letter-spacing:.3px; line-height:1.2; }
-    .vs-pitches { display:flex; gap:10px; margin-top:14px; }
-    .vs-pitch-col { flex:1; min-width:0; }
+    /* Carrousel : un seul onze visible à la fois, balayage latéral tactile */
+    .vs-pitches { display:flex; gap:10px; margin-top:14px; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
+    .vs-pitches::-webkit-scrollbar { display:none; }
+    .vs-pitch-col { flex:0 0 100%; min-width:0; scroll-snap-align:center; }
     .vs-pitch-col > .vs-pitch-cap { text-align:center; font-size:.74rem; font-weight:700; color:rgba(255,255,255,.7); margin-bottom:6px; }
+    .vs-pitch-dots { display:flex; justify-content:center; gap:8px; margin-top:10px; }
+    .vs-pitch-dot { width:9px; height:9px; border-radius:50%; border:none; padding:0; cursor:pointer; background:rgba(255,255,255,.25); transition:background .15s, transform .15s; }
+    .vs-pitch-dot.on { background:var(--or); transform:scale(1.25); }
+    .vs-pitch-hint { text-align:center; font-size:.72rem; color:rgba(255,255,255,.45); margin-top:6px; min-height:1em; }
     .vs-share-bar { display:flex; justify-content:center; margin-top:18px; }
     .vs-share-btn { background:rgba(255,205,0,.12); border:1px solid rgba(255,205,0,.4); color:var(--or); width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .12s,transform .12s; }
     .vs-share-btn:hover { background:rgba(255,205,0,.25); transform:translateY(-1px); }
@@ -1903,6 +1909,8 @@
     .score-chart-svg .sc-col { fill:transparent;cursor:pointer; }
     .score-chart-svg .sc-line { fill:none;stroke:var(--rouge);stroke-width:2.5;stroke-linejoin:round;stroke-linecap:round;pointer-events:none; }
     .score-chart-svg .sc-dot { fill:#fff;stroke:var(--rouge);stroke-width:2;pointer-events:none; }
+    .score-chart-svg .sc-line-new { fill:none;stroke:var(--or);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;pointer-events:none; }
+    .score-chart-svg .sc-dot-new { fill:#fff;stroke:var(--or);stroke-width:2;pointer-events:none; }
     .score-chart-svg .sc-barval, .score-chart-svg .sc-datelbl, .score-chart-svg .sc-axislbl, .score-chart-svg .sc-axis { pointer-events:none; }
     .score-chart-svg .sc-axis { stroke:rgba(255,255,255,.1);stroke-width:1; }
     .score-chart-svg .sc-axislbl { fill:rgba(255,255,255,.35);font-size:9px;font-family:inherit; }
@@ -1913,6 +1921,7 @@
     .score-chart-legend-item { display:flex;align-items:center;gap:5px;font-size:.66rem;color:rgba(255,255,255,.45); }
     .score-chart-legend-bar { width:11px;height:11px;border-radius:2px;background:var(--or);flex-shrink:0; }
     .score-chart-legend-line { width:14px;height:0;border-top:2.5px solid var(--rouge);flex-shrink:0; }
+    .score-chart-legend-line-or { width:14px;height:0;border-top:2.5px solid var(--or);flex-shrink:0; }
     .score-chart-legend-missed { width:11px;height:11px;border-radius:2px;flex-shrink:0;background:repeating-linear-gradient(45deg,#FFCD00,#FFCD00 3px,#111 3px,#111 6px);border:1px solid #FFCD00; }
     /* ── Onglet Activité (admin → Stats) ── */
     .activity-recent-box { margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px; }
@@ -5269,7 +5278,7 @@
     entries.forEach(e => { const k = fmtKey(e.date); byDay[k] = (byDay[k] || 0) + 1; });
     const days = Object.keys(byDay).sort();
     let cum = 0;
-    const series = days.map(d => { cum += byDay[d]; return { day: d, cum }; });
+    const series = days.map(d => { cum += byDay[d]; return { day: d, cum, nouveaux: byDay[d] }; });
     const maxCum = Math.max(1, cum);
     const n = series.length;
 
@@ -5298,6 +5307,10 @@
     // Titres des axes (X = date, Y = nombre d'inscrits)
     svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle" font-size="6">Date</text>`;
     svg += `<text class="sc-axislbl" x="8" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="6" transform="rotate(-90,8,${(padT + plotH / 2).toFixed(1)})">Nombre d'inscrits</text>`;
+    // Courbe des nouveaux inscrits par jour (or), tracée sous la courbe cumulée (rouge)
+    const ptsNew = series.map((s, i) => `${xS(i).toFixed(1)},${yS(s.nouveaux).toFixed(1)}`);
+    if (ptsNew.length > 1) svg += `<polyline class="sc-line-new" points="${ptsNew.join(' ')}"/>`;
+    series.forEach((s, i) => { svg += `<circle class="sc-dot-new" data-i="${i}" cx="${xS(i).toFixed(1)}" cy="${yS(s.nouveaux).toFixed(1)}" r="2.5"/>`; });
     const pts = series.map((s, i) => `${xS(i).toFixed(1)},${yS(s.cum).toFixed(1)}`);
     if (pts.length > 1) svg += `<polyline class="sc-line" points="${pts.join(' ')}"/>`;
     series.forEach((s, i) => { svg += `<circle class="sc-dot" data-i="${i}" cx="${xS(i).toFixed(1)}" cy="${yS(s.cum).toFixed(1)}" r="3"/>`; });
@@ -5310,7 +5323,11 @@
 
     // Tooltip : date + nombre d'inscrits cumulé à cette date
     const fmtFull = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }); };
-    el.innerHTML = `<div style="position:relative;">${svg}<div class="score-chart-tip" id="signup-chart-tip"></div></div>`;
+    const legend = `<div class="score-chart-legend">` +
+      `<span class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul des inscrits</span>` +
+      `<span class="score-chart-legend-item"><span class="score-chart-legend-line-or"></span>Nouveaux inscrits par jour</span>` +
+      `</div>`;
+    el.innerHTML = `<div style="position:relative;">${svg}<div class="score-chart-tip" id="signup-chart-tip"></div></div>${legend}`;
 
     const wrap  = el.firstElementChild;
     const svgEl = wrap.querySelector('svg');
@@ -5319,18 +5336,23 @@
       const i = +col.dataset.i;
       const s = series[i];
       const dot = wrap.querySelector(`.sc-dot[data-i="${i}"]`);
+      const dotNew = wrap.querySelector(`.sc-dot-new[data-i="${i}"]`);
       col.addEventListener('mouseenter', () => {
-        tipEl.innerHTML = `<div class="chart-tip-head">${fmtFull(s.day)}</div><div style="text-align:center;"><strong style="color:var(--or);font-size:1.05rem;">${s.cum}</strong> inscrit${s.cum > 1 ? 's' : ''}</div>`;
+        tipEl.innerHTML = `<div class="chart-tip-head">${fmtFull(s.day)}</div>` +
+          `<div style="text-align:center;"><strong style="color:var(--or);font-size:1.05rem;">${s.cum}</strong> inscrit${s.cum > 1 ? 's' : ''}</div>` +
+          `<div style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.6);">+${s.nouveaux} nouveau${s.nouveaux > 1 ? 'x' : ''} ce jour</div>`;
         tipEl.style.display = 'block';
         const scale = svgEl.getBoundingClientRect().width / W;
         tipEl.style.left = (xS(i) * scale).toFixed(1) + 'px';
         tipEl.style.top  = (yS(s.cum) * scale - 8).toFixed(1) + 'px';
         tipEl.style.transform = 'translate(-50%, -100%)';
         if (dot) dot.setAttribute('r', '5');
+        if (dotNew) dotNew.setAttribute('r', '4');
       });
       col.addEventListener('mouseleave', () => {
         tipEl.style.display = 'none';
         if (dot) dot.setAttribute('r', '3');
+        if (dotNew) dotNew.setAttribute('r', '2.5');
       });
     });
   }
@@ -7871,16 +7893,37 @@
         <div class="vs-side">${vsAvatarHtml(b.name, 'vs-side-av')}<div class="vs-side-name">${esc(b.name)}</div></div>
       </div>
       ${rowsHtml}
-      <div class="vs-pitches">
+      <div class="vs-pitches" id="vs-pitches" onscroll="vsPitchesScrolled(this)">
         <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(a.name)}</div><div class="onze-pitch">${onzePitchReadonlyHtml(a.onze)}</div></div>
         <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(b.name)}</div><div class="onze-pitch">${onzePitchReadonlyHtml(b.onze)}</div></div>
       </div>
+      <div class="vs-pitch-dots">
+        <button class="vs-pitch-dot on" onclick="vsPitchGo(0)" aria-label="Onze de ${esc(a.name)}"></button>
+        <button class="vs-pitch-dot" onclick="vsPitchGo(1)" aria-label="Onze de ${esc(b.name)}"></button>
+      </div>
+      <div class="vs-pitch-hint" id="vs-pitch-hint">Glisse pour voir l'onze de ${esc(b.name)}</div>
       <div class="vs-share-bar">
         <button class="vs-share-btn" onclick="shareVersus()" title="Partager cette comparaison" aria-label="Partager">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
         </button>
       </div>
       <div class="vs-share-msg" id="vs-share-msg"></div>`;
+  }
+
+  // Carrousel des onze : met à jour le point actif et le texte d'aide selon la position.
+  function vsPitchesScrolled(el) {
+    const idx = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+    document.querySelectorAll('.vs-pitch-dot').forEach((d, i) => d.classList.toggle('on', i === idx));
+    const hint = document.getElementById('vs-pitch-hint');
+    if (hint) hint.textContent = idx === 0
+      ? `Glisse pour voir l'onze de ${_vsRight}`
+      : `Glisse pour revenir à l'onze de ${_vsLeft}`;
+  }
+
+  // Clic sur un point : fait défiler jusqu'à l'onze correspondant.
+  function vsPitchGo(i) {
+    const el = document.getElementById('vs-pitches');
+    if (el) el.scrollTo({ left: i * (el.clientWidth + 10), behavior: 'smooth' });
   }
 
   async function shareVersus() {
