@@ -2051,6 +2051,8 @@
     .onze-coll-warn { font-size:.68rem;color:var(--or);font-weight:700;flex-shrink:0;white-space:nowrap; }
     .onze-coll-del { flex-shrink:0;background:none;border:none;color:rgba(255,255,255,.3);font-size:.95rem;cursor:pointer;padding:2px 6px;border-radius:6px;line-height:1;transition:all .12s; }
     .onze-coll-del:hover { color:#e53935;background:rgba(229,57,53,.1); }
+    .onze-coll-unplace { flex-shrink:0;background:rgba(0,200,81,.1);border:1px solid rgba(0,200,81,.3);color:var(--vert);font-size:.68rem;font-weight:700;cursor:pointer;padding:2px 8px;border-radius:20px;line-height:1.4;white-space:nowrap;transition:all .12s; }
+    .onze-coll-unplace:hover { background:rgba(229,57,53,.12);border-color:rgba(229,57,53,.4);color:#e53935; }
     .onze-dash-row { padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer; }
     .onze-dash-row:last-child { border-bottom:none; }
     .onze-dash-row:hover { background:rgba(255,255,255,.03); }
@@ -7606,7 +7608,11 @@
         return `<div class="onze-coll-row">
           <span class="onze-coll-name">${esc(q.playerName)}</span>
           <span class="onze-coll-pos">${pos}</span>
-          ${placed ? '<span class="onze-coll-placed">✓ placé</span>' : ''}
+          ${placed
+            ? (adminLogged
+                ? `<button class="onze-coll-unplace" title="Retirer ce joueur du Onze (il reste dans la collection)" onclick="adminRemoveFromOnze('${q.id}')">✓ placé</button>`
+                : '<span class="onze-coll-placed">✓ placé</span>')
+            : ''}
           ${notGuessed ? '<span class="onze-coll-warn" title="Collectionné mais jamais deviné en partie par ce joueur">⚠ non deviné</span>' : ''}
           ${adminLogged ? `<button class="onze-coll-del" title="Retirer de la collection" onclick="adminRemoveFromCollection('${q.id}')">✕</button>` : ''}
         </div>`;
@@ -8218,6 +8224,36 @@
       alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
       return;
     }
+
+    await _afterOnzeChange(name);
+  }
+
+  /* Retrait d'un joueur du Onze POSITIONNÉ (terrain + coach) d'un joueur, SANS
+     le supprimer de sa collection (admin). Cas d'usage : un joueur placé à un
+     mauvais poste avant correction de sa fiche — on le sort du terrain pour que
+     le joueur puisse le replacer au bon poste. nameArg fourni par la carte. */
+  async function adminRemoveFromOnze(qid, nameArg) {
+    const name = nameArg || _pcardName;
+    if (!name || !qid) return;
+    const q = LS.getQ().find(x => x.id === qid);
+    const label = q ? q.playerName : 'ce joueur';
+
+    const newOnze = _adminOnzeRaw(name);
+    if (!newOnze.slots.includes(qid) && newOnze.coach !== qid) return; // pas placé
+    if (!confirm(`Retirer ${label} du Onze de ${name} ?\n\nIl sera retiré du terrain mais restera dans sa collection : ${name} pourra le replacer au bon poste.`)) return;
+    if (!_supa) { alert('Serveur indisponible.'); return; }
+
+    newOnze.slots = newOnze.slots.map(id => (id === qid ? null : id));
+    if (newOnze.coach === qid) newOnze.coach = null;
+
+    if (!await _adminSaveOnze(name, newOnze)) {
+      alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
+      return;
+    }
+
+    // Notifie le joueur (s'il a un compte) — non bloquant.
+    await playerMsgSend(name.toLowerCase(), `${label} retiré de ton Onze`,
+      `L'admin a retiré ${label} de ton Onze (terrain). Il reste dans ta collection : tu peux le replacer au bon poste.`);
 
     await _afterOnzeChange(name);
   }
