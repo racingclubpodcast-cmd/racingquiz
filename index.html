@@ -566,6 +566,15 @@
     .btn-edit:hover { background: rgba(255,205,0,.12); }
     .q-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 
+    /* ── Vocabulaire allemand (Réglages) : liste compacte, lecture plus ergonomique.
+       Scopé au conteneur pour ne pas densifier la base de questions qui partage .q-item. ── */
+    #vocab-list-container .q-item    { padding: 8px 10px; margin-bottom: 6px; gap: 9px; align-items: center; }
+    #vocab-list-container .q-text    { font-size: .84rem; margin-bottom: 1px; }
+    #vocab-list-container .q-answer  { font-size: .75rem; margin-top: 1px; }
+    #vocab-list-container .q-meta    { font-size: .71rem; }
+    #vocab-list-container .q-actions { flex-direction: row; flex-wrap: wrap; gap: 5px; align-items: center; margin-left: auto; }
+    #vocab-list-container .q-actions .btn { padding: 4px 8px; font-size: .72rem; }
+
     /* ── DB filter dropdown ── */
     .db-filter-menu {
       position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
@@ -1100,6 +1109,17 @@
       background: rgba(227,6,19,.08);
       border-color: rgba(227,6,19,.3);
       color: rgba(255,255,255,.55);
+    }
+    /* Libellé de section des questions « Match » (Titulaires / Buteurs / Coach) */
+    .ml-group-label {
+      flex-basis: 100%;
+      text-align: center;
+      color: var(--or);
+      font-size: .72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin: 4px 0 -2px;
     }
     .ml-input-row { display: flex; gap: 10px; align-items: center; }
     .ml-input-row input { flex: 1; }
@@ -2012,6 +2032,50 @@
     .lb-games { font-size:.75rem;color:rgba(255,255,255,.45);font-weight:600;font-variant-numeric:tabular-nums; }
     .lb-badge-txt { font-size:.68rem;color:rgba(255,255,255,.38);white-space:nowrap; }
 
+    /* ── Barre de qualification playoffs (sous la 16e place, onglet Saison régulière) ── */
+    .lb-playoff-cut { display:flex;align-items:center;gap:10px;margin:2px 0;position:relative;cursor:help; }
+    .lb-playoff-cut::before, .lb-playoff-cut::after { content:'';flex:1;height:2px;background:var(--rouge);border-radius:2px; }
+    .lb-playoff-cut > span:first-child { color:var(--rouge);font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;flex-shrink:0; }
+    /* Infobulle au survol (ou au tap sur mobile via .tip-open) */
+    .lb-playoff-tip {
+      display:none;position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+      width:min(300px, 78vw);background:rgba(22,22,22,.98);border:1px solid rgba(227,6,19,.55);
+      border-radius:10px;padding:10px 12px;font-size:.78rem;line-height:1.5;color:rgba(255,255,255,.85);
+      text-align:center;z-index:20;box-shadow:0 10px 28px rgba(0,0,0,.6);pointer-events:none;
+      text-transform:none;letter-spacing:normal;font-weight:500;
+    }
+    .lb-playoff-tip::after {
+      content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+      border:6px solid transparent;border-top-color:rgba(227,6,19,.55);
+    }
+    .lb-playoff-cut:hover .lb-playoff-tip, .lb-playoff-cut.tip-open .lb-playoff-tip { display:block; }
+
+    /* ── Playoffs : tableau à élimination directe ── */
+    .po-bracket { padding:10px 0 6px; }
+    .po-round { margin-bottom:18px; }
+    .po-round:last-of-type { margin-bottom:8px; }
+    .po-round-title { color:var(--or);font-size:.75rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;text-align:center; }
+    .po-match { background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.18);border-radius:12px;padding:6px 10px;margin-bottom:10px; }
+    .po-sep { height:1px;background:rgba(255,255,255,.08);margin:2px 0; }
+    .po-side { display:flex;align-items:center;gap:10px;padding:7px 4px;border-radius:8px;transition:background .12s; }
+    .po-side:hover { background:rgba(255,205,0,.07); }
+    .po-side.po-tbd { color:rgba(255,255,255,.35);font-style:italic; }
+    .po-side.po-winner .po-name { color:var(--or);font-weight:800; }
+    .po-side.po-loser { opacity:.45; }
+    .po-seed { min-width:22px;text-align:center;font-weight:800;font-size:.78rem;color:rgba(255,255,255,.45);flex-shrink:0; }
+    .po-side.po-winner .po-seed { color:var(--or); }
+    .po-avatar { width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.72rem;color:#fff;overflow:hidden;flex-shrink:0;border:1px solid rgba(255,205,0,.25); }
+    .po-avatar img { width:100%;height:100%;object-fit:cover; }
+    .po-name { flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    .po-check { font-size:.66rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:var(--vert);border:1px solid rgba(0,200,81,.4);border-radius:99px;padding:2px 8px;flex-shrink:0; }
+    .po-champion { margin-top:4px;background:rgba(255,205,0,.09);border:1px solid rgba(255,205,0,.35);border-radius:14px;padding:14px;text-align:center; }
+    .po-champion-label { color:rgba(255,255,255,.55);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:4px; }
+    .po-champion-name { color:var(--or);font-weight:800;font-size:1.15rem; }
+    .po-podium { margin-top:6px;font-size:.78rem;color:rgba(255,255,255,.6);font-weight:600; }
+    /* Question tirée au sort pour le duel (visible côté admin uniquement) */
+    .po-match-q { border-top:1px dashed rgba(255,205,0,.25);margin-top:4px;padding:5px 4px 2px;font-size:.7rem;color:rgba(255,255,255,.45); }
+    .po-match-q strong { color:var(--or); }
+
     /* ── Mini-classement général (player cards) ── */
     .mini-rank { display:flex;flex-direction:column;gap:2px; }
     .mini-rank-row { display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;transition:background .12s; }
@@ -2179,11 +2243,16 @@
         <!-- Classement accessible avant de lancer la partie -->
         <button class="btn btn-full" style="margin-top:10px;background:rgba(255,205,0,.08);color:var(--or);border:1px solid rgba(255,205,0,.25);font-weight:600;" onclick="nav('leaderboard')">🏆 Classement</button>
         <div style="border-top:1px solid rgba(255,255,255,.08);padding-top:10px;margin-top:10px;">
-          <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="nav('player-card')" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
+          <button id="home-profile-btn" class="btn btn-ghost btn-full mb0" onclick="goToPlayerCard()" style="display:none;align-items:center;justify-content:center;gap:10px;font-size:.85rem;">
             <div id="home-avatar-mini" style="width:26px;height:26px;border-radius:50%;background:var(--rouge);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
             <span id="home-display-name" style="flex:1;text-align:left;"></span>
-            <span id="home-inbox-badge" style="display:none;background:var(--rouge);color:#fff;font-size:.68rem;font-weight:800;border-radius:20px;padding:1px 7px;">📬 0</span>
-            <span style="font-size:.7rem;opacity:.45;">Ma carte →</span>
+            <span id="home-inbox-badge" style="display:none;position:relative;flex-shrink:0;line-height:0;" title="Messages non lus">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--or)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <path d="m22 6-10 7L2 6"/>
+              </svg>
+              <span id="home-inbox-count" style="position:absolute;top:-7px;right:-8px;min-width:19px;height:19px;padding:0 5px;background:var(--rouge);color:#fff;font-size:.72rem;font-weight:800;line-height:1;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px rgba(26,26,26,.98);">0</span>
+            </span>
           </button>
           <button id="home-logout-btn" class="btn btn-danger btn-full mb0" onclick="authSignOut()" style="display:none;font-size:.82rem;">Se déconnecter</button>
         </div>
@@ -2230,8 +2299,9 @@
         <!-- Section Liste -->
         <div id="lb-section-liste">
           <div style="display:flex;gap:6px;margin-bottom:14px;">
-            <button id="lb-tab-general" class="lb-tab-btn lb-tab-active" onclick="lbSetTab('general')">All-time</button>
-            <button id="lb-tab-today"   class="lb-tab-btn"               onclick="lbSetTab('today')">Aujourd'hui</button>
+            <button id="lb-tab-general"  class="lb-tab-btn lb-tab-active" onclick="lbSetTab('general')">Saison régulière</button>
+            <button id="lb-tab-playoffs" class="lb-tab-btn"               onclick="lbSetTab('playoffs')" style="display:none;">Playoffs</button>
+            <button id="lb-tab-today"    class="lb-tab-btn"               onclick="lbSetTab('today')">Aujourd'hui</button>
           </div>
           <div id="lb-list" class="card" style="padding:4px 16px;min-height:60px;"></div>
           <p id="lb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:32px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
@@ -2337,7 +2407,7 @@
         <div class="add-subtabs db-subtabs">
           <button class="add-subtab active" id="dst-joueur" onclick="setDbSubTab('joueur')">Joueurs <span class="subtab-count" id="dstc-joueur">0</span></button>
           <button class="add-subtab" id="dst-bonus" onclick="setDbSubTab('bonus')">Bonus <span class="subtab-count" id="dstc-bonus">0</span></button>
-          <button class="add-subtab" id="dst-vocab" onclick="setDbSubTab('vocab')">Vocabulaire allemand <span class="subtab-count" id="dstc-vocab">0</span></button>
+          <button class="add-subtab" id="dst-match" onclick="setDbSubTab('match')">Matchs <span class="subtab-count" id="dstc-match">0</span></button>
         </div>
 
         <!-- Pane : Questions (Qui suis-je ? / Bonus) -->
@@ -2391,52 +2461,6 @@
         </div>
         </div><!-- /db-questions-pane -->
 
-        <!-- Pane : Vocabulaire allemand -->
-        <div id="db-vocab-pane" style="display:none;">
-          <div class="card">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap;">
-              <div>
-                <div style="font-weight:800;font-size:.98rem;">🇩🇪 Vocabulaire allemand</div>
-                <div style="font-size:.76rem;color:rgba(255,255,255,.5);">Un mot par jour, à partir du jour de démarrage. <span id="vocab-count" style="color:var(--or);font-weight:700;"></span></div>
-              </div>
-              <button class="btn btn-red btn-sm" id="vocab-add-btn" onclick="vocabOpenForm()" style="margin-left:auto;white-space:nowrap;">+ Ajouter un mot</button>
-            </div>
-
-            <!-- Jour de démarrage : le 1er mot de la liste y est affiché, puis un mot par jour -->
-            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
-              <div class="form-group mb0" style="flex:0 0 auto;min-width:180px;margin:0;">
-                <label class="field-label">📅 Jour de démarrage (1<sup>er</sup> mot)</label>
-                <input type="date" id="vocab-start" onchange="vocabSetStart()">
-              </div>
-              <div id="vocab-start-info" style="flex:1;min-width:180px;font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.45;"></div>
-            </div>
-
-            <!-- Formulaire d'ajout / édition (masqué par défaut) -->
-            <div id="vocab-form" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.25);border-radius:12px;padding:14px;margin-bottom:14px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                <span id="vocab-form-title" style="font-weight:700;color:var(--or);font-size:.85rem;text-transform:uppercase;letter-spacing:.4px;">Nouveau mot</span>
-                <button class="btn btn-ghost btn-sm" onclick="vocabCloseForm()">✕</button>
-              </div>
-              <div class="form-group">
-                <label class="field-label">Mot allemand *</label>
-                <input type="text" id="vocab-word" placeholder="Ex : das Tor" maxlength="80">
-              </div>
-              <div class="form-group">
-                <label class="field-label">Traduction française *</label>
-                <input type="text" id="vocab-translation" placeholder="Ex : le but / la cage" maxlength="120">
-              </div>
-              <div class="form-group">
-                <label class="field-label">Exemple (optionnel)</label>
-                <input type="text" id="vocab-example" placeholder="Ex : Was für ein Tor! — Quel but !" maxlength="200">
-              </div>
-              <div id="vocab-form-err" class="alert alert-error" style="display:none;margin-bottom:10px;"></div>
-              <input type="hidden" id="vocab-edit-orig">
-              <button class="btn btn-red btn-full mb0" onclick="vocabSubmit()">Enregistrer</button>
-            </div>
-
-            <div id="vocab-list-container"></div>
-          </div>
-        </div>
       </div>
 
       <!-- Formulaire d'ajout -->
@@ -2448,10 +2472,11 @@
           <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">✕ Fermer</button>
         </div>
 
-        <!-- Sub-tabs Question / Joueur -->
+        <!-- Sub-tabs Question / Joueur / Match -->
         <div class="add-subtabs">
           <button class="add-subtab active" id="ast-question" onclick="setAddMode('question')">Question</button>
           <button class="add-subtab" id="ast-joueur" onclick="setAddMode('joueur')">Joueurs</button>
+          <button class="add-subtab" id="ast-match" onclick="setAddMode('match')">Match</button>
         </div>
 
         <!-- ── Panel : Question (workflow existant) ── -->
@@ -2616,6 +2641,65 @@
           </div>
         </div>
 
+        <!-- ── Panel : Match (titulaires + buteurs + coach, mécanique Liste) ── -->
+        <div id="sec-add-match" style="display:none;">
+          <div class="card">
+            <div class="form-group">
+              <label class="field-label">Match *</label>
+              <input type="text" id="nm-label" placeholder="Ex : RC Lens 2-1 OM (J34, 16/05/2026)" maxlength="120">
+              <p class="field-hint">La question générée sera : « Pour le match …, nomme les 11 titulaires lensois, les buteurs lensois et le coach. »</p>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Les 11 titulaires lensois *</label>
+              <div id="nm-titulaires"></div>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Buteurs lensois</label>
+              <div id="nm-buteurs"></div>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="matchAddButeurRow()">+ Ajouter un buteur</button>
+              <p class="field-hint">Un buteur peut aussi être titulaire : le nommer une fois remplira les deux cases. Laissez vide si aucun but lensois.</p>
+            </div>
+
+            <div class="form-group" style="max-width:260px;">
+              <label class="field-label">Coach *</label>
+              <input type="text" id="nm-coach" placeholder="Ex : Pierre Sage" maxlength="80">
+            </div>
+
+            <div style="display:flex;gap:16px;flex-wrap:wrap;">
+              <div class="form-group" style="flex:1;min-width:120px;">
+                <label class="field-label">Points par bonne réponse</label>
+                <input type="number" id="nm-pts" min="0.5" max="99" step="0.5" value="1">
+                <p class="field-hint">Chaque titulaire, buteur et coach trouvé rapporte ces points.</p>
+              </div>
+              <div class="form-group" style="flex:1;min-width:120px;">
+                <label class="field-label">Timer (secondes)</label>
+                <input type="number" id="nm-timer" min="1" max="300" value="90">
+                <p class="field-hint">Durée pour tout retrouver.</p>
+              </div>
+              <div class="form-group" style="flex:1;min-width:120px;">
+                <label class="field-label">Tentatives incorrectes autorisées</label>
+                <input type="number" id="nm-max-wrong" min="0" max="99" value="0">
+                <p class="field-hint"><strong>0 = illimité.</strong></p>
+              </div>
+            </div>
+
+            <div class="sep" style="margin:14px 0;"></div>
+
+            <div class="form-group">
+              <label class="field-label">Tags (optionnel)</label>
+              <div id="tag-picker-match" class="tag-picker"></div>
+              <p class="field-hint">Cliquer sur un tag pour l'associer. Gérez vos tags dans Réglages.</p>
+            </div>
+
+            <div id="add-match-err" class="alert alert-error"   style="display:none"></div>
+            <div id="add-match-ok"  class="alert alert-success" style="display:none">Question ajoutée avec succès !</div>
+
+            <button class="btn btn-red btn-full mb0" onclick="addMatch()">Ajouter la question</button>
+          </div>
+        </div>
+
       </div>
 
       <!-- Tab : settings -->
@@ -2635,10 +2719,12 @@
               <button class="settings-nav-item" id="snav-game-onze"      onclick="showSettingsPanel('game-onze')">Mon Onze</button>
               <button class="settings-nav-item" id="snav-game-referral"  onclick="showSettingsPanel('game-referral')">Parrainage</button>
               <button class="settings-nav-item" id="snav-game-midbreak"  onclick="showSettingsPanel('game-midbreak')">Pause fraîcheur</button>
+              <button class="settings-nav-item" id="snav-game-playoffs"  onclick="showSettingsPanel('game-playoffs')">Playoffs</button>
             </nav>
             <div class="settings-cat-header">Apparence</div>
             <nav class="settings-nav">
               <button class="settings-nav-item" id="snav-app-subtitle" onclick="showSettingsPanel('app-subtitle')">Texte personnalisé</button>
+              <button class="settings-nav-item" id="snav-app-vocab" onclick="showSettingsPanel('app-vocab')">Vocabulaire allemand</button>
             </nav>
             <div class="settings-cat-header">Sécurité</div>
             <nav class="settings-nav">
@@ -2759,6 +2845,25 @@
               </div>
             </div>
 
+            <!-- Panel : Playoffs -->
+            <div id="settings-panel-game-playoffs" class="settings-panel">
+              <div class="card">
+                <h3>Playoffs</h3>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">
+                  À la fin de la saison régulière (J34), les <strong>16 premiers du classement général</strong>
+                  sont qualifiés pour les playoffs (tableau à élimination directe : huitièmes, quarts,
+                  demi-finales, petite finale pour la 3ᵉ place, et finale).
+                  La fin de la saison régulière est <strong>actée manuellement</strong> ici — prévenez les joueurs
+                  bien en amont. Une fois actée, l'onglet « Playoffs » apparaît dans le classement public, le
+                  classement « Saison régulière » est figé à cette date, et vous définissez ci-dessous
+                  <strong>4 questions par tour</strong> ; une question est <strong>tirée au sort pour chaque duel</strong>
+                  et s'applique aux deux joueurs qui s'affrontent.
+                </p>
+                <div id="playoffs-settings-body"></div>
+                <div id="playoffs-settings-status" style="margin-top:10px;"></div>
+              </div>
+            </div>
+
             <!-- Panel : Texte personnalisé -->
             <div id="settings-panel-app-subtitle" class="settings-panel">
               <div class="card">
@@ -2770,6 +2875,53 @@
                 </div>
                 <button class="btn btn-gold btn-full" id="btn-save-subtitle" onclick="saveSubtitle()">💾 Sauvegarder</button>
                 <div id="subtitle-save-status" style="margin-top:10px;"></div>
+              </div>
+            </div>
+
+            <!-- Panel : Vocabulaire allemand -->
+            <div id="settings-panel-app-vocab" class="settings-panel">
+              <div class="card">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+                  <div>
+                    <div style="font-weight:800;font-size:.95rem;">🇩🇪 Vocabulaire allemand <span id="vocab-count" style="color:var(--or);font-weight:700;font-size:.8rem;"></span></div>
+                    <div style="font-size:.73rem;color:rgba(255,255,255,.5);">Un mot par jour dès le démarrage.</div>
+                  </div>
+                  <button class="btn btn-red btn-sm" id="vocab-add-btn" onclick="vocabOpenForm()" style="margin-left:auto;white-space:nowrap;">+ Ajouter</button>
+                </div>
+
+                <!-- Jour de démarrage : le 1er mot de la liste y est affiché, puis un mot par jour -->
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:9px 12px;margin-bottom:10px;">
+                  <div class="form-group mb0" style="flex:0 0 auto;min-width:160px;margin:0;">
+                    <label class="field-label">📅 Jour de démarrage</label>
+                    <input type="date" id="vocab-start" onchange="vocabSetStart()">
+                  </div>
+                  <div id="vocab-start-info" style="flex:1;min-width:160px;font-size:.74rem;color:rgba(255,255,255,.6);line-height:1.4;"></div>
+                </div>
+
+                <!-- Formulaire d'ajout / édition (masqué par défaut) -->
+                <div id="vocab-form" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.25);border-radius:12px;padding:14px;margin-bottom:14px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+                    <span id="vocab-form-title" style="font-weight:700;color:var(--or);font-size:.85rem;text-transform:uppercase;letter-spacing:.4px;">Nouveau mot</span>
+                    <button class="btn btn-ghost btn-sm" onclick="vocabCloseForm()">✕</button>
+                  </div>
+                  <div class="form-group">
+                    <label class="field-label">Mot allemand *</label>
+                    <input type="text" id="vocab-word" placeholder="Ex : das Tor" maxlength="80">
+                  </div>
+                  <div class="form-group">
+                    <label class="field-label">Traduction française *</label>
+                    <input type="text" id="vocab-translation" placeholder="Ex : le but / la cage" maxlength="120">
+                  </div>
+                  <div class="form-group">
+                    <label class="field-label">Exemple (optionnel)</label>
+                    <input type="text" id="vocab-example" placeholder="Ex : Was für ein Tor! — Quel but !" maxlength="200">
+                  </div>
+                  <div id="vocab-form-err" class="alert alert-error" style="display:none;margin-bottom:10px;"></div>
+                  <input type="hidden" id="vocab-edit-orig">
+                  <button class="btn btn-red btn-full mb0" onclick="vocabSubmit()">Enregistrer</button>
+                </div>
+
+                <div id="vocab-list-container"></div>
               </div>
             </div>
 
@@ -2997,8 +3149,9 @@
             <!-- Section Liste -->
             <div id="alb-section-liste">
               <div style="display:flex;gap:6px;margin-bottom:14px;">
-                <button id="alb-tab-general" class="lb-tab-btn lb-tab-active" onclick="lbSetTab('general','alb')">All-time</button>
-                <button id="alb-tab-today"   class="lb-tab-btn"               onclick="lbSetTab('today','alb')">Aujourd'hui</button>
+                <button id="alb-tab-general"  class="lb-tab-btn lb-tab-active" onclick="lbSetTab('general','alb')">Saison régulière</button>
+                <button id="alb-tab-playoffs" class="lb-tab-btn"               onclick="lbSetTab('playoffs','alb')" style="display:none;">Playoffs</button>
+                <button id="alb-tab-today"    class="lb-tab-btn"               onclick="lbSetTab('today','alb')">Aujourd'hui</button>
               </div>
               <div id="alb-list" style="padding:0 4px;min-height:60px;"></div>
               <p id="alb-empty" style="display:none;text-align:center;color:rgba(255,255,255,.35);margin-top:24px;font-size:.88rem;">Pas encore de scores pour cette période.</p>
@@ -3741,6 +3894,12 @@
         <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.55;margin:0;">Chaque question est <strong style="color:#fff;">chronométrée</strong> : à l'expiration, la réponse est comptée comme manquée. Ton score te positionne ensuite dans le <strong style="color:#fff;">classement</strong> des supporters.</p>
       </div>
 
+      <!-- Playoffs -->
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+        <p style="color:rgba(255,255,255,.5);font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Playoffs</p>
+        <p style="color:rgba(255,255,255,.75);font-size:.84rem;line-height:1.55;margin:0;">À la fin de la saison régulière (34 journées), les <strong style="color:#fff;">16 premiers du classement général</strong> sont <strong style="color:#fff;">qualifiés pour les playoffs</strong> : un tableau à élimination directe (huitièmes, quarts, demi-finales, finale) pour désigner le champion de la saison. Une <strong style="color:#fff;">petite finale</strong> oppose les deux perdants des demi-finales pour la 3ᵉ place.</p>
+      </div>
+
       <!-- Sécurité du mot de passe -->
       <div style="background:rgba(227,6,19,.08);border:1px solid rgba(227,6,19,.32);border-radius:12px;padding:14px 16px;margin-bottom:24px;">
         <p style="color:#ff6b73;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px;">🔒 Ton compte & ta sécurité</p>
@@ -4100,6 +4259,17 @@
       </p>
       <div id="no-session-next" style="font-size:1rem;font-weight:700;color:#fff;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:10px;padding:10px 14px;margin:10px 0 18px;"></div>
       <button class="btn btn-gold btn-full mb0" onclick="closeNoSessionPopup()">Compris&nbsp;!</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════ NOUVEAU MESSAGE REÇU ═══ -->
+  <div id="inbox-alert-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeInboxAlertPopup()">
+    <div style="background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.28);border-radius:18px;padding:26px 24px;width:min(94vw,400px);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.65);">
+      <div style="font-weight:800;font-size:1.05rem;color:var(--or);margin-bottom:10px;">Vous avez reçu un message&nbsp;!</div>
+      <p style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5;margin:0 0 18px;">
+        Retrouvez-le dans «&nbsp;Mes messages&nbsp;» un peu plus bas sur cette page.
+      </p>
+      <button class="btn btn-gold btn-full mb0" onclick="closeInboxAlertPopup()">Compris&nbsp;!</button>
     </div>
   </div>
 
@@ -4838,6 +5008,7 @@
     contact       : true,
     catQuestions  : true,
     catJoueur     : true,
+    catMatch      : true,
     betaTest      : false,
     onzeBonusPoints: 10,
     referralParrainPts: 2,
@@ -4851,7 +5022,8 @@
 
   const CATEGORIES_META = [
     { key: 'catJoueur',    label: 'Joueurs', desc: 'Questions de type "Joueurs" (Qui suis-je ?)',          typeFilter: q => q.type === 'joueur' },
-    { key: 'catQuestions', label: 'Bonus',          desc: 'Questions classiques (Libre, QCM, Liste…)', typeFilter: q => q.type !== 'joueur' },
+    { key: 'catQuestions', label: 'Bonus',          desc: 'Questions classiques (Libre, QCM, Liste…)', typeFilter: q => q.type !== 'joueur' && q.theme !== 'match' },
+    { key: 'catMatch',     label: 'Matchs',  desc: 'Questions "Match" : titulaires + buteurs + coach à retrouver', typeFilter: q => q.theme === 'match' },
   ];
 
   function getActiveQ() {
@@ -5162,32 +5334,32 @@
   ═══════════════════════════════════════════════════ */
   let dbPageQ = 0;
   let dbPageJ = 0;
+  let dbPageM = 0;
   let dbSearchTerm   = '';
   let dbActiveFilters = new Set(); // 'joueur' | 'bonus' | 'with-tag' | 'no-tag' | 'new'
-  let dbSubTab = sessionStorage.getItem('rcDbSubTab') || 'joueur'; // 'joueur' | 'bonus' | 'vocab'
+  let dbSubTab = sessionStorage.getItem('rcDbSubTab') || 'joueur'; // 'joueur' | 'bonus' | 'match'
+  if (!['joueur', 'bonus', 'match'].includes(dbSubTab)) dbSubTab = 'joueur'; // 'vocab' a déménagé dans Réglages › Apparence
   const DB_PAGE_SIZE = 10;
+
+  // Question « Match » : thématique dédiée (titulaires + buteurs + coach), mécanique Liste
+  function isMatchQ(q) { return q && q.theme === 'match'; }
 
   // Met à jour les pastilles de comptage des sous-onglets de la database
   function updateDbSubtabCounts() {
     const qs = (typeof LS !== 'undefined' && LS.getQ) ? LS.getQ() : [];
-    const vocab = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : [];
     const set = (id, n) => { const el = document.getElementById(id); if (el) el.textContent = n; };
     set('dstc-joueur', qs.filter(q => q.type === 'joueur').length);
-    set('dstc-bonus',  qs.filter(q => q.type !== 'joueur').length);
-    set('dstc-vocab',  Array.isArray(vocab) ? vocab.length : 0);
+    set('dstc-bonus',  qs.filter(q => q.type !== 'joueur' && !isMatchQ(q)).length);
+    set('dstc-match',  qs.filter(isMatchQ).length);
   }
 
-  // Bascule entre les sous-onglets de la database (Qui suis-je ? / Bonus / Vocabulaire)
+  // Bascule entre les sous-onglets de la database (Qui suis-je ? / Bonus / Matchs)
   function setDbSubTab(sub) {
     dbSubTab = sub;
     sessionStorage.setItem('rcDbSubTab', sub);
-    ['joueur', 'bonus', 'vocab'].forEach(s =>
+    ['joueur', 'bonus', 'match'].forEach(s =>
       document.getElementById('dst-' + s).classList.toggle('active', s === sub));
-    const isVocab = sub === 'vocab';
-    document.getElementById('db-questions-pane').style.display = isVocab ? 'none' : 'block';
-    document.getElementById('db-vocab-pane').style.display     = isVocab ? 'block' : 'none';
-    if (isVocab) renderVocabAdmin();
-    else renderAdmin();
+    renderAdmin();
   }
 
   // Sous-onglets de la messagerie : Envoyer / Messages envoyés / Messages reçus
@@ -5546,6 +5718,8 @@
       const st = document.getElementById('referral-save-status');
       if (st) st.innerHTML = '';
     }
+    if (id === 'app-vocab') renderVocabAdmin();
+    if (id === 'game-playoffs') renderPlayoffSettings();
   }
 
   /* ═══════════════════════════════════════════════════
@@ -6107,6 +6281,23 @@
     if (ov) ov.style.display = 'none';
   }
 
+  // Accès à la carte joueur depuis l'accueil : ouvre la vue puis, si des
+  // messages non lus attendent, signale immédiatement leur présence.
+  function goToPlayerCard() {
+    nav('player-card');
+    if (_inboxUnreadCount() > 0) showInboxAlertPopup();
+  }
+
+  function showInboxAlertPopup() {
+    const ov = document.getElementById('inbox-alert-overlay');
+    if (ov) ov.style.display = 'flex';
+  }
+
+  function closeInboxAlertPopup() {
+    const ov = document.getElementById('inbox-alert-overlay');
+    if (ov) ov.style.display = 'none';
+  }
+
   let pickerDate      = null;
   let pickerSlot      = null;
   let pickerPendingId = null;
@@ -6497,14 +6688,145 @@
     addMode = mode;
     document.getElementById('ast-question').classList.toggle('active', mode === 'question');
     document.getElementById('ast-joueur').classList.toggle('active', mode === 'joueur');
+    document.getElementById('ast-match').classList.toggle('active', mode === 'match');
     document.getElementById('sec-add-question').style.display = mode === 'question' ? 'block' : 'none';
     document.getElementById('sec-add-joueur').style.display   = mode === 'joueur'   ? 'block' : 'none';
+    document.getElementById('sec-add-match').style.display    = mode === 'match'    ? 'block' : 'none';
     sessionStorage.setItem('rcAddMode', mode);
     if (mode === 'joueur') {
       renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
       renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
       renderPosPicker('nj-positions', addJoueurPositions);
     }
+    if (mode === 'match') {
+      renderTagPicker('tag-picker-match', addMatchSelectedTags);
+      initMatchForm();
+    }
+  }
+
+  /* ── Formulaire « Match » (11 titulaires + buteurs + coach) ── */
+  let addMatchSelectedTags = [];
+
+  function toggleMatchTag(id) {
+    const idx = addMatchSelectedTags.indexOf(id);
+    if (idx === -1) addMatchSelectedTags.push(id);
+    else addMatchSelectedTags.splice(idx, 1);
+    renderTagPicker('tag-picker-match', addMatchSelectedTags);
+  }
+
+  // Prépare les champs du formulaire Match (11 titulaires + 1 ligne buteur),
+  // sans écraser une saisie en cours si les lignes existent déjà.
+  function initMatchForm(force = false) {
+    const titEl = document.getElementById('nm-titulaires');
+    if (!titEl) return;
+    if (force || !titEl.children.length) {
+      titEl.innerHTML = Array.from({ length: 11 }, (_, i) => `
+        <div class="libre-answer-row">
+          <input type="text" id="nm-tit-${i}" placeholder="Titulaire ${i + 1}…" maxlength="80">
+        </div>`).join('');
+    }
+    const butEl = document.getElementById('nm-buteurs');
+    if (butEl && (force || !butEl.children.length)) {
+      butEl.innerHTML = '';
+      matchAddButeurRow();
+    }
+  }
+
+  function matchAddButeurRow(value = '') {
+    const butEl = document.getElementById('nm-buteurs');
+    if (!butEl) return;
+    const i = butEl.children.length;
+    const row = document.createElement('div');
+    row.className = 'libre-answer-row';
+    row.innerHTML = `<input type="text" id="nm-but-${i}" placeholder="Buteur ${i + 1}…" maxlength="80">`;
+    butEl.appendChild(row);
+    if (value) row.querySelector('input').value = value;
+  }
+
+  // Prochain code d'entrée « Match » : M1, M2, …
+  function nextMatchCode(arr) {
+    const nums = arr
+      .filter(q => /^M\d+$/.test(q.id))
+      .map(q => parseInt(q.id.slice(1)));
+    return 'M' + ((nums.length ? Math.max(...nums) : 0) + 1);
+  }
+
+  function addMatch() {
+    const errEl = document.getElementById('add-match-err');
+    const okEl  = document.getElementById('add-match-ok');
+    errEl.style.display = 'none'; okEl.style.display = 'none';
+    const fail = msg => { errEl.textContent = msg; errEl.style.display = 'block'; };
+
+    const label = (document.getElementById('nm-label').value || '').trim();
+    if (!label) return fail('Veuillez saisir le match (ex : RC Lens 2-1 OM).');
+
+    const titulaires = [];
+    for (let i = 0; i < 11; i++) {
+      const v = (document.getElementById('nm-tit-' + i)?.value || '').trim();
+      if (!v) return fail(`Veuillez renseigner le titulaire ${i + 1} (les 11 sont obligatoires).`);
+      titulaires.push(v);
+    }
+
+    const buteurs = [];
+    const butEl = document.getElementById('nm-buteurs');
+    if (butEl) [...butEl.querySelectorAll('input')].forEach(inp => {
+      const v = (inp.value || '').trim();
+      if (v) buteurs.push(v);
+    });
+
+    const coach = (document.getElementById('nm-coach').value || '').trim();
+    if (!coach) return fail('Veuillez renseigner le coach.');
+
+    const ptsPer   = Math.max(0.5, parseFloat(document.getElementById('nm-pts').value) || 1);
+    const timer    = Math.max(1, Math.min(300, parseInt(document.getElementById('nm-timer').value) || 90));
+    const maxWrong = Math.max(0, parseInt(document.getElementById('nm-max-wrong').value) || 0);
+
+    const mlAnswers = [...titulaires, ...buteurs, coach];
+    const mlGroups  = [
+      ...titulaires.map(() => 'tit'),
+      ...buteurs.map(() => 'but'),
+      'coach',
+    ];
+
+    const arr = LS.getQ();
+    const q = {
+      id: nextMatchCode(arr),
+      type: 'multi-libre',
+      theme: 'match',
+      text: buteurs.length
+        ? `Pour le match ${label}, nomme les 11 titulaires lensois, le${buteurs.length > 1 ? 's' : ''} buteur${buteurs.length > 1 ? 's' : ''} lensois et le coach !`
+        : `Pour le match ${label}, nomme les 11 titulaires lensois et le coach !`,
+      matchLabel: label,
+      active: true,
+      tags: addMatchSelectedTags.slice(),
+      mlAnswers,
+      mlGroups,
+      mlVariants: mlAnswers.map(() => []),
+      mlRequired: mlAnswers.length,
+      mlMaxWrong: maxWrong,
+      mlPtsPer: ptsPer,
+      points: mlAnswers.length * ptsPer, // score maximum de la question
+      timerDuration: timer,
+      answer: `11 titulaires + ${buteurs.length} buteur${buteurs.length > 1 ? 's' : ''} + coach`,
+      createdAt: Date.now(),
+    };
+
+    arr.push(q);
+    LS.saveQ(arr);
+
+    // Reset du formulaire
+    document.getElementById('nm-label').value = '';
+    document.getElementById('nm-coach').value = '';
+    document.getElementById('nm-pts').value = '1';
+    document.getElementById('nm-timer').value = '90';
+    document.getElementById('nm-max-wrong').value = '0';
+    initMatchForm(true);
+    addMatchSelectedTags = [];
+    renderTagPicker('tag-picker-match', addMatchSelectedTags);
+    updateDbSubtabCounts();
+
+    okEl.style.display = 'block';
+    setTimeout(() => okEl.style.display = 'none', 2500);
   }
 
   /* ── Joueur matching ── */
@@ -7399,13 +7721,16 @@
   /* Classement général : score total cumulé (toutes parties) + bonus Onze.
      Les joueurs masqués par l'admin (features.hiddenPlayers) sont exclus.
      Retourne un tableau trié [{ name, total }]. */
-  function generalRankingList() {
+  // untilDate (YYYY-MM-DD, optionnel) : ignore les scores postérieurs à cette date —
+  // sert à figer le classement « Saison régulière » une fois les playoffs actés.
+  function generalRankingList(untilDate) {
     const lb     = LS.getLeaderboard();
     const hidden = hiddenRankingSet();
     const map = {};
     lb.forEach(e => {
       const raw = (e.name || '').trim();
       if (!raw) return;
+      if (untilDate && e.date && String(e.date).slice(0, 10) > untilDate) return;
       const key = raw.toLowerCase();
       if (hidden.has(key)) return;
       if (!map[key]) map[key] = { name: raw, total: 0 };
@@ -7413,6 +7738,375 @@
     });
     Object.values(map).forEach(o => { o.total += onzeBonusForName(o.name); });
     return Object.values(map).sort((a, b) => b.total - a.total || a.name.localeCompare(b.name, 'fr'));
+  }
+
+  /* ═══════════════════════════════════════════════════
+     PLAYOFFS — les 16 premiers de la saison régulière s'affrontent dans un
+     tableau à élimination directe (huitièmes → quarts → demies → petite
+     finale + finale). Données persistées dans quiz_data.features.playoffs :
+     { active, endedAt, seeds:[{seed,name}×16],
+       winners:{h1…h8,q1…q4,s1,s2,p3,f1},
+       roundQuestions:{r16|qf|sf|f:[4 ids]}, matchQuestions:{matchId:qid} }.
+     La fin de saison est actée MANUELLEMENT par l'admin (Réglages › Jeu ›
+     Playoffs) ; les vainqueurs de chaque duel sont aussi désignés par l'admin
+     (clic sur un participant dans le tableau, côté panel admin). Chaque tour
+     dispose de 4 questions définies par l'admin ; une question est tirée au
+     sort par duel et s'applique aux deux joueurs qui s'affrontent.
+  ═══════════════════════════════════════════════════ */
+  const PLAYOFF_QUALIFIED = 16;
+
+  // Duels par tour. Huitièmes : 1-16, 2-15, … 8-9 ; ensuite le « meilleur »
+  // vainqueur rencontre le « moins bon » (V(1-16) vs V(8-9), etc.). La petite
+  // finale (p3) oppose les perdants des demi-finales.
+  const PLAYOFF_ROUND_MATCHES = {
+    r16: ['h1','h2','h3','h4','h5','h6','h7','h8'],
+    qf : ['q1','q2','q3','q4'],
+    sf : ['s1','s2'],
+    f  : ['p3','f1'],
+  };
+  const PLAYOFF_MATCH_NAMES = {
+    h1:'1ᵉʳ – 16ᵉ', h2:'2ᵉ – 15ᵉ', h3:'3ᵉ – 14ᵉ', h4:'4ᵉ – 13ᵉ',
+    h5:'5ᵉ – 12ᵉ', h6:'6ᵉ – 11ᵉ', h7:'7ᵉ – 10ᵉ', h8:'8ᵉ – 9ᵉ',
+    q1:'Quart 1', q2:'Quart 2', q3:'Quart 3', q4:'Quart 4',
+    s1:'Demi-finale 1', s2:'Demi-finale 2', p3:'Petite finale', f1:'Finale',
+  };
+  const PLAYOFF_QROUNDS = [
+    { id: 'r16', label: 'Huitièmes de finale' },
+    { id: 'qf',  label: 'Quarts de finale' },
+    { id: 'sf',  label: 'Demi-finales' },
+    { id: 'f',   label: 'Finale & petite finale' },
+  ];
+
+  function playoffsData() {
+    const p = LS.getFeatures().playoffs;
+    return (p && typeof p === 'object') ? p : null;
+  }
+  function playoffsActive() {
+    const p = playoffsData();
+    return !!(p && p.active && Array.isArray(p.seeds) && p.seeds.length === PLAYOFF_QUALIFIED);
+  }
+  // Date de fin de la saison régulière (si actée) — fige le classement Général.
+  function regularSeasonCutoff() {
+    const p = playoffsData();
+    return (playoffsActive() && p.endedAt) ? p.endedAt : null;
+  }
+
+  // Structure du tableau. Huitièmes : 1-16, 2-15, … 8-9. Quarts : V(1-16) vs
+  // V(8-9), V(2-15) vs V(7-10), V(3-14) vs V(6-11), V(4-13) vs V(5-12).
+  // Demies : V(q1) vs V(q4) et V(q2) vs V(q3). Petite finale : perdants des
+  // demies. Chaque camp = { seed, name } ou null (à déterminer).
+  function playoffsBracket() {
+    const p = playoffsData();
+    if (!p || !Array.isArray(p.seeds)) return null;
+    const w = (p.winners && typeof p.winners === 'object') ? p.winners : {};
+    const bySeed = n => p.seeds.find(s => s.seed === n) || null;
+    const seedOf = name => { const f = p.seeds.find(s => s.name === name); return f ? f.seed : null; };
+    const winnerSide = id => w[id] ? { seed: seedOf(w[id]), name: w[id] } : null;
+    // Perdant d'un duel : l'autre participant que le vainqueur (si tout est connu).
+    const loserSide = m => (m.a && m.b && w[m.id]) ? (w[m.id] === m.a.name ? m.b : m.a) : null;
+
+    const r16 = PLAYOFF_ROUND_MATCHES.r16.map((id, i) =>
+      ({ id, a: bySeed(i + 1), b: bySeed(16 - i) }));
+    const qf = [
+      { id: 'q1', a: winnerSide('h1'), b: winnerSide('h8') },
+      { id: 'q2', a: winnerSide('h2'), b: winnerSide('h7') },
+      { id: 'q3', a: winnerSide('h3'), b: winnerSide('h6') },
+      { id: 'q4', a: winnerSide('h4'), b: winnerSide('h5') },
+    ];
+    const sf = [
+      { id: 's1', a: winnerSide('q1'), b: winnerSide('q4') },
+      { id: 's2', a: winnerSide('q2'), b: winnerSide('q3') },
+    ];
+    const p3m = { id: 'p3', a: loserSide(sf[0]), b: loserSide(sf[1]) };
+    const f1m = { id: 'f1', a: winnerSide('s1'), b: winnerSide('s2') };
+
+    return {
+      winners: w,
+      rounds: [
+        { id: 'r16', title: 'Huitièmes de finale',       matches: r16 },
+        { id: 'qf',  title: 'Quarts de finale',           matches: qf },
+        { id: 'sf',  title: 'Demi-finales',               matches: sf },
+        { id: 'p3',  title: 'Petite finale (3ᵉ place)',   matches: [p3m] },
+        { id: 'f',   title: 'Finale',                     matches: [f1m] },
+      ],
+      champion : w.f1 || null,
+      runnerUp : (w.f1 && f1m.a && f1m.b) ? (w.f1 === f1m.a.name ? f1m.b.name : f1m.a.name) : null,
+      third    : w.p3 || null,
+    };
+  }
+
+  // Acte la fin de la saison régulière : fige le top 16 comme têtes de série.
+  function playoffEndSeason() {
+    const ranking = generalRankingList();
+    if (ranking.length < PLAYOFF_QUALIFIED) {
+      alert(`Impossible d'acter la fin de saison : il faut au moins ${PLAYOFF_QUALIFIED} joueurs classés (actuellement ${ranking.length}).`);
+      return;
+    }
+    const top16 = ranking.slice(0, PLAYOFF_QUALIFIED);
+    const names = top16.map((r, i) => `${i + 1}. ${r.name} (${r.total} pts)`).join('\n');
+    if (!confirm(`Acter la fin de la saison régulière ?\n\nLes 16 qualifiés pour les playoffs :\n${names}\n\nLe classement « Saison régulière » sera figé à aujourd'hui et le tableau des playoffs deviendra visible par tous les joueurs.`)) return;
+    const f = LS.getFeatures();
+    f.playoffs = {
+      active : true,
+      endedAt: planningTodayStr(),
+      seeds  : top16.map((r, i) => ({ seed: i + 1, name: r.name })),
+      winners: {},
+      roundQuestions: {},
+      matchQuestions: {},
+    };
+    LS.saveFeatures(f);
+    renderPlayoffSettings();
+    const st = document.getElementById('playoffs-settings-status');
+    if (st) st.innerHTML = `<div style="padding:10px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);font-size:.8rem;">
+      ✅ <strong>Fin de saison actée</strong> — le tableau des playoffs est visible dans les classements.</div>`;
+  }
+
+  // Annule les playoffs (retour à la saison régulière) — action de secours.
+  function playoffCancel() {
+    if (!confirm('Annuler les playoffs ?\n\nLe tableau (têtes de série et vainqueurs désignés) sera supprimé et le classement « Saison régulière » redeviendra vivant.')) return;
+    const f = LS.getFeatures();
+    delete f.playoffs;
+    LS.saveFeatures(f);
+    renderPlayoffSettings();
+  }
+
+  // Panneau Réglages › Jeu › Playoffs
+  function renderPlayoffSettings() {
+    const body = document.getElementById('playoffs-settings-body');
+    if (!body) return;
+    const st = document.getElementById('playoffs-settings-status');
+    if (st) st.innerHTML = '';
+    if (playoffsActive()) {
+      const p = playoffsData();
+      const seedRows = p.seeds.map(s =>
+        `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.86rem;">
+          <span style="color:var(--or);font-weight:800;min-width:26px;">${s.seed}.</span>
+          <span>${esc(s.name)}</span>
+        </div>`).join('');
+      body.innerHTML = `
+        <div class="alert alert-info" style="font-size:.78rem;line-height:1.5;padding:9px 12px;margin-bottom:14px;">
+          Fin de saison régulière actée le <strong>${esc(planningFmtDs(p.endedAt))}</strong>.
+          Désignez les vainqueurs de chaque duel en cliquant sur un participant dans
+          <strong>Stats → Classements → onglet Playoffs</strong>.
+        </div>
+        ${playoffQuestionsSectionHtml(p)}
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+          <div style="font-size:.75rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Têtes de série</div>
+          ${seedRows}
+        </div>
+        <button class="btn btn-danger btn-full mb0" onclick="playoffCancel()">Annuler les playoffs</button>`;
+    } else {
+      const ranking = generalRankingList();
+      const enough  = ranking.length >= PLAYOFF_QUALIFIED;
+      const preview = ranking.slice(0, PLAYOFF_QUALIFIED).map((r, i) =>
+        `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:.86rem;">
+          <span style="color:var(--or);font-weight:800;min-width:26px;">${i + 1}.</span>
+          <span style="flex:1;">${esc(r.name)}</span>
+          <span style="color:var(--or);font-weight:700;font-size:.8rem;">${r.total} pts</span>
+        </div>`).join('');
+      body.innerHTML = `
+        <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+          <div style="font-size:.75rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;">Qualifiés si la saison se terminait aujourd'hui</div>
+          ${preview || '<p style="font-size:.82rem;color:rgba(255,255,255,.4);margin:0;">Aucun joueur classé pour le moment.</p>'}
+        </div>
+        ${enough ? '' : `<div class="alert alert-error" style="font-size:.78rem;padding:9px 12px;">Il faut au moins ${PLAYOFF_QUALIFIED} joueurs classés pour lancer les playoffs.</div>`}
+        <button class="btn btn-danger btn-full mb0" onclick="playoffEndSeason()" ${enough ? '' : 'disabled'}>Acter la fin de la saison régulière</button>`;
+    }
+  }
+
+  /* ── Questions des playoffs : 4 questions par tour, tirage au sort par duel ── */
+
+  // Questions candidates : toutes les entrées actives hors « Qui suis-je ? »,
+  // les questions « Match » en tête de liste.
+  function _playoffQuestionPool() {
+    return LS.getQ()
+      .filter(q => q.type !== 'joueur' && q.active !== false)
+      .sort((a, b) => ((b.theme === 'match') - (a.theme === 'match')) || String(a.id).localeCompare(String(b.id), 'fr', { numeric: true }));
+  }
+
+  function playoffQuestionsSectionHtml(p) {
+    const pool = _playoffQuestionPool();
+    if (!pool.length) {
+      return `<div class="alert alert-error" style="font-size:.78rem;padding:9px 12px;margin-bottom:14px;">
+        Aucune question disponible pour les playoffs — créez d'abord des questions (idéalement de type « Match ») dans Database.</div>`;
+    }
+    const rq = (p.roundQuestions && typeof p.roundQuestions === 'object') ? p.roundQuestions : {};
+    const mq = (p.matchQuestions && typeof p.matchQuestions === 'object') ? p.matchQuestions : {};
+    const optionsHtml = sel => `<option value="">— choisir —</option>` + pool.map(q => {
+      const label = `${q.id} — ${(q.matchLabel || q.text || '').slice(0, 55)}`;
+      return `<option value="${esc(q.id)}"${q.id === sel ? ' selected' : ''}>${esc(label)}</option>`;
+    }).join('');
+
+    const roundsHtml = PLAYOFF_QROUNDS.map(r => {
+      const chosen  = Array.isArray(rq[r.id]) ? rq[r.id] : [];
+      const nChosen = chosen.filter(Boolean).length;
+      const selects = Array.from({ length: 4 }, (_, i) => `
+        <select onchange="playoffSetRoundQ('${r.id}',${i},this.value)"
+                style="width:100%;margin-bottom:6px;padding:7px 10px;font-size:.8rem;border-radius:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.18);color:#fff;">
+          ${optionsHtml(chosen[i] || '')}
+        </select>`).join('');
+      const assigned = PLAYOFF_ROUND_MATCHES[r.id]
+        .filter(mid => mq[mid])
+        .map(mid => `<span style="display:inline-block;margin:2px 6px 2px 0;padding:2px 8px;border-radius:99px;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);font-size:.72rem;">${esc(PLAYOFF_MATCH_NAMES[mid] || mid)} → <strong style="color:var(--or);">${esc(mq[mid])}</strong></span>`)
+        .join('');
+      return `
+        <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.07);">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <span style="font-size:.8rem;font-weight:700;">${r.label}</span>
+            <span style="font-size:.72rem;color:${nChosen === 4 ? 'var(--vert)' : 'rgba(255,255,255,.4)'};">${nChosen}/4 questions choisies</span>
+            <button class="btn btn-gold btn-sm mb0" style="margin-left:auto;white-space:nowrap;" onclick="playoffDrawRound('${r.id}')" ${nChosen === 4 ? '' : 'disabled'}>Tirer au sort</button>
+          </div>
+          ${selects}
+          ${assigned ? `<div style="margin-top:4px;">${assigned}</div>` : `<div style="font-size:.72rem;color:rgba(255,255,255,.35);">Aucune question attribuée aux duels de ce tour pour le moment.</div>`}
+        </div>`;
+    }).join('');
+
+    return `
+      <div style="background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+        <div style="font-size:.75rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;">Questions des playoffs</div>
+        <p style="font-size:.74rem;color:rgba(255,255,255,.45);line-height:1.45;margin:0 0 6px;">
+          Choisissez <strong>4 questions par tour</strong>, puis « Tirer au sort » : chaque duel du tour
+          reçoit une question au hasard parmi les 4, la <strong>même pour les deux adversaires</strong>.
+          L'attribution est visible dans le tableau des playoffs, côté admin uniquement.
+        </p>
+        ${roundsHtml}
+      </div>`;
+  }
+
+  function playoffSetRoundQ(rid, idx, qid) {
+    const f = LS.getFeatures();
+    const p = f.playoffs;
+    if (!p || !p.active) return;
+    p.roundQuestions = (p.roundQuestions && typeof p.roundQuestions === 'object') ? p.roundQuestions : {};
+    const arr = Array.isArray(p.roundQuestions[rid]) ? p.roundQuestions[rid] : ['', '', '', ''];
+    arr[idx] = qid || '';
+    p.roundQuestions[rid] = arr;
+    LS.saveFeatures(f);
+    renderPlayoffSettings();
+  }
+
+  // Tire au sort la question de chaque duel du tour parmi les 4 du tour.
+  function playoffDrawRound(rid) {
+    const f = LS.getFeatures();
+    const p = f.playoffs;
+    if (!p || !p.active) return;
+    const pool = (Array.isArray(p.roundQuestions?.[rid]) ? p.roundQuestions[rid] : []).filter(Boolean);
+    if (pool.length < 4) { alert('Choisissez d\'abord les 4 questions de ce tour.'); return; }
+    const matches = PLAYOFF_ROUND_MATCHES[rid] || [];
+    p.matchQuestions = (p.matchQuestions && typeof p.matchQuestions === 'object') ? p.matchQuestions : {};
+    const already = matches.some(mid => p.matchQuestions[mid]);
+    if (already && !confirm('Des questions sont déjà attribuées aux duels de ce tour.\nRe-tirer au sort remplacera l\'attribution actuelle. Continuer ?')) return;
+    matches.forEach(mid => {
+      p.matchQuestions[mid] = pool[Math.floor(Math.random() * pool.length)];
+    });
+    LS.saveFeatures(f);
+    renderPlayoffSettings();
+    renderAdminLeaderboard();
+  }
+
+  // Après un changement de vainqueur, invalide les tours suivants devenus incohérents
+  // (ex : on change le vainqueur d'un huitième alors que le quart était déjà tranché).
+  function _playoffValidateChain(w) {
+    const okIn = (v, ...cands) => cands.filter(Boolean).includes(v);
+    if (w.q1 && !okIn(w.q1, w.h1, w.h8)) delete w.q1;
+    if (w.q2 && !okIn(w.q2, w.h2, w.h7)) delete w.q2;
+    if (w.q3 && !okIn(w.q3, w.h3, w.h6)) delete w.q3;
+    if (w.q4 && !okIn(w.q4, w.h4, w.h5)) delete w.q4;
+    if (w.s1 && !okIn(w.s1, w.q1, w.q4)) delete w.s1;
+    if (w.s2 && !okIn(w.s2, w.q2, w.q3)) delete w.s2;
+    if (w.f1 && !okIn(w.f1, w.s1, w.s2)) delete w.f1;
+    // Petite finale : le 3e doit être un perdant de demi-finale.
+    const loser = (sid, a, b) => (w[sid] && a && b) ? (w[sid] === a ? b : a) : null;
+    const l1 = loser('s1', w.q1, w.q4), l2 = loser('s2', w.q2, w.q3);
+    if (w.p3 && !okIn(w.p3, l1, l2)) delete w.p3;
+  }
+
+  // Clic admin sur un participant du tableau (panel admin uniquement) :
+  // le désigne vainqueur du duel, ou retire sa victoire si déjà vainqueur.
+  function playoffAdminPick(el) {
+    if (!adminLogged) return;
+    const matchId = el.dataset.m;
+    const name    = el.dataset.n;
+    if (!matchId || !name) return;
+    const f = LS.getFeatures();
+    const p = f.playoffs;
+    if (!p || !p.active) return;
+    p.winners = (p.winners && typeof p.winners === 'object') ? p.winners : {};
+    if (p.winners[matchId] === name) {
+      if (!confirm(`Retirer la victoire de ${name} sur ce duel ?\n(Les tours suivants qui en dépendent seront aussi réinitialisés.)`)) return;
+      delete p.winners[matchId];
+    } else {
+      if (!confirm(`Désigner ${name} vainqueur de ce duel ?`)) return;
+      p.winners[matchId] = name;
+    }
+    _playoffValidateChain(p.winners);
+    LS.saveFeatures(f);
+    renderAdminLeaderboard();
+  }
+
+  // Rend le tableau des playoffs dans `container`. En scope admin (« alb »),
+  // les participants sont cliquables pour désigner le vainqueur et la question
+  // tirée au sort de chaque duel est affichée.
+  function renderPlayoffBracket(container, pfx = 'lb') {
+    if (!container) return;
+    const b = playoffsBracket();
+    if (!b) { container.innerHTML = ''; return; }
+    const admin = pfx === 'alb' && adminLogged;
+    const p = playoffsData() || {};
+    const mq = (p.matchQuestions && typeof p.matchQuestions === 'object') ? p.matchQuestions : {};
+    // Pastille du vainqueur selon le duel : progression, 3e place ou titre.
+    const winBadge = mid => mid === 'f1' ? 'Champion' : mid === 'p3' ? '3ᵉ place' : 'Qualifié';
+
+    const sideHtml = (m, side) => {
+      const winner   = b.winners[m.id] || null;
+      const decided  = !!winner;
+      const isWinner = decided && side && side.name === winner;
+      if (!side) return `<div class="po-side po-tbd"><span class="po-seed">–</span><span class="po-name">À déterminer</span></div>`;
+      const cls = ['po-side'];
+      if (isWinner) cls.push('po-winner');
+      else if (decided) cls.push('po-loser');
+      const clickable = admin;
+      const attrs = clickable
+        ? ` data-m="${m.id}" data-n="${esc(side.name)}" onclick="playoffAdminPick(this)" title="Cliquer pour désigner le vainqueur" style="cursor:pointer;"`
+        : ` data-pname="${esc(side.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(side.name)}" style="cursor:pointer;"`;
+      return `<div class="${cls.join(' ')}"${attrs}>
+        <span class="po-seed">${side.seed ?? '–'}</span>
+        ${vsAvatarHtml(side.name, 'po-avatar')}
+        <span class="po-name">${esc(side.name)}</span>
+        ${isWinner ? `<span class="po-check">${winBadge(m.id)}</span>` : ''}
+      </div>`;
+    };
+
+    const roundHtml = r => `
+      <div class="po-round">
+        <div class="po-round-title">${r.title}</div>
+        ${r.matches.map(m => `
+          <div class="po-match">
+            ${sideHtml(m, m.a)}
+            <div class="po-sep"></div>
+            ${sideHtml(m, m.b)}
+            ${admin && mq[m.id] ? `<div class="po-match-q">Question : <strong>${esc(mq[m.id])}</strong></div>` : ''}
+          </div>`).join('')}
+      </div>`;
+
+    const podiumLines = [
+      b.runnerUp ? `2ᵉ : ${esc(b.runnerUp)}` : '',
+      b.third    ? `3ᵉ : ${esc(b.third)}`    : '',
+    ].filter(Boolean).join(' · ');
+    const championHtml = b.champion
+      ? `<div class="po-champion">
+           <div class="po-champion-label">Champion des playoffs</div>
+           <div class="po-champion-name">🏆 ${esc(b.champion)}</div>
+           ${podiumLines ? `<div class="po-podium">${podiumLines}</div>` : ''}
+         </div>`
+      : '';
+
+    container.innerHTML = `
+      <div class="po-bracket">
+        ${b.rounds.map(roundHtml).join('')}
+        ${championHtml}
+        ${admin ? '<p style="font-size:.72rem;color:rgba(255,255,255,.4);text-align:center;margin:10px 0 4px;">Mode admin : cliquez sur un participant pour le désigner vainqueur du duel (recliquez pour annuler). Les questions des duels se règlent dans Réglages › Jeu › Playoffs.</p>' : ''}
+      </div>`;
   }
 
   /* HTML du mini-classement général centré sur `name` : quelques joueurs
@@ -9609,16 +10303,18 @@
     const showJoueurs   = !dbActiveFilters.has('bonus');
     const showQuestions = !dbActiveFilters.has('joueur');
     const questions = showQuestions
-      ? qs.filter(q => q.type !== 'joueur' && matchesSearch(q, dbSearchTerm) && matchesFilters(q))
+      ? qs.filter(q => q.type !== 'joueur' && !isMatchQ(q) && matchesSearch(q, dbSearchTerm) && matchesFilters(q))
       : [];
     const joueurs = showJoueurs
       ? qs.filter(q => q.type === 'joueur' && matchesSearch(q, dbSearchTerm) && matchesFilters(q))
       : [];
+    const matchs = qs.filter(q => isMatchQ(q) && matchesSearch(q, dbSearchTerm) && matchesFilters(q));
 
     function renderItem(q, i) {
       const typeLabel = q.type === 'qcm'         ? `QCM — ${q.options.length} choix`
                       : q.type === 'qcm-multi'   ? `QCM multiple — ${q.options.length} choix`
                       : q.type === 'joueur'       ? `Joueurs — ${(q.indices||[]).length} indices · ${(q.positions||[]).length ? q.positions.join(', ') : '⚠ poste à assigner'}`
+                      : isMatchQ(q)               ? `Match — ${(q.mlAnswers||[]).length} réponses (titulaires + buteurs + coach) · ${q.mlPtsPer || 1} pt${(q.mlPtsPer || 1) > 1 ? 's' : ''}/réponse`
                       : q.type === 'multi-libre'  ? `Liste`
                       : 'Libre';
       const answerLabel = q.type === 'qcm'
@@ -9729,6 +10425,12 @@
       ? pJ.items.map((q, i) => renderItem(q, pJ.start + i)).join('') + pagerHtml(pJ.safePage, pJ.totalPages, 'j')
       : `<div class="empty-state" style="padding:20px;">Aucun joueur pour le moment.</div>`;
 
+    const pM = paginate(matchs, dbPageM);
+    dbPageM = pM.safePage;
+    const matchsHtml = matchs.length
+      ? pM.items.map((q, i) => renderItem(q, pM.start + i)).join('') + pagerHtml(pM.safePage, pM.totalPages, 'm')
+      : `<div class="empty-state" style="padding:20px;">Aucune question « Match » pour le moment.<br>Créez-en une via « + Créer une entrée » → onglet Match.</div>`;
+
     const joueurSection = `
       <div>
         ${joueursHtml}
@@ -9737,12 +10439,19 @@
       <div>
         ${questionsHtml}
       </div>`;
+    const matchSection = `
+      <div>
+        ${matchsHtml}
+      </div>`;
     // Affiche uniquement la section correspondant au sous-onglet actif
-    listEl.innerHTML = dbSubTab === 'bonus' ? bonusSection : joueurSection;
+    listEl.innerHTML = dbSubTab === 'bonus' ? bonusSection
+                     : dbSubTab === 'match' ? matchSection
+                     : joueurSection;
   }
 
   function dbGoPage(section, page) {
     if (section === 'q') dbPageQ = page;
+    else if (section === 'm') dbPageM = page;
     else dbPageJ = page;
     renderAdmin();
   }
@@ -9793,8 +10502,8 @@
     const info = document.getElementById('vocab-start-info');
     if (info) {
       info.innerHTML = list.length
-        ? `1<sup>er</sup> mot le <b style="color:var(--or);">${esc(planningFmtDs(vocabStartDate()))}</b>, puis un mot par jour jusqu'au <b style="color:var(--or);">${esc(planningFmtDs(vocabDateAtIndex(list.length - 1)))}</b>.`
-        : `Ajoutez des mots : le 1<sup>er</sup> sera affiché le jour de démarrage.`;
+        ? `Du <b style="color:var(--or);">${esc(planningFmtDs(vocabStartDate()))}</b> au <b style="color:var(--or);">${esc(planningFmtDs(vocabDateAtIndex(list.length - 1)))}</b>.`
+        : `Le 1<sup>er</sup> mot s'affiche le jour de démarrage.`;
     }
 
     const cont = document.getElementById('vocab-list-container');
@@ -9808,9 +10517,9 @@
       const dateLabel = planningFmtDs(ds);
       return `
         <div class="q-item" style="${isToday ? 'border-color:rgba(255,205,0,.5);' : ''}">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0;min-width:74px;">
-            <div style="font-size:.7rem;font-weight:700;color:rgba(255,255,255,.45);">#${i + 1}</div>
-            <div style="font-size:.72rem;font-weight:700;color:var(--or);text-align:center;line-height:1.2;">${esc(dateLabel)}</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;min-width:62px;">
+            <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.4);">#${i + 1}</div>
+            <div style="font-size:.7rem;font-weight:700;color:var(--or);text-align:center;line-height:1.15;">${esc(dateLabel)}</div>
             ${isToday ? `<span class="q-badge-new" style="background:var(--or);color:#1a1a1a;">AUJOURD'HUI</span>` : ''}
           </div>
           <div class="q-body">
@@ -10186,6 +10895,7 @@
     }
     const fn = containerId === 'edit-tag-picker'  ? 'toggleEditTag'
              : containerId === 'tag-picker-joueur' ? 'toggleJoueurTag'
+             : containerId === 'tag-picker-match'  ? 'toggleMatchTag'
              : 'toggleAddTag';
     el.innerHTML = tags.map(t => {
       const sel = selectedArr.includes(t.id);
@@ -10484,6 +11194,13 @@
       q.mlRequired  = mlRequired;
       q.mlMaxWrong  = mlMaxWrong;
       q.answer      = `${mlRequired} réponse${mlRequired > 1 ? 's' : ''} sur ${mlAnswers.length}`;
+      // Question « Match » : si le nombre de réponses a changé, les libellés de
+      // groupe (Titulaires / Buteurs / Coach) ne correspondent plus — on les retire
+      // plutôt que d'afficher des sections fausses. Le score max suit le barème/réponse.
+      if (q.theme === 'match') {
+        if (Array.isArray(q.mlGroups) && q.mlGroups.length !== mlAnswers.length) delete q.mlGroups;
+        if (q.mlPtsPer) q.points = mlAnswers.length * q.mlPtsPer;
+      }
     } else if (editCurrentType === 'qcm') {
       const count = parseInt(document.getElementById('eq-count').value);
       const opts  = [];
@@ -11035,7 +11752,8 @@
     document.getElementById('tq-libre-btn').disabled = true;
     document.getElementById('tq-joueur-reveal-btn').style.display = 'none';
     const displayAns = q.type === 'joueur' ? q.playerName : (q.answers || [q.answer]).join(' / ');
-    if (q.type === 'joueur') showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
+    // Verdict en pop-up plein écran (fondu) pour Libre et Joueur.
+    showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
     testShowFeedback(ok, displayAns, val);
   }
 
@@ -11076,19 +11794,20 @@
     const q = testState.q;
     let inner = '';
     if (ok) {
-      const tPts = q.type === 'joueur' ? getJoueurPts(q, testJoueurIndiceIdx) : (q.points || 1);
-      const mlOk = q.type === 'multi-libre'
-        ? `<div class="fb-detail" style="color:var(--vert);">${testMlState.found.length} / ${q.mlRequired} réponses trouvées !</div>` : '';
-      inner = mlOk ? `<div class="feedback-box fb-correct">
-        <div>${mlOk}</div>
-      </div>` : '';
+      // Verdict Libre / QCM / Joueur : affiché via le pop-up plein écran (showAnswerPopup)
+      // en fondu. Seule la Liste (multi-libre) garde un encart récapitulatif.
+      if (q.type === 'multi-libre') {
+        inner = `<div class="feedback-box fb-correct">
+          <div><div class="fb-detail" style="color:var(--vert);">${testMlState.found.length} / ${q.mlRequired} réponses trouvées !</div></div>
+        </div>`;
+      }
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong">
         <div><div class="fb-title wrong">Temps écoulé !</div></div>
       </div>`;
-    } else {
-      inner = '';
     }
+    // Réponse fausse (hors temps écoulé) : le verdict est donné par le pop-up rouge en fondu.
+    // On ne révèle jamais la bonne réponse → aucun encart (comportement identique au jeu réel).
     document.getElementById('tq-feedback-inner').innerHTML = inner;
 
     const tPtsMain   = ok ? (q.type === 'joueur' ? getJoueurPts(q, testJoueurIndiceIdx) : (q.points || 1)) : 0;
@@ -11476,7 +12195,7 @@
      ───────────────────────────────────────────────────
      VOCAB_SEED = graine de démarrage (50 mots, issus de vocab_allemand.xlsx).
      La source de vérité réelle est Supabase (clé quiz_data "vocab"), éditable
-     depuis l'admin → Database → sous-onglet « Vocabulaire allemand ».
+     depuis l'admin → Réglages → Apparence → « Vocabulaire allemand ».
      VOCAB_SEED ne sert qu'au premier remplissage de la base (voir initDB) et
      de repli si la base est vide.
      Le mot du jour dépend du « jour de démarrage » (features.vocabStart) :
@@ -11611,7 +12330,9 @@
     document.getElementById('qz-progress').style.width = isBonusJoueur ? '100%' : `${(idx / tot) * 100}%`;
     const isJoueur   = q.type === 'joueur';
     const isMlLibre  = q.type === 'multi-libre';
-    const badgeText  = isJoueur ? (isBonusJoueur ? 'Joueurs — Bonus' : 'Joueurs') : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
+    const badgeText  = isJoueur ? (isBonusJoueur ? 'Joueurs — Bonus' : 'Joueurs')
+                     : (isMlLibre && q.theme === 'match') ? `Match — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver`
+                     : isMlLibre ? `Liste — ${q.mlRequired} réponse${q.mlRequired > 1 ? 's' : ''} à trouver` : (q.type === 'libre' ? 'Libre' : 'QCM');
     document.getElementById('qz-badge').textContent    = badgeText;
     document.getElementById('qz-question').textContent = isJoueur ? '' : q.text;
     document.getElementById('qz-question').style.display = isJoueur ? 'none' : '';
@@ -11681,6 +12402,17 @@
   /* ═══════════════════════════════════════════════════
      MULTI-LIBRE
   ═══════════════════════════════════════════════════ */
+  // Points gagnés sur une question Liste selon l'état courant :
+  // barème « par réponse » (mlPtsPer — questions Match) → trouvées × points ;
+  // sinon barème classique tout-ou-rien (q.points si le requis est atteint).
+  function mlEarnedPts(q, state, completed) {
+    if (q.mlPtsPer) return Math.round(state.found.length * q.mlPtsPer * 2) / 2;
+    return completed ? (q.points || 1) : 0;
+  }
+
+  // Libellés des groupes de réponses d'une question « Match ».
+  const ML_GROUP_LABELS = { tit: 'Titulaires', but: 'Buteurs', coach: 'Coach' };
+
   function renderMlBoard(pfx, q) {
     const state      = pfx === 'qz' ? mlState : testMlState;
     const total      = (q.mlAnswers || []).length;
@@ -11711,11 +12443,29 @@
     }
 
     const gridEl = document.getElementById(`${pfx}-ml-grid`);
-    gridEl.innerHTML = (q.mlAnswers || []).map((ans, i) => {
-      if (state.found.includes(i)) {
-        return `<div class="ml-slot found"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
+    gridEl.innerHTML = mlGridHtml(pfx, q, state, false);
+  }
+
+  // HTML de la grille des réponses d'une question Liste. Pour une question
+  // « Match » (q.mlGroups), des libellés de section (Titulaires / Buteurs /
+  // Coach) séparent les groupes. revealMissed : dévoile les réponses manquées.
+  function mlGridHtml(pfx, q, state, revealMissed) {
+    const answers = q.mlAnswers || [];
+    const groups  = (Array.isArray(q.mlGroups) && q.mlGroups.length === answers.length) ? q.mlGroups : null;
+    let lastGroup = null;
+    return answers.map((ans, i) => {
+      let head = '';
+      if (groups && groups[i] !== lastGroup) {
+        lastGroup = groups[i];
+        head = `<div class="ml-group-label">${ML_GROUP_LABELS[lastGroup] || esc(lastGroup)}</div>`;
       }
-      return `<div class="ml-slot" id="${pfx}-ml-slot-${i}"><span class="ml-num">${i+1}</span>···</div>`;
+      if (state.found.includes(i)) {
+        return `${head}<div class="ml-slot found"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
+      }
+      if (revealMissed) {
+        return `${head}<div class="ml-slot missed"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
+      }
+      return `${head}<div class="ml-slot" id="${pfx}-ml-slot-${i}"><span class="ml-num">${i+1}</span>···</div>`;
     }).join('');
   }
 
@@ -11730,19 +12480,21 @@
     const answers  = q.mlAnswers || [];
     const required = q.mlRequired || answers.length;
 
-    // Check if val matches any not-yet-found answer
-    let matchIdx = -1;
+    // Check if val matches any not-yet-found answer.
+    // Question « Match » : une même réponse remplit TOUTES les cases
+    // correspondantes (un buteur également titulaire compte deux fois).
+    const matchIdxs = [];
     for (let i = 0; i < answers.length; i++) {
       if (!state.found.includes(i) && isMatchMl(val, answers[i], (q.mlVariants || [])[i])) {
-        matchIdx = i;
-        break;
+        matchIdxs.push(i);
+        if (q.theme !== 'match') break;
       }
     }
 
     inp.value = '';
 
-    if (matchIdx !== -1) {
-      state.found.push(matchIdx);
+    if (matchIdxs.length) {
+      state.found.push(...matchIdxs);
       wrongEl.style.display = 'none';
       renderMlBoard(pfx, q);
 
@@ -11750,8 +12502,9 @@
         // All required answers found — success
         if (pfx === 'qz') {
           stopQuizTimer();
-          session.score += (q.points || 1);
-          session.answers.push({ q, ok: true, type: 'multi-libre', ptsEarned: q.points || 1, found: state.found.length, foundIdxs: state.found.slice(), required });
+          const earned = mlEarnedPts(q, state, true);
+          session.score += earned;
+          session.answers.push({ q, ok: true, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required });
           document.getElementById('qz-ml-btn').disabled = true;
           inp.disabled = true;
           showFeedback(true, null);
@@ -11828,18 +12581,15 @@
 
     // Reveal all missed answers
     const gridEl = document.getElementById(`${pfx}-ml-grid`);
-    if (gridEl) {
-      gridEl.innerHTML = answers.map((ans, i) => {
-        if (state.found.includes(i)) {
-          return `<div class="ml-slot found"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
-        }
-        return `<div class="ml-slot missed"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
-      }).join('');
-    }
+    if (gridEl) gridEl.innerHTML = mlGridHtml(pfx, q, state, true);
 
     if (pfx === 'qz') {
       stopQuizTimer();
-      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: 0, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'max-wrong' });
+      // Barème « par réponse » (questions Match) : les points des réponses
+      // trouvées restent acquis même si la question n'est pas complétée.
+      const earned = mlEarnedPts(q, state, false);
+      session.score += earned;
+      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'max-wrong' });
       showMlFailFeedback('qz', q, state, 'wrong');
     } else {
       stopTestTimer();
@@ -11851,10 +12601,15 @@
     const detail = reason === 'wrong'
       ? `<div class="fb-detail">${state.wrongCount} mauvaise${state.wrongCount > 1 ? 's' : ''} réponse${state.wrongCount > 1 ? 's' : ''} — ${state.found.length} / ${q.mlRequired} trouvée${state.found.length > 1 ? 's' : ''}.</div>`
       : `<div class="fb-detail">Seulement ${state.found.length} / ${q.mlRequired} réponses trouvées.</div>`;
+    // Barème « par réponse » (questions Match) : les points des réponses trouvées restent acquis.
+    const partialPts = q.mlPtsPer ? mlEarnedPts(q, state, false) : 0;
+    const partialHtml = partialPts > 0
+      ? `<div class="fb-detail" style="color:var(--vert);">Tes réponses trouvées te rapportent quand même <strong>+${partialPts} pt${partialPts > 1 ? 's' : ''}</strong> !</div>`
+      : '';
     const titleHtml = reason === 'wrong'
       ? `<div class="fb-title wrong">Plus de tentatives !</div>`
       : `<div class="fb-title wrong">Temps écoulé !</div>`;
-    const inner = `<div class="feedback-box fb-wrong"><div>${titleHtml}${detail}</div></div>`;
+    const inner = `<div class="feedback-box fb-wrong"><div>${titleHtml}${detail}${partialHtml}</div></div>`;
 
     if (pfx === 'qz') {
       document.getElementById('qz-feedback-inner').innerHTML = inner;
@@ -11895,17 +12650,13 @@
 
     // Reveal missed answers
     const gridEl = document.getElementById(`${pfx}-ml-grid`);
-    if (gridEl) {
-      gridEl.innerHTML = answers.map((ans, i) => {
-        if (state.found.includes(i)) {
-          return `<div class="ml-slot found"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
-        }
-        return `<div class="ml-slot missed"><span class="ml-num">${i+1}</span>${esc(ans)}</div>`;
-      }).join('');
-    }
+    if (gridEl) gridEl.innerHTML = mlGridHtml(pfx, q, state, true);
 
     if (pfx === 'qz') {
-      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: 0, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'timer' });
+      // Barème « par réponse » (questions Match) : points partiels conservés.
+      const earned = mlEarnedPts(q, state, false);
+      session.score += earned;
+      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'timer' });
       showMlFailFeedback('qz', q, state, 'timer');
     } else {
       showMlFailFeedback('tq', q, state, 'timer');
@@ -11979,7 +12730,8 @@
     document.getElementById('qz-libre-btn').disabled = true;
     document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
     const displayAns = q.type === 'joueur' ? q.playerName : (q.answers || [q.answer]).join(' / ');
-    if (q.type === 'joueur') showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
+    // Verdict en pop-up plein écran (fondu) pour Libre et Joueur.
+    showAnswerPopup(ok ? 'Bonne réponse !' : 'Mauvaise réponse !', ok ? 'var(--vert)' : 'var(--rouge)');
     showFeedback(ok, displayAns, val);
   }
 
@@ -12077,32 +12829,28 @@
     let inner    = '';
 
     if (ok) {
-      const pts  = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
-      const mlOk = q.type === 'multi-libre'
-        ? `<div class="fb-detail" style="color:var(--vert);">${mlState.found.length} / ${q.mlRequired} réponses trouvées !</div>` : '';
-      inner = mlOk ? `<div class="feedback-box fb-correct">
-        <div>${mlOk}</div>
-      </div>` : '';
+      // Verdict Libre / QCM / Joueur : affiché via le pop-up plein écran (showAnswerPopup)
+      // en fondu. Seule la Liste (multi-libre) garde un encart récapitulatif.
+      if (q.type === 'multi-libre') {
+        inner = `<div class="feedback-box fb-correct">
+          <div><div class="fb-detail" style="color:var(--vert);">${mlState.found.length} / ${q.mlRequired} réponses trouvées !</div></div>
+        </div>`;
+      }
     } else if (fromTimer) {
       inner = `<div class="feedback-box fb-wrong">
         <div><div class="fb-title wrong">Temps écoulé !</div></div>
       </div>`;
-    } else {
-      if (correctAns && q.type !== 'joueur') {
-        const pa = playerAns ? `<div class="fb-detail">Votre réponse : ${esc(playerAns)}</div>` : '';
-        inner = `<div class="feedback-box fb-wrong">
-          <div>
-            <div class="fb-title wrong">Pas tout à fait…</div>
-            ${pa}
-            <div class="fb-answer">Réponse : <strong>${esc(correctAns)}</strong></div>
-          </div>
-        </div>`;
-      }
     }
+    // Réponse fausse (hors temps écoulé) : le verdict est donné par le pop-up rouge en fondu.
+    // On ne révèle jamais la bonne réponse → aucun encart.
 
     document.getElementById('qz-feedback-inner').innerHTML = inner;
 
-    const mainPts  = ok ? (q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1)) : 0;
+    const mainPts  = ok
+      ? (q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx)
+        : (q.type === 'multi-libre' && q.mlPtsPer) ? mlEarnedPts(q, mlState, true)
+        : (q.points || 1))
+      : 0;
     const hasBonus = feat('bonusQuestions') && ok && q.bonus && q.bonus.text;
     const summaryEl = document.getElementById('qz-score-summary');
     const summaryHtml = feat('scoreSummary') ? renderQzScoreSummary(ok, mainPts, hasBonus ? 'pending' : null) : '';
@@ -12821,8 +13569,9 @@
     const st = _lbStates[pfx];
     // Si on arrive depuis un lien externe (mini-classement), basculer sur "Liste"
     if (st.main !== 'liste') lbSetMain('liste', pfx);
+    if (tab === 'playoffs' && !playoffsActive()) tab = 'general';
     st.tab = tab;
-    ['today', 'general'].forEach(t => {
+    ['today', 'general', 'playoffs'].forEach(t => {
       const btn = _lbEl(`${pfx}-tab-${t}`);
       if (btn) btn.classList.toggle('lb-tab-active', t === tab);
     });
@@ -12966,16 +13715,18 @@
     const realLb = lb.filter(e => !e.adjust && !hidden.has((e.name || '').toLowerCase().trim()));
     let data, totalSessions = 0;
     if (tab === 'general') {
+      // Playoffs actés → la « Saison régulière » est figée à la date de fin.
+      const cutoff = regularSeasonCutoff();
       // Dénominateur : parties possibles à jouer à ce jour (sessions ≤ aujourd'hui)
       totalSessions = playableSessionsSoFar();
       // Numérateur : nombre d'entrées de jeu (non-adjust) par joueur
       const gamesPerPlayer = {};
-      realLb.filter(e => e.date).forEach(e => {
+      realLb.filter(e => e.date && (!cutoff || String(e.date).slice(0, 10) <= cutoff)).forEach(e => {
         const key = (e.name || '').toLowerCase().trim();
         if (!key) return;
         gamesPerPlayer[key] = (gamesPerPlayer[key] || 0) + 1;
       });
-      data = generalRankingList().map(r => ({
+      data = generalRankingList(cutoff).map(r => ({
         name: r.name, score: r.total, badgeLevel: '',
         gamesPlayed: gamesPerPlayer[r.name.toLowerCase().trim()] || 0
       }));
@@ -12989,11 +13740,23 @@
 
   function renderLbList(pfx = 'lb') {
     const st = _lbStates[pfx]; st.tab = st.tab || 'today';
-    const { data, totalSessions } = _lbComputeListData(st.tab);
+
+    // Onglet Playoffs : visible uniquement quand la fin de saison est actée.
+    const poBtn = _lbEl(`${pfx}-tab-playoffs`);
+    if (poBtn) poBtn.style.display = playoffsActive() ? '' : 'none';
+    if (st.tab === 'playoffs' && !playoffsActive()) st.tab = 'general';
 
     const list  = _lbEl(`${pfx}-list`);
     const empty = _lbEl(`${pfx}-empty`);
     if (!list) return;
+
+    if (st.tab === 'playoffs') {
+      if (empty) empty.style.display = 'none';
+      renderPlayoffBracket(list, pfx);
+      return;
+    }
+
+    const { data, totalSessions } = _lbComputeListData(st.tab);
 
     if (!data.length) {
       list.innerHTML = '';
@@ -13007,7 +13770,7 @@
     const medals = ['🥇', '🥈', '🥉'];
     // Côté joueur : top 50 ; côté admin (« alb ») : 100 % des inscrits.
     const rows = pfx === 'alb' ? data : data.slice(0, 50);
-    list.innerHTML = rows.map((e, i) => {
+    const rowsHtml = rows.map((e, i) => {
       const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
       const rowCls   = clickable ? 'lb-entry clickable' : 'lb-entry';
@@ -13025,7 +13788,18 @@
           ${gamesHtml}<span class="lb-score">${e.score} pts</span>
         </div>
       </div>`;
-    }).join('');
+    });
+
+    // Saison régulière : barre rouge sous la 16e place — les 16 premiers
+    // seront qualifiés pour les playoffs. Survol (ou tap) → infobulle.
+    if (st.tab === 'general' && rows.length >= PLAYOFF_QUALIFIED) {
+      rowsHtml.splice(PLAYOFF_QUALIFIED, 0,
+        `<div class="lb-playoff-cut" onclick="this.classList.toggle('tip-open')">
+          <span>Playoffs</span>
+          <span class="lb-playoff-tip">Ne baisse pas les bras. À la fin de la saison régulière, un playoff opposera les 16 premiers du classement !</span>
+        </div>`);
+    }
+    list.innerHTML = rowsHtml.join('');
 
   }
 
@@ -13867,7 +14641,8 @@
       const _inboxBadge = document.getElementById('home-inbox-badge');
       if (_inboxBadge) {
         const n = _inboxUnreadCount();
-        _inboxBadge.textContent   = '📬 ' + n;
+        const c = document.getElementById('home-inbox-count');
+        if (c) c.textContent = n;
         _inboxBadge.style.display = n > 0 ? 'inline-block' : 'none';
       }
       // Rafraîchit la boîte de réception en arrière-plan puis réaffiche le badge
@@ -13875,7 +14650,8 @@
         const b = document.getElementById('home-inbox-badge');
         if (!b || !_localUser) return;
         const n = _inboxUnreadCount();
-        b.textContent   = '📬 ' + n;
+        const c = document.getElementById('home-inbox-count');
+        if (c) c.textContent = n;
         b.style.display = n > 0 ? 'inline-block' : 'none';
       });
       renderHomeCatchUp();
@@ -14616,7 +15392,10 @@
         : fmtDate(col.date);
       const prefix = col.label ? `${col.label} · ` : '';
       if (col.type === 'missed') {
-        return `<div class="chart-tip-head">${prefix}${dateStr}</div><div class="chart-tip-empty" style="color:#FFCD00;">Partie à rattraper</div>`;
+        // catchable === false : journée passée non jouée dont une question joueur a été
+        // retirée/désactivée → plus rattrapable, mais toujours affichée dans la frise.
+        const missedMsg = (col.catchable === false) ? 'Partie non jouée' : 'Partie à rattraper';
+        return `<div class="chart-tip-head">${prefix}${dateStr}</div><div class="chart-tip-empty" style="color:#FFCD00;">${missedMsg}</div>`;
       }
       if (col.type === 'future') {
         return `<div class="chart-tip-head">${prefix}${dateStr}</div><div class="chart-tip-empty">Partie à venir</div>`;
@@ -14716,20 +15495,30 @@
     const maxCum = Math.max(1, run);
     const playedStarts = new Set(playedCols.map(c => c.startDate).filter(Boolean));
 
-    // Journées passées non jouées (rattrapages) — calculées pour le joueur dont la carte
-    // est affichée (`pseudo`), PAS pour l'utilisateur connecté : la carte d'un autre joueur
-    // (vue admin ou mini-classement) doit refléter SES rattrapages, pas les nôtres.
+    // Sessions encore RATTRAPABLES pour le joueur dont la carte est affichée
+    // (`pseudo`), PAS pour l'utilisateur connecté : la carte d'un autre joueur (vue
+    // admin ou mini-classement) doit refléter SES rattrapages. Ne sert qu'au bouton
+    // « Rattraper » et à la légende — surtout PAS à décider quelles colonnes existent :
+    // getMissedSessions écarte les journées dont une question joueur a été retirée ou
+    // désactivée, or ces journées passées non jouées doivent quand même figurer dans
+    // la frise (sinon trou, ex. J5 absente).
     const missedSessions = pseudo ? getMissedSessions(pseudo) : [];
-    const missedCols = missedSessions
-      .filter(m => !playedStarts.has(m.startDate))
-      .map(m => { const md = mdByStart.get(m.startDate);
-        return { type: 'missed', date: m.startDate, startDate: m.startDate, endDate: m.endDate, num: md ? md.num : null }; });
+    const catchableStarts = new Set(missedSessions.map(m => m.startDate));
 
-    // Journées à venir (sessions planifiées après aujourd'hui, non jouées)
-    const futureCols = mdList
-      .filter(m => m.startDate > today && !playedStarts.has(m.startDate))
+    // Toutes les journées planifiées non jouées deviennent une colonne, pour ne jamais
+    // trouer la frise. La présence d'une colonne dépend UNIQUEMENT du planning
+    // (planningMatchdays) → robuste pour tout joueur, présent comme futur inscrit.
+    // Journée terminée (endDate < aujourd'hui) → « à rattraper » ; en cours ou à venir
+    // → « à venir » (bornée pour ne pas dérouler toute la saison).
+    const unplayedMds = mdList.filter(m => !playedStarts.has(m.startDate));
+    const missedCols = unplayedMds
+      .filter(m => m.endDate < today)
+      .map(m => ({ type: 'missed', date: m.startDate, startDate: m.startDate, endDate: m.endDate,
+                   num: m.num, catchable: catchableStarts.has(m.startDate) }));
+    const futureCols = unplayedMds
+      .filter(m => m.endDate >= today)
       .slice(0, 20)
-      .map(m => ({ type: 'future', date: m.startDate, startDate: m.startDate, num: m.num }));
+      .map(m => ({ type: 'future', date: m.startDate, startDate: m.startDate, endDate: m.endDate, num: m.num }));
 
     // Tri par numéro de journée (les colonnes sans numéro — legacy — passent par la date)
     const allCols = [...playedCols, ...missedCols, ...futureCols]
@@ -14780,7 +15569,7 @@
       `<div class="score-chart-legend">` +
         `<div class="score-chart-legend-item"><span class="score-chart-legend-bar"></span>Points par partie</div>` +
         `<div class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul global</div>` +
-        (missedSessions.length ? `<div class="score-chart-legend-item"><span class="score-chart-legend-missed"></span>À rattraper</div>` : '') +
+        (missedCols.length ? `<div class="score-chart-legend-item"><span class="score-chart-legend-missed"></span>${missedSessions.length ? 'À rattraper' : 'Non jouée'}</div>` : '') +
       `</div>` +
       moreHint +
       missedBtn;
@@ -15079,8 +15868,12 @@
           tip = `${jLabel} — partie à rattraper`;
         } else {
           cls = 'pac-empty';
-          tip = md ? (md.startDate > today ? `${jLabel} — à venir` : `${jLabel} — pas de partie`)
-                   : `${jLabel} — non planifiée`;
+          // md existe ⇒ journée réellement planifiée (planningMatchdays n'inclut que
+          // les sessions j1&j2). Passée/commencée mais non jouée et non rattrapable
+          // (question joueur retirée) = « partie non jouée », pas « pas de partie ».
+          if (!md)                        tip = `${jLabel} — non planifiée`;
+          else if (md.startDate > today)  tip = `${jLabel} — à venir`;
+          else                            tip = `${jLabel} — partie non jouée`;
         }
         html += `<div class="pc-act-cell ${cls}" data-tip="${tip}"${clickAttr}>${num}</div>`;
       }
