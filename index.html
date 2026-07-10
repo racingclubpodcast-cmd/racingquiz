@@ -15484,15 +15484,16 @@
       return mdList.find(m => d && d >= m.startDate && d <= m.endDate) || null;
     };
 
-    // Cumul progressif (ordre chronologique de jeu)
-    let run = 0;
+    // Colonnes des parties jouées. Le cumul global (cumAfter) n'est PAS calculé ici :
+    // il l'est plus bas, APRÈS le tri par journée, dans l'ordre d'affichage. Le calculer
+    // dans l'ordre chronologique de jeu serait faux dès qu'un joueur rattrape une journée
+    // passée (partie datée d'aujourd'hui mais rattachée à un numéro de journée inférieur) :
+    // la courbe de cumul redescendrait là où elle doit toujours monter.
     const playedCols = games.map(g => {
-      run += (Number(g.score) || 0);
       const md = matchdayForGame(g);
       return { type: 'played', game: g, date: (g.date || '').slice(0, 10),
-               startDate: md ? md.startDate : null, num: md ? md.num : null, cumAfter: run };
+               startDate: md ? md.startDate : null, num: md ? md.num : null };
     });
-    const maxCum = Math.max(1, run);
     const playedStarts = new Set(playedCols.map(c => c.startDate).filter(Boolean));
 
     // Sessions encore RATTRAPABLES pour le joueur dont la carte est affichée
@@ -15527,6 +15528,16 @@
         if (ka !== kb) return ka - kb;
         return (a.date || '9999') < (b.date || '9999') ? -1 : 1;
       });
+
+    // Cumul global : somme progressive des points DANS L'ORDRE D'AFFICHAGE (par journée),
+    // pour une courbe toujours croissante — robuste aux rattrapages, pour sop comme pour
+    // tout joueur présent ou futur. Le total final ne dépend pas de l'ordre (somme
+    // commutative), seule la forme de la courbe est corrigée.
+    let run = 0;
+    allCols.forEach(c => {
+      if (c.type === 'played') { run += (Number(c.game.score) || 0); c.cumAfter = run; }
+    });
+    const maxCum = Math.max(1, run);
 
     // Libellé d'axe : « JN » si la journée est connue, sinon repli sur la date (legacy).
     allCols.forEach(c => { c.label = (c.num != null) ? 'J' + c.num : (c.date ? fmtDate(c.date) : ''); });
