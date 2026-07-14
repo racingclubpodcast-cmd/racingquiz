@@ -1784,6 +1784,17 @@
       .bonus-box { padding: 12px 13px; }
       .bonus-q-text { font-size: .92rem; }
 
+      /* Planning : sur smartphone, on empile chaque créneau (Joueurs 1 / Joueurs 2
+         & Bonus) pour que le nom du joueur et la question s'affichent en
+         intégralité, sans troncature ni chevauchement avec les boutons. */
+      .planning-slot { flex-wrap: wrap; row-gap: 3px; padding: 7px 8px; }
+      .planning-slot-label { min-width: 0; }
+      .planning-slot-value {
+        order: 9; flex-basis: 100%; width: 100%;
+        white-space: normal; overflow: visible; text-overflow: clip;
+        line-height: 1.35;
+      }
+
       /* Liste multi-libre */
       .ml-slot { padding: 7px 10px; font-size: .8rem; }
       .ml-counter { font-size: .82rem; }
@@ -1954,11 +1965,11 @@
     .activity-games-title:hover { color:#ffd633; }
     .activity-games-info { font-size:.78rem;opacity:.7;font-weight:400; }
     /* Liste « toutes les parties » : barre de défilement à la charte (rouge → or) */
-    #all-games-list { scrollbar-width:thin;scrollbar-color:var(--or) transparent; }
-    #all-games-list::-webkit-scrollbar { width:8px; }
-    #all-games-list::-webkit-scrollbar-track { background:transparent;margin:6px 0; }
-    #all-games-list::-webkit-scrollbar-thumb { background:linear-gradient(var(--rouge), var(--or));border-radius:99px;border:2px solid transparent;background-clip:padding-box; }
-    #all-games-list::-webkit-scrollbar-thumb:hover { background:var(--or);background-clip:padding-box;border:2px solid transparent; }
+    #all-games-list, #participation-list { scrollbar-width:thin;scrollbar-color:var(--or) transparent; }
+    #all-games-list::-webkit-scrollbar, #participation-list::-webkit-scrollbar { width:8px; }
+    #all-games-list::-webkit-scrollbar-track, #participation-list::-webkit-scrollbar-track { background:transparent;margin:6px 0; }
+    #all-games-list::-webkit-scrollbar-thumb, #participation-list::-webkit-scrollbar-thumb { background:linear-gradient(var(--rouge), var(--or));border-radius:99px;border:2px solid transparent;background-clip:padding-box; }
+    #all-games-list::-webkit-scrollbar-thumb:hover, #participation-list::-webkit-scrollbar-thumb:hover { background:var(--or);background-clip:padding-box;border:2px solid transparent; }
     .activity-game-card { display:flex;align-items:center;gap:12px;padding:10px 12px;margin-bottom:8px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);cursor:pointer;transition:background .12s,border-color .12s; }
     .activity-game-card:hover { background:rgba(255,205,0,.08);border-color:rgba(255,205,0,.3); }
     .activity-game-card:last-child { margin-bottom:0; }
@@ -1969,8 +1980,8 @@
     .activity-game-card .agc-bar { height:6px;border-radius:3px;background:rgba(255,255,255,.1);overflow:hidden;flex:1.4;min-width:60px;max-width:160px; }
     .activity-game-card .agc-bar > span { display:block;height:100%;background:linear-gradient(90deg,var(--rouge),var(--or));border-radius:3px; }
     /* Infobulle détail d'une partie (clic) */
-    #game-detail-head .gdp-name { font-size:1rem;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
-    #game-detail-head .gdp-meta { font-size:.74rem;font-weight:700;color:var(--or); }
+    #game-detail-head .gdp-name, #participation-head .gdp-name { font-size:1rem;font-weight:800;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
+    #game-detail-head .gdp-meta, #participation-head .gdp-meta { font-size:.74rem;font-weight:700;color:var(--or); }
     #game-detail-body { scrollbar-width:thin;scrollbar-color:var(--or) transparent; }
     #game-detail-body::-webkit-scrollbar { width:8px; }
     #game-detail-body::-webkit-scrollbar-track { background:transparent;margin:6px 0; }
@@ -2472,8 +2483,9 @@
           <button class="btn btn-ghost btn-sm" onclick="toggleAddForm()">✕ Fermer</button>
         </div>
 
-        <!-- Sub-tabs Question / Joueur / Match -->
-        <div class="add-subtabs">
+        <!-- Sub-tabs Question / Joueur / Match — masqués : la catégorie est
+             déterminée par le sous-onglet actif de la database (Joueurs / Bonus / Matchs) -->
+        <div class="add-subtabs" id="add-subtabs-bar" style="display:none;">
           <button class="add-subtab active" id="ast-question" onclick="setAddMode('question')">Question</button>
           <button class="add-subtab" id="ast-joueur" onclick="setAddMode('joueur')">Joueurs</button>
           <button class="add-subtab" id="ast-match" onclick="setAddMode('match')">Match</button>
@@ -3211,6 +3223,16 @@
               </button>
             </div>
             <div id="activity-recent-games"></div>
+          </div>
+
+          <!-- Assiduité : répartition des joueurs par nombre de parties jouées -->
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Assiduité des joueurs</span>
+              <span id="participation-total" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
+            </div>
+            <p style="margin:0 0 10px;font-size:.78rem;color:rgba(255,255,255,.4);line-height:1.4;">Part des inscrits selon le nombre de parties jouées. Survolez ou touchez une barre pour la liste des joueurs.</p>
+            <div id="activity-participation-chart"></div>
           </div>
 
           <!-- Suivi des collections Mon Onze -->
@@ -4185,6 +4207,19 @@
           <button class="btn btn-ghost btn-sm" onclick="closeAllGamesPopup()">✕</button>
         </div>
         <div id="all-games-list" style="overflow-y:auto;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════ ASSIDUITÉ — JOUEURS D'UNE TRANCHE ═══ -->
+  <div id="participation-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeParticipationPopup()">
+    <div class="modal-inner" style="max-width:460px;">
+      <div class="card" style="margin-bottom:0;display:flex;flex-direction:column;max-height:82vh;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:12px;flex-shrink:0;">
+          <div id="participation-head" style="display:flex;flex-direction:column;gap:3px;min-width:0;"></div>
+          <button class="btn btn-ghost btn-sm" onclick="closeParticipationPopup()">✕</button>
+        </div>
+        <div id="participation-list" style="overflow-y:auto;"></div>
       </div>
     </div>
   </div>
@@ -5416,6 +5451,7 @@
     renderSignupChart();
     renderRecentSignups();
     renderRecentGames();
+    renderParticipationChart();
     renderOnzeDashboard();
     renderOnboardingDashboard();
   }
@@ -5608,6 +5644,157 @@
   }
   function closeGameDetailPopup() {
     document.getElementById('game-detail-modal').style.display = 'none';
+  }
+
+  /* ════════════════ Assiduité : répartition des joueurs par nb de parties jouées ═══
+     Population = comptes inscrits. Pour chaque tranche k (0..N, N = parties possibles
+     à ce jour via playableSessionsSoFar), part des joueurs ayant joué exactement k
+     parties. Évolutif : N grandit à chaque nouvelle journée disputée (→ 34). */
+  let _participationBuckets = [];  // [{ k, names:[…] }], index = k ; cache pour la pop-up
+  function _participationData() {
+    const N = playableSessionsSoFar();
+    // Population : tous les comptes inscrits (même source que « Évolution des inscrits »).
+    const accounts = Object.values((_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {})
+      .map(a => a && a.pseudo).filter(Boolean);
+    // Parties réelles (hors ajustements admin) comptées par joueur (clé = pseudo minuscules).
+    const gamesByKey = {};
+    (LS.getLeaderboard() || []).forEach(e => {
+      if (e.adjust || !e.date) return;
+      const key = (e.name || '').toLowerCase().trim();
+      if (key) gamesByKey[key] = (gamesByKey[key] || 0) + 1;
+    });
+    const buckets = Array.from({ length: N + 1 }, (_, k) => ({ k, names: [] }));
+    accounts.forEach(pseudo => {
+      let c = gamesByKey[pseudo.toLowerCase().trim()] || 0;
+      if (c > N) c = N;              // borne : un joueur ne peut dépasser les parties possibles
+      buckets[c].names.push(pseudo);
+    });
+    buckets.forEach(b => b.names.sort((a, b2) => a.localeCompare(b2, 'fr')));
+    return { total: accounts.length, N, buckets };
+  }
+
+  // Libellé d'une tranche : « Aucune partie jouée » (k=0) ou « k partie(s) jouée(s) sur N ».
+  function _participationLabel(k, N) {
+    return k === 0 ? 'Aucune partie jouée' : `${k} partie${k > 1 ? 's' : ''} jouée${k > 1 ? 's' : ''} sur ${N}`;
+  }
+
+  // Histogramme SVG (réutilise la charte des graphiques : .sc-bar / .sc-col / tooltip).
+  function renderParticipationChart() {
+    const el = document.getElementById('activity-participation-chart');
+    const totalEl = document.getElementById('participation-total');
+    if (!el) return;
+    const { total, N, buckets } = _participationData();
+    _participationBuckets = buckets;
+    if (totalEl) totalEl.textContent = total ? `${total} inscrit${total > 1 ? 's' : ''}` : '';
+
+    if (!total) {
+      el.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun inscrit pour l\'instant.</p>';
+      return;
+    }
+    if (N < 1) {
+      el.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucune partie encore disputée.<br>Le graphique apparaîtra dès la première journée jouée.</p>';
+      return;
+    }
+
+    const n = N + 1;                             // nombre de barres (0..N)
+    const pcts = buckets.map(b => b.names.length / total * 100);
+    const maxPct = Math.max(0, ...pcts);
+    let yMax = Math.max(10, Math.ceil(maxPct / 10) * 10);
+    if (yMax > 100) yMax = 100;
+    const gridStep = yMax <= 50 ? 10 : 20;
+
+    const padL = 32, padR = 12, padT = 18, padB = 40, plotH = 150;
+    const availW = (el.offsetWidth || 320) - 2;
+    const minSlot = 34;
+    const slot = Math.max(minSlot, Math.floor((availW - padL - padR) / n));
+    const barW = Math.min(26, Math.max(10, Math.floor(slot * 0.5)));
+    const plotW = slot * n;
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const baseY = padT + plotH;
+    const cx = i => padL + slot * i + slot / 2;
+    const yS = v => baseY - (v / yMax) * plotH;
+
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" xmlns="http://www.w3.org/2000/svg">`;
+    // Grille + graduations Y (%)
+    for (let v = 0; v <= yMax + 0.001; v += gridStep) {
+      const y = yS(v);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(v)}%</text>`;
+    }
+    // Barres + valeur (%) + graduation X (k). Une .sc-bar par tranche (même ordre que .sc-col).
+    buckets.forEach((b, i) => {
+      const count = b.names.length, pct = pcts[i];
+      let barH = (pct / yMax) * plotH;
+      if (count > 0 && barH < 2) barH = 2;       // nub visible pour les très petites parts
+      const x = cx(i) - barW / 2;
+      svg += `<rect class="sc-bar" data-i="${i}" x="${x.toFixed(1)}" y="${(baseY - barH).toFixed(1)}" width="${barW.toFixed(1)}" height="${barH.toFixed(1)}" rx="3"/>`;
+      if (count > 0) {
+        const lbl = pct >= 0.5 ? Math.round(pct) + '%' : '<1%';
+        svg += `<text class="sc-barval" x="${cx(i).toFixed(1)}" y="${(baseY - barH - 4).toFixed(1)}" text-anchor="middle">${lbl}</text>`;
+      }
+      svg += `<text class="sc-datelbl" x="${cx(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${b.k}</text>`;
+    });
+    // Titres d'axes
+    svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 4).toFixed(1)}" text-anchor="middle">Parties jouées (sur ${N})</text>`;
+    svg += `<text class="sc-axislbl" x="9" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" transform="rotate(-90,9,${(padT + plotH / 2).toFixed(1)})">% des joueurs</text>`;
+    // Zones de survol / clic (une colonne par tranche)
+    buckets.forEach((b, i) => {
+      svg += `<rect class="sc-col" data-i="${i}" x="${(cx(i) - slot / 2).toFixed(1)}" y="${padT}" width="${slot}" height="${plotH}"/>`;
+    });
+    svg += '</svg>';
+
+    // Infobulles au survol : entête + % + nb de joueurs + aperçu des noms + invite au clic
+    const tipHtml = buckets.map((b, i) => {
+      const count = b.names.length, pct = pcts[i];
+      const pctTxt = pct >= 0.5 ? Math.round(pct) + '%' : (count ? '<1%' : '0%');
+      let body = `<div style="text-align:center;"><strong style="color:var(--or);font-size:1.05rem;">${pctTxt}</strong> des joueurs</div>` +
+                 `<div style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.6);">${count} joueur${count > 1 ? 's' : ''}</div>`;
+      if (count > 0) {
+        const preview = b.names.slice(0, 6).map(esc).join(', ');
+        const more = count > 6 ? ` +${count - 6}` : '';
+        body += `<div style="margin-top:5px;font-size:.72rem;color:rgba(255,255,255,.55);line-height:1.35;">${preview}${more}</div>` +
+                `<div style="margin-top:4px;font-size:.68rem;color:var(--or);opacity:.85;">Cliquez pour la liste</div>`;
+      }
+      return `<div class="chart-tip-head">${_participationLabel(b.k, N)}</div>${body}`;
+    });
+    const colCxPx = buckets.map((_, i) => cx(i));
+
+    el.innerHTML =
+      `<div class="score-chart-wrap">` +
+        `<div class="score-chart-scroll">${svg}</div>` +
+        `<div class="score-chart-tip"></div>` +
+      `</div>`;
+
+    const wrap  = el.querySelector('.score-chart-wrap');
+    const tipEl = wrap.querySelector('.score-chart-tip');
+    _attachScoreChartTip(wrap, tipEl, tipHtml, colCxPx);
+    // Clic (ou tap mobile) sur une colonne → pop-up listant les joueurs de la tranche
+    wrap.querySelectorAll('.sc-col').forEach(col => {
+      col.addEventListener('click', () => showParticipationBucketPopup(+col.dataset.i));
+    });
+  }
+
+  // Pop-up : liste (cliquable) des joueurs ayant joué exactement k parties.
+  function showParticipationBucketPopup(k) {
+    const b = _participationBuckets[k];
+    if (!b) return;
+    const total = _participationBuckets.reduce((s, x) => s + x.names.length, 0);
+    const N     = _participationBuckets.length - 1;
+    const count = b.names.length;
+    const pct   = total > 0 ? count / total * 100 : 0;
+    const pctTxt = pct >= 0.5 ? Math.round(pct) + '%' : (count ? '<1%' : '0%');
+    const head = document.getElementById('participation-head');
+    const body = document.getElementById('participation-list');
+    if (head) head.innerHTML =
+      `<span class="gdp-name">${_participationLabel(k, N)}</span>` +
+      `<span class="gdp-meta">${count} joueur${count > 1 ? 's' : ''} · ${pctTxt} des inscrits</span>`;
+    if (body) body.innerHTML = count
+      ? b.names.map(nm => `<div class="activity-signup-row"><span class="asr-pseudo">${playerLink(nm)}</span></div>`).join('')
+      : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:20px 0;">Aucun joueur dans cette tranche.</p>';
+    document.getElementById('participation-modal').style.display = 'flex';
+  }
+  function closeParticipationPopup() {
+    document.getElementById('participation-modal').style.display = 'none';
   }
 
   function adminTab(tab) {
@@ -6667,6 +6854,13 @@
     form.style.display = open ? 'block' : 'none';
     btn.textContent    = open ? '✕ Annuler' : '+ Créer une entrée';
     if (open) {
+      // La catégorie est imposée par le sous-onglet actif de la database : on
+      // ouvre directement le seul formulaire correspondant (un seul encadré),
+      // sans proposer le sélecteur Question / Joueurs / Match.
+      const mode = dbSubTab === 'joueur' ? 'joueur'
+                 : dbSubTab === 'match'  ? 'match'
+                 : 'question';
+      setAddMode(mode);
       renderTagPicker('tag-picker', addSelectedTags);
       renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
       form.scrollIntoView({ behavior: 'smooth', block: 'start' });
