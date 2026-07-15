@@ -1942,9 +1942,12 @@
     .score-chart-svg .sc-dot { fill:#fff;stroke:var(--rouge);stroke-width:2;pointer-events:none; }
     .score-chart-svg .sc-line-new { fill:none;stroke:var(--or);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;pointer-events:none; }
     .score-chart-svg .sc-dot-new { fill:#fff;stroke:var(--or);stroke-width:2;pointer-events:none; }
+    .score-chart-svg .sc-line-pts { fill:none;stroke:var(--vert);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;pointer-events:none; }
+    .score-chart-svg .sc-dot-pts { fill:#fff;stroke:var(--vert);stroke-width:2;pointer-events:none; }
     .score-chart-svg .sc-barval, .score-chart-svg .sc-datelbl, .score-chart-svg .sc-axislbl, .score-chart-svg .sc-axis { pointer-events:none; }
     .score-chart-svg .sc-axis { stroke:rgba(255,255,255,.1);stroke-width:1; }
     .score-chart-svg .sc-axislbl { fill:rgba(255,255,255,.35);font-size:9px;font-family:inherit; }
+    .score-chart-svg .sc-axislbl-pts { fill:rgba(0,200,81,.6);font-size:9px;font-family:inherit;pointer-events:none; }
     .score-chart-svg .sc-datelbl { fill:rgba(255,255,255,.5);font-size:9px;font-family:inherit; }
     .score-chart-svg .sc-datelbl-future { fill:rgba(255,255,255,.28);font-size:9px;font-family:inherit;pointer-events:none; }
     .score-chart-svg .sc-barval { fill:var(--or);font-size:9px;font-weight:700;font-family:inherit; }
@@ -1953,6 +1956,10 @@
     .score-chart-legend-bar { width:11px;height:11px;border-radius:2px;background:var(--or);flex-shrink:0; }
     .score-chart-legend-line { width:14px;height:0;border-top:2.5px solid var(--rouge);flex-shrink:0; }
     .score-chart-legend-line-or { width:14px;height:0;border-top:2.5px solid var(--or);flex-shrink:0; }
+    .score-chart-legend-line-vert { width:14px;height:0;border-top:2.5px solid var(--vert);flex-shrink:0; }
+    label.score-chart-legend-item { cursor:pointer;user-select:none;transition:opacity .15s; }
+    label.score-chart-legend-item input[type=checkbox] { accent-color:var(--or);width:13px;height:13px;cursor:pointer;flex-shrink:0;margin:0; }
+    label.score-chart-legend-item.off { opacity:.4; }
     .score-chart-legend-missed { width:11px;height:11px;border-radius:2px;flex-shrink:0;background:repeating-linear-gradient(45deg,#FFCD00,#FFCD00 3px,#111 3px,#111 6px);border:1px solid #FFCD00; }
     /* ── Onglet Activité (admin → Stats) ── */
     .activity-recent-box { margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:12px; }
@@ -2209,16 +2216,10 @@
         </div>
         <div class="form-group">
           <label class="field-label">Mot de passe</label>
-          <input type="password" id="home-password" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
+          <input type="password" id="home-password" placeholder="Choisis ton mot de passe"
                  onkeydown="if(event.key==='Enter')homeAuthSubmit()">
           <div id="home-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
-            <strong>Ton mot de passe doit contenir :</strong>
-            <ul style="margin:6px 0 0;padding-left:18px;">
-              <li>au moins <strong>7 caractères</strong></li>
-              <li>au moins une <strong>majuscule</strong></li>
-              <li>au moins un <strong>chiffre</strong></li>
-              <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
-            </ul>
+            Aucune contrainte : choisis le mot de passe que tu veux. Évite juste de réutiliser un mot de passe personnel employé ailleurs (email, banque, réseaux).
           </div>
         </div>
         <div id="home-confirm-group" class="form-group" style="display:none;">
@@ -2943,7 +2944,7 @@
                 <h3>Changer le mot de passe admin</h3>
                 <div class="form-group">
                   <label class="field-label">Nouveau mot de passe</label>
-                  <input type="password" id="pwd-new" placeholder="Minimum 7 car., maj., chiffre, ponctuation">
+                  <input type="password" id="pwd-new" placeholder="Nouveau mot de passe">
                 </div>
                 <div class="form-group">
                   <label class="field-label">Confirmer le mot de passe</label>
@@ -3205,10 +3206,10 @@
 
         <!-- Pane : Activité -->
         <div id="stats-activite-pane" style="display:none;">
-          <!-- Évolution des inscrits -->
+          <!-- Évolution (inscrits + points par jour) -->
           <div class="card" style="margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Évolution des inscrits</span>
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Évolution</span>
               <span id="activity-signup-total" style="flex:1;text-align:right;font-size:.78rem;color:rgba(255,255,255,.4);"></span>
             </div>
             <div id="activity-signup-chart"></div>
@@ -3591,16 +3592,10 @@
         </div>
         <div class="form-group">
           <label class="field-label">Mot de passe</label>
-          <input type="password" id="auth-password" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
+          <input type="password" id="auth-password" placeholder="Choisis ton mot de passe"
                  onkeydown="if(event.key==='Enter')authSubmit()">
           <div id="auth-pwd-warning" class="alert alert-info" style="display:none;margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
-            <strong>Ton mot de passe doit contenir :</strong>
-            <ul style="margin:6px 0 0;padding-left:18px;">
-              <li>au moins <strong>7 caractères</strong></li>
-              <li>au moins une <strong>majuscule</strong></li>
-              <li>au moins un <strong>chiffre</strong></li>
-              <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
-            </ul>
+            Aucune contrainte : choisis le mot de passe que tu veux. Évite juste de réutiliser un mot de passe personnel employé ailleurs (email, banque, réseaux).
           </div>
         </div>
         <div id="auth-confirm-group" class="form-group" style="display:none;">
@@ -3796,16 +3791,10 @@
           </div>
           <div class="form-group">
             <label class="field-label">Nouveau mot de passe</label>
-            <input type="password" id="pc-pwd-new" placeholder="Minimum 7 car., maj., chiffre, ponctuation"
+            <input type="password" id="pc-pwd-new" placeholder="Choisis ton nouveau mot de passe"
                    onkeydown="if(event.key==='Enter')pcChangePwd()">
             <div class="alert alert-info" style="margin:8px 0 0;font-size:.75rem;line-height:1.5;padding:9px 12px;">
-              <strong>Ton nouveau mot de passe doit contenir :</strong>
-              <ul style="margin:6px 0 0;padding-left:18px;">
-                <li>au moins <strong>7 caractères</strong></li>
-                <li>au moins une <strong>majuscule</strong></li>
-                <li>au moins un <strong>chiffre</strong></li>
-                <li>au moins un <strong>signe de ponctuation</strong> (ex : !, ?, ., @…)</li>
-              </ul>
+              Aucune contrainte : choisis le mot de passe que tu veux. Évite juste de réutiliser un mot de passe personnel employé ailleurs (email, banque, réseaux).
             </div>
           </div>
           <div class="form-group">
@@ -3928,7 +3917,7 @@
         <p style="color:rgba(255,255,255,.78);font-size:.83rem;line-height:1.6;margin:0 0 8px;">Ce quiz est un jeu amateur : la protection des comptes est <strong style="color:#fff;">volontairement simple</strong>, ce n'est pas un site bancaire.</p>
         <ul style="color:rgba(255,255,255,.72);font-size:.82rem;line-height:1.65;padding-left:18px;margin:0;">
           <li>Choisis un <strong style="color:#fff;">mot de passe unique</strong>, dédié à ce quiz — jamais celui de ton email, ta banque ou tes réseaux.</li>
-          <li>Il doit faire au moins <strong style="color:#fff;">7 caractères</strong> avec une majuscule, un chiffre et un signe de ponctuation.</li>
+          <li>Aucune contrainte de longueur ni de caractères : choisis-le librement (un mot de passe plus long reste toutefois plus sûr).</li>
           <li>Prends un <strong style="color:#fff;">pseudo</strong> qui ne révèle pas ton identité réelle.</li>
         </ul>
       </div>
@@ -5410,15 +5399,22 @@
     });
   }
 
-  let _joueursPollTimer = null;
-  function _stopJoueursPoll() { if (_joueursPollTimer) { clearInterval(_joueursPollTimer); _joueursPollTimer = null; } }
-  function _startJoueursPoll() {
-    _stopJoueursPoll();
-    // Rafraîchit automatiquement scores + comptes tant que l'onglet Joueurs est ouvert
-    _joueursPollTimer = setInterval(() => {
-      if (sessionStorage.getItem('rcAdminTab') !== 'stats') { _stopJoueursPoll(); return; }
-      Promise.all([scoresFetch(), accountsFetch()]).then(() => renderJoueurs());
-    }, 15000);
+  let _statsPollTimer = null;
+  function _stopStatsPoll() { if (_statsPollTimer) { clearInterval(_statsPollTimer); _statsPollTimer = null; } }
+  function _startStatsPoll() {
+    _stopStatsPoll();
+    // Rafraîchit automatiquement (toutes les 60 s) les données du sous-onglet
+    // Stats actif tant que l'onglet Stats est ouvert — évite de recharger la page
+    _statsPollTimer = setInterval(() => {
+      if (sessionStorage.getItem('rcAdminTab') !== 'stats') { _stopStatsPoll(); return; }
+      if (_statsSubTab === 'classements') {
+        Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); renderAdminLeaderboard(); });
+      } else if (_statsSubTab === 'activite') {
+        Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
+      } else {
+        scoresFetch().then(renderQStats);
+      }
+    }, 60000);
   }
 
   let _statsSubTab = 'classements';
@@ -5435,15 +5431,13 @@
       renderJoueurs();
       renderAdminLeaderboard();
       Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); renderAdminLeaderboard(); });
-      _startJoueursPoll();
     } else if (sub === 'activite') {
-      _stopJoueursPoll();
       renderActivite();
       Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
     } else {
-      _stopJoueursPoll();
       renderQStats(); scoresFetch().then(() => renderQStats());
     }
+    _startStatsPoll();
   }
 
   /* ════════════════ Onglet Activité (admin → Stats) ════════════════ */
@@ -5469,7 +5463,12 @@
     return [];
   }
 
-  // Courbe cumulée du nombre d'inscrits dans le temps (X = dates, Y = inscrits).
+  // Visibilité des courbes du graphique « Évolution » (cases à cocher
+  // de la légende) ; conservée entre deux re-rendus de l'onglet Activité.
+  let _signupCurves = { cum: true, new: true, pts: true };
+
+  // Courbe cumulée du nombre d'inscrits dans le temps (X = dates, Y gauche = inscrits,
+  // Y droite = points marqués par l'ensemble des joueurs chaque jour).
   function renderSignupChart() {
     const el = document.getElementById('activity-signup-chart');
     const totalEl = document.getElementById('activity-signup-total');
@@ -5482,23 +5481,32 @@
       return;
     }
 
-    // Cumul par jour
+    // Cumul par jour (inscrits) + points marqués par l'ensemble des joueurs par jour
     const fmtKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const byDay = {};
     entries.forEach(e => { const k = fmtKey(e.date); byDay[k] = (byDay[k] || 0) + 1; });
-    const days = Object.keys(byDay).sort();
+    const ptsByDay = {};
+    (LS.getLeaderboard() || []).filter(g => !g.adjust && g.date).forEach(g => {
+      const d = new Date(g.date);
+      if (isNaN(d)) return;
+      const k = fmtKey(d);
+      ptsByDay[k] = (ptsByDay[k] || 0) + (Number(g.score) || 0);
+    });
+    const days = [...new Set([...Object.keys(byDay), ...Object.keys(ptsByDay)])].sort();
     let cum = 0;
-    const series = days.map(d => { cum += byDay[d]; return { day: d, cum, nouveaux: byDay[d] }; });
+    const series = days.map(d => { cum += (byDay[d] || 0); return { day: d, cum, nouveaux: byDay[d] || 0, pts: Math.round((ptsByDay[d] || 0) * 10) / 10 }; });
     const maxCum = Math.max(1, cum);
+    const maxPts = Math.max(1, ...series.map(s => s.pts));
     const n = series.length;
 
-    const padL = 40, padR = 10, padT = 14, padB = 34, plotH = 130;
+    const padL = 40, padR = 34, padT = 14, padB = 34, plotH = 130;
     const slotW = n === 1 ? 60 : Math.max(24, Math.min(56, 300 / (n - 1)));
     const plotW = n === 1 ? 60 : slotW * (n - 1);
     const W = padL + plotW + padR, H = padT + plotH + padB;
     const baseY = padT + plotH;
     const xS = i => padL + (n === 1 ? plotW / 2 : i * slotW);
     const yS = v => baseY - (v / maxCum) * plotH;
+    const yP = v => baseY - (v / maxPts) * plotH;  // échelle de droite : points marqués
     const fmtD = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' }); };
 
     let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;" xmlns="http://www.w3.org/2000/svg">`;
@@ -5508,22 +5516,35 @@
       const y = yS(val);
       svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
       svg += `<text class="sc-axislbl" x="${padL - 5}" y="${(y + 3).toFixed(1)}" text-anchor="end">${Math.round(val)}</text>`;
+      svg += `<text class="sc-axislbl-pts" x="${(W - padR + 5).toFixed(1)}" y="${(y + 3).toFixed(1)}" text-anchor="start">${Math.round((maxPts * t) / ticks)}</text>`;
     }
     const step = Math.max(1, Math.ceil(n / 4));
     series.forEach((s, i) => {
       if (i % step !== 0 && i !== n - 1) return;
       svg += `<text class="sc-datelbl" x="${xS(i).toFixed(1)}" y="${(baseY + 14).toFixed(1)}" text-anchor="middle">${fmtD(s.day)}</text>`;
     });
-    // Titres des axes (X = date, Y = nombre d'inscrits)
+    // Titres des axes (X = date, Y gauche = nombre d'inscrits, Y droite = points marqués)
     svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle" font-size="6">Date</text>`;
     svg += `<text class="sc-axislbl" x="8" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="6" transform="rotate(-90,8,${(padT + plotH / 2).toFixed(1)})">Nombre d'inscrits</text>`;
+    svg += `<text class="sc-axislbl-pts" x="${(W - 6).toFixed(1)}" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="6" transform="rotate(90,${(W - 6).toFixed(1)},${(padT + plotH / 2).toFixed(1)})">Points marqués</text>`;
+    const vis = _signupCurves;
+    // Courbe des points marqués par jour (vert, échelle de droite), tracée en premier
+    const ptsPts = series.map((s, i) => `${xS(i).toFixed(1)},${yP(s.pts).toFixed(1)}`);
+    svg += `<g class="sc-g-pts"${vis.pts ? '' : ' style="display:none;"'}>`;
+    if (ptsPts.length > 1) svg += `<polyline class="sc-line-pts" points="${ptsPts.join(' ')}"/>`;
+    series.forEach((s, i) => { svg += `<circle class="sc-dot-pts" data-i="${i}" cx="${xS(i).toFixed(1)}" cy="${yP(s.pts).toFixed(1)}" r="2.5"/>`; });
+    svg += '</g>';
     // Courbe des nouveaux inscrits par jour (or), tracée sous la courbe cumulée (rouge)
     const ptsNew = series.map((s, i) => `${xS(i).toFixed(1)},${yS(s.nouveaux).toFixed(1)}`);
+    svg += `<g class="sc-g-new"${vis.new ? '' : ' style="display:none;"'}>`;
     if (ptsNew.length > 1) svg += `<polyline class="sc-line-new" points="${ptsNew.join(' ')}"/>`;
     series.forEach((s, i) => { svg += `<circle class="sc-dot-new" data-i="${i}" cx="${xS(i).toFixed(1)}" cy="${yS(s.nouveaux).toFixed(1)}" r="2.5"/>`; });
+    svg += '</g>';
     const pts = series.map((s, i) => `${xS(i).toFixed(1)},${yS(s.cum).toFixed(1)}`);
+    svg += `<g class="sc-g-cum"${vis.cum ? '' : ' style="display:none;"'}>`;
     if (pts.length > 1) svg += `<polyline class="sc-line" points="${pts.join(' ')}"/>`;
     series.forEach((s, i) => { svg += `<circle class="sc-dot" data-i="${i}" cx="${xS(i).toFixed(1)}" cy="${yS(s.cum).toFixed(1)}" r="3"/>`; });
+    svg += '</g>';
     // Zones de survol invisibles (une tranche verticale par point) pour la tooltip
     const hitW = n === 1 ? plotW : slotW;
     series.forEach((s, i) => {
@@ -5534,35 +5555,54 @@
     // Tooltip : date + nombre d'inscrits cumulé à cette date
     const fmtFull = d => { const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }); };
     const legend = `<div class="score-chart-legend">` +
-      `<span class="score-chart-legend-item"><span class="score-chart-legend-line"></span>Cumul des inscrits</span>` +
-      `<span class="score-chart-legend-item"><span class="score-chart-legend-line-or"></span>Nouveaux inscrits par jour</span>` +
+      `<label class="score-chart-legend-item${vis.cum ? '' : ' off'}"><input type="checkbox" data-curve="cum"${vis.cum ? ' checked' : ''}><span class="score-chart-legend-line"></span>Cumul des inscrits</label>` +
+      `<label class="score-chart-legend-item${vis.new ? '' : ' off'}"><input type="checkbox" data-curve="new"${vis.new ? ' checked' : ''}><span class="score-chart-legend-line-or"></span>Nouveaux inscrits par jour</label>` +
+      `<label class="score-chart-legend-item${vis.pts ? '' : ' off'}"><input type="checkbox" data-curve="pts"${vis.pts ? ' checked' : ''}><span class="score-chart-legend-line-vert"></span>Cumul points par jour</label>` +
       `</div>`;
     el.innerHTML = `<div style="position:relative;">${svg}<div class="score-chart-tip" id="signup-chart-tip"></div></div>${legend}`;
 
     const wrap  = el.firstElementChild;
     const svgEl = wrap.querySelector('svg');
     const tipEl = wrap.querySelector('#signup-chart-tip');
+    // Cases à cocher de la légende : afficher/masquer chaque courbe
+    el.querySelectorAll('.score-chart-legend input[type=checkbox]').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const key = cb.dataset.curve;
+        _signupCurves[key] = cb.checked;
+        cb.closest('label').classList.toggle('off', !cb.checked);
+        const grp = svgEl.querySelector(`.sc-g-${key}`);
+        if (grp) grp.style.display = cb.checked ? '' : 'none';
+      });
+    });
     wrap.querySelectorAll('.sc-col').forEach(col => {
       const i = +col.dataset.i;
       const s = series[i];
       const dot = wrap.querySelector(`.sc-dot[data-i="${i}"]`);
       const dotNew = wrap.querySelector(`.sc-dot-new[data-i="${i}"]`);
+      const dotPts = wrap.querySelector(`.sc-dot-pts[data-i="${i}"]`);
       col.addEventListener('mouseenter', () => {
-        tipEl.innerHTML = `<div class="chart-tip-head">${fmtFull(s.day)}</div>` +
-          `<div style="text-align:center;"><strong style="color:var(--or);font-size:1.05rem;">${s.cum}</strong> inscrit${s.cum > 1 ? 's' : ''}</div>` +
-          `<div style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.6);">+${s.nouveaux} nouveau${s.nouveaux > 1 ? 'x' : ''} ce jour</div>`;
+        const v = _signupCurves;
+        if (!v.cum && !v.new && !v.pts) return;
+        let html = `<div class="chart-tip-head">${fmtFull(s.day)}</div>`;
+        if (v.cum) html += `<div style="text-align:center;"><strong style="color:var(--or);font-size:1.05rem;">${s.cum}</strong> inscrit${s.cum > 1 ? 's' : ''}</div>`;
+        if (v.new) html += `<div style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.6);">+${s.nouveaux} nouveau${s.nouveaux > 1 ? 'x' : ''} ce jour</div>`;
+        if (v.pts) html += `<div style="text-align:center;font-size:.72rem;color:var(--vert);">${s.pts} pt${s.pts > 1 ? 's' : ''} marqué${s.pts > 1 ? 's' : ''} ce jour</div>`;
+        tipEl.innerHTML = html;
         tipEl.style.display = 'block';
         const scale = svgEl.getBoundingClientRect().width / W;
+        const anchorY = v.cum ? yS(s.cum) : (v.pts ? yP(s.pts) : yS(s.nouveaux));
         tipEl.style.left = (xS(i) * scale).toFixed(1) + 'px';
-        tipEl.style.top  = (yS(s.cum) * scale - 8).toFixed(1) + 'px';
+        tipEl.style.top  = (anchorY * scale - 8).toFixed(1) + 'px';
         tipEl.style.transform = 'translate(-50%, -100%)';
         if (dot) dot.setAttribute('r', '5');
         if (dotNew) dotNew.setAttribute('r', '4');
+        if (dotPts) dotPts.setAttribute('r', '4');
       });
       col.addEventListener('mouseleave', () => {
         tipEl.style.display = 'none';
         if (dot) dot.setAttribute('r', '3');
         if (dotNew) dotNew.setAttribute('r', '2.5');
+        if (dotPts) dotPts.setAttribute('r', '2.5');
       });
     });
   }
@@ -5653,7 +5693,7 @@
   let _participationBuckets = [];  // [{ k, names:[…] }], index = k ; cache pour la pop-up
   function _participationData() {
     const N = playableSessionsSoFar();
-    // Population : tous les comptes inscrits (même source que « Évolution des inscrits »).
+    // Population : tous les comptes inscrits (même source que le graphique « Évolution »).
     const accounts = Object.values((_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {})
       .map(a => a && a.pseudo).filter(Boolean);
     // Parties réelles (hors ajustements admin) comptées par joueur (clé = pseudo minuscules).
@@ -5798,7 +5838,7 @@
   }
 
   function adminTab(tab) {
-    if (tab !== 'stats') _stopJoueursPoll();
+    if (tab !== 'stats') _stopStatsPoll();
     updateNoAccountBadge();
     if (tab !== 'stats' && _supa) {
       Promise.all([scoresFetch(), accountsFetch()]).then(updateNoAccountBadge).catch(() => {});
@@ -8452,7 +8492,7 @@
       <div style="padding:0 0 8px;">
         <div style="font-size:.78rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Réinitialiser le mot de passe de ce joueur</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (min. 7 car.)"
+          <input type="password" id="pcard-new-pwd" placeholder="Nouveau mot de passe (libre)"
                  style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;"
                  onkeydown="if(event.key==='Enter')adminResetPwd()">
           <button class="btn btn-ghost btn-sm" onclick="adminResetPwd()" style="white-space:nowrap;">Réinitialiser</button>
@@ -9014,6 +9054,123 @@
     await scoresFetch();
     renderJoueurs();
     openPlayerCard(_pcardName);
+  }
+
+  /* ══════════ Correction admin d'une réponse refusée (tolérance) ══════════
+     L'admin force la bonne réponse sur une entrée « raté » d'une partie : la
+     ligne scores est mise à jour (ok, points de l'indice où le joueur a buté,
+     score total) et le joueur est notifié. Si la correction complète les deux
+     « Qui suis-je ? » d'une partie dont la question bonus n'a jamais été
+     déclenchée, celle-ci est automatiquement proposée au joueur à sa
+     prochaine visite (voir getPendingBonus / renderHomeBonusUnlock). */
+
+  function _questionsById() {
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+    return byId;
+  }
+
+  // Une entrée de détail est corrigeable si elle est ratée, à saisie libre,
+  // et qu'une réponse a réellement été donnée (sinon rien à « tolérer »).
+  function isForceableDetail(d, q) {
+    return !!(d && !d.ok && q && (q.type === 'joueur' || q.type === 'libre')
+      && d.playerAns != null && String(d.playerAns).trim() !== '');
+  }
+
+  async function adminForceAnswer(rowId, qid) {
+    const row = (_db.scores || []).find(s => String(s.id) === String(rowId));
+    if (!row) { alert('Partie introuvable — recharge les statistiques.'); return; }
+    const dets = Array.isArray(row.details) ? row.details : [];
+    const d = dets.find(x => x && String(x.id) === String(qid) && !x.ok);
+    const q = LS.getQ().find(x => String(x.id) === String(qid));
+    if (!d || !q || !isForceableDetail(d, q)) { alert('Cette réponse ne peut pas être corrigée.'); return; }
+
+    const isJoueur = q.type === 'joueur';
+    const idx   = (d.indiceIdx != null) ? d.indiceIdx : Math.max(0, (q.indices || []).length - 1);
+    const pts   = isJoueur ? getJoueurPts(q, idx) : (q.points || 1);
+    const label = isJoueur ? (q.playerName || 'Joueur') : q.text;
+
+    if (!confirm(`Valider la réponse « ${String(d.playerAns)} » de ${row.name} comme correcte ?\n\n`
+      + `Question : ${label}\n`
+      + (isJoueur ? `Indice ${idx + 1} → +${pts} pt${pts > 1 ? 's' : ''}` : `+${pts} pt${pts > 1 ? 's' : ''}`)
+      + `\n\nLe score de la partie sera mis à jour et le joueur notifié.`)) return;
+
+    // Mise à jour locale puis Supabase (UPDATE réservé à l'admin par RLS)
+    d.ok = true; d.pts = pts; d.forced = true;
+    row.score = Math.round(((Number(row.score) || 0) + pts) * 100) / 100;
+    if (isJoueur && !d.bonus) row.joueurAnswered = (Number(row.joueurAnswered) || 0) + 1;
+    _backupScores();
+
+    if (!_supa) { alert('Serveur indisponible.'); return; }
+    const { error } = await _supa.from('scores')
+      .update({ score: row.score, joueur_answered: row.joueurAnswered, details: row.details })
+      .eq('id', row.id);
+    if (error) {
+      console.error('[Supabase] correction réponse:', error);
+      alert('Correction refusée par Supabase — connexion admin (Supabase Auth) requise.');
+      await scoresFetch();
+      _refreshAnswerViews();
+      return;
+    }
+
+    // La correction débloque-t-elle la question bonus de cette partie ?
+    const pending = _bonusPendingForRow(row, _questionsById());
+
+    // Notification au joueur (non bloquant : le message échoue silencieusement
+    // si le joueur n'a pas de compte).
+    const msg = `Ta réponse « ${String(d.playerAns)} » pour « ${label} » a finalement été acceptée : +${pts} pt${pts > 1 ? 's' : ''} ajoutés à ta partie.`
+      + (pending ? `\nEt ce n'est pas tout : la question bonus de cette partie est débloquée — elle t'attend sur l'écran d'accueil !` : '');
+    await playerMsgSend((row.name || '').toLowerCase(), 'Réponse validée par l\'admin !', msg);
+
+    await scoresFetch();
+    _refreshAnswerViews();
+    if (pending) alert(`Réponse validée. La question bonus est débloquée pour ${row.name} : elle lui sera proposée à sa prochaine visite.`);
+  }
+
+  /* Question bonus « en attente » d'une partie : les deux « Qui suis-je ? »
+     sont désormais corrects (dont au moins un validé par l'admin), la question
+     bonus de la session figurait dans question_ids mais n'a jamais été
+     déclenchée, et le joueur ne l'a pas encore rejouée. */
+  function _bonusPendingForRow(r, byId) {
+    if (!r || r.adjust) return null;
+    const dets = Array.isArray(r.details) ? r.details : [];
+    if (!dets.some(x => x && x.forced)) return null;                    // seulement après correction admin
+    const joueurs = dets.filter(x => x && !x.bonus && byId[x.id] && byId[x.id].type === 'joueur');
+    if (joueurs.length < 2 || !joueurs.every(x => x.ok)) return null;   // les deux doivent être trouvés
+    if (dets.some(x => x && x.bonus)) return null;                      // bonus déjà joué en partie
+    const bid = (r.questionIds || []).find(id =>
+      byId[id] && byId[id].type !== 'joueur' && !dets.some(x => x && String(x.id) === String(id)));
+    if (bid == null) return null;
+    const key = (r.name || '').toLowerCase();
+    const done = (_db.scores || []).some(s => s.adjust && (s.name || '').toLowerCase() === key
+      && (Array.isArray(s.details) ? s.details : []).some(x => x && x.bonus && String(x.srcRow) === String(r.id)));
+    return done ? null : { row: r, q: byId[bid] };
+  }
+
+  /* Première question bonus en attente pour un pseudo (côté joueur). */
+  function getPendingBonus(pseudo) {
+    if (!pseudo) return null;
+    const byId = _questionsById();
+    if (!Object.keys(byId).length) return null;
+    const key = pseudo.toLowerCase();
+    for (const r of (_db.scores || [])) {
+      if (r.adjust || (r.name || '').toLowerCase() !== key) continue;
+      const p = _bonusPendingForRow(r, byId);
+      if (p) return p;
+    }
+    return null;
+  }
+
+  /* Rafraîchit les vues admin susceptibles d'afficher un détail corrigé :
+     sous-onglet Réponses, pop-up de détail de partie, carte joueur ouverte. */
+  function _refreshAnswerViews() {
+    renderReponses();
+    const modal = document.getElementById('game-detail-modal');
+    if (modal && modal.style.display === 'flex') closeGameDetailPopup();
+    const ov = document.getElementById('pcard-overlay');
+    if (ov && ov.style.display === 'flex' && _pcardName) openPlayerCard(_pcardName);
+    renderJoueurs();
+    renderAdminLeaderboard();
   }
 
   /* Mon Onze brut et normalisé d'un compte (préserve completedAt/bonusAwarded…). */
@@ -13962,8 +14119,8 @@
     // Toutes les tabs sont cliquables (carte joueur accessible à tous).
     const clickable = true;
     const medals = ['🥇', '🥈', '🥉'];
-    // Côté joueur : top 50 ; côté admin (« alb ») : 100 % des inscrits.
-    const rows = pfx === 'alb' ? data : data.slice(0, 50);
+    // Tous les joueurs ayant joué sont affichés (côté joueur comme côté admin).
+    const rows = data;
     const rowsHtml = rows.map((e, i) => {
       const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
@@ -14569,18 +14726,25 @@
   }
 
   /* Comparaison étendue pour les questions Liste :
-     en plus des règles de isMatch, accepte qu'un seul mot de la réponse attendue
-     corresponde à la saisie du joueur (ex: "Warmuz" valide pour "Guillaume Warmuz",
-     "Warmzu" valide pour "Guillaume Warmuz" grâce à la tolérance de 1 lettre).
+     en plus des règles de isMatch, accepte que toute suite de mots consécutifs
+     de la réponse attendue corresponde à la saisie du joueur
+     (ex: "Warmuz" valide pour "Guillaume Warmuz",
+     "Salis", "Samed" ou "Abdul Samed" valident "Salis Abdul Samed",
+     avec la tolérance de 1 lettre si le fragment fait ≥ 4 caractères).
      Les variantes éventuelles sont testées avec isMatch (sans décomposition mot par mot). */
   function isMatchMl(val, answer, variants) {
     if (isMatch(val, answer)) return true;
     const a = normalizeStr(val);
     const b = normalizeStr(answer);
-    const words = b.split(/\s+/).filter(w => w.length >= 3);
-    for (const w of words) {
-      if (a === w) return true;
-      if (w.length >= 4 && levenshtein(a, w) <= 1) return true;
+    const bw = b.split(/\s+/).filter(Boolean);
+    for (let i = 0; i < bw.length; i++) {
+      let chunk = '';
+      for (let j = i; j < bw.length; j++) {
+        chunk = chunk ? chunk + ' ' + bw[j] : bw[j];
+        if (chunk.length < 3) continue;
+        if (a === chunk) return true;
+        if (chunk.length >= 4 && levenshtein(a, chunk) <= 1) return true;
+      }
     }
     if (variants && variants.length) {
       for (const v of variants) { if (isMatch(val, v)) return true; }
@@ -14635,10 +14799,8 @@
   }
 
   function _validatePwd(pwd) {
-    if (pwd.length < 7)            return 'Le mot de passe doit faire au moins 7 caractères.';
-    if (!/[A-Z]/.test(pwd))        return 'Le mot de passe doit contenir au moins une lettre majuscule.';
-    if (!/[0-9]/.test(pwd))        return 'Le mot de passe doit contenir au moins un chiffre.';
-    if (!/[^\w\s]/.test(pwd))      return 'Le mot de passe doit contenir au moins un signe de ponctuation (ex : !, ?, ., @…).';
+    /* Aucune contrainte de longueur ni de caractères : seul un mot de passe vide est refusé. */
+    if (!pwd) return 'Saisis un mot de passe.';
     return null;
   }
 
@@ -15616,31 +15778,47 @@
   }
 
   function _attachScoreChartTip(container, tipEl, tipHtml, colCxPx) {
+    // Infobulle unique fixée au <body> (comme scatter-tooltip-global) : toujours en
+    // superposition, jamais rognée par les overflow/bordures de la carte ou du graphique.
+    let tip = document.getElementById('score-chart-tip-global');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'score-chart-tip-global';
+      tip.className = 'score-chart-tip';
+      tip.style.position = 'fixed';
+      tip.style.zIndex = '10050';
+      tip.style.transform = 'none';
+      document.body.appendChild(tip);
+    }
+    if (tipEl && tipEl !== tip) tipEl.style.display = 'none';
     const cols = container.querySelectorAll('.sc-col');
     const bars = container.querySelectorAll('.sc-bar');
+    // Le défilement horizontal du graphique invaliderait la position fixe : on masque.
+    const scrollEl = container.querySelector('.score-chart-scroll');
+    if (scrollEl && !scrollEl._scTipBound) {
+      scrollEl._scTipBound = true;
+      scrollEl.addEventListener('scroll', () => { tip.style.display = 'none'; });
+    }
     cols.forEach(col => {
       const i = +col.dataset.i;
       col.addEventListener('mouseenter', () => {
-        tipEl.innerHTML = tipHtml[i];
-        tipEl.style.display = 'block';
-        // Centrer la tooltip au-dessus de la colonne (position absolue dans .score-chart-wrap)
-        const scrollEl = container.querySelector('.score-chart-scroll') || container;
+        tip.innerHTML = tipHtml[i];
+        tip.style.display = 'block';
         const svgEl = container.querySelector('.score-chart-svg');
-        const svgRect = svgEl ? svgEl.getBoundingClientRect() : scrollEl.getBoundingClientRect();
-        const wrapRect = container.closest('.score-chart-wrap')
-          ? container.closest('.score-chart-wrap').getBoundingClientRect()
-          : svgRect;
-        // Position X : centre de colonne relatif au wrap
-        const absX = svgRect.left - wrapRect.left + colCxPx[i];
-        // Position Y : juste au-dessus du SVG
-        const absY = svgRect.top - wrapRect.top - 4;
-        tipEl.style.left = absX + 'px';
-        tipEl.style.top  = absY + 'px';
-        tipEl.style.transform = 'translate(-50%, -100%)';
+        const svgRect = svgEl ? svgEl.getBoundingClientRect() : container.getBoundingClientRect();
+        const tw = tip.offsetWidth, th = tip.offsetHeight;
+        // Centre de la colonne en coordonnées écran, borné aux bords de la fenêtre
+        let x = svgRect.left + colCxPx[i] - tw / 2;
+        x = Math.max(8, Math.min(x, window.innerWidth - tw - 8));
+        // Au-dessus du graphique ; bascule en dessous s'il n'y a pas la place
+        let y = svgRect.top - th - 8;
+        if (y < 8) y = svgRect.bottom + 8;
+        tip.style.left = x + 'px';
+        tip.style.top  = y + 'px';
         if (bars[i]) bars[i].classList.add('is-hover');
       });
       col.addEventListener('mouseleave', () => {
-        tipEl.style.display = 'none';
+        tip.style.display = 'none';
         if (bars[i]) bars[i].classList.remove('is-hover');
       });
     });
