@@ -1272,9 +1272,9 @@
     .flex-between { display: flex; align-items: center; justify-content: space-between; }
 
     /* ── Contact modal ── */
-    .contact-type-group { display: flex; gap: 10px; }
+    .contact-type-group { display: flex; gap: 10px; flex-wrap: wrap; }
     .contact-type-btn {
-      flex: 1;
+      flex: 1 1 130px;
       padding: 12px 10px;
       border-radius: 10px;
       border: 2px solid rgba(255,205,0,.2);
@@ -2024,6 +2024,11 @@
     .lb-filter-btn:hover { background:rgba(36,36,36,.95); }
     .lb-filter-btn .lb-filter-caret { color:rgba(255,255,255,.45);font-size:.75rem;flex-shrink:0;transition:transform .15s; }
     .lb-filter-btn.open .lb-filter-caret { transform:rotate(180deg); }
+    /* Bouton réduire/afficher (sous-onglet Questions & réponses) */
+    .stats-collapse-btn { margin-left:auto;flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;padding:0;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:rgba(255,255,255,.05);color:rgba(255,255,255,.6);cursor:pointer;transition:background .15s,color .15s; }
+    .stats-collapse-btn:hover { background:rgba(255,205,0,.1);color:var(--or); }
+    .stats-collapse-btn .stats-collapse-caret { font-size:.8rem;line-height:1;transition:transform .15s; }
+    .stats-collapse-btn.collapsed .stats-collapse-caret { transform:rotate(-90deg); }
     .lb-filter-panel { position:absolute;top:calc(100% + 4px);left:0;right:0;background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.18);border-radius:8px;z-index:300;max-height:220px;overflow-y:auto;padding:4px 0;box-shadow:0 8px 24px rgba(0,0,0,.65); }
     .lb-filter-item { display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;font-size:.85rem;transition:background .1s;user-select:none; }
     .lb-filter-item:hover { background:rgba(255,205,0,.07); }
@@ -2250,6 +2255,8 @@
         <button id="home-play-btn" class="btn btn-gold btn-full" onclick="handlePlayBtn()">Jouer</button>
         <!-- Rattrapage : parties passées non jouées (joueur ayant pris le train en route) -->
         <div id="home-catchup" style="display:none;margin-top:12px;"></div>
+        <!-- Question bonus débloquée par une correction admin (voir getPendingBonus) -->
+        <div id="home-bonus-unlock" style="display:none;margin-top:12px;"></div>
         <!-- Incitation : joueurs collectionnés non encore positionnés dans Mon Onze -->
         <div id="home-onze-nudge" style="display:none;margin-top:12px;"></div>
         <!-- Classement accessible avant de lancer la partie -->
@@ -2290,7 +2297,6 @@
         </div>
       </div>
       <button id="home-contact-btn" class="btn btn-ghost btn-full" style="max-width:380px;margin-top:18px;margin-bottom:0;font-size:.85rem;" onclick="openContactFromHome()">✉ Contactez-nous</button>
-      <p id="home-contact-hint" style="display:none;max-width:380px;margin-top:8px;font-size:.72rem;color:rgba(255,255,255,.45);text-align:center;line-height:1.45;">Connecte-toi avec un compte pour nous envoyer un message.</p>
       <p style="margin-top:18px;font-size:.68rem;color:rgba(255,255,255,.25);text-align:center;">by <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" style="color:rgba(255,255,255,.35);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Racing Club Podcast</a></p>
     </div>
 
@@ -2617,6 +2623,13 @@
               <label class="field-label">Nom du joueur *</label>
               <input type="text" id="nj-name" placeholder="Ex : Éric Sikora, Lensois légendaire…" maxlength="100">
               <p class="field-hint">Le nom que les joueurs devront deviner.</p>
+            </div>
+
+            <div class="form-group">
+              <label class="field-label">Autres réponses acceptées (optionnel)</label>
+              <div id="njv-libre-answers"></div>
+              <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addLibreAnswer('njv')">+ Variante</button>
+              <p class="field-hint">Ajoutez d'autres formulations acceptées (ex : "Sikora", "Éric Sikora"). La comparaison ignore la casse, les accents et tolère les petites fautes.</p>
             </div>
 
             <div class="form-group">
@@ -3130,6 +3143,7 @@
               <button class="btn btn-sm" id="mfilter-all" onclick="setMessageFilter('all')" style="font-size:.75rem;padding:5px 10px;">Tous</button>
               <button class="btn btn-ghost btn-sm" id="mfilter-error" onclick="setMessageFilter('error')" style="font-size:.75rem;padding:5px 10px;">⚠ Erreurs</button>
               <button class="btn btn-ghost btn-sm" id="mfilter-propose" onclick="setMessageFilter('propose')" style="font-size:.75rem;padding:5px 10px;">💡 Propositions</button>
+              <button class="btn btn-ghost btn-sm" id="mfilter-help" onclick="setMessageFilter('help')" style="font-size:.75rem;padding:5px 10px;">✉ Aide</button>
               <button class="btn btn-ghost btn-sm" id="mfilter-todo" onclick="setMessageFilter('todo')" style="font-size:.75rem;padding:5px 10px;">À traiter</button>
             </div>
             <div id="messages-list"></div>
@@ -3142,7 +3156,7 @@
         <div class="add-subtabs db-subtabs">
           <button class="add-subtab" id="sst-activite" onclick="setStatsSubTab('activite')">Activité</button>
           <button class="add-subtab active" id="sst-classements" onclick="setStatsSubTab('classements')">Classements</button>
-          <button class="add-subtab" id="sst-questions" onclick="setStatsSubTab('questions')">Stats questions</button>
+          <button class="add-subtab" id="sst-questions" onclick="setStatsSubTab('questions')">Questions &amp; réponses</button>
         </div>
 
         <!-- Pane : Classements -->
@@ -3206,6 +3220,7 @@
 
         <!-- Pane : Activité -->
         <div id="stats-activite-pane" style="display:none;">
+          <div id="activity-last-refresh" style="text-align:right;font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:8px;"></div>
           <!-- Évolution (inscrits + points par jour) -->
           <div class="card" style="margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
@@ -3243,13 +3258,50 @@
           <div id="onboarding-dashboard"></div>
         </div>
 
-        <!-- Pane : Stats questions -->
+        <!-- Pane : Questions & réponses (stats par question + historique des réponses) -->
         <div id="stats-questions-pane" style="display:none;">
-          <div class="card">
+
+          <!-- Bloc : Statistiques par question -->
+          <div class="card" style="margin-bottom:12px;">
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
               <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Statistiques par question</span>
+              <button type="button" class="stats-collapse-btn" id="qstats-collapse-btn" onclick="toggleStatsBlock('qstats')" aria-expanded="true" title="Réduire / afficher">
+                <span class="stats-collapse-caret">▾</span>
+              </button>
             </div>
-            <div id="qstats-content"></div>
+            <div id="qstats-body">
+              <div id="qstats-content"></div>
+            </div>
+          </div>
+
+          <!-- Bloc : Historique des réponses (historique complet des réponses de tous les joueurs) -->
+          <div class="card">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">Historique des réponses</span>
+              <button type="button" class="stats-collapse-btn" id="reponses-collapse-btn" onclick="toggleStatsBlock('reponses')" aria-expanded="true" title="Réduire / afficher">
+                <span class="stats-collapse-caret">▾</span>
+              </button>
+            </div>
+            <div id="reponses-body">
+              <p style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.5;margin-bottom:12px;">
+                Toutes les réponses données par les joueurs, partie par partie, avec l'indice atteint.
+                Sur une réponse ratée à saisie libre, « Forcer la bonne réponse » corrige le score
+                (et débloque la question bonus de la partie si elle n'avait pas été déclenchée).
+              </p>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+                <input type="text" id="rep-search" placeholder="Filtrer : pseudo, question ou réponse…"
+                       oninput="renderReponses()"
+                       style="flex:1;min-width:180px;padding:9px 12px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.07);color:#fff;font-size:.85rem;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:.78rem;color:rgba(255,255,255,.7);cursor:pointer;white-space:nowrap;">
+                  <input type="checkbox" id="rep-only-fails" onchange="renderReponses()">
+                  Réponses refusées seulement
+                </label>
+              </div>
+              <div id="reponses-list"></div>
+              <div style="text-align:center;">
+                <button class="btn btn-ghost btn-sm mb0" id="rep-more-btn" style="display:none;margin-top:10px;" onclick="repShowMore()">Afficher plus</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -4038,6 +4090,12 @@
             <input type="text" id="eq-joueur-name" placeholder="Nom du joueur…" maxlength="100">
           </div>
           <div class="form-group">
+            <label class="field-label">Autres réponses acceptées (optionnel)</label>
+            <div id="eqv-libre-answers"></div>
+            <button type="button" class="btn btn-ghost btn-sm" style="margin-top:8px;" onclick="addLibreAnswer('eqv')">+ Variante</button>
+            <p class="field-hint">Ajoutez d'autres formulations acceptées (ex : "Sikora", "Éric Sikora"). La comparaison ignore la casse, les accents et tolère les petites fautes.</p>
+          </div>
+          <div class="form-group">
             <label class="field-label">Poste(s) du joueur</label>
             <div id="eq-joueur-positions" class="pos-picker"></div>
             <p class="field-hint" id="eq-joueur-positions-summary"></p>
@@ -4100,6 +4158,7 @@
           <div class="contact-type-group">
             <button class="contact-type-btn active" id="ct-error"   onclick="setContactType('error')">⚠ Signaler une erreur</button>
             <button class="contact-type-btn"        id="ct-propose" onclick="setContactType('propose')">💡 Proposer une question</button>
+            <button class="contact-type-btn"        id="ct-help"    onclick="setContactType('help')">✉ Besoin d'aide</button>
           </div>
         </div>
 
@@ -4129,6 +4188,23 @@
           <div class="form-group mb0">
             <label class="field-label">Informations complémentaires</label>
             <textarea id="c-propose-message" placeholder="Source, contexte, type de question souhaitée…" style="min-height:60px;"></textarea>
+          </div>
+        </div>
+
+        <!-- Besoin d'aide (accessible sans compte : mot de passe perdu, etc.) -->
+        <div id="csec-help" style="display:none;">
+          <div class="form-group">
+            <label class="field-label">Votre pseudo</label>
+            <input type="text" id="c-help-pseudo" placeholder="Le pseudo de votre compte, si vous le connaissez…">
+            <p class="field-hint">Facultatif, mais ça nous aide à vous retrouver.</p>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Objet *</label>
+            <input type="text" id="c-help-subject" placeholder="Mot de passe oublié, problème de connexion…">
+          </div>
+          <div class="form-group mb0">
+            <label class="field-label">Votre message *</label>
+            <textarea id="c-help-message" placeholder="Expliquez-nous votre souci, on revient vers vous."></textarea>
           </div>
         </div>
 
@@ -4341,6 +4417,7 @@
   let editCorrectIdxsMulti = [];
   let quizJoueurIndiceIdx  = 0;
   let quizJoueurTryCount   = 0;
+  let quizJoueurWrongs     = [];   // toutes les tentatives fausses [{ i: indice, ans }] de la question joueur en cours
   let testJoueurIndiceIdx  = 0;
   let testJoueurTryCount   = 0;
   let quizMultiSelected          = [];
@@ -4544,11 +4621,11 @@
   }
 
   /* ═══ Rendu admin des messages ═══ */
-  let _msgFilter = 'all';   // all | error | propose | todo
+  let _msgFilter = 'all';   // all | error | propose | help | todo
 
   function setMessageFilter(f) {
     _msgFilter = f;
-    ['all','error','propose','todo'].forEach(k => {
+    ['all','error','propose','help','todo'].forEach(k => {
       const b = document.getElementById('mfilter-' + k);
       if (b) b.classList.toggle('btn-ghost', k !== f);
     });
@@ -4586,6 +4663,7 @@
     let items = _messages.slice();
     if (_msgFilter === 'error')   items = items.filter(m => m.type === 'error');
     if (_msgFilter === 'propose') items = items.filter(m => m.type === 'propose');
+    if (_msgFilter === 'help')    items = items.filter(m => m.type === 'help');
     if (_msgFilter === 'todo')    items = items.filter(m => !m.handled);
 
     const todo = _messages.filter(m => !m.handled).length;
@@ -4599,13 +4677,20 @@
     const fmt = ts => { try { return new Date(ts).toLocaleString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' }); } catch { return ''; } };
 
     list.innerHTML = items.map(m => {
-      const isErr = m.type === 'error';
-      const tag   = isErr ? '⚠ Erreur' : '💡 Proposition';
-      const tagBg = isErr ? 'rgba(227,6,19,.15)' : 'rgba(255,205,0,.15)';
-      const tagFg = isErr ? '#ff6b6b' : '#ffcd00';
-      const authorHtml = m.author ? playerLink(m.author) : '<span style="color:rgba(255,255,255,.4);">Anonyme</span>';
+      const isErr  = m.type === 'error';
+      const isHelp = m.type === 'help';
+      const tag   = isErr ? '⚠ Erreur' : isHelp ? '✉ Aide' : '💡 Proposition';
+      const tagBg = isErr ? 'rgba(227,6,19,.15)' : isHelp ? 'rgba(255,255,255,.12)' : 'rgba(255,205,0,.15)';
+      const tagFg = isErr ? '#ff6b6b' : isHelp ? 'rgba(255,255,255,.8)' : '#ffcd00';
+      // Sur une demande d'aide, le pseudo est déclaratif : pas de lien vers une fiche joueur.
+      const authorHtml = !m.author ? '<span style="color:rgba(255,255,255,.4);">Anonyme</span>'
+        : isHelp ? `<span style="color:rgba(255,255,255,.55);">${esc(m.author)} (déclaré)</span>`
+        : playerLink(m.author);
       let bodyHtml;
-      if (isErr) {
+      if (isHelp) {
+        bodyHtml = (m.question_ref ? `<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:6px;"><strong>Objet :</strong> ${esc(m.question_ref)}</div>` : '')
+          + `<div style="font-size:.88rem;color:#fff;white-space:pre-wrap;">${esc(m.body)}</div>`;
+      } else if (isErr) {
         bodyHtml = (m.question_ref ? `<div style="font-size:.78rem;color:rgba(255,255,255,.5);margin-bottom:6px;"><strong>Question :</strong> ${esc(m.question_ref)}</div>` : '')
           + `<div style="font-size:.88rem;color:#fff;white-space:pre-wrap;">${esc(m.body)}</div>`;
       } else {
@@ -5412,7 +5497,7 @@
       } else if (_statsSubTab === 'activite') {
         Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
       } else {
-        scoresFetch().then(renderQStats);
+        scoresFetch().then(() => { renderQStats(); renderReponses(); });
       }
     }, 60000);
   }
@@ -5435,9 +5520,25 @@
       renderActivite();
       Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
     } else {
-      renderQStats(); scoresFetch().then(() => renderQStats());
+      // Sous-onglet fusionné : stats par question + historique des réponses
+      _repShown = REP_PAGE;   // repart de la première page à chaque ouverture
+      renderQStats();
+      renderReponses();
+      scoresFetch().then(() => { renderQStats(); renderReponses(); });
     }
     _startStatsPoll();
+  }
+
+  /* Réduire / afficher un bloc du sous-onglet « Questions & réponses ».
+     key = 'qstats' | 'reponses' ; masque le corps et fait pivoter le chevron. */
+  function toggleStatsBlock(key) {
+    const body = document.getElementById(key + '-body');
+    const btn  = document.getElementById(key + '-collapse-btn');
+    if (!body || !btn) return;
+    const collapsed = body.style.display !== 'none';
+    body.style.display = collapsed ? 'none' : '';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+    btn.classList.toggle('collapsed', collapsed);
   }
 
   /* ════════════════ Onglet Activité (admin → Stats) ════════════════ */
@@ -5448,6 +5549,14 @@
     renderParticipationChart();
     renderOnzeDashboard();
     renderOnboardingDashboard();
+    const refEl = document.getElementById('activity-last-refresh');
+    if (refEl) {
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2, '0');
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      refEl.textContent = `Dernier rafraîchissement : ${hh}:${mm}:${ss}`;
+    }
   }
 
   // Liste des comptes triés par date d'inscription (croissant). Replie sur les
@@ -5684,6 +5793,65 @@
   }
   function closeGameDetailPopup() {
     document.getElementById('game-detail-modal').style.display = 'none';
+  }
+
+  /* ════════════ Sous-onglet Réponses : historique complet (admin) ════════════
+     Liste chronologique (plus récent en premier) de toutes les parties portant
+     un détail de réponses — y compris les questions bonus rejouées après une
+     correction — avec, pour chaque réponse, l'indice atteint et la correction
+     admin possible (gameDetailHtml / adminForceAnswer). */
+  const REP_PAGE = 20;
+  let _repShown = REP_PAGE;
+
+  function repShowMore() { _repShown += REP_PAGE; renderReponses(); }
+
+  function renderReponses() {
+    const el = document.getElementById('reponses-list');
+    if (!el) return;
+    const term      = (document.getElementById('rep-search')?.value || '').trim().toLowerCase();
+    const onlyFails = !!document.getElementById('rep-only-fails')?.checked;
+    const qById     = _questionsById();
+
+    // Toutes les lignes portant un détail de réponses (parties + bonus rejoués) ;
+    // les ajustements de points classiques (details vide) sont exclus.
+    let rows = (LS.getLeaderboard() || [])
+      .filter(g => g.date && Array.isArray(g.details) && g.details.length)
+      .map(g => ({ ...g, _date: new Date(g.date) }))
+      .filter(g => !isNaN(g._date))
+      .sort((a, b) => b._date - a._date);
+
+    const detText = (g) => (g.details || []).map(d => {
+      const q = qById[d.id];
+      return [(q && (q.playerName || q.text)) || '', d.playerAns || '',
+              ...(Array.isArray(d.tries) ? d.tries.map(t => t && t.ans || '') : [])].join(' ');
+    }).join(' ').toLowerCase();
+
+    if (term)      rows = rows.filter(g => (g.name || '').toLowerCase().includes(term) || detText(g).includes(term));
+    if (onlyFails) rows = rows.filter(g => (g.details || []).some(d => d && !d.ok && d.playerAns != null && String(d.playerAns).trim() !== ''));
+
+    const total = rows.length;
+    const shown = rows.slice(0, _repShown);
+    const fmt = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' })
+               + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+
+    el.innerHTML = shown.length ? shown.map(g => `
+      <div style="border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px 12px;margin-bottom:10px;background:rgba(255,255,255,.02);">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:2px;">
+          <span style="font-weight:700;font-size:.85rem;">${playerLink(g.name)}</span>
+          ${g.adjust ? '<span style="font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--or);background:rgba(255,205,0,.12);border-radius:6px;padding:2px 7px;">Bonus rejoué</span>' : ''}
+          <span style="flex:1;"></span>
+          <span style="font-size:.78rem;font-weight:700;color:var(--or);">${g.score} pt${Math.abs(Number(g.score)) > 1 ? 's' : ''}${g.maxScore > 0 ? ` / ${g.maxScore}` : ''}</span>
+          <span style="font-size:.72rem;color:rgba(255,255,255,.4);white-space:nowrap;">${fmt(g._date)}</span>
+        </div>
+        ${gameDetailHtml(g)}
+      </div>`).join('')
+      : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucune réponse ne correspond à ce filtre.</p>';
+
+    const moreBtn = document.getElementById('rep-more-btn');
+    if (moreBtn) {
+      moreBtn.style.display = total > shown.length ? 'inline-block' : 'none';
+      if (total > shown.length) moreBtn.textContent = `Afficher plus (${total - shown.length} restante${total - shown.length > 1 ? 's' : ''})`;
+    }
   }
 
   /* ════════════════ Assiduité : répartition des joueurs par nb de parties jouées ═══
@@ -6931,6 +7099,7 @@
       renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
       renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
       renderPosPicker('nj-positions', addJoueurPositions);
+      renderLibreAnswers('njv', ['']);
     }
     if (mode === 'match') {
       renderTagPicker('tag-picker-match', addMatchSelectedTags);
@@ -8896,10 +9065,12 @@
   }
 
   /* Détail d'une partie : réponses données aux « Qui suis-je ? » et au bonus.
-     Réutilisé par la carte joueur (historique) et l'onglet Stats → Activité. */
+     Réutilisé par la carte joueur (historique), l'onglet Stats → Activité et
+     le sous-onglet Stats → Réponses. Sur une réponse ratée à saisie libre,
+     l'admin peut forcer la bonne réponse (tolérance trop stricte) — le score
+     de la partie est alors corrigé (voir adminForceAnswer). */
   function gameDetailHtml(g) {
-    const qById = {};
-    LS.getQ().forEach(q => { qById[q.id] = q; });
+    const qById = _questionsById();
     const dets = Array.isArray(g.details) ? g.details : [];
     const rows = dets.map(d => {
       const q       = qById[d.id];
@@ -8909,9 +9080,31 @@
       const ansHtml = ansRaw
         ? `<em style="color:#ff8c00;font-style:normal;font-weight:600;">${esc(ansRaw)}</em>`
         : `<span style="color:rgba(255,255,255,.3);font-style:italic;">aucune réponse</span>`;
+      const indiceTxt = d.indiceIdx != null ? ` · indice ${d.indiceIdx + 1}` : '';
       const statusHtml = d.ok
-        ? `<span style="color:var(--vert);font-weight:700;white-space:nowrap;">✓ trouvé${d.indiceIdx != null ? ` · indice ${d.indiceIdx + 1}` : ''}</span>`
-        : `<span style="color:var(--rouge);font-weight:700;white-space:nowrap;">✗ raté</span>`;
+        ? `<span style="color:var(--vert);font-weight:700;white-space:nowrap;">✓ trouvé${indiceTxt}</span>`
+        : `<span style="color:var(--rouge);font-weight:700;white-space:nowrap;">✗ raté${indiceTxt}</span>`;
+      const forcedTag = d.forced
+        ? `<div style="font-size:.72rem;color:var(--or);margin-top:2px;padding-left:24px;">Réponse validée par l'admin</div>`
+        : '';
+      // Toutes les tentatives écrites (essais faux aux indices, mots faux des Listes).
+      // Sur un raté, la dernière tentative est déjà la ligne « Réponse : » — on ne la répète pas.
+      let triesList = Array.isArray(d.tries) ? d.tries.filter(t => t && t.ans != null) : [];
+      if (!d.ok && triesList.length && String(triesList[triesList.length - 1].ans).trim() === ansRaw) triesList = triesList.slice(0, -1);
+      const triesHtml = triesList.length
+        ? `<div style="font-size:.72rem;color:rgba(255,255,255,.45);margin-top:2px;padding-left:24px;line-height:1.5;">Tentatives : ${triesList.map(t =>
+            `<em style="color:rgba(255,140,0,.75);font-style:normal;">${esc(String(t.ans))}</em>${t.i != null ? ` (indice ${t.i + 1})` : ''}`).join(' · ')}</div>`
+        : '';
+      // Réponse attendue sur un raté à saisie libre (aide à juger la tolérance)
+      const expected = (!d.ok && q && q.type === 'libre' && (q.answers || q.answer))
+        ? `<div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:2px;padding-left:24px;">Attendu : ${esc((q.answers || [q.answer]).join(' / '))}</div>`
+        : '';
+      const forceBtn = isForceableDetail(d, q)
+        ? `<div style="margin-top:5px;padding-left:24px;">
+             <button class="btn btn-ghost btn-sm mb0" style="font-size:.7rem;padding:5px 10px;"
+                     onclick="adminForceAnswer('${String(g.id)}','${esc(String(d.id))}')">Forcer la bonne réponse</button>
+           </div>`
+        : '';
       return `<div style="padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);">
         <div style="display:flex;align-items:center;gap:8px;font-size:.82rem;color:#fff;">
           ${isBonus ? '<span style="color:var(--or);" title="Question bonus">⭐</span>' : '<span style="opacity:.55;">🎽</span>'}
@@ -8919,9 +9112,15 @@
           ${statusHtml}
         </div>
         <div style="font-size:.76rem;color:rgba(255,255,255,.55);margin-top:3px;padding-left:24px;">Réponse : ${ansHtml}</div>
+        ${triesHtml}${forcedTag}${expected}${forceBtn}
       </div>`;
     }).join('');
-    return rows || '<div style="padding:8px 0;font-size:.78rem;color:rgba(255,255,255,.35);">Aucun détail enregistré pour cette partie.</div>';
+    // Question bonus débloquée par une correction mais pas encore rejouée
+    const pending = _bonusPendingForRow(g, qById);
+    const pendingHtml = pending
+      ? `<div style="padding:7px 0;font-size:.76rem;color:var(--or);">Question bonus débloquée — proposée à ${esc(g.name || 'ce joueur')} à sa prochaine visite.</div>`
+      : '';
+    return (rows + pendingHtml) || '<div style="padding:8px 0;font-size:.78rem;color:rgba(255,255,255,.35);">Aucun détail enregistré pour cette partie.</div>';
   }
 
   async function adminResetPwd() {
@@ -10223,7 +10422,9 @@
     const filled     = allIndices.reduce((acc, v, i) => { if (v) acc.push({ v, p: allPts[i] ?? 1, t: allTries[i] ?? 1 }); return acc; }, []);
     if (filled.length < 5) { errEl.textContent = 'Veuillez renseigner au moins 5 indices.'; errEl.style.display = 'block'; return; }
 
-    const playerVariants = [];
+    const playerVariants = getLibreAnswers('njv')
+      .map(v => v.trim())
+      .filter(v => v && v.toLowerCase() !== name.toLowerCase());
 
     const arr = LS.getQ();
     const q = {
@@ -10252,6 +10453,7 @@
     renderPosPicker('nj-positions', addJoueurPositions);
     renderTagPicker('tag-picker-joueur', addJoueurSelectedTags);
     renderJoueurIndices('nj-indices-container', Array(5).fill(''), defaultIndicePts(5), defaultIndiceTries(5));
+    renderLibreAnswers('njv', ['']);
     { const _qc = document.getElementById('qcount'); if (_qc) _qc.textContent = arr.length; }
 
     okEl.style.display = 'block';
@@ -10615,7 +10817,11 @@
       inp.disabled = true;
       document.getElementById('qz-libre-btn').disabled = true;
       document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
-      session.answers.push({ q, playerAns: '', ok: false, type: q.type, ptsEarned: 0 });
+      // Temps écoulé : on conserve le texte en cours de saisie (non soumis) et,
+      // pour un « Qui suis-je ? », l'indice atteint + les tentatives déjà faites.
+      session.answers.push({ q, playerAns: (inp.value || '').trim(), ok: false, type: q.type, ptsEarned: 0,
+                             indiceIdx: q.type === 'joueur' ? quizJoueurIndiceIdx : undefined,
+                             tries: (q.type === 'joueur' && quizJoueurWrongs.length) ? quizJoueurWrongs.slice() : undefined });
       showFeedback(false, q.type === 'joueur' ? q.playerName : null, null, true);
     } else {
       submitQcmMulti(true);
@@ -11331,6 +11537,7 @@
 
     if (q.type === 'joueur') {
       document.getElementById('eq-joueur-name').value = q.playerName || '';
+      renderLibreAnswers('eqv', (q.playerVariants && q.playerVariants.length) ? q.playerVariants : ['']);
       editJoueurPositions = (q.positions || []).slice();
       renderPosPicker('eq-joueur-positions', editJoueurPositions);
       const editInds   = q.indices && q.indices.length >= 5 ? q.indices : Array(5).fill('');
@@ -11504,7 +11711,9 @@
       const allEditTries  = getJoueurIndiceTries('eq-joueur-indices');
       const editFilled    = allEditInds.reduce((acc, v, i) => { if (v) acc.push({ v, p: allEditPts[i] ?? 1, t: allEditTries[i] ?? 1 }); return acc; }, []);
       if (editFilled.length < 5) { errEl.textContent = 'Veuillez renseigner au moins 5 indices.'; errEl.style.display = 'block'; return; }
-      const editPlayerVariants = [];
+      const editPlayerVariants = getLibreAnswers('eqv')
+        .map(v => v.trim())
+        .filter(v => v && v.toLowerCase() !== playerName.toLowerCase());
       arr[idx] = {
         id: editId, type: 'joueur', playerName,
         positions: editJoueurPositions.slice(),
@@ -12275,6 +12484,7 @@
   // toujours la session la plus ancienne en premier ; les suivantes s'enchaînent
   // depuis l'écran de résultats jusqu'à ce que le joueur soit à jour.
   function renderHomeCatchUp() {
+    renderHomeBonusUnlock();   // la carte « bonus débloqué » suit les mêmes rafraîchissements
     const box = document.getElementById('home-catchup');
     if (!box) return;
     const missed = _localUser ? getMissedSessions(_localUser.pseudo) : [];
@@ -12292,6 +12502,75 @@
          <span style="flex:1;color:rgba(255,255,255,.85);">${esc(label)}</span>
          <span style="color:var(--or);font-weight:700;white-space:nowrap;">Rattraper →</span>
        </button>`;
+  }
+
+  /* Carte d'accueil « Question bonus débloquée » : visible quand une correction
+     admin a validé les deux « Qui suis-je ? » d'une partie dont la question
+     bonus n'avait jamais été déclenchée (voir getPendingBonus). Rafraîchie en
+     même temps que la carte de rattrapage. */
+  function renderHomeBonusUnlock() {
+    const box = document.getElementById('home-bonus-unlock');
+    if (!box) return;
+    const p = _localUser ? getPendingBonus(_localUser.pseudo) : null;
+    if (!p) { box.style.display = 'none'; box.innerHTML = ''; return; }
+    const when = p.row.plannedDate ? ` du ${catchUpDayMonth(p.row.plannedDate)}` : '';
+    box.style.display = 'block';
+    box.innerHTML =
+      `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">Question bonus débloquée !</div>
+       <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">L'admin a validé une de tes réponses : tes deux joueurs sont trouvés, la question bonus de ta partie${when} est disponible.</div>
+       <button class="btn btn-ghost btn-full mb0" onclick="startPendingBonus()"
+               style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
+         <span style="flex:1;color:rgba(255,255,255,.85);">Une question, des points à prendre</span>
+         <span style="color:var(--or);font-weight:700;white-space:nowrap;">Jouer →</span>
+       </button>`;
+  }
+
+  /* Lance le rejeu de la question bonus débloquée : mini-session d'une seule
+     question, marquée retroBonus — le résultat est enregistré par
+     finishRetroBonus au lieu du circuit normal showResults. */
+  function startPendingBonus() {
+    const p = _localUser ? getPendingBonus(_localUser.pseudo) : null;
+    if (!p) { renderHomeBonusUnlock(); return; }
+    const bonusQ = Object.assign({}, p.q, { _isBonusJoueur: true });
+    session = { name: _localUser.pseudo, questions: [bonusQ], idx: 0, answers: [], score: 0,
+                maxScore: bonusQ.points || 1, plannedDate: null,
+                retroBonus: { srcRowId: p.row.id } };
+    nav('quiz');
+    renderQ(true);
+    launchQuiz();
+  }
+
+  /* Fin du rejeu : enregistre le résultat dans une ligne « adjust » (comptée
+     au total mais pas comme une partie), rattachée à la partie d'origine via
+     details[0].srcRow — c'est ce lien qui éteint la carte d'accueil. */
+  async function finishRetroBonus() {
+    const a   = session.answers[0] || {};
+    const q   = session.questions[0];
+    const ok  = !!a.ok;
+    const pts = a.ptsEarned || 0;
+    await scoreInsert({
+      name: session.name, score: pts, maxScore: session.maxScore,
+      date: new Date().toISOString(), badgeLevel: '', joueurAnswered: 0,
+      bonusGot: ok, plannedDate: null, questionIds: [q.id],
+      details: [{ id: q.id, ok, pts, indiceIdx: null, playerAns: answerToText(a),
+                  tries: (Array.isArray(a.tries) && a.tries.length) ? a.tries.slice(0, 30) : undefined,
+                  bonus: true, srcRow: session.retroBonus.srcRowId }],
+      beta: false, adjust: true, note: 'Question bonus débloquée (réponse validée par l\'admin)'
+    });
+    nav('home');
+    renderHomeBonusUnlock();
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-inner" style="max-width:360px;text-align:center;">
+      <h2 style="color:${ok ? 'var(--vert)' : 'var(--rouge)'};margin-bottom:10px;">${ok ? 'Bonne réponse !' : 'Mauvaise réponse…'}</h2>
+      <p style="color:rgba(255,255,255,.75);font-size:.9rem;line-height:1.5;margin-bottom:18px;">
+        ${ok ? `La question bonus te rapporte <strong style="color:var(--or);">+${pts} pt${pts > 1 ? 's' : ''}</strong>, ajouté${pts > 1 ? 's' : ''} à ton total.`
+             : 'Dommage, la question bonus ne rapporte pas de points cette fois. Merci d\'avoir joué le jeu !'}
+      </p>
+      <button class="btn btn-gold btn-full mb0" onclick="this.closest('.modal-overlay').remove()">Fermer</button>
+    </div>`;
+    document.body.appendChild(ov);
   }
 
   // Joueurs de la collection que le joueur pourrait encore positionner sur son
@@ -12700,6 +12979,7 @@
     if (isJoueur) {
       quizJoueurIndiceIdx = 0;
       quizJoueurTryCount  = 0;
+      quizJoueurWrongs    = [];
       indicesEl.style.display = 'flex';
       renderJoueurQuizIndices('qz', q, 0);
       optEl.style.display   = 'none';
@@ -12718,6 +12998,7 @@
       libreEl.style.display   = 'none';
       mlState.found = [];
       mlState.wrongCount = 0;
+      mlState.wrongs = [];   // mots faux saisis (trace pour l'historique admin)
       mlEl.style.display = 'block';
       document.getElementById('qz-ml-wrong').style.display = 'none';
       renderMlBoard('qz', q);
@@ -12855,7 +13136,8 @@
           stopQuizTimer();
           const earned = mlEarnedPts(q, state, true);
           session.score += earned;
-          session.answers.push({ q, ok: true, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required });
+          session.answers.push({ q, ok: true, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required,
+                                 tries: (state.wrongs && state.wrongs.length) ? state.wrongs.slice() : undefined });
           document.getElementById('qz-ml-btn').disabled = true;
           inp.disabled = true;
           showFeedback(true, null);
@@ -12869,8 +13151,9 @@
         setTimeout(() => inp.focus(), 40);
       }
     } else {
-      // Wrong answer — increment counter
+      // Wrong answer — increment counter (et trace du mot saisi)
       state.wrongCount++;
+      (state.wrongs = state.wrongs || []).push({ ans: val });
       const maxWrong = q.mlMaxWrong || 0;
 
       if (maxWrong > 0 && state.wrongCount >= maxWrong) {
@@ -12940,7 +13223,8 @@
       // trouvées restent acquis même si la question n'est pas complétée.
       const earned = mlEarnedPts(q, state, false);
       session.score += earned;
-      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'max-wrong' });
+      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'max-wrong',
+                             tries: (state.wrongs && state.wrongs.length) ? state.wrongs.slice() : undefined });
       showMlFailFeedback('qz', q, state, 'wrong');
     } else {
       stopTestTimer();
@@ -13007,7 +13291,8 @@
       // Barème « par réponse » (questions Match) : points partiels conservés.
       const earned = mlEarnedPts(q, state, false);
       session.score += earned;
-      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'timer' });
+      session.answers.push({ q, ok: false, type: 'multi-libre', ptsEarned: earned, found: state.found.length, foundIdxs: state.found.slice(), required: q.mlRequired || answers.length, reason: 'timer',
+                             tries: (state.wrongs && state.wrongs.length) ? state.wrongs.slice() : undefined });
       showMlFailFeedback('qz', q, state, 'timer');
     } else {
       showMlFailFeedback('tq', q, state, 'timer');
@@ -13043,6 +13328,7 @@
 
     if (q.type === 'joueur' && !ok) {
       quizJoueurTryCount++;
+      quizJoueurWrongs.push({ i: quizJoueurIndiceIdx, ans: val });   // trace de chaque tentative fausse
       inp.classList.add('joueur-wrong-flash');
       setTimeout(() => inp.classList.remove('joueur-wrong-flash'), 400);
       const maxTries = getJoueurTries(q, quizJoueurIndiceIdx);
@@ -13056,7 +13342,7 @@
           updateJoueurRevealBtn('qz', q, quizJoueurIndiceIdx);
         } else {
           stopQuizTimer();
-          session.answers.push({ q, playerAns: val, ok: false, type: q.type, ptsEarned: 0, indiceIdx: quizJoueurIndiceIdx });
+          session.answers.push({ q, playerAns: val, ok: false, type: q.type, ptsEarned: 0, indiceIdx: quizJoueurIndiceIdx, tries: quizJoueurWrongs.slice() });
           inp.disabled = true;
           document.getElementById('qz-libre-btn').disabled = true;
           document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
@@ -13076,7 +13362,8 @@
     const pts = q.type === 'joueur' ? getJoueurPts(q, quizJoueurIndiceIdx) : (q.points || 1);
     if (ok) session.score += pts;
     // collectPlayer est appelé dans showResults() une fois la partie terminée
-    session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0, indiceIdx: q.type === 'joueur' ? quizJoueurIndiceIdx : undefined });
+    session.answers.push({ q, playerAns: val, ok, type: q.type, ptsEarned: ok ? pts : 0, indiceIdx: q.type === 'joueur' ? quizJoueurIndiceIdx : undefined,
+                           tries: (q.type === 'joueur' && quizJoueurWrongs.length) ? quizJoueurWrongs.slice() : undefined });
     inp.disabled = true;
     document.getElementById('qz-libre-btn').disabled = true;
     document.getElementById('qz-joueur-reveal-btn').style.display = 'none';
@@ -14417,7 +14704,7 @@
       if (a.type === 'qcm') {
         return (a.sel != null && q.options && q.options[a.sel] != null) ? String(q.options[a.sel]) : '';
       }
-      if (a.type === 'multi') {
+      if (a.type === 'multi' || a.type === 'qcm-multi') {
         const opts = q.options || [];
         return (a.selectedIdxs || []).map(i => opts[i]).filter(v => v != null).join(', ');
       }
@@ -14434,6 +14721,8 @@
      RESULTS
   ═══════════════════════════════════════════════════ */
   function showResults() {
+    // Rejeu d'une question bonus débloquée : circuit d'enregistrement dédié
+    if (session.retroBonus) { finishRetroBonus(); return; }
     nav('results');
     updateSidebar();
 
@@ -14463,6 +14752,9 @@
           // Réponse réellement donnée — conservée pour tous les types (y compris
           // « Qui suis-je ? ») afin que l'admin puisse la consulter dans la carte joueur.
           playerAns: answerToText(a),
+          // Toutes les tentatives écrites (essais faux aux indices, mots faux des
+          // Listes) — plafonnées à 30 pour contenir la taille de la ligne.
+          tries: (Array.isArray(a.tries) && a.tries.length) ? a.tries.slice(0, 30) : undefined,
           bonus: !!a.q._isBonusJoueur
         })),
       beta: isBeta
@@ -14552,6 +14844,9 @@
     document.getElementById('c-propose-question').value = '';
     document.getElementById('c-propose-answer').value   = '';
     document.getElementById('c-propose-message').value  = '';
+    document.getElementById('c-help-pseudo').value      = (_localUser && _localUser.pseudo) || '';
+    document.getElementById('c-help-subject').value     = '';
+    document.getElementById('c-help-message').value     = '';
     document.getElementById('contact-err').style.display = 'none';
     document.getElementById('contact-modal').style.display = 'flex';
   }
@@ -14564,8 +14859,10 @@
     contactCurrentType = t;
     document.getElementById('ct-error').classList.toggle('active',   t === 'error');
     document.getElementById('ct-propose').classList.toggle('active', t === 'propose');
+    document.getElementById('ct-help').classList.toggle('active',    t === 'help');
     document.getElementById('csec-error').style.display   = t === 'error'   ? 'block' : 'none';
     document.getElementById('csec-propose').style.display = t === 'propose' ? 'block' : 'none';
+    document.getElementById('csec-help').style.display    = t === 'help'    ? 'block' : 'none';
     document.getElementById('contact-err').style.display  = 'none';
   }
 
@@ -14574,17 +14871,11 @@
     openContact('error', q ? (q.type === 'joueur' ? `Joueurs : ${q.playerName}` : q.text) : '');
   }
 
-  // Bouton « Contactez-nous » de la page d'accueil : réservé aux joueurs
-  // disposant d'un compte (anonyme = pas de _localUser → invite à se connecter).
+  // Bouton « Contactez-nous » de la page d'accueil : ouvert à tous. Sans compte
+  // connecté, on part sur « Besoin d'aide » (mot de passe perdu, connexion…).
   function openContactFromHome() {
     if (!feat('contact')) return;
-    const hint = document.getElementById('home-contact-hint');
-    if (!_localUser) {
-      if (hint) hint.style.display = 'block';
-      return;
-    }
-    if (hint) hint.style.display = 'none';
-    openContact('error');
+    openContact(_localUser ? 'error' : 'help');
   }
 
   async function sendContact() {
@@ -14612,6 +14903,23 @@
       }
       msg.question_ref = (document.getElementById('c-question-ref').value || '').trim();
       msg.body         = desc;
+    } else if (contactCurrentType === 'help') {
+      const subject = (document.getElementById('c-help-subject').value || '').trim();
+      const body    = (document.getElementById('c-help-message').value || '').trim();
+      if (!subject) {
+        errEl.textContent = 'Veuillez indiquer l\'objet de votre message.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (!body) {
+        errEl.textContent = 'Veuillez saisir votre message.';
+        errEl.style.display = 'block';
+        return;
+      }
+      // Pseudo saisi librement : indicatif, il peut ne correspondre à aucun compte.
+      msg.author       = (document.getElementById('c-help-pseudo').value || '').trim() || null;
+      msg.question_ref = subject;
+      msg.body         = body;
     } else {
       const question = (document.getElementById('c-propose-question').value || '').trim();
       const answer   = (document.getElementById('c-propose-answer').value   || '').trim();
@@ -14636,6 +14944,9 @@
     try {
       const ok = await messageInsert(msg);
       if (!ok) throw new Error('insert failed');
+      okEl.textContent = contactCurrentType === 'help'
+        ? '✅ Message envoyé ! On revient vers vous au plus vite.'
+        : '✅ Message envoyé ! Merci pour votre contribution.';
       okEl.style.display = 'block';
       // Réinitialise et ferme après 3 s
       document.getElementById('c-question-ref').value      = '';
@@ -14643,6 +14954,9 @@
       document.getElementById('c-propose-question').value  = '';
       document.getElementById('c-propose-answer').value    = '';
       document.getElementById('c-propose-message').value   = '';
+      document.getElementById('c-help-pseudo').value       = '';
+      document.getElementById('c-help-subject').value      = '';
+      document.getElementById('c-help-message').value      = '';
       setTimeout(closeContact, 3000);
     } catch (err) {
       console.error('[Supabase] envoi message:', err);
