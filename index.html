@@ -324,23 +324,11 @@
     .tabs-select:focus { outline: none; border-color: var(--or); }
     .tabs-select option { background: #1a1a1a; color: #fff; }
 
-    /* ── Joueurs tab ── */
-    .joueur-search-bar { margin-bottom:12px; }
-    .joueur-search-bar input { width:100%; }
-    /* Pastille de statut compte : rond rouge plein = avec compte, rond rouge vide = sans compte */
+    /* ── Pastille de statut compte (carte joueur) ──
+       rond rouge plein = avec compte, rond rouge vide = sans compte */
     .acct-dot { display:inline-block; width:11px; height:11px; border-radius:50%; flex-shrink:0; box-sizing:border-box; }
     .acct-dot.has  { background:#e53935; border:1px solid #e53935; }
     .acct-dot.none { background:transparent; border:2px solid #e53935; }
-    /* Badge de notification "joueurs sans compte" sur l'onglet Joueurs */
-    .tab-badge { display:none; min-width:16px; height:16px; line-height:14px; padding:0 4px; margin-left:5px; border-radius:9px; background:#e53935; color:#fff; font-size:.68rem; font-weight:800; text-align:center; vertical-align:middle; box-sizing:border-box; }
-    .tab-badge.show { display:inline-block; }
-    .joueur-row { display:flex; align-items:center; gap:12px; padding:11px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.07); margin-bottom:6px; cursor:pointer; transition:background .12s,border-color .12s; background:rgba(255,255,255,.02); user-select:none; }
-    .joueur-row:hover { background:rgba(255,205,0,.06); border-color:rgba(255,205,0,.22); }
-    .joueur-rank { font-size:.95rem; min-width:28px; text-align:center; flex-shrink:0; }
-    .joueur-avatar { width:36px; height:36px; border-radius:50%; background:var(--rouge); display:flex; align-items:center; justify-content:center; font-weight:900; font-size:.95rem; color:#fff; flex-shrink:0; letter-spacing:0; }
-    .joueur-pseudo { font-weight:700; font-size:.92rem; color:var(--or); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .joueur-meta { font-size:.72rem; color:rgba(255,255,255,.35); margin-top:2px; }
-    .joueur-score-val { font-size:1.15rem; font-weight:800; color:var(--or); flex-shrink:0; }
 
     /* ── Player Card overlay ── */
     .pcard-overlay { position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.75); backdrop-filter:blur(5px); display:flex; align-items:flex-end; justify-content:center; }
@@ -2038,6 +2026,10 @@
     .lb-entry:last-child { border-bottom:none; }
     .lb-entry.clickable { cursor:pointer;border-radius:8px;transition:background .12s; }
     .lb-entry.clickable:hover { background:rgba(255,205,0,.08); }
+    /* Ligne du joueur courant : fond doré, sans toucher au padding (alignement identique aux autres lignes) */
+    .lb-entry.lb-me { background:rgba(255,205,0,.12);border-radius:8px; }
+    .lb-entry.lb-me .lb-name { color:var(--or);font-weight:800; }
+    .lb-entry.lb-me .lb-score { color:#fff; }
     /* Pseudo de joueur cliquable (ouvre la carte joueur) — affordance générique,
        réutilisée partout où un pseudo de compte est affiché (joueur + admin). */
     .player-link { cursor:pointer;transition:color .15s; }
@@ -3485,8 +3477,8 @@
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
             <h3 style="margin:0;">🏆 Classement</h3>
             <div style="display:flex;gap:4px;">
-              <button id="rlb-tab-today" class="lb-tab-btn lb-tab-active" onclick="rlbSetTab('today')" style="flex:none;padding:5px 10px;font-size:.75rem;">Aujourd'hui</button>
-              <button id="rlb-tab-all"   class="lb-tab-btn" onclick="rlbSetTab('all')"   style="flex:none;padding:5px 10px;font-size:.75rem;">Tout temps</button>
+              <button id="rlb-tab-game"    class="lb-tab-btn lb-tab-active" onclick="rlbSetTab('game')"    style="flex:none;padding:5px 10px;font-size:.75rem;">Cette partie</button>
+              <button id="rlb-tab-general" class="lb-tab-btn" onclick="rlbSetTab('general')" style="flex:none;padding:5px 10px;font-size:.75rem;">Général</button>
             </div>
           </div>
           <div id="res-lb-list"></div>
@@ -3509,6 +3501,8 @@
 
         <!-- Accueil / chaînage rattrapage -->
         <button id="res-home-btn" class="btn btn-ghost btn-full mb0" onclick="nav('home')">← Accueil</button>
+        <!-- Visible seulement quand le bouton principal enchaîne une autre partie (rattrapage) -->
+        <button id="res-home-alt" class="btn btn-ghost btn-full mb0" style="display:none;margin-top:8px;" onclick="nav('home')">← Accueil</button>
 
       </div>
     </div>
@@ -4555,7 +4549,7 @@
     if (error) {
       console.error('[Supabase] suppression scores:', error);
       alert('Suppression refusée par Supabase — connexion admin (Supabase Auth) requise.');
-      scoresFetch().then(() => renderJoueurs());
+      scoresFetch().then(() => renderOnzeDashboard());
     }
   }
 
@@ -4567,7 +4561,7 @@
     if (error) {
       console.error('[Supabase] suppression scores:', error);
       alert('Suppression refusée par Supabase — connexion admin (Supabase Auth) requise.');
-      scoresFetch().then(() => renderJoueurs());
+      scoresFetch().then(() => renderOnzeDashboard());
     }
   }
 
@@ -4990,7 +4984,6 @@
       await dbPush('vocab');
     }
     await Promise.all([scoresFetch(), accountsFetch()]);
-    updateNoAccountBadge();
   }
 
   /* Migration one-shot v3 : déplace les données des anciennes versions
@@ -5493,7 +5486,7 @@
     _statsPollTimer = setInterval(() => {
       if (sessionStorage.getItem('rcAdminTab') !== 'stats') { _stopStatsPoll(); return; }
       if (_statsSubTab === 'classements') {
-        Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); renderAdminLeaderboard(); });
+        Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderOnzeDashboard(); renderAdminLeaderboard(); });
       } else if (_statsSubTab === 'activite') {
         Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
       } else {
@@ -5513,9 +5506,9 @@
     document.getElementById('stats-activite-pane').style.display    = sub === 'activite'    ? 'block' : 'none';
     document.getElementById('stats-questions-pane').style.display   = sub === 'questions'   ? 'block' : 'none';
     if (sub === 'classements') {
-      renderJoueurs();
+      renderOnzeDashboard();
       renderAdminLeaderboard();
-      Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderJoueurs(); renderAdminLeaderboard(); });
+      Promise.all([scoresFetch(), accountsFetch()]).then(() => { renderOnzeDashboard(); renderAdminLeaderboard(); });
     } else if (sub === 'activite') {
       renderActivite();
       Promise.all([scoresFetch(), accountsMetaFetch(), accountsFetch()]).then(renderActivite);
@@ -6007,10 +6000,6 @@
 
   function adminTab(tab) {
     if (tab !== 'stats') _stopStatsPoll();
-    updateNoAccountBadge();
-    if (tab !== 'stats' && _supa) {
-      Promise.all([scoresFetch(), accountsFetch()]).then(updateNoAccountBadge).catch(() => {});
-    }
     const showList = tab === 'list';
     document.getElementById('t-list').classList.toggle('active', tab === 'list');
     document.getElementById('t-generator').classList.toggle('active', tab === 'generator');
@@ -6896,7 +6885,7 @@
 
     // Rafraîchit les vues admin concernées
     renderPlanning();
-    renderJoueurs();
+    renderOnzeDashboard();
     renderQStats();
 
     if (btn) { btn.disabled = false; btn.textContent = '↺ Reset game'; }
@@ -6948,7 +6937,7 @@
     await scoresDeleteAll();
     await accountsDeleteAll();
     LS.setLoggedPseudo(null);
-    renderJoueurs();
+    renderOnzeDashboard();
     if (btn) { btn.disabled = false; btn.textContent = '↺ Reset joueurs'; }
     _resetStatus('Joueurs inscrits et scores supprimés.');
   }
@@ -6967,7 +6956,7 @@
     }
     await accountsFetch();
     _backupAccounts();
-    renderJoueurs();
+    renderOnzeDashboard();
     if (btn) { btn.disabled = false; btn.textContent = '↺ Reset scores'; }
     _resetStatus('Scores et « Mon Onze » remis à zéro — comptes conservés.');
   }
@@ -7659,20 +7648,6 @@
   /* ═══════════════════════════════════════════════════
      JOUEURS — leaderboard
   ═══════════════════════════════════════════════════ */
-  let joueurSortKey = 'score';
-
-  function setJoueurSort(key) {
-    joueurSortKey = key;
-    ['score','date','name'].forEach(k => {
-      const btn = document.getElementById('jsort-' + k);
-      if (!btn) return;
-      btn.className = k === key ? 'btn btn-sm' : 'btn btn-ghost btn-sm';
-      btn.style.fontSize = '.75rem';
-      btn.style.padding  = '5px 10px';
-    });
-    renderJoueurs();
-  }
-
   /* Supprime le compte joueur (pseudo, avatar, Mon Onze) correspondant à `name`.
      Mêmes contraintes RLS que scoresDeleteByName : réservé à l'admin. */
   async function accountDeleteByName(name) {
@@ -7685,15 +7660,8 @@
     const { error } = await _supa.from('accounts').delete().eq('key', key);
     if (error) {
       console.error('[Supabase] suppression compte:', error);
-      accountsFetch().then(() => renderJoueurs());
+      accountsFetch().then(() => renderOnzeDashboard());
     }
-  }
-
-  function deletePlayerByName(name) {
-    if (!confirm(`Supprimer le joueur « ${name} » (compte et scores) ? Cette action est irréversible.`)) return;
-    scoresDeleteByName(name);
-    accountDeleteByName(name);
-    renderJoueurs();
   }
 
   /* ═══ Admin : envoi de messages aux joueurs ═══ */
@@ -7789,131 +7757,6 @@
         </div>
       </div>`;
     }).join('');
-  }
-
-  /* true si un compte (pseudo) existe pour ce nom de joueur. */
-  function _hasAccount(name) {
-    const accts = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
-    const k = (name || '').toLowerCase().trim();
-    return Object.values(accts).some(a => a && a.pseudo && a.pseudo.toLowerCase() === k);
-  }
-
-  /* Met à jour le badge "joueurs sans compte" sur l'onglet Joueurs. */
-  function updateNoAccountBadge() {
-    const badge = document.getElementById('joueurs-noacct-badge');
-    if (!badge) return;
-    const lb = LS.getLeaderboard();
-    const names = new Set();
-    lb.forEach(e => { if (e && e.name) names.add(e.name.toLowerCase().trim()); });
-    let n = 0;
-    names.forEach(k => { if (!_hasAccount(k)) n++; });
-    badge.textContent = n > 0 ? String(n) : '';
-    badge.classList.toggle('show', n > 0);
-    const opt = document.querySelector('#tabs-select option[value="stats"]');
-    if (opt) opt.textContent = n > 0 ? `Stats (${n} sans compte)` : 'Stats';
-  }
-
-  function renderJoueurs() {
-    const lb     = LS.getLeaderboard();
-    const accts  = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
-    const listEl = document.getElementById('joueurs-list');
-    const countEl = document.getElementById('joueurs-count');
-    // La liste de gestion « Classement des joueurs » a été retirée (redondante avec
-    // le classement général). On conserve néanmoins le badge « sans compte » et le
-    // dashboard Mon Onze, normalement rafraîchis en fin de fonction.
-    if (!listEl) { updateNoAccountBadge(); renderOnzeDashboard(); return; }
-
-    // Grouper par pseudo (parties jouées)
-    const map = {};
-    lb.forEach(e => {
-      if (!map[e.name]) map[e.name] = { name: e.name, games: [] };
-      map[e.name].games.push(e);
-    });
-
-    // Inclure les comptes créés même sans aucune partie jouée
-    Object.values(accts).forEach(a => {
-      const pseudo = a && a.pseudo ? a.pseudo : null;
-      if (!pseudo) return;
-      const exists = Object.keys(map).some(n => n.toLowerCase() === pseudo.toLowerCase());
-      if (!exists) map[pseudo] = { name: pseudo, games: [] };
-    });
-
-    if (!Object.keys(map).length) {
-      countEl.textContent = '';
-      listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun joueur pour l\'instant.<br>Les comptes et les scores apparaîtront ici.</p>';
-      return;
-    }
-
-    let players = Object.values(map).map(p => {
-      // Les ajustements manuels (admin) comptent dans le total mais ne sont pas des parties.
-      const realGames  = p.games.filter(g => !g.adjust);
-      const adjustPts  = p.games.filter(g => g.adjust).reduce((s, g) => s + (Number(g.score) || 0), 0);
-      const timestamps = realGames.map(g => new Date(g.date).getTime());
-      const onzeBonus  = onzeBonusForName(p.name);
-      const firstDate  = timestamps.length ? new Date(Math.min(...timestamps)) : null;
-      const lastDate   = timestamps.length ? new Date(Math.max(...timestamps)) : null;
-      const bestScore  = realGames.length ? Math.max(...realGames.map(g => g.score)) : 0;
-      const totalScore = p.games.reduce((s, g) => s + g.score, 0) + onzeBonus;
-      const bestRatio  = (() => {
-        const best = realGames.reduce((b, g) => (g.maxScore > 0 && g.score / g.maxScore > b) ? g.score / g.maxScore : b, 0);
-        return best;
-      })();
-      return { ...p, realGames, adjustPts, firstDate, lastDate, bestScore, totalScore, bestRatio, onzeBonus };
-    });
-
-    // Filtrer par recherche
-    const search = (document.getElementById('joueur-search')?.value || '').trim().toLowerCase();
-    if (search) players = players.filter(p => p.name.toLowerCase().includes(search));
-
-    countEl.textContent = players.length
-      ? `${players.length} joueur${players.length > 1 ? 's' : ''}`
-      : '';
-
-    if (!players.length) {
-      listEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.85rem;padding:24px 0;">Aucun joueur trouvé.</p>';
-      return;
-    }
-
-    // Trier
-    players.sort((a, b) => {
-      if (joueurSortKey === 'score') return b.totalScore - a.totalScore;
-      if (joueurSortKey === 'date')  return (b.lastDate ? b.lastDate.getTime() : 0) - (a.lastDate ? a.lastDate.getTime() : 0);
-      if (joueurSortKey === 'name')  return a.name.localeCompare(b.name, 'fr');
-      return 0;
-    });
-
-    const fmtDate = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
-
-    listEl.innerHTML = players.map((p, rank) => {
-      const rankLabel = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : `#${rank + 1}`;
-      const initial   = p.name.charAt(0).toUpperCase();
-      const nGames    = p.realGames.length;
-      const adjLabel  = p.adjustPts ? ` · ⚖️ ${p.adjustPts > 0 ? '+' : ''}${p.adjustPts}` : '';
-      const hasAcct   = _hasAccount(p.name);
-      const dot       = `<span class="acct-dot ${hasAcct ? 'has' : 'none'}" title="${hasAcct ? 'Joueur avec compte' : 'Joueur sans compte'}"></span>`;
-      const hiddenTag = isHiddenFromRanking(p.name)
-        ? '<span title="Masqué du classement" style="display:inline-flex;align-items:center;flex-shrink:0;color:rgba(255,255,255,.55);">'
-          + '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
-          + '<path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/>'
-          + '<path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/>'
-          + '<path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/>'
-          + '<line x1="2" y1="2" x2="22" y2="22"/>'
-          + '</svg></span>'
-        : '';
-      return `<div class="joueur-row" data-pname="${esc(p.name)}" onclick="openPlayerCard(this.dataset.pname)">
-        <span class="joueur-rank">${rankLabel}</span>
-        <div class="joueur-avatar">${initial}</div>
-        <div style="flex:1;min-width:0;">
-          <div class="joueur-pseudo" style="display:flex;align-items:center;gap:7px;">${dot}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}</span>${hiddenTag}</div>
-          <div class="joueur-meta">${nGames === 0 ? 'Compte créé · pas encore joué' : `${nGames} partie${nGames > 1 ? 's' : ''} · dernière le ${fmtDate(p.lastDate)}`}${p.onzeBonus > 0 ? ` · 🎽 +${p.onzeBonus}` : ''}${adjLabel}</div>
-        </div>
-        <div class="joueur-score-val">${p.totalScore}</div>
-        <button onclick="event.stopPropagation();deletePlayerByName(this.closest('[data-pname]').dataset.pname)" title="Supprimer ce joueur" style="background:none;border:none;color:rgba(255,255,255,.3);font-size:1rem;cursor:pointer;padding:4px 6px;border-radius:6px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#e53935';this.style.background='rgba(229,57,53,.1)'" onmouseout="this.style.color='rgba(255,255,255,.3)';this.style.background='none'">✕</button>
-      </div>`;
-    }).join('');
-
-    updateNoAccountBadge();
-    renderOnzeDashboard();
   }
 
   let _pcardName = '';
@@ -8679,6 +8522,14 @@
         <div id="pcard-create-msg" style="margin-top:8px;font-size:.78rem;display:none;"></div>
       </div>`}`;
 
+    // Suppression définitive du joueur (admin) — dernier élément de la carte,
+    // pour qu'on ne tombe pas dessus par accident en parcourant les stats.
+    // Le détail de ce qui est effacé est rappelé dans la confirmation.
+    const dangerSection = `
+      <div style="padding:8px 0;">
+        <button class="btn btn-danger btn-sm" id="pcard-del-btn" onclick="pcardDeletePlayer()" style="margin:0;">Supprimer ce joueur</button>
+      </div>`;
+
     // Mon Onze du joueur (lecture seule)
     const onze        = onzeForName(name);
     const placedCount = onze.slots.filter(Boolean).length;
@@ -8866,7 +8717,7 @@
       ${referralSection}
       <div class="pcard-section-title">Historique des parties</div>
       ${historyRows}
-      ${adminLogged ? adjustSection + accountSection : ''}
+      ${adminLogged ? adjustSection + accountSection + dangerSection : ''}
     `;
     document.getElementById('pcard-overlay').style.display = 'flex';
     // Graphique points par partie + cumul (après injection du HTML)
@@ -8875,6 +8726,22 @@
 
   function closePlayerCard() {
     document.getElementById('pcard-overlay').style.display = 'none';
+  }
+
+  /* Supprime définitivement le joueur ouvert dans la carte (admin).
+     Efface les scores puis le compte (pseudo, avatar, Mon Onze) ; les deux
+     opérations sont réservées à l'admin par les policies RLS. */
+  async function pcardDeletePlayer() {
+    if (!adminLogged) return;
+    const name = _pcardName;
+    if (!name) return;
+    if (!confirm(`Supprimer définitivement « ${name} » ?\n\nSon compte, ses scores, son avatar et son Onze seront effacés. Cette action est irréversible.`)) return;
+    const btn = document.getElementById('pcard-del-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Suppression…'; }
+    await scoresDeleteByName(name);
+    await accountDeleteByName(name);
+    closePlayerCard();
+    renderAdminLeaderboard();
   }
 
   /* ══════════ 1 vs 1 : comparaison de deux cartes joueur ══════════ */
@@ -9177,7 +9044,7 @@
       return;
     }
     await accountsFetch();
-    renderJoueurs();
+    renderOnzeDashboard();
     // On affiche le mot de passe en clair pour que l'admin puisse le communiquer au
     // joueur. Le joueur pourra ensuite le changer depuis sa carte joueur.
     msgEl.innerHTML = `Compte créé pour <strong>${esc(name)}</strong>. Communique-lui ces identifiants :<br>`
@@ -9233,7 +9100,7 @@
     ptsEl.value = '';
     noteEl.value = '';
     await scoresFetch();
-    renderJoueurs();
+    renderOnzeDashboard();
     openPlayerCard(name);   // rouvre la carte avec l'ajustement visible
   }
 
@@ -9251,7 +9118,7 @@
       }
     }
     await scoresFetch();
-    renderJoueurs();
+    renderOnzeDashboard();
     openPlayerCard(_pcardName);
   }
 
@@ -9368,7 +9235,7 @@
     if (modal && modal.style.display === 'flex') closeGameDetailPopup();
     const ov = document.getElementById('pcard-overlay');
     if (ov && ov.style.display === 'flex' && _pcardName) openPlayerCard(_pcardName);
-    renderJoueurs();
+    renderOnzeDashboard();
     renderAdminLeaderboard();
   }
 
@@ -9404,7 +9271,7 @@
      uniquement si elle est ouverte sur ce joueur (sinon on est dans le dashboard). */
   async function _afterOnzeChange(name) {
     await accountsFetch();
-    renderJoueurs();   // déclenche aussi renderOnzeDashboard()
+    renderOnzeDashboard();   // déclenche aussi renderOnzeDashboard()
     const ov = document.getElementById('pcard-overlay');
     if (ov && ov.style.display === 'flex' && (_pcardName || '').toLowerCase() === name.toLowerCase()) {
       openPlayerCard(name);
@@ -14122,11 +13989,14 @@
   }
 
   /* ─── Classement inline résultats ─── */
-  let _rlbTab = 'today';
+  // Deux onglets : « Cette partie » (classement de la session qui vient d'être
+  // jouée, via plannedDate — ou les parties du jour si hors planning) et
+  // « Général » (total cumulé + bonus Onze, comme le classement public).
+  let _rlbTab = 'game';
 
   function rlbSetTab(tab) {
     _rlbTab = tab;
-    ['today', 'all'].forEach(t => {
+    ['game', 'general'].forEach(t => {
       const btn = document.getElementById('rlb-tab-' + t);
       if (btn) btn.classList.toggle('lb-tab-active', t === tab);
     });
@@ -14134,28 +14004,29 @@
   }
 
   function renderResultsLeaderboard() {
-    const lb       = LS.getLeaderboard();
-    const todayStr = new Date().toISOString().slice(0, 10);
-
-    function bestPerPlayer(entries) {
-      const map = {};
-      entries.forEach(e => {
-        const key = (e.name || '').toLowerCase().trim();
-        if (!key) return;
-        const prev = map[key];
-        if (!prev || e.score > prev.score) map[key] = e;
-      });
-      return Object.values(map).sort((a, b) => b.score - a.score);
-    }
-
-    const realLb = lb.filter(e => !e.adjust);
-    const data = _rlbTab === 'today'
-      ? bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr))
-      : bestPerPlayer(realLb);
-
     const list  = document.getElementById('res-lb-list');
     const empty = document.getElementById('res-lb-empty');
     if (!list) return;
+
+    let data;
+    if (_rlbTab === 'general') {
+      data = generalRankingList().map(o => ({ name: o.name, score: o.total }));
+    } else {
+      // Meilleur score par joueur sur la même session planifiée que la partie
+      // jouée (rattrapage compris) ; à défaut de planning, sur les parties du jour.
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const pd     = session.plannedDate;
+      const hidden = hiddenRankingSet();
+      const map = {};
+      LS.getLeaderboard().forEach(e => {
+        if (e.adjust) return;
+        if (pd ? e.plannedDate !== pd : (e.date || '').slice(0, 10) !== todayStr) return;
+        const key = (e.name || '').toLowerCase().trim();
+        if (!key || hidden.has(key)) return;
+        if (!map[key] || e.score > map[key].score) map[key] = e;
+      });
+      data = Object.values(map).sort((a, b) => b.score - a.score);
+    }
 
     if (!data.length) {
       list.innerHTML = '';
@@ -14166,29 +14037,37 @@
 
     const currentName = (session.name || '').toLowerCase();
     const medals = ['🥇', '🥈', '🥉'];
-
-    list.innerHTML = data.slice(0, 10).map((e, i) => {
+    const row = (e, i) => {
       const isMe     = e.name.toLowerCase() === currentName;
       const rankCls  = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
-      const rowStyle = isMe ? 'background:rgba(255,205,0,.07);border-radius:8px;margin:0 -8px;padding:0 8px;' : '';
-      return `<div class="lb-entry clickable" style="${rowStyle}" data-pname="${esc(e.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(e.name)}">
+      return `<div class="lb-entry clickable${isMe ? ' lb-me' : ''}" data-pname="${esc(e.name)}" onclick="openPlayerCard(this.dataset.pname)" title="Voir la carte de ${esc(e.name)}">
         <div class="lb-rank${rankCls}">${rankHtml}</div>
-        <div class="lb-name" style="${isMe ? 'color:var(--or);font-weight:800;' : ''}">${esc(e.name)}</div>
+        <div class="lb-name">${esc(e.name)}</div>
         <div class="lb-right">
-          <span class="lb-score" style="${isMe ? 'color:#fff;' : ''}">${e.score} pts</span>
+          <span class="lb-score">${e.score} pts</span>
         </div>
       </div>`;
-    }).join('');
+    };
+
+    let html = data.slice(0, 10).map(row).join('');
+    // Joueur au-delà du top 10 : sa ligne est ajoutée sous une ellipse pour
+    // qu'il voie toujours sa position.
+    const meIdx = data.findIndex(e => e.name.toLowerCase() === currentName);
+    if (meIdx >= 10) html += `<div style="text-align:center;color:rgba(255,255,255,.3);font-size:.85rem;line-height:1;padding:4px 0;">…</div>` + row(data[meIdx], meIdx);
+    list.innerHTML = html;
   }
 
   /* ─── Classement public + réplique admin (architecture partagée) ─── */
   // Un même jeu de fonctions pilote le classement côté joueur (préfixe DOM « lb »)
   // et sa réplique dans le panel admin → Stats → Classements (préfixe « alb »).
   // Chaque « scope » garde son propre état (onglet actif, filtre joueurs…).
+  // Classement admin : nombre de joueurs affichés par page.
+  const LB_PAGE_SIZE = 50;
+
   const _lbStates = {
     lb:  { tab: 'general', main: 'liste', info: 'evolution', filter: null },
-    alb: { tab: 'general', main: 'liste', info: 'evolution', filter: null }, // admin : classement général par défaut
+    alb: { tab: 'general', main: 'liste', info: 'evolution', filter: null, page: 0 }, // admin : classement général par défaut
   };
   const _lbEl = id => document.getElementById(id);
 
@@ -14208,6 +14087,7 @@
     // Si on arrive depuis un lien externe (mini-classement), basculer sur "Liste"
     if (st.main !== 'liste') lbSetMain('liste', pfx);
     if (tab === 'playoffs' && !playoffsActive()) tab = 'general';
+    if (st.tab !== tab) st.page = 0;   // changement d'onglet → retour page 1
     st.tab = tab;
     ['today', 'general', 'playoffs'].forEach(t => {
       const btn = _lbEl(`${pfx}-tab-${t}`);
@@ -14324,8 +14204,11 @@
   }
 
   // Calcule les données du classement (liste) pour l'onglet demandé.
+  // `opts.includeAllAccounts` (admin, onglet Saison régulière) ajoute les
+  // inscrits qui n'ont jamais joué : le classement liste alors tous les
+  // comptes, seul endroit d'où l'admin peut les retrouver et les supprimer.
   // Renvoie { data:[{name,score,gamesPlayed}], totalSessions }.
-  function _lbComputeListData(tab) {
+  function _lbComputeListData(tab, opts = {}) {
     const lb = LS.getLeaderboard();
     const now = new Date();
     const todayStr = now.toISOString().slice(0, 10);
@@ -14368,6 +14251,19 @@
         name: r.name, score: r.total, badgeLevel: '',
         gamesPlayed: gamesPerPlayer[r.name.toLowerCase().trim()] || 0
       }));
+      if (opts.includeAllAccounts) {
+        const seen  = new Set(data.map(r => r.name.toLowerCase().trim()));
+        const accts = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
+        Object.values(accts).forEach(a => {
+          const pseudo = (a && a.pseudo) ? String(a.pseudo).trim() : '';
+          if (!pseudo) return;
+          const key = pseudo.toLowerCase();
+          if (seen.has(key) || hidden.has(key)) return;
+          seen.add(key);
+          data.push({ name: pseudo, score: onzeBonusForName(pseudo), badgeLevel: '', gamesPlayed: 0 });
+        });
+        data.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name, 'fr'));
+      }
     }
     else if (tab === 'today') data = bestPerPlayer(realLb.filter(e => (e.date || '').slice(0, 10) === todayStr));
     else if (tab === 'week') data = bestPerPlayer(realLb.filter(e => e.date && new Date(e.date) >= weekAgo));
@@ -14394,7 +14290,11 @@
       return;
     }
 
-    const { data, totalSessions } = _lbComputeListData(st.tab);
+    // Côté admin : le classement général liste tous les inscrits et se pagine.
+    const admin = pfx === 'alb' && adminLogged;
+    const { data, totalSessions } = _lbComputeListData(st.tab, {
+      includeAllAccounts: admin && st.tab === 'general'
+    });
 
     if (!data.length) {
       list.innerHTML = '';
@@ -14406,9 +14306,14 @@
     // Toutes les tabs sont cliquables (carte joueur accessible à tous).
     const clickable = true;
     const medals = ['🥇', '🥈', '🥉'];
-    // Tous les joueurs ayant joué sont affichés (côté joueur comme côté admin).
-    const rows = data;
-    const rowsHtml = rows.map((e, i) => {
+    // Côté joueur : tous les joueurs ayant joué, d'un bloc.
+    // Côté admin : pages de 50 — au-delà, la liste devient impraticable.
+    const pages  = admin ? Math.max(1, Math.ceil(data.length / LB_PAGE_SIZE)) : 1;
+    if (admin) st.page = Math.min(Math.max(0, st.page || 0), pages - 1);
+    const offset = admin ? st.page * LB_PAGE_SIZE : 0;
+    const rows   = admin ? data.slice(offset, offset + LB_PAGE_SIZE) : data;
+    const rowsHtml = rows.map((e, idx) => {
+      const i = offset + idx;
       const rankCls = i < 3 ? ` lb-rank-${i + 1}` : '';
       const rankHtml = i < 3 ? medals[i] : String(i + 1);
       const rowCls   = clickable ? 'lb-entry clickable' : 'lb-entry';
@@ -14430,15 +14335,43 @@
 
     // Saison régulière : barre rouge sous la 16e place — les 16 premiers
     // seront qualifiés pour les playoffs. Survol (ou tap) → infobulle.
-    if (st.tab === 'general' && rows.length >= PLAYOFF_QUALIFIED) {
+    // Paginé : la barre n'a de sens que sur la page qui contient la 16e place.
+    if (st.tab === 'general' && offset === 0 && rows.length >= PLAYOFF_QUALIFIED) {
       rowsHtml.splice(PLAYOFF_QUALIFIED, 0,
         `<div class="lb-playoff-cut" onclick="this.classList.toggle('tip-open')">
           <span>Playoffs</span>
           <span class="lb-playoff-tip">Ne baisse pas les bras. À la fin de la saison régulière, un playoff opposera les 16 premiers du classement !</span>
         </div>`);
     }
-    list.innerHTML = rowsHtml.join('');
+    // En-tête admin : l'effectif affiché est le nombre d'inscrits, pas le
+    // nombre de joueurs actifs. Pagination sous la liste si plus d'une page.
+    let headHtml = '', pagerHtml = '';
+    if (admin) {
+      const label = st.tab === 'general'
+        ? `${data.length} inscrit${data.length > 1 ? 's' : ''}`
+        : `${data.length} joueur${data.length > 1 ? 's' : ''}`;
+      const range = pages > 1 ? ` · ${offset + 1}–${offset + rows.length}` : '';
+      headHtml = `<div style="font-size:.78rem;color:rgba(255,255,255,.45);font-weight:700;padding:0 4px 8px;">${label}${range}</div>`;
+      if (pages > 1) {
+        pagerHtml = `<div style="display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 4px 2px;">
+          <button class="btn btn-ghost btn-sm" onclick="lbSetPage(-1,'${pfx}')"${st.page === 0 ? ' disabled' : ''} style="margin:0;">Précédent</button>
+          <span style="font-size:.78rem;color:rgba(255,255,255,.45);font-weight:700;">Page ${st.page + 1} / ${pages}</span>
+          <button class="btn btn-ghost btn-sm" onclick="lbSetPage(1,'${pfx}')"${st.page >= pages - 1 ? ' disabled' : ''} style="margin:0;">Suivant</button>
+        </div>`;
+      }
+    }
+    list.innerHTML = headHtml + rowsHtml.join('') + pagerHtml;
 
+  }
+
+  // Pagination du classement admin (50 par page).
+  function lbSetPage(delta, pfx = 'alb') {
+    const st = _lbStates[pfx];
+    if (!st) return;
+    st.page = Math.max(0, (st.page || 0) + delta);
+    renderLbList(pfx);
+    const list = _lbEl(`${pfx}-list`);
+    if (list) list.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
   function renderLeaderboardChart(container, filterSet) {
@@ -14767,9 +14700,13 @@
     // getMissedSessions exclut déjà la partie terminée. S'il reste des sessions
     // passées non jouées, le bouton du bas relance la plus ancienne ; sinon retour accueil.
     const homeBtn = document.getElementById('res-home-btn');
+    const homeAlt = document.getElementById('res-home-alt');
     if (homeBtn) {
       const remaining = isBeta ? [] : getMissedSessions(name);
       const todaySess = isBeta ? null : getTodaySessionToPlay(name);
+      // Quand le bouton principal enchaîne une autre partie, un second bouton
+      // « Accueil » reste proposé pour pouvoir s'arrêter entre deux rattrapages.
+      let chaining = true;
       if (remaining.length) {
         const next = remaining[0];
         homeBtn.className = 'btn btn-red btn-full mb0';
@@ -14784,7 +14721,9 @@
         homeBtn.className = 'btn btn-ghost btn-full mb0';
         homeBtn.textContent = '← Accueil';
         homeBtn.setAttribute('onclick', "nav('home')");
+        chaining = false;
       }
+      if (homeAlt) homeAlt.style.display = chaining ? '' : 'none';
     }
 
     document.getElementById('res-name').innerHTML  = `Bravo ${playerLink(name)} !`;
@@ -14829,8 +14768,13 @@
       }
     }
 
-    _rlbTab = 'today';
-    renderResultsLeaderboard();
+    // Onglet « Cette partie » : libellé daté quand la partie vient du planning
+    // (« Partie du 12 juillet »), sinon « Aujourd'hui ».
+    const gameTabBtn = document.getElementById('rlb-tab-game');
+    if (gameTabBtn) gameTabBtn.textContent = session.plannedDate
+      ? `Partie du ${catchUpDayMonth(session.plannedDate)}`
+      : "Aujourd'hui";
+    rlbSetTab('game');
   }
 
   /* ═══════════════════════════════════════════════════
@@ -16854,13 +16798,39 @@
     if (fn) fn();
   }
 
+  /* Réduit une image (fichier) à un carré maxSize×maxSize (recadrage centré) et
+     renvoie un data URL JPEG compressé. Divise par ~50-100 le poids stocké dans
+     accounts.avatar → réduit d'autant l'egress Supabase (l'avatar est retransféré
+     à chaque lecture des comptes). */
+  function _compressImageToDataUrl(file, maxSize, quality) {
+    return new Promise((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onerror = () => reject(new Error('read'));
+      fr.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error('decode'));
+        img.onload = () => {
+          const side = Math.min(img.width, img.height);
+          const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+          const canvas = document.createElement('canvas');
+          canvas.width = canvas.height = maxSize;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, sx, sy, side, side, 0, 0, maxSize, maxSize);
+          resolve(canvas.toDataURL('image/jpeg', quality));
+        };
+        img.src = fr.result;
+      };
+      fr.readAsDataURL(file);
+    });
+  }
+
   function pcUploadAvatar(input) {
     if (!input.files || !input.files[0] || !_localUser) return;
     const file = input.files[0];
-    if (file.size > 2 * 1024 * 1024) { alert('Image trop lourde (max 2 Mo).'); input.value = ''; return; }
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const dataUrl = e.target.result;
+    // La compression réduit fortement le poids final ; on borne juste la source
+    // pour éviter de charger un fichier énorme en mémoire.
+    if (file.size > 8 * 1024 * 1024) { alert('Image trop lourde (max 8 Mo).'); input.value = ''; return; }
+    _compressImageToDataUrl(file, 160, 0.82).then(function(dataUrl) {
       const accounts = LS.getAccounts();
       const key = _localUser.pseudo.toLowerCase();
       if (!accounts[key]) accounts[key] = { pseudo: _localUser.pseudo };
@@ -16877,9 +16847,9 @@
       if (avatarEl) { avatarEl.innerHTML = `<img src="${dataUrl}" alt="">`; avatarEl.style.fontSize = ''; }
       updateHomeAuthArea();
       if (_localUser && !_localUser.onboardingPpDone && !_localUser.onboardingPpPending) claimOnboardingTask('pp');
-    };
-    reader.readAsDataURL(file);
-    input.value = '';
+    }).catch(function() {
+      alert("Impossible de traiter cette image. Essaie une autre photo.");
+    }).finally(function() { input.value = ''; });
   }
 
   /* ── Init ── */
