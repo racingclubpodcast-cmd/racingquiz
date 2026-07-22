@@ -12676,7 +12676,17 @@
   }
 
   function testToggleMulti(i) {
+    const q   = testState.q;
     const btn = document.getElementById('topt-' + i);
+    // QCM à réponse unique : comportement « bouton radio » — cliquer une autre
+    // option remplace la précédente au lieu de s'y ajouter.
+    if (q.type === 'qcm') {
+      testState.multiSelected.length = 0;
+      q.options.forEach((_, k) =>
+        document.getElementById('topt-' + k)?.classList.remove('multi-selected'));
+      testState.multiSelected.push(i); btn.classList.add('multi-selected');
+      return;
+    }
     const idx = testState.multiSelected.indexOf(i);
     if (idx === -1) { testState.multiSelected.push(i);      btn.classList.add('multi-selected'); }
     else            { testState.multiSelected.splice(idx,1); btn.classList.remove('multi-selected'); }
@@ -13763,7 +13773,17 @@
   }
 
   function toggleMultiOption(i) {
+    const q   = session.questions[session.idx];
     const btn = document.getElementById('opt-' + i);
+    // QCM à réponse unique : comportement « bouton radio » — cliquer une autre
+    // option remplace la précédente au lieu de s'y ajouter.
+    if (q.type === 'qcm') {
+      quizMultiSelected.length = 0;
+      q.options.forEach((_, k) =>
+        document.getElementById('opt-' + k)?.classList.remove('multi-selected'));
+      quizMultiSelected.push(i); btn.classList.add('multi-selected');
+      return;
+    }
     const idx = quizMultiSelected.indexOf(i);
     if (idx === -1) { quizMultiSelected.push(i);    btn.classList.add('multi-selected'); }
     else            { quizMultiSelected.splice(idx,1); btn.classList.remove('multi-selected'); }
@@ -14184,8 +14204,18 @@
   }
 
   function toggleBonusMultiOption(pfx, i) {
+    const q   = pfx === 'qz' ? session.questions[session.idx] : testState.q;
     const arr = pfx === 'qz' ? quizBonusMultiSelected : testState.bonusMultiSelected;
     const btn = document.getElementById(`${pfx}bopt-${i}`);
+    // QCM à réponse unique : comportement « bouton radio » — cliquer une autre
+    // option remplace la précédente au lieu de s'y ajouter.
+    if ((q.bonus.type || 'libre') === 'qcm') {
+      arr.length = 0;
+      q.bonus.options.forEach((_, k) =>
+        document.getElementById(`${pfx}bopt-${k}`)?.classList.remove('multi-selected'));
+      arr.push(i); btn.classList.add('multi-selected');
+      return;
+    }
     const idx = arr.indexOf(i);
     if (idx === -1) { arr.push(i); btn.classList.add('multi-selected'); }
     else { arr.splice(idx, 1); btn.classList.remove('multi-selected'); }
