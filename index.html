@@ -819,6 +819,14 @@
     .add-subtab.active .subtab-count {
       background: rgba(255,205,0,.22);
     }
+    /* Non-lus sur un sous-onglet : simple rond rouge discret, en haut à droite
+       du bouton (même repère visuel que le bouton Messages de l'en-tête). */
+    .add-subtab { position: relative; }
+    .subtab-dot {
+      position: absolute; top: 5px; right: 6px;
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--rouge, #e30613);
+    }
     /* Fond sombre derrière les sous-onglets (référence : database ;
        appliqué à tous les onglets du panel admin : Stats, Database,
        Générateur, Messages) */
@@ -2750,6 +2758,7 @@
             </nav>
             <div class="settings-cat-header">Maintenance</div>
             <nav class="settings-nav">
+              <button class="settings-nav-item" id="snav-maint-avatars" onclick="showSettingsPanel('maint-avatars')">Photos de profil</button>
               <button class="settings-nav-item" id="snav-maintenance"   onclick="showSettingsPanel('maintenance')">Réinitialisation</button>
             </nav>
           </div>
@@ -2968,18 +2977,21 @@
             </div>
 
             <!-- Panel : Reset -->
-            <div id="settings-panel-maintenance" class="settings-panel">
+            <div id="settings-panel-maint-avatars" class="settings-panel">
               <div class="card">
-                <h3>Maintenance</h3>
+                <h3>Photos de profil</h3>
                 <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                   <div style="flex:1;min-width:180px;">
-                    <div style="font-size:.84rem;font-weight:700;color:#fff;">Photos de profil</div>
+                    <div style="font-size:.84rem;font-weight:700;color:#fff;">Recompression des avatars</div>
                     <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.4;">Recompresse les avatars trop lourds enregistrés en base (réduit fortement la consommation de données Supabase). À faire une seule fois.</div>
                   </div>
                   <button class="btn btn-gold btn-sm" id="btn-compress-avatars" onclick="adminCompressAvatars()" style="white-space:nowrap;margin-left:auto;">Compresser les avatars</button>
                   <div id="compress-avatars-status" style="flex-basis:100%;font-size:.76rem;color:rgba(255,255,255,.7);"></div>
                 </div>
               </div>
+            </div>
+
+            <div id="settings-panel-maintenance" class="settings-panel">
               <div class="card">
                 <h3>Réinitialisation</h3>
                 <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">
@@ -3101,9 +3113,9 @@
       <div id="at-messagerie" style="display:none;width:100%">
         <!-- Sous-onglets de la messagerie -->
         <div class="add-subtabs db-subtabs">
+          <button class="add-subtab" id="mst-received" onclick="setMessagerieSubTab('received')">Messages reçus<span class="subtab-dot" id="mstc-received" style="display:none;"></span></button>
           <button class="add-subtab active" id="mst-send" onclick="setMessagerieSubTab('send')">Envoyer un message</button>
           <button class="add-subtab" id="mst-sent" onclick="setMessagerieSubTab('sent')">Messages envoyés</button>
-          <button class="add-subtab" id="mst-received" onclick="setMessagerieSubTab('received')">Messages reçus</button>
         </div>
 
         <!-- Pane : Envoyer un message -->
@@ -4396,6 +4408,22 @@
     </div>
   </div>
 
+  <!-- ═══════════════════════════════ CONFIRMATION RATTRAPAGE ═══ -->
+  <div id="catchup-confirm-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeCatchUpPopup()">
+    <div style="background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.28);border-radius:18px;padding:26px 24px;width:min(94vw,400px);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.65);">
+      <div style="font-weight:800;font-size:1.05rem;color:var(--or);margin-bottom:10px;">Rattraper cette partie&nbsp;?</div>
+      <p style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5;margin:0 0 6px;">
+        Tu t'apprêtes à jouer la partie du&nbsp;:
+      </p>
+      <div id="catchup-confirm-date" style="font-size:1rem;font-weight:700;color:#fff;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:10px;padding:10px 14px;margin:10px 0 12px;"></div>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.5);line-height:1.45;margin:0 0 18px;">
+        Une fois lancée, la partie ne peut pas être mise en pause. Tu peux la garder pour plus tard.
+      </p>
+      <button class="btn btn-red btn-full" onclick="confirmCatchUpGo()">Jouer</button>
+      <button class="btn btn-ghost btn-full mb0" onclick="closeCatchUpPopup()">← Retour à l'accueil</button>
+    </div>
+  </div>
+
   <!-- ═══════════════════════════════ NOUVEAU MESSAGE REÇU ═══ -->
   <div id="inbox-alert-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeInboxAlertPopup()">
     <div style="background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.28);border-radius:18px;padding:26px 24px;width:min(94vw,400px);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.65);">
@@ -4775,8 +4803,11 @@
   function _updateMsgBadge() {
     const btn = document.getElementById('t-messages');
     const cnt = document.getElementById('msg-header-count');
-    if (!btn || !cnt) return;
     const n = _messages.filter(m => !m.handled).length;
+    // Même signal sur le sous-onglet « Messages reçus » : rond rouge, sans chiffre
+    const sub = document.getElementById('mstc-received');
+    if (sub) sub.style.display = n > 0 ? 'block' : 'none';
+    if (!btn || !cnt) return;
     // Boîte vide → transparent ; message reçu → sombre + nombre de non-lus
     btn.classList.toggle('has-unread', n > 0);
     cnt.textContent = n;
@@ -4865,17 +4896,29 @@
       }).join('');
       html += '</div>';
     }
-    // Zone de réponse : possible uniquement si le message est lié à un compte.
-    if (m.author_key) {
+    // Zone de réponse : possible dès qu'on sait à quel compte rattacher le fil
+    // (clé enregistrée à l'envoi, ou pseudo déclaré correspondant à un compte).
+    if (_msgAuthorKey(m)) {
       html += `<div style="margin-top:10px;display:flex;gap:8px;align-items:flex-end;">
         <textarea id="reply-input-${m.id}" rows="1" placeholder="Répondre à ${esc(m.author || 'ce joueur')}…" style="flex:1;resize:vertical;min-height:38px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-size:.84rem;font-family:inherit;"></textarea>
         <button class="btn btn-gold btn-sm" style="font-size:.74rem;padding:8px 14px;white-space:nowrap;" onclick="onAdminReply(${m.id})">Répondre</button>
       </div>
       <div id="reply-fb-${m.id}" style="font-size:.72rem;margin-top:4px;min-height:0;"></div>`;
     } else {
-      html += `<div style="margin-top:10px;font-size:.72rem;color:rgba(255,255,255,.4);font-style:italic;">Message non rattaché à un compte connecté — réponse dans l'application impossible.</div>`;
+      html += `<div style="margin-top:10px;font-size:.72rem;color:rgba(255,255,255,.4);font-style:italic;">${m.author ? 'Le pseudo « ' + esc(m.author) + ' » ne correspond à aucun compte' : 'Message anonyme'} — réponse dans l'application impossible.</div>`;
     }
     return html;
+  }
+
+  /* Compte auquel rattacher un fil « Contactez-nous ».
+     `author_key` est posé à l'envoi quand le joueur est connecté ; il manque sur
+     les messages antérieurs à la migration et sur « Besoin d'aide » envoyé hors
+     connexion. Dans ce cas on retombe sur le pseudo déclaré s'il correspond
+     exactement à un compte existant — la réponse est alors bien livrée. */
+  function _msgAuthorKey(m) {
+    if (m.author_key) return m.author_key;
+    const k = (m.author || '').trim().toLowerCase();
+    return (k && _db.accounts && _db.accounts[k]) ? k : null;
   }
 
   async function onAdminReply(id) {
@@ -4885,6 +4928,15 @@
     const body = ta ? ta.value.trim() : '';
     if (!body) { setFb('La réponse ne peut pas être vide.', false); return; }
     setFb('Envoi…', true);
+    // Le joueur ne retrouve son fil que via messages.author_key : on la fixe
+    // ici si elle manquait (message ancien ou envoyé hors connexion).
+    const msg = _messages.find(x => x.id === id);
+    const key = msg ? _msgAuthorKey(msg) : null;
+    if (msg && !msg.author_key && key && _supa) {
+      const { error } = await _supa.from('messages').update({ author_key: key }).eq('id', id);
+      if (error) { setFb('Échec du rattachement au compte : ' + (error.message || ''), false); return; }
+      msg.author_key = key;
+    }
     const res = await adminReplySend(id, body);
     if (res !== true) { setFb('Échec : ' + res, false); return; }
     if (ta) ta.value = '';
@@ -6430,7 +6482,8 @@
       setMessagerieSubTab(messagerieSubTab);
       renderMessages(); messagesFetch().then(renderMessages);
       populatePmsgRecipients(); renderPlayerMsgAdmin();
-      accountsFetch().then(populatePmsgRecipients);
+      // Les comptes servent aussi à rattacher un fil au bon joueur (_msgAuthorKey)
+      accountsFetch().then(() => { populatePmsgRecipients(); renderMessages(); });
       playerMsgsFetchAdmin().then(renderPlayerMsgAdmin);
     }
     if (tab === 'stats') setStatsSubTab(_statsSubTab);
@@ -6700,6 +6753,18 @@
     };
   }
 
+  // Simule le stock qu'il restera à J34 si aucune question n'est ajoutée :
+  // chaque journée restante consomme 2 questions joueur (j1+j2) et 1 bonus.
+  // « Restantes » = SEASON_MATCHDAYS - journées déjà présentes au planning.
+  function computeSeasonStockProjection(stock) {
+    const remaining = Math.max(0, SEASON_MATCHDAYS - planningMatchdays().length);
+    return {
+      remaining,
+      joueur: stock.joueur.free - remaining * 2,
+      bonus:  stock.bonus.free  - remaining * 1,
+    };
+  }
+
   // Construit la pastille d'un pool : barre de progression + alerte sous seuil.
   function planningStockCardHtml(label, st) {
     const pct      = Math.round(st.ratio * 100);
@@ -6722,17 +6787,39 @@
     </div>`;
   }
 
+  // Ligne de projection : ce qu'il restera à J34 si rien n'est ajouté au stock.
+  function planningStockProjectionHtml(proj) {
+    if (proj.remaining <= 0) return '';
+    const line = (label, n) => {
+      const deficit = n < 0;
+      const color = deficit ? '#e30613' : 'rgba(255,255,255,.85)';
+      const text  = deficit ? `déficit de ${-n}` : `${n} restante${n > 1 ? 's' : ''}`;
+      return `<span style="color:${color};">${label} : <strong>${text}</strong></span>`;
+    };
+    return `<div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,205,0,.15);">
+      <div style="font-size:.72rem;color:rgba(255,255,255,.55);margin-bottom:6px;">
+        Projection fin de saison — ${proj.remaining} journée${proj.remaining > 1 ? 's' : ''} restante${proj.remaining > 1 ? 's' : ''} avant J${SEASON_MATCHDAYS}
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:.82rem;font-weight:700;">
+        ${line('Joueurs', proj.joueur)}
+        ${line('Bonus', proj.bonus)}
+      </div>
+    </div>`;
+  }
+
   // Affiche les deux ratios de stock au-dessus du calendrier.
   function renderPlanningStock() {
     const el = document.getElementById('planning-stock');
     if (!el) return;
     const stock = computePlanningStock();
+    const proj  = computeSeasonStockProjection(stock);
     el.innerHTML = `<div class="card" style="margin-bottom:12px;">
       <div style="font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;color:rgba(255,205,0,.7);font-weight:700;margin-bottom:10px;">Stock de questions disponibles</div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         ${planningStockCardHtml('Joueurs', stock.joueur)}
         ${planningStockCardHtml('Bonus', stock.bonus)}
       </div>
+      ${planningStockProjectionHtml(proj)}
     </div>`;
   }
 
@@ -12768,7 +12855,7 @@
     box.innerHTML =
       `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">⏳ ${missed.length} partie${multi ? 's' : ''} à rattraper</div>
        <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Tu as pris le train en route ? Les parties s'enchaînent de la plus ancienne à la plus récente jusqu'à ce que tu sois à jour.</div>
-       <button class="btn btn-ghost btn-full mb0" onclick="startCatchUp('${oldest.startDate}')"
+       <button class="btn btn-ghost btn-full mb0" onclick="confirmCatchUp('${oldest.startDate}')"
                style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
          <span style="flex:1;color:rgba(255,255,255,.85);">${esc(label)}</span>
          <span style="color:var(--or);font-weight:700;white-space:nowrap;">Rattraper →</span>
@@ -12904,6 +12991,37 @@
          <span style="flex:1;color:rgba(255,255,255,.85);">Mon Onze</span>
          <span style="color:var(--or);font-weight:700;white-space:nowrap;">Placer →</span>
        </button>`;
+  }
+
+  /* Confirmation avant un rattrapage : quand le joueur clique sur une partie à
+     rattraper (accueil, carte joueur, frise), on lui laisse le choix de la
+     lancer tout de suite ou de revenir à l'accueil pour la garder pour plus
+     tard. Le chaînage depuis l'écran de résultats appelle startCatchUp
+     directement — il propose déjà son propre bouton « Accueil ». */
+  let _catchUpPending = null;
+
+  function confirmCatchUp(startDate) {
+    if (!_localUser) { nav('auth'); return; }
+    _catchUpPending = startDate;
+    const dateEl = document.getElementById('catchup-confirm-date');
+    if (dateEl) dateEl.textContent = fmtSessionLong(startDate);
+    const ov = document.getElementById('catchup-confirm-overlay');
+    if (ov) ov.style.display = 'flex';
+  }
+
+  function closeCatchUpPopup() {
+    _catchUpPending = null;
+    const ov = document.getElementById('catchup-confirm-overlay');
+    if (ov) ov.style.display = 'none';
+    nav('home');
+  }
+
+  function confirmCatchUpGo() {
+    const ds = _catchUpPending;
+    _catchUpPending = null;
+    const ov = document.getElementById('catchup-confirm-overlay');
+    if (ov) ov.style.display = 'none';
+    if (ds) startCatchUp(ds);
   }
 
   // Lance une partie de rattrapage pour la session passée `startDate`.
@@ -16606,7 +16724,7 @@
     // toujours au nom de l'utilisateur connecté).
     const isOwnCard = !!(_localUser && pseudo && _localUser.pseudo.toLowerCase() === pseudo.toLowerCase());
     const missedBtn = (missedSessions.length && isOwnCard)
-      ? `<button class="btn btn-ghost btn-full mb0" onclick="startCatchUp('${missedSessions[0].startDate}')"
+      ? `<button class="btn btn-ghost btn-full mb0" onclick="confirmCatchUp('${missedSessions[0].startDate}')"
            style="margin-top:10px;display:flex;align-items:center;gap:8px;font-size:.82rem;">
            <span style="flex:1;color:rgba(255,255,255,.85);">${missedSessions.length} partie${missedSessions.length > 1 ? 's' : ''} à rattraper</span>
            <span style="color:var(--or);font-weight:700;white-space:nowrap;">Rattraper →</span>
@@ -16916,7 +17034,7 @@
           tip = `${jLabel} — ${perf.ja}/2 joueur${bonusTxt} — ${perf.pts} pts`;
         } else if (isCatchupMd(md)) {
           cls = 'pac-catchup clickable';
-          clickAttr = ` onclick="startCatchUp('${md.startDate}')"`;
+          clickAttr = ` onclick="confirmCatchUp('${md.startDate}')"`;
           tip = `${jLabel} — partie à rattraper`;
         } else {
           cls = 'pac-empty';

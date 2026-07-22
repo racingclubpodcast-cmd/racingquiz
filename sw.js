@@ -1,4 +1,4 @@
-const CACHE = 'rc-quiz-v39';
+const CACHE = 'rc-quiz-v40';
 const PRECACHE = [
   './',
   './index.html',
@@ -35,6 +35,34 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.origin !== self.location.origin) return;
 
+  // Coquille applicative = la page elle-même (navigation ou index.html).
+  // Tout le jeu vit dans ce seul fichier : c'est lui qui doit toujours être à
+  // jour, sinon un joueur reste bloqué sur une ancienne version et ne voit pas
+  // les nouvelles fonctionnalités (boîte de réception, fils de discussion…).
+  const isAppShell = e.request.mode === 'navigate'
+    || url.pathname === '/'
+    || url.pathname.endsWith('/')
+    || url.pathname.endsWith('/index.html');
+
+  if (isAppShell) {
+    // Network-first : en ligne, on sert TOUJOURS la dernière version et on
+    // rafraîchit le cache ; le cache ne sert que de repli hors-ligne.
+    e.respondWith(
+      fetch(e.request).then(res => {
+        if (res && res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone));
+        }
+        return res;
+      }).catch(() =>
+        caches.match(e.request).then(c => c || caches.match('./index.html'))
+      )
+    );
+    return;
+  }
+
+  // Autres ressources (images, polices, manifest) : stables → cache-first,
+  // avec rafraîchissement en arrière-plan.
   e.respondWith(
     caches.match(e.request).then(cached => {
       const network = fetch(e.request).then(res => {
