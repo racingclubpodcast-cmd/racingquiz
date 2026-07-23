@@ -1947,6 +1947,10 @@
     .score-chart-svg .sc-datelbl { fill:rgba(255,255,255,.5);font-size:9px;font-family:inherit; }
     .score-chart-svg .sc-datelbl-future { fill:rgba(255,255,255,.28);font-size:9px;font-family:inherit;pointer-events:none; }
     .score-chart-svg .sc-barval { fill:var(--or);font-size:9px;font-weight:700;font-family:inherit; }
+    /* Nuage de points : dot discret qui grossit au survol (cible tactile = cercle transparent large) */
+    .score-chart-svg .sc-scatter-dot { fill:#1a3a6e;stroke:#4a6fa5;stroke-width:1.4;transition:r .14s ease, fill .12s;pointer-events:none; }
+    .score-chart-svg .sc-scatter-node:hover .sc-scatter-dot { r:8px;fill:#2d5fa0; }
+    .score-chart-svg .sc-scatter-hit { cursor:pointer; }
     .score-chart-legend { display:flex;align-items:center;gap:14px;margin-top:8px;flex-wrap:wrap;justify-content:center; }
     .score-chart-legend-item { display:flex;align-items:center;gap:5px;font-size:.66rem;color:rgba(255,255,255,.45); }
     .score-chart-legend-bar { width:11px;height:11px;border-radius:2px;background:var(--or);flex-shrink:0; }
@@ -15125,13 +15129,15 @@
     svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle" font-size="8">Parties jouées</text>`;
     svg += `<text class="sc-axislbl" x="8" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="8" transform="rotate(-90,8,${(padT + plotH / 2).toFixed(1)})">Points</text>`;
 
-    // Points
+    // Points : dot discret + cercle-cible transparent (survol/tap confortable)
     players.forEach(p => {
       const cx = xS(p.games), cy = yS(p.total);
       const safeName = esc(p.name).replace(/"/g, '&quot;');
-      svg += `<circle class="sc-scatter-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="7"
-        data-name="${safeName}" data-total="${p.total}" data-games="${p.games}"
-        style="fill:#1a3a6e;stroke:#4a6fa5;stroke-width:1.5;cursor:pointer;transition:fill .12s;"/>`;
+      svg += `<g class="sc-scatter-node">`
+        + `<circle class="sc-scatter-dot" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="3.4"/>`
+        + `<circle class="sc-scatter-hit" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="11" fill="transparent"`
+        + ` data-name="${safeName}" data-total="${p.total}" data-games="${p.games}"/>`
+        + `</g>`;
     });
     svg += '</svg>';
 
@@ -15148,12 +15154,12 @@
       document.body.appendChild(tip);
     }
 
-    container.querySelectorAll('.sc-scatter-dot').forEach(dot => {
-      dot.addEventListener('mouseenter', e => {
-        dot.style.fill = '#2d5fa0';
-        tip.innerHTML = `<div style="font-weight:700;margin-bottom:4px;">${dot.dataset.name}</div>` +
-          `<div style="color:var(--or);">${dot.dataset.total} pts</div>` +
-          `<div style="color:rgba(255,255,255,.55);font-size:.72rem;">${dot.dataset.games} partie${dot.dataset.games > 1 ? 's' : ''}</div>`;
+    container.querySelectorAll('.sc-scatter-hit').forEach(hit => {
+      hit.addEventListener('mouseenter', e => {
+        tip.innerHTML = `<div style="font-weight:700;margin-bottom:4px;">${hit.dataset.name}</div>` +
+          `<div style="color:var(--or);">${hit.dataset.total} pts</div>` +
+          `<div style="color:rgba(255,255,255,.55);font-size:.72rem;">${hit.dataset.games} partie${hit.dataset.games > 1 ? 's' : ''}</div>` +
+          `<div style="color:rgba(255,255,255,.4);font-size:.68rem;margin-top:3px;">Cliquer : points par match</div>`;
         tip.style.display = 'block';
         const tw = tip.offsetWidth, th = tip.offsetHeight;
         const left = Math.max(4, Math.min(e.clientX + 14, window.innerWidth - tw - 8));
@@ -15161,7 +15167,7 @@
         tip.style.left = left + 'px';
         tip.style.top  = top  + 'px';
       });
-      dot.addEventListener('mousemove', e => {
+      hit.addEventListener('mousemove', e => {
         if (tip.style.display === 'none') return;
         const tw = tip.offsetWidth, th = tip.offsetHeight;
         const left = Math.max(4, Math.min(e.clientX + 14, window.innerWidth - tw - 8));
@@ -15169,14 +15175,150 @@
         tip.style.left = left + 'px';
         tip.style.top  = top  + 'px';
       });
-      dot.addEventListener('mouseleave', () => {
-        dot.style.fill = '#1a3a6e';
+      hit.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
+      hit.addEventListener('click', () => {
         tip.style.display = 'none';
+        if (hit.dataset.name) renderScatterEvolution(container, hit.dataset.name);
       });
-      dot.addEventListener('click', () => {
-        tip.style.display = 'none';
-        if (dot.dataset.name) openPlayerCard(dot.dataset.name);
+    });
+  }
+
+  /* Données par joueur : scores de partie (hors ajustements), triés par date. */
+  function _scatterGamesByKey() {
+    const lb     = LS.getLeaderboard();
+    const hidden = hiddenRankingSet();
+    const map = {};
+    lb.forEach(e => {
+      if (e.adjust || !e.date) return;
+      const raw = (e.name || '').trim();
+      if (!raw) return;
+      const key = raw.toLowerCase();
+      if (hidden.has(key)) return;
+      if (!map[key]) map[key] = { name: raw, games: [] };
+      map[key].games.push({ ts: String(e.date), score: Number(e.score) || 0 });
+    });
+    Object.values(map).forEach(o => o.games.sort((a, b) => a.ts.localeCompare(b.ts)));
+    return map;
+  }
+
+  /* ── Tendance d'un joueur : points par match + trajectoire moyenne du 1er ── */
+  function renderScatterEvolution(container, name) {
+    if (!container) return;
+    const map    = _scatterGamesByKey();
+    const key    = (name || '').toLowerCase().trim();
+    const player = map[key];
+    if (!player || !player.games.length) { renderLeaderboardScatter(container); return; }
+
+    // Premier du classement général = référence
+    const ranking   = generalRankingList();
+    const leaderNm  = ranking.length ? ranking[0].name : null;
+    const leaderKey = leaderNm ? leaderNm.toLowerCase() : null;
+    const isLeader  = leaderKey === key;
+    const leader    = (leaderKey && !isLeader) ? map[leaderKey] : null;
+
+    const pScores = player.games.map(g => g.score);
+    // Trajectoire « moyenne » du 1er = moyenne cumulée de ses points par match
+    let leaderAvg = null;
+    const avgSrc  = leader ? leader.games.map(g => g.score) : (isLeader ? pScores : null);
+    if (avgSrc && avgSrc.length) {
+      let sum = 0;
+      leaderAvg = avgSrc.map((s, i) => { sum += s; return sum / (i + 1); });
+    }
+
+    const nMax = Math.max(pScores.length, leaderAvg ? leaderAvg.length : 0);
+    const maxY = Math.max(1, ...pScores, ...(leaderAvg || []));
+
+    // Géométrie (même gabarit que le graphe d'évolution)
+    const padL = 30, padR = 10, padT = 14, padB = 24, plotH = 140;
+    const slotW = nMax <= 1 ? 60 : Math.max(24, Math.min(56, 300 / (nMax - 1)));
+    const plotW = nMax <= 1 ? 60 : slotW * (nMax - 1);
+    const W = padL + plotW + padR, H = padT + plotH + padB;
+    const baseY = padT + plotH;
+    const xS = i => padL + (nMax <= 1 ? plotW / 2 : i * slotW);
+    const yS = v => baseY - (v / maxY) * plotH;
+
+    const P_COLOR = '#4FC3F7';   // joueur cliqué
+
+    let svg = `<svg class="score-chart-svg" viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible;" xmlns="http://www.w3.org/2000/svg">`;
+
+    // Grille + axe Y
+    for (let t = 0; t <= 4; t++) {
+      const val = (maxY * t) / 4, y = yS(val);
+      svg += `<line class="sc-axis" x1="${padL}" y1="${y.toFixed(1)}" x2="${(W - padR).toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+      svg += `<text class="sc-axislbl" x="${padL - 4}" y="${(y + 2.5).toFixed(1)}" text-anchor="end" font-size="7">${Math.round(val)}</text>`;
+    }
+    // Axe X : numéro de match
+    const step = Math.max(1, Math.ceil(nMax / 6));
+    for (let i = 0; i < nMax; i++) {
+      if (i % step !== 0 && i !== nMax - 1) continue;
+      svg += `<text class="sc-datelbl" x="${xS(i).toFixed(1)}" y="${(baseY + 12).toFixed(1)}" text-anchor="middle" font-size="7">${i + 1}</text>`;
+    }
+    svg += `<text class="sc-axislbl" x="${(padL + plotW / 2).toFixed(1)}" y="${(H - 2).toFixed(1)}" text-anchor="middle" font-size="8">N° de match</text>`;
+    svg += `<text class="sc-axislbl" x="8" y="${(padT + plotH / 2).toFixed(1)}" text-anchor="middle" font-size="8" transform="rotate(-90,8,${(padT + plotH / 2).toFixed(1)})">Points</text>`;
+
+    // Trajectoire moyenne du 1er (pointillés or)
+    if (leaderAvg && leaderAvg.length > 1) {
+      const pts = leaderAvg.map((v, i) => `${xS(i).toFixed(1)},${yS(v).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${pts}" fill="none" stroke="#FFCD00" stroke-width="1.6" stroke-dasharray="4 3" stroke-linejoin="round" stroke-linecap="round" opacity="0.85"/>`;
+    }
+
+    // Ligne du joueur (points par match)
+    if (pScores.length > 1) {
+      const pts = pScores.map((v, i) => `${xS(i).toFixed(1)},${yS(v).toFixed(1)}`).join(' ');
+      svg += `<polyline points="${pts}" fill="none" stroke="${P_COLOR}" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>`;
+    }
+    // Points survolables du joueur
+    pScores.forEach((v, i) => {
+      const cx = xS(i).toFixed(1), cy = yS(v).toFixed(1);
+      svg += `<circle cx="${cx}" cy="${cy}" r="2.6" fill="${P_COLOR}" stroke="#1a1a1a" stroke-width="1"/>`;
+      svg += `<circle class="sc-evo-hit" cx="${cx}" cy="${cy}" r="9" fill="transparent" style="cursor:pointer;" data-pts="${v}" data-match="${i + 1}"/>`;
+    });
+
+    svg += '</svg>';
+
+    // Légende
+    const avgLbl = isLeader ? 'Votre moyenne (1er)' : `Moyenne du 1er — ${esc(leaderNm || '')}`;
+    const legend = `<div class="score-chart-legend" style="margin-top:10px;">
+      <div class="score-chart-legend-item"><span style="display:inline-block;width:14px;height:0;border-top:2px solid ${P_COLOR};flex-shrink:0;"></span>Points par match — ${esc(player.name)}</div>
+      ${leaderAvg ? `<div class="score-chart-legend-item"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #FFCD00;flex-shrink:0;"></span>${avgLbl}</div>` : ''}
+    </div>`;
+
+    container.innerHTML =
+      `<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+         <button type="button" class="btn btn-ghost btn-sm sc-evo-back" style="margin:0;">← Nuage</button>
+         <span style="font-size:.8rem;font-weight:700;color:var(--or);text-align:center;flex:1;">Points par match</span>
+         <button type="button" class="btn btn-ghost btn-sm sc-evo-card" style="margin:0;">Fiche</button>
+       </div>` + svg + legend;
+
+    container.querySelector('.sc-evo-back').addEventListener('click', () => renderLeaderboardScatter(container));
+    const cardBtn = container.querySelector('.sc-evo-card');
+    if (cardBtn) cardBtn.addEventListener('click', () => openPlayerCard(player.name));
+
+    // Infobulle : points d'un match
+    let tip = document.getElementById('scatter-tooltip-global');
+    if (!tip) {
+      tip = document.createElement('div');
+      tip.id = 'scatter-tooltip-global';
+      tip.style.cssText = 'position:fixed;display:none;z-index:10000;pointer-events:none;' +
+        'background:rgba(20,20,20,.97);border:1px solid rgba(74,111,165,.6);border-radius:8px;' +
+        'padding:9px 12px;font-size:.78rem;color:#fff;box-shadow:0 6px 22px rgba(0,0,0,.6);white-space:nowrap;';
+      document.body.appendChild(tip);
+    }
+    const place = e => {
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      tip.style.left = Math.max(4, Math.min(e.clientX + 14, window.innerWidth - tw - 8)) + 'px';
+      tip.style.top  = Math.max(4, e.clientY - th - 12) + 'px';
+    };
+    container.querySelectorAll('.sc-evo-hit').forEach(hit => {
+      hit.addEventListener('mouseenter', e => {
+        tip.innerHTML = `<div style="font-weight:700;margin-bottom:3px;">${esc(player.name)}</div>` +
+          `<div style="color:var(--or);">${hit.dataset.pts} pts</div>` +
+          `<div style="color:rgba(255,255,255,.55);font-size:.72rem;">Match ${hit.dataset.match}</div>`;
+        tip.style.display = 'block';
+        place(e);
       });
+      hit.addEventListener('mousemove', e => { if (tip.style.display !== 'none') place(e); });
+      hit.addEventListener('mouseleave', () => { tip.style.display = 'none'; });
     });
   }
 
