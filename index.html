@@ -2124,6 +2124,7 @@
     .onze-formations { display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px; }
     .onze-f-chip { background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.7);border-radius:20px;padding:6px 13px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:inherit;transition:all .12s; }
     .onze-f-chip.active { background:rgba(255,205,0,.15);border-color:var(--or);color:var(--or); }
+    .onze-f-chip:disabled { opacity:.45;cursor:default; }
     .onze-pitch { position:relative;width:100%;aspect-ratio:707/1000;background:url('terrain-foot-web.jpg') center/cover no-repeat;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,.12); }
     .onze-slot { position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit; }
     .onze-slot-disc { width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.72rem;transition:transform .12s; }
@@ -3904,7 +3905,7 @@
           <div id="onze-complete-banner" class="onze-complete-banner" style="display:none;">🏆 Onze + coach complet !</div>
           <div class="onze-formations" id="onze-formations"></div>
           <div class="onze-pitch" id="onze-pitch"></div>
-          <p class="field-hint" style="margin-top:10px;">Touche une case pour placer ou retirer un joueur de ta collection.</p>
+          <p class="field-hint" style="margin-top:10px;" id="onze-pitch-hint">Touche une case pour placer ou retirer un joueur de ta collection.</p>
         </div>
 
         <div class="card" style="margin-bottom:12px;">
@@ -8312,14 +8313,40 @@
     return { rows, byIdQ };
   }
 
+  /* Carte « Onzes à valider » : les Onze envoyés par les joueurs attendent une
+     validation manuelle de l'admin — c'est elle qui archive le Onze et crédite
+     le bonus. Vide → carte masquée. */
+  function _onzePendingCardHtml() {
+    const list = _onzePendingList();
+    if (!list.length) return '';
+    const pts = onzeBonusPoints();
+    const fmt = ts => { try { return new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }); } catch { return ''; } };
+    const rows = list.map(r => `<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);flex-wrap:wrap;">
+      <span style="flex:1;min-width:120px;font-size:.84rem;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${playerLink(r.name)}</span>
+      ${r.pending.submittedAt ? `<span style="font-size:.72rem;color:rgba(255,255,255,.4);white-space:nowrap;">${fmt(r.pending.submittedAt)}</span>` : ''}
+      <button class="btn btn-gold btn-sm" style="margin:0;font-size:.7rem;padding:3px 9px;line-height:1.4;" data-pname="${esc(r.name)}" onclick="adminValidateOnze(this.dataset.pname)">Valider</button>
+      <button class="btn btn-ghost btn-sm" style="margin:0;font-size:.7rem;padding:3px 9px;line-height:1.4;" data-pname="${esc(r.name)}" onclick="adminRejectOnze(this.dataset.pname)">Refuser</button>
+    </div>`).join('');
+    return `<div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+        <span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">🏆 Onzes à valider</span>
+        <span style="flex:1;"></span>
+        <span class="onze-dash-badge add">${list.length} en attente</span>
+      </div>
+      <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:8px;">Onze envoyés par les joueurs. La validation les archive${pts > 0 ? ` et ajoute <strong style="color:var(--or);">+${pts} pts</strong> au total du joueur` : ''} ; le refus rend le terrain modifiable, sans point. Touche un pseudo pour voir sa carte.</div>
+      ${rows}
+    </div>`;
+  }
+
   function renderOnzeDashboard() {
     const el = document.getElementById('onze-dashboard');
     if (!el) return;
     if (!adminLogged) { el.innerHTML = ''; return; }
+    const pendingCard = _onzePendingCardHtml();
     const { rows, byIdQ } = _onzeDiscrepancies();
     const titleHtml = '<span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">🃏 Suivi des collections</span>';
     if (!rows.length) {
-      el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+      el.innerHTML = pendingCard + `<div class="card" style="margin-bottom:12px;">
         <div style="margin-bottom:6px;">${titleHtml}</div>
         <p style="text-align:center;color:rgba(255,255,255,.4);font-size:.82rem;padding:10px 0;margin:0;">✓ Aucune divergence : toutes les collections correspondent aux joueurs devinés.</p>
       </div>`;
@@ -8336,7 +8363,7 @@
         ${r.toRemove.length ? `<div class="onze-dash-group"><span class="onze-dash-label rem">À retirer (${r.toRemove.length})</span>${remHtml}</div>` : ''}
       </div>`;
     }).join('');
-    el.innerHTML = `<div class="card" style="margin-bottom:12px;">
+    el.innerHTML = pendingCard + `<div class="card" style="margin-bottom:12px;">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
         ${titleHtml}
         <span style="flex:1;"></span>
@@ -9132,6 +9159,20 @@
         </div>`).join('')}
       </div>` : '';
     const fmtDateShort = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    // Onze envoyé par le joueur, en attente de validation manuelle : c'est
+    // l'admin qui l'archive (et donc qui déclenche le bonus de points).
+    const onzeBonusPts = onzeBonusPoints();
+    const pendingHtml = onze.pending ? `
+      <div class="onze-complete-banner" style="text-align:left;margin-bottom:12px;">
+        <div>🏆 Onze envoyé pour validation${onze.pending.submittedAt ? ` — ${fmtDateShort(onze.pending.submittedAt)}` : ''}</div>
+        <div style="margin-top:6px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);line-height:1.5;">${adminLogged
+          ? `Le terrain ci-dessus est celui envoyé par ${esc(name)}. En validant, il est archivé${onzeBonusPts > 0 ? ` et <strong style="color:var(--or);">+${onzeBonusPts} pts bonus</strong> sont ajoutés à son total` : ''} ; les joueurs utilisés sont verrouillés.`
+          : 'Ce Onze attend la validation de l\'admin.'}</div>
+        ${adminLogged ? `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+          <button class="btn btn-gold btn-sm" style="margin:0;" onclick="adminValidateOnze()">Valider ce Onze</button>
+          <button class="btn btn-ghost btn-sm" style="margin:0;" onclick="adminRejectOnze()">Refuser</button>
+        </div>` : ''}
+      </div>` : '';
     const archivesHtml = onze.archives.length ? onze.archives.slice().reverse().map((ar, idx) => {
       const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
       const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
@@ -9143,13 +9184,16 @@
       </div>`;
     }).join('') : '';
     const onzeSection = `
-      <div class="pcard-section-title">🎽 Mon Onze${onzeComplete ? ' <span style="color:var(--or);">· complet ✓</span>' : ''}</div>
+      <div class="pcard-section-title">🎽 Mon Onze${onze.pending
+        ? ' <span style="color:var(--or);">· à valider</span>'
+        : (onzeComplete ? ' <span style="color:var(--or);">· complet ✓</span>' : '')}</div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
         <span style="background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:20px;padding:3px 10px;color:var(--or);font-weight:700;font-size:.74rem;">${onze.formation}</span>
         <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">${placedCount}/11${onze.coach ? ' + ENT' : ''}</span>
         <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">🃏 ${onze.collection.length}/${totalJoueursQ}</span>
       </div>
       <div class="onze-pitch" style="margin-bottom:12px;">${onzePitchReadonlyHtml(onze)}</div>
+      ${pendingHtml}
       ${collHeaderHtml}
       ${collHtml}
       ${trackingHtml}
@@ -9872,6 +9916,105 @@
     await _afterOnzeChange(name);
   }
 
+  /* ── Validation manuelle des Onze envoyés par les joueurs (admin) ──
+     Le joueur ne s'archive plus son Onze lui-même : il l'envoie
+     (submitOnzeForValidation → onze.pending) et c'est l'admin qui archive.
+     C'est l'archive qui porte le bonus (onzeBonusForName) : sans validation,
+     aucun point n'entre dans le total du joueur. */
+
+  /* Liste des Onze en attente de validation, tous comptes confondus.
+     [{ name, pending }] du plus ancien envoi au plus récent. */
+  function _onzePendingList() {
+    const accounts = LS.getAccounts();
+    const out = [];
+    Object.keys(accounts).forEach(k => {
+      const acc = accounts[k];
+      const p   = acc && acc.onze && acc.onze.pending;
+      if (p && typeof p === 'object' && Array.isArray(p.slots)) {
+        out.push({ name: acc.pseudo || k, pending: p });
+      }
+    });
+    return out.sort((a, b) => (a.pending.submittedAt || 0) - (b.pending.submittedAt || 0));
+  }
+
+  /* Valide le Onze envoyé par un joueur : archivage (avec le bonus du moment),
+     verrouillage des joueurs utilisés, remise à zéro du terrain. Le joueur est
+     prévenu par message. */
+  async function adminValidateOnze(nameArg) {
+    const name = nameArg || _pcardName;
+    if (!name) return;
+    const newOnze = _adminOnzeRaw(name);
+    const pending = (newOnze.pending && typeof newOnze.pending === 'object' && Array.isArray(newOnze.pending.slots))
+      ? newOnze.pending : null;
+    if (!pending) return;
+    const pts = onzeBonusPoints();
+    if (!confirm(`Valider le Onze de ${name} ?\n\n`
+      + (pts > 0 ? `+${pts} pts bonus seront ajoutés à son total.\n` : '')
+      + 'Son Onze rejoint ses Onzes archivés et il pourra en composer un nouveau.')) return;
+    if (!_supa) { alert('Serveur indisponible.'); return; }
+
+    if (!Array.isArray(newOnze.archives))   newOnze.archives   = [];
+    if (!Array.isArray(newOnze.usedInOnze)) newOnze.usedInOnze = [];
+    newOnze.archives = newOnze.archives.concat([{
+      formation:    ONZE_FORMATIONS[pending.formation] ? pending.formation : newOnze.formation,
+      slots:        [...pending.slots],
+      coach:        pending.coach || null,
+      submittedAt:  pending.submittedAt || null,
+      validatedAt:  Date.now(),
+      bonusAwarded: pts
+    }]);
+    // Verrouiller les joueurs utilisés : ils ne pourront plus servir dans un
+    // nouveau Onze (ils restent dans la collection, marqués « archivé »).
+    const used = pending.slots.filter(Boolean).concat(pending.coach ? [pending.coach] : []);
+    used.forEach(id => { if (!newOnze.usedInOnze.includes(id)) newOnze.usedInOnze.push(id); });
+    // Remise à zéro du terrain courant
+    newOnze.slots        = Array(11).fill(null);
+    newOnze.coach        = null;
+    newOnze.completedAt  = null;
+    newOnze.bonusAwarded = null;
+    newOnze.pending      = null;
+
+    if (!await _adminSaveOnze(name, newOnze)) {
+      alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
+      return;
+    }
+
+    await playerMsgSend(name.toLowerCase(), 'Ton Onze est validé !',
+      `L'admin a validé ton Onze${pts > 0 ? ` : +${pts} pts bonus ajoutés à ton total` : ''}. `
+      + 'Il rejoint tes Onzes archivés — tu peux composer un nouveau Onze avec le reste de ta collection.');
+
+    await _afterOnzeChange(name);
+    renderAdminLeaderboard();   // le total du joueur vient de changer
+  }
+
+  /* Refuse le Onze envoyé par un joueur : le terrain redevient modifiable, sans
+     archive ni bonus. Motif facultatif transmis au joueur par message. */
+  async function adminRejectOnze(nameArg) {
+    const name = nameArg || _pcardName;
+    if (!name) return;
+    const newOnze = _adminOnzeRaw(name);
+    if (!newOnze.pending) return;
+    const reason = prompt(`Refuser le Onze de ${name} ?\n\n`
+      + 'Son terrain redeviendra modifiable et il pourra le renvoyer. '
+      + 'Aucun point ne lui sera attribué.\n\nMotif (facultatif, envoyé au joueur) :', '');
+    if (reason === null) return;
+    if (!_supa) { alert('Serveur indisponible.'); return; }
+
+    newOnze.pending = null;
+
+    if (!await _adminSaveOnze(name, newOnze)) {
+      alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
+      return;
+    }
+
+    const motif = (reason || '').trim();
+    await playerMsgSend(name.toLowerCase(), 'Ton Onze n\'a pas été validé',
+      `L'admin n'a pas validé ton Onze.${motif ? ` Motif : ${motif}` : ''} `
+      + 'Ton terrain est de nouveau modifiable : ajuste-le puis renvoie-le pour validation.');
+
+    await _afterOnzeChange(name);
+  }
+
   /* Retrait d'un joueur de la collection Mon Onze d'un joueur (admin).
      Le retire aussi du terrain (slots / coach) s'il y était placé.
      nameArg fourni par le dashboard ; sinon carte courante. */
@@ -9887,6 +10030,12 @@
     newOnze.collection = newOnze.collection.filter(id => id !== qid);
     newOnze.slots      = newOnze.slots.map(id => (id === qid ? null : id));
     if (newOnze.coach === qid) newOnze.coach = null;
+    // Un Onze envoyé pour validation qui contenait ce joueur n'est plus valable :
+    // l'envoi est annulé, le joueur recompose et renvoie.
+    const pend = newOnze.pending;
+    if (pend && Array.isArray(pend.slots) && (pend.slots.includes(qid) || pend.coach === qid)) {
+      newOnze.pending = null;
+    }
     // Le retrait doit tenir : on annule un éventuel ajout manuel et, si le
     // joueur a bel et bien été deviné en partie, on mémorise le retrait dans
     // onze.revoked pour que la réconciliation ne le ramène pas.
@@ -9920,6 +10069,8 @@
 
     newOnze.slots = newOnze.slots.map(id => (id === qid ? null : id));
     if (newOnze.coach === qid) newOnze.coach = null;
+    // Le Onze envoyé pour validation n'est plus celui examiné : envoi annulé.
+    newOnze.pending = null;
 
     if (!await _adminSaveOnze(name, newOnze)) {
       alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
@@ -13052,16 +13203,30 @@
     // Priorité : Onze complet mais pas encore validé → avertir que la validation
     // est nécessaire pour toucher le bonus et démarrer une nouvelle collection.
     const onze = _localUser ? onzeForName(_localUser.pseudo) : null;
+    // Onze déjà envoyé : plus rien à faire côté joueur, on rappelle juste l'attente.
+    if (onze && onze.pending) {
+      const bonusP = onzeBonusPoints();
+      box.style.display = 'block';
+      box.innerHTML =
+        `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">🏆 Ton Onze attend la validation de l'admin</div>
+         <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Dès qu'il l'aura validé${bonusP > 0 ? `, tes <strong style="color:var(--or);">+${bonusP} pts bonus</strong> seront ajoutés à ton total et` : ','} tu pourras composer un nouveau Onze.</div>
+         <button class="btn btn-ghost btn-full mb0" onclick="nav('onze')"
+                 style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
+           <span style="flex:1;color:rgba(255,255,255,.85);">Mon Onze</span>
+           <span style="color:var(--or);font-weight:700;white-space:nowrap;">Voir →</span>
+         </button>`;
+      return;
+    }
     if (onze && onzeIsComplete(onze, _localUser.pseudo)) {
       const bonus = onzeBonusPoints();
       box.style.display = 'block';
       box.innerHTML =
         `<div style="font-size:.82rem;font-weight:700;color:var(--or);margin-bottom:2px;">🏆 Ton Onze est complet !</div>
-         <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Valide-le pour ${bonus > 0 ? `recevoir tes <strong style="color:var(--or);">+${bonus} pts bonus</strong> et ` : ''}démarrer une nouvelle collection Mon Onze.</div>
+         <div style="font-size:.74rem;color:rgba(255,255,255,.5);line-height:1.4;margin-bottom:8px;">Envoie-le à l'admin : après sa validation${bonus > 0 ? `, tu reçois tes <strong style="color:var(--or);">+${bonus} pts bonus</strong> et` : ','} tu démarres une nouvelle collection Mon Onze.</div>
          <button class="btn btn-ghost btn-full mb0" onclick="nav('onze')"
                  style="display:flex;align-items:center;gap:8px;font-size:.82rem;text-align:left;">
            <span style="flex:1;color:rgba(255,255,255,.85);">Mon Onze</span>
-           <span style="color:var(--or);font-weight:700;white-space:nowrap;">Valider →</span>
+           <span style="color:var(--or);font-weight:700;white-space:nowrap;">Envoyer →</span>
          </button>`;
       return;
     }
@@ -16317,7 +16482,9 @@
       usedInOnze:  Array.isArray(onze.usedInOnze) ? onze.usedInOnze : [],
       archives:    Array.isArray(onze.archives) ? onze.archives : [],
       granted:     Array.isArray(onze.granted) ? onze.granted : [],
-      revoked:     Array.isArray(onze.revoked) ? onze.revoked : []
+      revoked:     Array.isArray(onze.revoked) ? onze.revoked : [],
+      // Onze envoyé par le joueur, en attente de validation manuelle de l'admin
+      pending:     (onze.pending && typeof onze.pending === 'object' && Array.isArray(onze.pending.slots)) ? onze.pending : null
     };
   }
 
@@ -16475,6 +16642,10 @@
       const gone = new Set(removed);
       a.onze.slots = a.onze.slots.map(id => (gone.has(id) ? null : id));
       if (gone.has(a.onze.coach)) a.onze.coach = null;
+      // Un Onze envoyé à l'admin qui s'appuyait sur une entrée parasite n'a plus
+      // lieu d'être examiné : l'envoi est annulé, le terrain redevient modifiable.
+      const pend = onzePendingOf(a.onze);
+      if (pend && (pend.slots.some(id => gone.has(id)) || gone.has(pend.coach))) a.onze.pending = null;
       console.info('[Onze] retiré(s) de la collection (jamais deviné) :', removed.join(', '));
     }
     if (added.length) console.info('[Onze] ré-ajouté(s) à la collection (deviné) :', added.join(', '));
@@ -16508,38 +16679,33 @@
     }
   }
 
-  /* Archive le Onze en cours (appelé sur clic "Valider mon Onze"). */
-  function archiveCurrentOnze() {
+  /* Onze envoyé à l'admin et pas encore tranché, ou null. */
+  function onzePendingOf(onze) {
+    const p = onze && onze.pending;
+    return (p && typeof p === 'object' && Array.isArray(p.slots)) ? p : null;
+  }
+
+  /* Envoi du Onze en cours à l'admin pour validation manuelle (clic
+     « Envoyer mon Onze à l'admin »). Le joueur ne s'attribue plus lui-même le
+     bonus : tant que l'admin n'a pas validé (adminValidateOnze), rien n'est
+     archivé — et c'est l'archive qui porte les points (onzeBonusForName). Le
+     terrain est gelé le temps de l'examen ; un refus (adminRejectOnze) le rend
+     de nouveau modifiable. */
+  function submitOnzeForValidation() {
     const a = _onzeAccount();
-    if (!a || !onzeIsComplete(a.onze, _localUser.pseudo)) return;
-    const pts = onzeBonusPoints();
-    const archive = {
-      formation:    a.onze.formation,
-      slots:        [...a.onze.slots],
-      coach:        a.onze.coach,
-      validatedAt:  Date.now(),
-      bonusAwarded: pts
+    if (!a || onzePendingOf(a.onze) || !onzeIsComplete(a.onze, _localUser.pseudo)) return;
+    a.onze.pending = {
+      formation:   a.onze.formation,
+      slots:       [...a.onze.slots],
+      coach:       a.onze.coach,
+      submittedAt: Date.now()
     };
-    if (!Array.isArray(a.onze.archives)) a.onze.archives = [];
-    a.onze.archives.push(archive);
-    // Verrouiller les joueurs utilisés
-    if (!Array.isArray(a.onze.usedInOnze)) a.onze.usedInOnze = [];
-    const usedIds = [...a.onze.slots.filter(Boolean)];
-    if (a.onze.coach) usedIds.push(a.onze.coach);
-    usedIds.forEach(id => { if (!a.onze.usedInOnze.includes(id)) a.onze.usedInOnze.push(id); });
-    // Réinitialiser le Onze courant
-    a.onze.slots      = Array(11).fill(null);
-    a.onze.coach      = null;
-    a.onze.completedAt = null;
-    a.onze.bonusAwarded = null;
     _onzeSave();
-    if (pts > 0) {
-      const t = document.createElement('div');
-      t.className = 'onze-toast';
-      t.textContent = `🏆 Onze validé et archivé ! +${pts} pts bonus`;
-      document.body.appendChild(t);
-      setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, 3200);
-    }
+    const t = document.createElement('div');
+    t.className = 'onze-toast';
+    t.textContent = '🏆 Onze envoyé à l\'admin pour validation !';
+    document.body.appendChild(t);
+    setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 450); }, 3200);
     renderOnze();
   }
 
@@ -16579,9 +16745,13 @@
       : null;
     const isLegit = id => !legitColl || legitColl.has(id);
 
+    // Onze envoyé à l'admin : terrain gelé (aucune case cliquable, aucun
+    // changement de formation) le temps que l'admin tranche.
+    const pending = onzePendingOf(onze);
+
     // Sélecteur de formation
     document.getElementById('onze-formations').innerHTML = Object.keys(ONZE_FORMATIONS).map(f =>
-      `<button class="onze-f-chip${f === onze.formation ? ' active' : ''}" onclick="onzeSetFormation('${f}')">${f}</button>`
+      `<button class="onze-f-chip${f === onze.formation ? ' active' : ''}"${pending ? ' disabled' : ''} onclick="onzeSetFormation('${f}')">${f}</button>`
     ).join('');
 
     // Terrain + cases
@@ -16589,18 +16759,23 @@
     const slots = ONZE_FORMATIONS[onze.formation];
     let pitchHtml = slots.map((s, i) => {
       const q = (onze.slots[i] && isLegit(onze.slots[i])) ? byId[onze.slots[i]] : null;
-      return `<button class="onze-slot ${q ? 'filled' : 'empty'}" style="left:${s.x}%;top:${s.y}%;" onclick="openOnzeSlot(${i})" title="${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}">
+      return `<button class="onze-slot ${q ? 'filled' : 'empty'}" style="left:${s.x}%;top:${s.y}%;${pending ? 'cursor:default;' : ''}"${pending ? '' : ` onclick="openOnzeSlot(${i})"`} title="${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}">
         <div class="onze-slot-disc">${q ? initialsOf(q) : (s.label || s.acc[0])}</div>
         ${q ? `<div class="onze-slot-name">${esc(q.playerName)}</div>` : ''}
       </button>`;
     }).join('');
     // Case entraîneur (hors des 11, sur la ligne de touche)
     const coachQ = (onze.coach && isLegit(onze.coach)) ? byId[onze.coach] : null;
-    pitchHtml += `<button class="onze-slot coach ${coachQ ? 'filled' : 'empty'}" style="left:90%;top:93%;" onclick="openOnzeSlot('coach')" title="Entraîneur (coach)">
+    pitchHtml += `<button class="onze-slot coach ${coachQ ? 'filled' : 'empty'}" style="left:90%;top:93%;${pending ? 'cursor:default;' : ''}"${pending ? '' : ' onclick="openOnzeSlot(\'coach\')"'} title="Entraîneur (coach)">
       <div class="onze-slot-disc">${coachQ ? initialsOf(coachQ) : 'ENT'}</div>
       ${coachQ ? `<div class="onze-slot-name">${esc(coachQ.playerName)}</div>` : ''}
     </button>`;
     document.getElementById('onze-pitch').innerHTML = pitchHtml;
+
+    const hintEl = document.getElementById('onze-pitch-hint');
+    if (hintEl) hintEl.textContent = pending
+      ? 'Ton Onze est figé tant que l\'admin ne l\'a pas examiné.'
+      : 'Touche une case pour placer ou retirer un joueur de ta collection.';
 
     // Compteur + bannière Onze complet (11 joueurs + entraîneur). Un joueur non
     // légitime ne compte pas : sinon un Onze pourrait être validé — et le bonus
@@ -16609,13 +16784,18 @@
     const coachPlaced  = !!(onze.coach && isLegit(onze.coach));
     document.getElementById('onze-count').textContent = `${placedCount}/11${coachPlaced ? ' + ENT' : ''}`;
     const banner = document.getElementById('onze-complete-banner');
-    if (placedCount === 11 && coachPlaced) {
-      const bonus = onzeBonusPoints();
+    const bonus  = onzeBonusPoints();
+    if (pending) {
+      const fmtSent = ts => { try { return new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' }); } catch { return ''; } };
+      banner.innerHTML = '🏆 Onze envoyé à l\'admin pour validation'
+        + `<div style="margin-top:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);line-height:1.5;">L'admin doit valider ton Onze${bonus > 0 ? ` pour que tes <strong style="color:var(--or);">+${bonus} pts bonus</strong> soient ajoutés à ton total` : ''}. Tu seras prévenu par message dès qu'il aura tranché ; ton Onze est figé en attendant.${pending.submittedAt ? `<br>Envoyé le ${fmtSent(pending.submittedAt)}.` : ''}</div>`;
+      banner.style.display = 'block';
+    } else if (placedCount === 11 && coachPlaced) {
       banner.innerHTML = (bonus > 0
-        ? `🏆 Onze + coach complet ! (+${bonus} pts au moment de la validation)<br>`
+        ? `🏆 Onze + coach complet ! (+${bonus} pts après validation de l'admin)<br>`
         : '🏆 Onze + coach complet !<br>')
-        + `<div style="margin-top:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);line-height:1.5;">⚠️ Valide ton Onze pour ${bonus > 0 ? 'recevoir tes points bonus et ' : ''}démarrer une nouvelle collection : tant qu'il n'est pas archivé, tu ne peux pas composer un nouveau Onze.</div>`
-        + `<button class="btn btn-gold" style="margin-top:10px;font-size:.85rem;padding:8px 20px;" onclick="archiveCurrentOnze()">✅ Valider et archiver ce Onze</button>`;
+        + `<div style="margin-top:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);line-height:1.5;">⚠️ Envoie ton Onze à l'admin : il le valide à la main, puis ${bonus > 0 ? 'tes points bonus sont ajoutés à ton total et ' : ''}tu peux démarrer une nouvelle collection. Tant qu'il n'est pas validé, tu ne peux pas composer un nouveau Onze.</div>`
+        + `<button class="btn btn-gold" style="margin-top:10px;font-size:.85rem;padding:8px 20px;" onclick="submitOnzeForValidation()">✅ Envoyer mon Onze à l'admin</button>`;
       banner.style.display = 'block';
     } else if (placedCount === 11 && !coachPlaced) {
       banner.textContent = '🎽 Place ton entraîneur (case ENT) pour valider ton Onze !';
@@ -16674,6 +16854,7 @@
   function onzeSetFormation(f) {
     const a = _onzeAccount();
     if (!a || !ONZE_FORMATIONS[f]) return;
+    if (onzePendingOf(a.onze)) return;   // Onze en attente de validation : figé
     const byId = {};
     LS.getQ().forEach(q => { byId[q.id] = q; });
     const placed = a.onze.slots.filter(Boolean);
@@ -16697,6 +16878,7 @@
   function openOnzeSlot(i) {
     const a = _onzeAccount();
     if (!a) return;
+    if (onzePendingOf(a.onze)) return;   // Onze en attente de validation : figé
     _onzeSlotIdx = i;
     const onze = a.onze;
     const isCoach = i === 'coach';
@@ -16742,6 +16924,7 @@
   function onzePlace(qid) {
     const a = _onzeAccount();
     if (!a || _onzeSlotIdx === null) return;
+    if (onzePendingOf(a.onze)) { closeOnzeSlotModal(); return; }
     // Un joueur non deviné ne peut pas être positionné, quel que soit l'état
     // de la collection stockée.
     if (onzeEnforceable(_localUser.pseudo) && !onzeLegitCollection(_localUser.pseudo, a.onze).includes(qid)) {
@@ -16758,6 +16941,7 @@
   function onzeClearSlot() {
     const a = _onzeAccount();
     if (!a || _onzeSlotIdx === null) return;
+    if (onzePendingOf(a.onze)) { closeOnzeSlotModal(); return; }
     if (_onzeSlotIdx === 'coach') a.onze.coach = null;
     else a.onze.slots[_onzeSlotIdx] = null;
     _onzeSave();
