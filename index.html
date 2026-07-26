@@ -4598,6 +4598,14 @@
      (réconciliation après une mutation, poll admin). */
   let _scoresFreshAt = 0;
   const SCORES_TTL_MS = 45000;
+  /* PostgREST plafonne toute lecture à 1000 lignes (réglage `max_rows` de
+     Supabase). Passé ce seuil, une requête non paginée renvoie silencieusement
+     une liste tronquée : les parties manquantes étaient alors prises pour des
+     lignes supprimées côté serveur et retirées du cache — le joueur pouvait
+     rejouer indéfiniment la même session et son score n'apparaissait plus au
+     classement. On lit donc la signature page par page, triée par id pour que
+     la pagination soit stable. */
+  const SCORES_PAGE = 1000;
   async function scoresFetch(force) {
     if (!_supa) return false;
     if (!force && _db.scores.length && Date.now() - _scoresFreshAt < SCORES_TTL_MS) return true;
@@ -4609,8 +4617,16 @@
           if (Array.isArray(bk)) _db.scores = bk.filter(s => s && s.id != null);
         } catch {}
       }
-      const { data: sig, error } = await _supa.from('scores').select('id, score, joueur_answered');
-      if (error) { console.warn('[Supabase] lecture scores impossible:', error); return false; }
+      const sig = [];
+      for (let from = 0; ; from += SCORES_PAGE) {
+        const { data: page, error } = await _supa.from('scores')
+          .select('id, score, joueur_answered')
+          .order('id', { ascending: true })
+          .range(from, from + SCORES_PAGE - 1);
+        if (error) { console.warn('[Supabase] lecture scores impossible:', error); return false; }
+        sig.push(...(page || []));
+        if (!page || page.length < SCORES_PAGE) break;
+      }
       const localById = new Map(_db.scores.filter(s => s.id != null).map(s => [s.id, s]));
       const serverIds = new Set();
       const needIds = [];
@@ -8264,29 +8280,30 @@
   function _onzeDiscrepancies() {
     const byIdQ = {};
     LS.getQ().forEach(q => { byIdQ[q.id] = q; });
-    const lb    = LS.getLeaderboard();
-    const games = {};   // clé minuscule → parties (hors ajustements)
+    // Sans base de questions ni parties synchronisées, tout paraîtrait divergent.
+    if (!onzeTruthReady()) return { rows: [], byIdQ };
     const disp  = {};   // clé minuscule → pseudo affiché
-    lb.forEach(e => {
+    LS.getLeaderboard().forEach(e => {
       if (e.adjust) return;
       const k = (e.name || '').toLowerCase();
-      if (!k) return;
-      (games[k] = games[k] || []).push(e);
-      if (!disp[k]) disp[k] = e.name;
+      if (k && !disp[k]) disp[k] = e.name;
     });
     Object.values(LS.getAccounts()).forEach(a => {
       if (a && a.pseudo) { const k = a.pseudo.toLowerCase(); if (!disp[k]) disp[k] = a.pseudo; }
     });
     const rows = [];
     Object.keys(disp).forEach(k => {
-      const name = disp[k];
-      const guessed = new Set();
-      (games[k] || []).forEach(g => (Array.isArray(g.details) ? g.details : []).forEach(d => {
-        if (d && d.ok && byIdQ[d.id] && byIdQ[d.id].type === 'joueur') guessed.add(d.id);
-      }));
-      const coll = new Set(onzeForName(name).collection);
-      const toAdd    = [...guessed].filter(id => !coll.has(id) && byIdQ[id]);
-      const toRemove = [...coll].filter(id => !guessed.has(id) && byIdQ[id] && byIdQ[id].type === 'joueur');
+      const name  = disp[k];
+      const onze  = onzeForName(name);
+      // Vérité = devinés en partie ∪ accordés par l'admin, moins les retraits admin.
+      const legit = new Set(onzeLegitCollection(name, onze));
+      const coll  = new Set(onze.collection);
+      const toAdd    = [...legit].filter(id => !coll.has(id));
+      // Historique non concluant (parties héritées sans détail) : on n'annonce
+      // aucun retrait, la réconciliation ne prunerait pas non plus.
+      const toRemove = onzeCanPrune(name)
+        ? [...coll].filter(id => !legit.has(id) && byIdQ[id] && byIdQ[id].type === 'joueur')
+        : [];
       if (toAdd.length || toRemove.length) rows.push({ name, toAdd, toRemove });
     });
     rows.sort((a, b) =>
@@ -8326,9 +8343,44 @@
         ${totalAdd ? `<span class="onze-dash-badge add">+${totalAdd} à ajouter</span>` : ''}
         ${totalRem ? `<span class="onze-dash-badge rem">${totalRem} à retirer</span>` : ''}
       </div>
-      <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Divergences entre les joueurs devinés en partie et les joueurs collectionnés, pour ${rows.length} joueur${rows.length > 1 ? 's' : ''}. Touche un joueur pour ouvrir sa carte.</div>
+      <div style="font-size:.76rem;color:rgba(255,255,255,.4);margin-bottom:10px;">Divergences entre les joueurs devinés en partie et les joueurs collectionnés, pour ${rows.length} joueur${rows.length > 1 ? 's' : ''}. Touche un joueur pour ouvrir sa carte.<br>Chaque compte se corrige aussi tout seul à sa prochaine ouverture de l'app.</div>
+      <button class="btn btn-ghost btn-sm btn-full" id="onze-fix-all-btn" style="margin-bottom:12px;" onclick="adminFixAllCollections()">Corriger toutes les divergences</button>
       ${playerBlocks}
     </div>`;
+  }
+
+  /* Applique la vérité à tous les comptes divergents : la collection devient
+     « devinés en partie ∪ accordés par l'admin, moins les retraits admin ».
+     Les retraits opérés ici sont des corrections automatiques, pas des
+     décisions admin : ils ne sont donc pas mémorisés dans onze.revoked. */
+  async function adminFixAllCollections() {
+    const { rows } = _onzeDiscrepancies();
+    if (!rows.length) return;
+    const totalAdd = rows.reduce((s, r) => s + r.toAdd.length, 0);
+    const totalRem = rows.reduce((s, r) => s + r.toRemove.length, 0);
+    if (!confirm(`Corriger les collections Mon Onze de ${rows.length} joueur${rows.length > 1 ? 's' : ''} ?\n\n`
+      + `${totalAdd} joueur${totalAdd > 1 ? 's' : ''} deviné${totalAdd > 1 ? 's' : ''} à ajouter\n`
+      + `${totalRem} joueur${totalRem > 1 ? 's' : ''} jamais deviné${totalRem > 1 ? 's' : ''} à retirer (retiré${totalRem > 1 ? 's' : ''} aussi du terrain)`)) return;
+    if (!_supa) { alert('Serveur indisponible.'); return; }
+
+    const btn = document.getElementById('onze-fix-all-btn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Correction en cours…'; }
+
+    let done = 0, failed = 0;
+    for (const r of rows) {
+      const newOnze = _adminOnzeRaw(r.name);
+      const gone    = new Set(r.toRemove);
+      newOnze.collection = newOnze.collection.filter(id => !gone.has(id)).concat(r.toAdd);
+      newOnze.slots = newOnze.slots.map(id => (gone.has(id) ? null : id));
+      if (gone.has(newOnze.coach)) newOnze.coach = null;
+      if (await _adminSaveOnze(r.name, newOnze)) done++; else failed++;
+    }
+
+    await accountsFetch(true);
+    renderOnzeDashboard();
+    alert(failed
+      ? `${done} collection${done > 1 ? 's' : ''} corrigée${done > 1 ? 's' : ''}, ${failed} échec${failed > 1 ? 's' : ''}.\nVérifie la connexion admin Supabase (Réglages → compte Auth).`
+      : `${done} collection${done > 1 ? 's' : ''} corrigée${done > 1 ? 's' : ''}.`);
   }
 
   function renderOnboardingDashboard() {
@@ -9035,19 +9087,18 @@
     const collSet = new Set(onze.collection);
     // Suivi (admin) : ensemble des « Qui suis-je ? » réellement DEVINÉS par le joueur,
     // toutes parties confondues (détails de partie, statut ✓ trouvé).
-    const guessedJoueurIds = new Set();
-    games.forEach(g => (Array.isArray(g.details) ? g.details : []).forEach(d => {
-      if (d && d.ok && byIdQ[d.id] && byIdQ[d.id].type === 'joueur') guessedJoueurIds.add(d.id);
-    }));
+    const guessedSet = onzeGuessedIds(name);
+    const grantedSet = new Set(onze.granted);
     // Liste détaillée des joueurs collectionnés (nom + postes + statut placé)
-    // + marqueur admin « collectionné mais jamais deviné » et bouton de suppression.
+    // + marqueur admin « jamais deviné » / « ajouté par l'admin » et bouton de retrait.
     const collRows = onze.collection
       .map(id => byIdQ[id])
       .filter(q => q && q.type === 'joueur')
       .map(q => {
         const placed = onze.slots.includes(q.id) || onze.coach === q.id;
         const pos = (q.positions || []).length ? q.positions.join(', ') : '—';
-        const notGuessed = adminLogged && !guessedJoueurIds.has(q.id);
+        const granted    = adminLogged && grantedSet.has(q.id);
+        const notGuessed = adminLogged && !granted && !guessedSet.has(q.id);
         return `<div class="onze-coll-row">
           <span class="onze-coll-name">${esc(q.playerName)}</span>
           <span class="onze-coll-pos">${pos}</span>
@@ -9056,7 +9107,8 @@
                 ? `<button class="onze-coll-unplace" title="Retirer ce joueur du Onze (il reste dans la collection)" onclick="adminRemoveFromOnze('${q.id}')">✓ placé</button>`
                 : '<span class="onze-coll-placed">✓ placé</span>')
             : ''}
-          ${notGuessed ? '<span class="onze-coll-warn" title="Collectionné mais jamais deviné en partie par ce joueur">⚠ non deviné</span>' : ''}
+          ${granted ? '<span class="onze-coll-warn" title="Non deviné en partie : ajouté manuellement par l\'admin, conservé tel quel">ajouté par l\'admin</span>' : ''}
+          ${notGuessed ? '<span class="onze-coll-warn" title="Collectionné mais jamais deviné en partie : sera retiré automatiquement à la prochaine ouverture de l\'app par ce joueur">⚠ non deviné</span>' : ''}
           ${adminLogged ? `<button class="onze-coll-del" title="Retirer de la collection" onclick="adminRemoveFromCollection('${q.id}')">✕</button>` : ''}
         </div>`;
       }).join('');
@@ -9067,8 +9119,8 @@
       <div class="pcard-section-title" style="margin-top:0;">🃏 Joueurs collectionnés (${onze.collection.length}/${totalJoueursQ})</div>
       ${adminLogged ? '<div id="pcard-add-coll-msg" style="margin:0 0 6px;font-size:.78rem;display:none;"></div>' : ''}`;
     // Suivi admin : joueurs DEVINÉS en partie mais ABSENTS de la collection.
-    const missingFromColl = [...guessedJoueurIds]
-      .filter(id => !collSet.has(id) && byIdQ[id])
+    const missingFromColl = [...guessedSet]
+      .filter(id => !collSet.has(id) && byIdQ[id] && !onze.revoked.includes(id))
       .map(id => byIdQ[id])
       .sort((a, b) => (a.playerName || '').localeCompare(b.playerName || '', 'fr', { sensitivity: 'base' }));
     const trackingHtml = (adminLogged && missingFromColl.length) ? `
@@ -9739,11 +9791,13 @@
     const key = name.toLowerCase();
     const acc = LS.getAccounts()[key];
     const raw = (acc && acc.onze && typeof acc.onze === 'object') ? acc.onze : {};
-    const o = Object.assign({ formation: '4-4-2', slots: Array(11).fill(null), coach: null, collection: [] }, raw);
+    const o = Object.assign({ formation: '4-4-2', slots: Array(11).fill(null), coach: null, collection: [], granted: [], revoked: [] }, raw);
     if (!ONZE_FORMATIONS[o.formation]) o.formation = '4-4-2';
     if (!Array.isArray(o.slots) || o.slots.length !== 11) o.slots = Array(11).fill(null);
     if (o.coach === undefined) o.coach = null;
     if (!Array.isArray(o.collection)) o.collection = [];
+    if (!Array.isArray(o.granted)) o.granted = [];
+    if (!Array.isArray(o.revoked)) o.revoked = [];
     return o;
   }
 
@@ -9797,6 +9851,14 @@
     const newOnze = _adminOnzeRaw(name);
     if (newOnze.collection.includes(qid)) { show('Ce joueur est déjà dans la collection.', false); return; }
     newOnze.collection = newOnze.collection.concat([qid]);
+    // Un ajout manuel doit survivre à la réconciliation automatique : on lève un
+    // éventuel retrait admin et, si le joueur n'a jamais été deviné, on trace
+    // l'exception dans onze.granted (sinon l'entrée repartirait à la prochaine
+    // ouverture de l'app par le joueur).
+    newOnze.revoked = newOnze.revoked.filter(id => id !== qid);
+    if (!onzeGuessedIds(name).has(qid) && !newOnze.granted.includes(qid)) {
+      newOnze.granted = newOnze.granted.concat([qid]);
+    }
 
     if (!await _adminSaveOnze(name, newOnze)) {
       show('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).', false);
@@ -9825,6 +9887,13 @@
     newOnze.collection = newOnze.collection.filter(id => id !== qid);
     newOnze.slots      = newOnze.slots.map(id => (id === qid ? null : id));
     if (newOnze.coach === qid) newOnze.coach = null;
+    // Le retrait doit tenir : on annule un éventuel ajout manuel et, si le
+    // joueur a bel et bien été deviné en partie, on mémorise le retrait dans
+    // onze.revoked pour que la réconciliation ne le ramène pas.
+    newOnze.granted = newOnze.granted.filter(id => id !== qid);
+    if (onzeGuessedIds(name).has(qid) && !newOnze.revoked.includes(qid)) {
+      newOnze.revoked = newOnze.revoked.concat([qid]);
+    }
 
     if (!await _adminSaveOnze(name, newOnze)) {
       alert('Échec : connexion admin Supabase requise (voir Réglages → compte Auth).');
@@ -12961,10 +13030,13 @@
     const freeSlots = ONZE_FORMATIONS[onze.formation].filter((s, i) => !onze.slots[i]);
     if (!onze.coach) freeSlots.push({ acc: ['ENT'] });
     if (!freeSlots.length) return [];
+    // Ne jamais inciter à placer un joueur qui n'a pas été deviné.
+    const legit = onzeEnforceable(pseudo) ? new Set(onzeLegitCollection(pseudo, onze)) : null;
     const out = [];
     for (const id of onze.collection) {
       const q = byId[id];
       if (!q || q.type !== 'joueur') continue;
+      if (legit && !legit.has(id)) continue;
       if (placed.has(id) || locked.has(id)) continue;
       if (freeSlots.some(s => slotAccepts(s, q))) out.push(id);
     }
@@ -12980,7 +13052,7 @@
     // Priorité : Onze complet mais pas encore validé → avertir que la validation
     // est nécessaire pour toucher le bonus et démarrer une nouvelle collection.
     const onze = _localUser ? onzeForName(_localUser.pseudo) : null;
-    if (onze && onzeIsComplete(onze)) {
+    if (onze && onzeIsComplete(onze, _localUser.pseudo)) {
       const bonus = onzeBonusPoints();
       box.style.display = 'block';
       box.innerHTML =
@@ -15839,25 +15911,19 @@
       }
       const prof = res.profile;
       const key  = pseudo.toLowerCase();
-      // Fusionner la collection locale en attente avec les données serveur
-      const pending = _onzePendingGet(key);
-      if (pending && Array.isArray(pending.collection) && pending.collection.length) {
-        if (!prof.onze || typeof prof.onze !== 'object') prof.onze = {};
-        if (!Array.isArray(prof.onze.collection)) prof.onze.collection = [];
-        const merged = Array.from(new Set([...prof.onze.collection, ...pending.collection]));
-        if (merged.length > prof.onze.collection.length) prof.onze.collection = merged;
-      }
       accounts[key] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
       _backupAccounts();
       _localUser = { pseudo: prof.pseudo, onboardingPpDone: !!prof.onboarding_pp_done, onboardingPpPending: !!prof.onboarding_pp_pending, onboardingYtDone: !!prof.onboarding_yt_done, onboardingYtPending: !!prof.onboarding_yt_pending };
       LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
       nav('player-card');
-      // Synchroniser vers Supabase si la collection a été enrichie localement
-      if (pending && Array.isArray(pending.collection) && pending.collection.length) _onzeSave();
-      // Auto-réconciliation : ré-ajoute les joueurs devinés en partie mais absents
-      // de la collection (push précédent perdu — le jeton vient d'être renouvelé)
-      syncCollectionFromScores();
+      // La collection en attente locale n'est PAS refusionnée : elle ne peut rien
+      // contenir que scores.details ne contienne déjà (la ligne de score est
+      // insérée même quand le push account_set_onze échoue), et la refusionner
+      // ramenait des entrées parasites. La réconciliation ci-dessous recalcule
+      // tout à partir des parties jouées ; le pending devient inutile.
+      _onzePendingClear(key);
+      scoresFetch(true).then(reconcileOnzeCollection);
     }
   }
 
@@ -16080,23 +16146,18 @@
       }
       const prof = res.profile;
       const key  = pseudo.toLowerCase();
-      const pending = _onzePendingGet(key);
-      if (pending && Array.isArray(pending.collection) && pending.collection.length) {
-        if (!prof.onze || typeof prof.onze !== 'object') prof.onze = {};
-        if (!Array.isArray(prof.onze.collection)) prof.onze.collection = [];
-        const merged = Array.from(new Set([...prof.onze.collection, ...pending.collection]));
-        if (merged.length > prof.onze.collection.length) prof.onze.collection = merged;
-      }
       accounts[key] = { pseudo: prof.pseudo, avatar: prof.avatar || undefined, onze: prof.onze || undefined };
       _backupAccounts();
       _localUser = { pseudo: prof.pseudo };
       LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
-      if (pending && Array.isArray(pending.collection) && pending.collection.length) _onzeSave();
+      // Pas de refusion du pending local : voir authSubmit, la réconciliation
+      // ci-dessous recalcule la collection à partir des parties jouées.
+      _onzePendingClear(key);
       // Joueur qui se connecte (potentiellement après plusieurs sessions manquées) :
       // on rafraîchit l'état partagé pour proposer les parties à rattraper, puis
-      // on ré-ajoute à la collection les joueurs devinés dont le push a été perdu.
-      Promise.all([scoresFetch(true), dbPull('planning')]).then(() => { syncCollectionFromScores(); renderHomeCatchUp(); });
+      // on réaligne la collection sur les joueurs réellement devinés en partie.
+      Promise.all([scoresFetch(true), dbPull('planning')]).then(() => { reconcileOnzeCollection(); renderHomeCatchUp(); });
     }
   }
 
@@ -16207,17 +16268,20 @@
     if (a.onze.coach === undefined) a.onze.coach = null;
     if (!Array.isArray(a.onze.usedInOnze)) a.onze.usedInOnze = [];
     if (!Array.isArray(a.onze.archives)) a.onze.archives = [];
+    // Exceptions admin à la règle « seuls les devinés sont débloqués »
+    if (!Array.isArray(a.onze.granted)) a.onze.granted = [];
+    if (!Array.isArray(a.onze.revoked)) a.onze.revoked = [];
     return a;
   }
 
+  /* Vestige des versions précédentes : la collection « en attente » était
+     stockée en localStorage quand un push account_set_onze échouait, puis
+     refusionnée à la connexion. Cette fusion ramenait des joueurs jamais
+     devinés ; elle est supprimée — la réconciliation depuis les parties jouées
+     (reconcileOnzeCollection) couvre le même besoin sans ce risque. On ne fait
+     plus que nettoyer la clé restée sur les appareils des joueurs. */
   const _ONZE_PENDING_PREFIX = 'rc_onze_pending_';
 
-  function _onzePendingSave(key, onze) {
-    try { localStorage.setItem(_ONZE_PENDING_PREFIX + key, JSON.stringify(onze)); } catch {}
-  }
-  function _onzePendingGet(key) {
-    try { const v = localStorage.getItem(_ONZE_PENDING_PREFIX + key); return v ? JSON.parse(v) : null; } catch { return null; }
-  }
   function _onzePendingClear(key) {
     try { localStorage.removeItem(_ONZE_PENDING_PREFIX + key); } catch {}
   }
@@ -16226,23 +16290,17 @@
     if (!_localUser) return;
     const key = _localUser.pseudo.toLowerCase();
     _backupAccounts();
-    if (!_supa) { const a = _db.accounts[key]; _onzePendingSave(key, a ? a.onze : null); return; }
+    if (!_supa) return;
     const tok = _getAuthToken();
     if (!tok) {
-      const a = _db.accounts[key];
-      _onzePendingSave(key, a ? a.onze : null);
-      console.warn('[Onze] non sauvegardé : session expirée, reconnecte-toi. La collection sera synchronisée à la prochaine connexion.');
+      console.warn('[Onze] non sauvegardé : session expirée, reconnecte-toi. La collection sera resynchronisée à la prochaine connexion (réconciliation depuis les parties jouées).');
       return;
     }
     const a = _db.accounts[key];
     _supa.rpc('account_set_onze', { p_pseudo: _localUser.pseudo, p_token: tok, p_onze: a ? a.onze : null })
       .then(({ data, error }) => {
-        if (error || data === false) {
-          _onzePendingSave(key, a ? a.onze : null);
-          console.warn('[Onze] sauvegarde refusée par le serveur', error);
-        } else {
-          _onzePendingClear(key);
-        }
+        if (error || data === false) console.warn('[Onze] sauvegarde refusée par le serveur', error);
+        else _onzePendingClear(key);
       });
   }
 
@@ -16257,7 +16315,9 @@
       coach:       onze.coach || null,
       collection:  Array.isArray(onze.collection) ? onze.collection : [],
       usedInOnze:  Array.isArray(onze.usedInOnze) ? onze.usedInOnze : [],
-      archives:    Array.isArray(onze.archives) ? onze.archives : []
+      archives:    Array.isArray(onze.archives) ? onze.archives : [],
+      granted:     Array.isArray(onze.granted) ? onze.granted : [],
+      revoked:     Array.isArray(onze.revoked) ? onze.revoked : []
     };
   }
 
@@ -16288,8 +16348,12 @@
   /* Appelé quand un joueur connecté devine un "Qui suis-je ?" en partie réelle */
   function collectPlayer(q, toastDelay = 1200) {
     if (!q || q.type !== 'joueur') return;
+    // Garde-fou : on ne collectionne que pour le compte qui vient de jouer.
+    if (!_localUser || (session.name || '').toLowerCase() !== _localUser.pseudo.toLowerCase()) return;
     const a = _onzeAccount();
     if (!a) return;
+    // Un retrait explicite de l'admin n'est jamais réécrasé par une partie.
+    if (Array.isArray(a.onze.revoked) && a.onze.revoked.includes(q.id)) return;
     if (a.onze.collection.includes(q.id)) return;
     a.onze.collection.push(q.id);
     _onzeSave();
@@ -16302,41 +16366,136 @@
     }, toastDelay);
   }
 
-  /* Auto-réconciliation : ré-ajoute à la collection du joueur connecté tout
-     « Qui suis-je ? » deviné en partie (scores.details, ok) mais absent de sa
-     collection — cas d'un push account_set_onze perdu (jeton invalidé par une
-     connexion sur un autre appareil, réseau, session expirée). N'enlève jamais
-     rien. Appelée à la connexion et au démarrage de l'app. */
-  function syncCollectionFromScores() {
-    const a = _onzeAccount();
-    if (!a) return;
-    const byId = {};
-    LS.getQ().forEach(q => { byId[q.id] = q; });
-    if (!Object.keys(byId).length) return; // base de questions pas encore chargée
-    const key = _localUser.pseudo.toLowerCase();
-    const missing = [];
-    LS.getLeaderboard().forEach(e => {
+  /* ═══════════════════════════════════════════════════════════════════════
+     SOURCE DE VÉRITÉ DE LA COLLECTION MON ONZE
+     ───────────────────────────────────────────────────────────────────────
+     La collection n'est PAS une liste libre qui ne fait que grossir : elle se
+     recalcule à partir des parties réellement enregistrées (table scores,
+     hors ajustements). Seul un « Qui suis-je ? » DEVINÉ débloque un joueur.
+     Deux exceptions explicites, décidées par l'admin et tracées dans le
+     compte :
+       onze.granted → ajouté à la main (bouton « + Ajouter »)
+       onze.revoked → retiré à la main (bouton « ✕ »), même s'il a été deviné
+     Toute autre entrée est parasite (push concurrent, cache périmé, id de
+     question recyclé après suppression) et se fait retirer.
+  ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Ids des « Qui suis-je ? » réellement devinés par un compte, toutes parties
+     confondues. Set vide si la base de questions n'est pas encore chargée. */
+  function onzeGuessedIds(pseudo) {
+    const out = new Set();
+    const key = (pseudo || '').toLowerCase();
+    if (!key) return out;
+    const byId = _questionsById();
+    if (!Object.keys(byId).length) return out;
+    (LS.getLeaderboard() || []).forEach(e => {
       if (e.adjust || (e.name || '').toLowerCase() !== key) return;
       (Array.isArray(e.details) ? e.details : []).forEach(d => {
-        if (d && d.ok && byId[d.id] && byId[d.id].type === 'joueur'
-            && !a.onze.collection.includes(d.id) && !missing.includes(d.id)) missing.push(d.id);
+        if (d && d.ok && byId[d.id] && byId[d.id].type === 'joueur') out.add(d.id);
       });
     });
-    if (!missing.length) return;
-    a.onze.collection = a.onze.collection.concat(missing);
-    console.info('[Onze] auto-réconciliation :', missing.join(', '), 'ré-ajouté(s) à la collection');
-    _onzeSave();
+    return out;
   }
 
-  /* Onze "complet" = 11 joueurs placés + entraîneur (coach) placé. */
-  function onzeIsComplete(onze) {
-    return onze.slots.filter(Boolean).length === 11 && !!onze.coach;
+  /* La vérité est-elle exploitable ? Base de questions chargée ET parties
+     synchronisées depuis Supabase au moins une fois dans la session. Sans
+     cette garde, un cache vide viderait toutes les collections. */
+  function onzeTruthReady() {
+    return _scoresFreshAt > 0 && LS.getQ().length > 0;
+  }
+
+  /* L'historique d'un compte permet-il de conclure qu'un joueur n'a PAS été
+     deviné ? Oui s'il n'a aucune partie (rien n'a pu être deviné), ou si au
+     moins une de ses parties porte le détail par question. Non s'il n'a que
+     des parties sans détail (lignes héritées de la v1/v2, migrées avec
+     details vide) : on ne retire alors rien, on se contente d'ajouter. */
+  function onzeCanPrune(pseudo) {
+    const key   = (pseudo || '').toLowerCase();
+    const games = (LS.getLeaderboard() || []).filter(e => !e.adjust && (e.name || '').toLowerCase() === key);
+    if (!games.length) return true;
+    return games.some(g => Array.isArray(g.details) && g.details.length > 0);
+  }
+
+  /* Peut-on faire respecter la règle « seuls les devinés sont débloqués »
+     pour ce compte ? Vérité disponible + historique concluant. */
+  function onzeEnforceable(pseudo) {
+    return onzeTruthReady() && onzeCanPrune(pseudo);
+  }
+
+  /* Collection légitime d'un compte : devinés ∪ accordés par l'admin, moins
+     les retraits admin, moins les questions disparues de la base. */
+  function onzeLegitCollection(pseudo, onze) {
+    const byId    = _questionsById();
+    const granted = Array.isArray(onze.granted) ? onze.granted : [];
+    const revoked = new Set(Array.isArray(onze.revoked) ? onze.revoked : []);
+    const out = [];
+    [...onzeGuessedIds(pseudo), ...granted].forEach(id => {
+      if (revoked.has(id) || out.includes(id)) return;
+      if (!byId[id] || byId[id].type !== 'joueur') return;
+      out.push(id);
+    });
+    return out;
+  }
+
+  /* Aligne la collection du joueur connecté sur la vérité : ré-ajoute les
+     devinés manquants (push account_set_onze perdu — jeton invalidé, réseau)
+     ET retire les entrées jamais devinées. Libère au passage les cases du
+     terrain occupées par un joueur retiré. Sans effet tant que la vérité
+     n'est pas exploitable. Appelée à la connexion, au démarrage et à
+     l'ouverture de l'écran Mon Onze. */
+  let _onzeReconciling = false;
+
+  async function reconcileOnzeCollection(accountsAreFresh) {
+    const a = _onzeAccount();
+    if (!a || !onzeTruthReady()) return false;
+    const legit   = new Set(onzeLegitCollection(_localUser.pseudo, a.onze));
+    const before  = a.onze.collection.slice();
+    const prune   = onzeCanPrune(_localUser.pseudo);
+    const kept    = prune ? before.filter(id => legit.has(id)) : before.slice();
+    const added   = [...legit].filter(id => !kept.includes(id));
+    const removed = prune ? before.filter(id => !legit.has(id)) : [];
+    if (!added.length && !removed.length) return false;
+
+    // Un changement est nécessaire : avant d'écraser le Onze côté serveur, on
+    // s'assure que les exceptions admin du compte (granted / revoked) sont à
+    // jour. Sans ça, un cache accounts vieux de quelques minutes ferait annuler
+    // par le joueur un ajout ou un retrait que l'admin vient de faire.
+    // Le refetch forcé ne coûte un appel QUE quand il y a vraiment à corriger.
+    if (!accountsAreFresh) {
+      if (_onzeReconciling) return false;
+      _onzeReconciling = true;
+      try {
+        if (!await accountsFetch(true)) return false;   // hors ligne : on réessaiera
+        return await reconcileOnzeCollection(true);
+      } finally { _onzeReconciling = false; }
+    }
+
+    a.onze.collection = kept.concat(added);
+    if (removed.length) {
+      const gone = new Set(removed);
+      a.onze.slots = a.onze.slots.map(id => (gone.has(id) ? null : id));
+      if (gone.has(a.onze.coach)) a.onze.coach = null;
+      console.info('[Onze] retiré(s) de la collection (jamais deviné) :', removed.join(', '));
+    }
+    if (added.length) console.info('[Onze] ré-ajouté(s) à la collection (deviné) :', added.join(', '));
+    _onzeSave();
+    return true;
+  }
+
+  /* Onze "complet" = 11 joueurs placés + entraîneur (coach) placé. Les joueurs
+     non légitimes (pas encore retirés par la réconciliation) ne comptent pas :
+     un Onze ne peut pas être validé — ni le bonus versé — grâce à eux.
+     `pseudo` omis (vue admin en lecture seule) → pas de filtre. */
+  function onzeIsComplete(onze, pseudo) {
+    const legit = (pseudo && onzeEnforceable(pseudo)) ? new Set(onzeLegitCollection(pseudo, onze)) : null;
+    const ok = id => !!id && (!legit || legit.has(id));
+    return onze.slots.filter(ok).length === 11 && ok(onze.coach);
   }
 
   /* Bonus "Onze complet" — attribué une seule fois, montant réglé dans Réglages › Jeu › Mon Onze. */
   function onOnzeComplete() {
     const a = _onzeAccount();
-    if (!a || a.onze.bonusAwarded != null || !onzeIsComplete(a.onze)) return;
+    if (!a || a.onze.bonusAwarded != null || !onzeIsComplete(a.onze, _localUser.pseudo)) return;
     const pts = onzeBonusPoints();
     a.onze.bonusAwarded = pts;
     _onzeSave();
@@ -16352,7 +16511,7 @@
   /* Archive le Onze en cours (appelé sur clic "Valider mon Onze"). */
   function archiveCurrentOnze() {
     const a = _onzeAccount();
-    if (!a || !onzeIsComplete(a.onze)) return;
+    if (!a || !onzeIsComplete(a.onze, _localUser.pseudo)) return;
     const pts = onzeBonusPoints();
     const archive = {
       formation:    a.onze.formation,
@@ -16387,6 +16546,14 @@
   /* ── Rendu de l'écran Mon Onze ── */
   function renderOnze() {
     if (!_localUser) { nav('auth'); return; }
+    // Réalignement sur les parties jouées, en tâche de fond : le rendu ci-dessous
+    // filtre déjà l'affichage sur la collection légitime (rien de non deviné n'est
+    // visible ni plaçable), et l'écran est re-rendu si la correction a modifié
+    // quelque chose. La réconciliation est asynchrone car elle rafraîchit les
+    // exceptions admin du compte avant toute écriture.
+    reconcileOnzeCollection().then(changed => {
+      if (changed && activeView === 'view-onze') renderOnze();
+    });
     const a    = _onzeAccount();
     const onze = a.onze;
     const allQ = LS.getQ();
@@ -16402,6 +16569,16 @@
       if (onze.coach && (!byId[onze.coach] || byId[onze.coach].type !== 'joueur')) onze.coach = null;
     }
 
+    // Collection légitime (devinés en partie ∪ accordés par l'admin) : sert de
+    // filtre d'affichage pour le terrain et la liste ci-dessous, de sorte qu'une
+    // entrée parasite ne soit jamais visible — même avant que la réconciliation
+    // asynchrone ne l'ait retirée des données. `null` = vérité indisponible :
+    // on affiche alors tel quel plutôt que de masquer à tort.
+    const legitColl = onzeEnforceable(_localUser.pseudo)
+      ? new Set(onzeLegitCollection(_localUser.pseudo, onze))
+      : null;
+    const isLegit = id => !legitColl || legitColl.has(id);
+
     // Sélecteur de formation
     document.getElementById('onze-formations').innerHTML = Object.keys(ONZE_FORMATIONS).map(f =>
       `<button class="onze-f-chip${f === onze.formation ? ' active' : ''}" onclick="onzeSetFormation('${f}')">${f}</button>`
@@ -16411,25 +16588,28 @@
     const initialsOf = q => q.playerName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
     const slots = ONZE_FORMATIONS[onze.formation];
     let pitchHtml = slots.map((s, i) => {
-      const q = onze.slots[i] ? byId[onze.slots[i]] : null;
+      const q = (onze.slots[i] && isLegit(onze.slots[i])) ? byId[onze.slots[i]] : null;
       return `<button class="onze-slot ${q ? 'filled' : 'empty'}" style="left:${s.x}%;top:${s.y}%;" onclick="openOnzeSlot(${i})" title="${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}">
         <div class="onze-slot-disc">${q ? initialsOf(q) : (s.label || s.acc[0])}</div>
         ${q ? `<div class="onze-slot-name">${esc(q.playerName)}</div>` : ''}
       </button>`;
     }).join('');
     // Case entraîneur (hors des 11, sur la ligne de touche)
-    const coachQ = onze.coach ? byId[onze.coach] : null;
+    const coachQ = (onze.coach && isLegit(onze.coach)) ? byId[onze.coach] : null;
     pitchHtml += `<button class="onze-slot coach ${coachQ ? 'filled' : 'empty'}" style="left:90%;top:93%;" onclick="openOnzeSlot('coach')" title="Entraîneur (coach)">
       <div class="onze-slot-disc">${coachQ ? initialsOf(coachQ) : 'ENT'}</div>
       ${coachQ ? `<div class="onze-slot-name">${esc(coachQ.playerName)}</div>` : ''}
     </button>`;
     document.getElementById('onze-pitch').innerHTML = pitchHtml;
 
-    // Compteur + bannière Onze complet (11 joueurs + entraîneur)
-    const placedCount = onze.slots.filter(Boolean).length;
-    document.getElementById('onze-count').textContent = `${placedCount}/11${onze.coach ? ' + ENT' : ''}`;
+    // Compteur + bannière Onze complet (11 joueurs + entraîneur). Un joueur non
+    // légitime ne compte pas : sinon un Onze pourrait être validé — et le bonus
+    // versé — grâce à une entrée parasite pas encore retirée.
+    const placedCount  = onze.slots.filter(id => id && isLegit(id)).length;
+    const coachPlaced  = !!(onze.coach && isLegit(onze.coach));
+    document.getElementById('onze-count').textContent = `${placedCount}/11${coachPlaced ? ' + ENT' : ''}`;
     const banner = document.getElementById('onze-complete-banner');
-    if (onzeIsComplete(onze)) {
+    if (placedCount === 11 && coachPlaced) {
       const bonus = onzeBonusPoints();
       banner.innerHTML = (bonus > 0
         ? `🏆 Onze + coach complet ! (+${bonus} pts au moment de la validation)<br>`
@@ -16437,21 +16617,22 @@
         + `<div style="margin-top:8px;font-size:.78rem;font-weight:600;color:rgba(255,255,255,.75);line-height:1.5;">⚠️ Valide ton Onze pour ${bonus > 0 ? 'recevoir tes points bonus et ' : ''}démarrer une nouvelle collection : tant qu'il n'est pas archivé, tu ne peux pas composer un nouveau Onze.</div>`
         + `<button class="btn btn-gold" style="margin-top:10px;font-size:.85rem;padding:8px 20px;" onclick="archiveCurrentOnze()">✅ Valider et archiver ce Onze</button>`;
       banner.style.display = 'block';
-    } else if (placedCount === 11 && !onze.coach) {
+    } else if (placedCount === 11 && !coachPlaced) {
       banner.textContent = '🎽 Place ton entraîneur (case ENT) pour valider ton Onze !';
       banner.style.display = 'block';
     } else {
       banner.style.display = 'none';
     }
 
-    // Collection
+    // Collection — filtrée elle aussi sur les joueurs légitimes (voir isLegit).
     const totalJoueurs = allQ.filter(q => q.type === 'joueur').length;
-    document.getElementById('onze-coll-count').textContent = `${onze.collection.length} / ${totalJoueurs} joueur${totalJoueurs > 1 ? 's' : ''}`;
+    const shownColl = onze.collection.filter(isLegit);
+    document.getElementById('onze-coll-count').textContent = `${shownColl.length} / ${totalJoueurs} joueur${totalJoueurs > 1 ? 's' : ''}`;
     const collEl = document.getElementById('onze-collection');
-    if (!onze.collection.length) {
+    if (!shownColl.length) {
       collEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:14px 0;">Aucun joueur collectionné pour l\'instant.<br>Devine des joueurs en partie pour les ajouter ici !</p>';
     } else {
-      collEl.innerHTML = onze.collection.map(id => {
+      collEl.innerHTML = shownColl.map(id => {
         const q = byId[id];
         const placed = onze.slots.includes(id) || onze.coach === id;
         const locked = Array.isArray(onze.usedInOnze) && onze.usedInOnze.includes(id);
@@ -16529,8 +16710,12 @@
     const current = isCoach ? onze.coach : onze.slots[i];
     const usedInCurrent = id => onze.slots.includes(id) || onze.coach === id;
     const locked = new Set(Array.isArray(onze.usedInOnze) ? onze.usedInOnze : []);
+    // Dernier filet de sécurité : seuls les joueurs légitimes (devinés en partie,
+    // ou accordés par l'admin) peuvent être proposés à une case du terrain, même
+    // si la collection stockée contient encore une entrée parasite.
+    const legit = onzeEnforceable(_localUser.pseudo) ? new Set(onzeLegitCollection(_localUser.pseudo, onze)) : null;
     const candidates = onze.collection
-      .filter(id => id !== current && !usedInCurrent(id) && !locked.has(id))
+      .filter(id => id !== current && !usedInCurrent(id) && !locked.has(id) && (!legit || legit.has(id)))
       .map(id => byId[id])
       .filter(q => q && slotAccepts(s, q));
 
@@ -16557,6 +16742,12 @@
   function onzePlace(qid) {
     const a = _onzeAccount();
     if (!a || _onzeSlotIdx === null) return;
+    // Un joueur non deviné ne peut pas être positionné, quel que soit l'état
+    // de la collection stockée.
+    if (onzeEnforceable(_localUser.pseudo) && !onzeLegitCollection(_localUser.pseudo, a.onze).includes(qid)) {
+      closeOnzeSlotModal();
+      return;
+    }
     if (_onzeSlotIdx === 'coach') a.onze.coach = qid;
     else a.onze.slots[_onzeSlotIdx] = qid;
     _onzeSave();
@@ -17634,27 +17825,14 @@
       }
       updateHomeAuthArea();
     }
-    // Re-synchroniser la collection Mon Onze si un push précédent a échoué (token expiré, réseau).
-    // accountsFetch() vient de charger les données Supabase : on fusionne le pending avant de repousser.
+    // Collection Mon Onze : plus aucune refusion du pending local (il ramenait
+    // des entrées parasites). accountsFetch() et scoresFetch() viennent de
+    // charger les données Supabase — la collection est recalculée à partir des
+    // parties réellement jouées, ce qui couvre aussi les pushs account_set_onze
+    // perdus (jeton invalidé, réseau) que le pending servait à rattraper.
     if (_localUser && _supa) {
-      const _pendKey = _localUser.pseudo.toLowerCase();
-      const _pend = _onzePendingGet(_pendKey);
-      if (_pend && Array.isArray(_pend.collection) && _pend.collection.length) {
-        const _acc = _db.accounts[_pendKey];
-        if (_acc) {
-          if (!_acc.onze || typeof _acc.onze !== 'object') _acc.onze = {};
-          if (!Array.isArray(_acc.onze.collection)) _acc.onze.collection = [];
-          const _merged = Array.from(new Set([..._acc.onze.collection, ..._pend.collection]));
-          if (_merged.length > _acc.onze.collection.length) {
-            _acc.onze.collection = _merged;
-            _backupAccounts();
-          }
-        }
-        _onzeSave();
-      }
-      // Auto-réconciliation : ré-ajoute les joueurs devinés en partie mais absents
-      // de la collection (push précédent perdu — jeton invalidé, réseau…)
-      syncCollectionFromScores();
+      _onzePendingClear(_localUser.pseudo.toLowerCase());
+      reconcileOnzeCollection();
     }
     // Restaure la session Supabase Auth de l'admin (persistée par supabase-js)
     if (_supa) {
