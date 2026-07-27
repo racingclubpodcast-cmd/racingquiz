@@ -2857,7 +2857,7 @@
             <div id="settings-panel-game-referral" class="settings-panel">
               <div class="card">
                 <h3>🤝 Parrainage</h3>
-                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Points attribués <strong>lorsqu'un filleul joue sa première vraie partie</strong> (pas à la simple inscription, pour éviter les faux comptes). Le crédit n'est versé qu'une seule fois par filleul. Mettez une valeur à <strong>0</strong> pour désactiver la récompense correspondante.</p>
+                <p style="font-size:.82rem;color:rgba(255,255,255,.45);margin-bottom:14px;">Points attribués <strong>lorsqu'un filleul joue sa première vraie partie</strong> (pas à la simple inscription, pour éviter les faux comptes). Le parrain n'est crédité que <strong>pour son premier filleul</strong> : les suivants ne lui rapportent rien. Chaque filleul, lui, touche son bonus de bienvenue. Mettez une valeur à <strong>0</strong> pour désactiver la récompense correspondante.</p>
                 <div class="form-group">
                   <label class="field-label">Points pour le parrain</label>
                   <input type="number" id="referral-parrain-input" min="0" max="1000" step="1" placeholder="Ex : 5"
@@ -2868,11 +2868,19 @@
                   <input type="number" id="referral-filleul-input" min="0" max="1000" step="1" placeholder="Ex : 0"
                          oninput="setReferralPts('filleul', this.value)" style="max-width:160px;">
                 </div>
+                <p style="font-size:.78rem;color:rgba(255,255,255,.45);margin:-4px 0 14px;line-height:1.45;">
+                  ↩️ <strong>Barème rétroactif</strong> : à la sauvegarde, les parrainages <strong>déjà versés</strong>
+                  sont recalculés au nouveau montant (confirmation demandée, avec le nombre de lignes concernées).
+                  Refuser la confirmation garde les anciens crédits tels quels — le barème ne vaut alors que pour
+                  les prochains parrainages.
+                </p>
                 <button class="btn btn-gold btn-full" id="btn-save-referral" onclick="saveReferralPts()">💾 Sauvegarder les réglages</button>
                 <div id="referral-save-status" style="margin-top:10px;"></div>
                 <p style="font-size:.74rem;color:rgba(255,255,255,.32);margin:12px 0 0;line-height:1.45;">
-                  ⚙️ Le barème est appliqué côté serveur (trigger Supabase). Nécessite la migration
-                  <code>supabase-referral-migration.sql</code> exécutée dans Supabase.
+                  ⚙️ Le barème est appliqué côté serveur (trigger Supabase). Nécessite les migrations
+                  <code>supabase-referral-migration.sql</code> puis
+                  <code>supabase-referral-single-migration.sql</code> (limite à un seul filleul récompensé)
+                  exécutées dans Supabase.
                 </p>
               </div>
             </div>
@@ -3779,7 +3787,7 @@
           <div class="ob-task">
             <div class="ob-label">
               <div class="ob-title">Parrainer un ami</div>
-              <div class="ob-pts">Gagne des points par filleul</div>
+              <div class="ob-pts">Gagne des points avec ton premier filleul</div>
             </div>
             <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pc-referral-card').scrollIntoView({behavior:'smooth'})" style="flex-shrink:0;">Voir →</button>
           </div>
@@ -3820,7 +3828,7 @@
         <div class="card" id="pc-referral-card" style="display:none;margin-bottom:12px;">
           <div class="pcard-section-title" style="margin-top:0;margin-bottom:6px;">🤝 Parraine un ami</div>
           <p style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;margin:0 0 12px;" id="pc-referral-text">
-            Partage ton code. Dès qu'un ami crée son compte avec et joue sa première partie, tu gagnes <strong style="color:var(--or);" id="pc-referral-pts">2 points</strong>.
+            Partage ton code. Dès que ton <strong style="color:var(--or);">premier filleul</strong> crée son compte avec et joue sa première partie, tu gagnes <strong style="color:var(--or);">2 points</strong> — une seule fois.
           </p>
           <div style="display:flex;gap:8px;align-items:stretch;">
             <div id="pc-referral-code" style="flex:1;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:800;letter-spacing:4px;color:var(--or);background:rgba(255,205,0,.08);border:1px dashed rgba(255,205,0,.35);border-radius:10px;padding:10px;">——————</div>
@@ -4391,8 +4399,8 @@
   <div id="already-played-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:950;align-items:center;justify-content:center;padding:16px;">
     <div style="background:rgba(26,26,26,.98);border:1px solid rgba(255,205,0,.28);border-radius:18px;padding:26px 24px;width:min(94vw,400px);text-align:center;box-shadow:0 24px 64px rgba(0,0,0,.65);">
       <div style="font-size:2.6rem;line-height:1;margin-bottom:12px;">⏳</div>
-      <div style="font-weight:800;font-size:1.05rem;color:var(--or);margin-bottom:10px;">Partie du jour déjà jouée&nbsp;!</div>
-      <p style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5;margin:0 0 6px;">
+      <div id="already-played-title" style="font-weight:800;font-size:1.05rem;color:var(--or);margin-bottom:10px;">Partie du jour déjà jouée&nbsp;!</div>
+      <p id="already-played-intro" style="font-size:.9rem;color:rgba(255,255,255,.8);line-height:1.5;margin:0 0 6px;">
         Tu as déjà joué ta partie. Rendez-vous à la prochaine session&nbsp;:
       </p>
       <div id="already-played-next" style="font-size:1rem;font-weight:700;color:#fff;background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:10px;padding:10px 14px;margin:10px 0 18px;"></div>
@@ -4663,7 +4671,24 @@
       details: e.details || [], beta: !!e.beta,
       adjust: !!e.adjust, note: e.note || null
     });
-    if (error) { console.error('[Supabase] insertion score:', error); return false; }
+    if (error) {
+      // Rejeu refusé par la base (index unique scores_one_game_per_session :
+      // une seule partie par joueur et par journée planifiée). Le contrôle
+      // applicatif s'appuie sur le cache local ; si celui-ci était incomplet,
+      // c'est ce garde-fou serveur qui tranche. On retire alors la ligne
+      // poussée localement pour que le cache reste le reflet du serveur.
+      if (String(error.code) === '23505' ||
+          /duplicate key|scores_one_game_per_session/i.test(error.message || '')) {
+        const i = _db.scores.lastIndexOf(e);
+        if (i >= 0) _db.scores.splice(i, 1);
+        _backupScores();
+        console.warn('[Supabase] partie déjà enregistrée pour cette journée — rejeu refusé.');
+        showDuplicateGamePopup(e.plannedDate);
+        return false;
+      }
+      console.error('[Supabase] insertion score:', error);
+      return false;
+    }
     return true;
   }
 
@@ -5717,6 +5742,58 @@
     if (st) st.innerHTML = '';
   }
 
+  /* Application RÉTROACTIVE du barème de parrainage aux crédits déjà versés.
+     Les lignes créées par le trigger sont reconnaissables à leur note :
+       · parrain → « Parrainage : <filleul> »
+       · filleul → « Bonus de bienvenue (parrainage) »
+     Seules les lignes dont le montant diffère du nouveau barème sont touchées.
+     L'UPDATE sur `scores` est réservé à l'admin par la RLS (Supabase Auth).
+     Retourne { parrain, filleul } (nombre de lignes mises à jour), ou null si
+     l'admin a refusé la confirmation ou si Supabase est indisponible. */
+  const REF_NOTE_PARRAIN = 'Parrainage : ';
+  const REF_NOTE_FILLEUL = 'Bonus de bienvenue (parrainage)';
+
+  async function applyReferralPtsRetro() {
+    if (!_supa) return null;
+    const pp = referralParrainPoints();
+    const fp = referralFilleulPoints();
+
+    // Comptage sans ramener les lignes (head:true → pas d'egress, pas de
+    // troncature à 1000 lignes).
+    const [cP, cF] = await Promise.all([
+      _supa.from('scores').select('id', { count: 'exact', head: true })
+           .eq('adjust', true).like('note', REF_NOTE_PARRAIN + '%').neq('score', pp),
+      _supa.from('scores').select('id', { count: 'exact', head: true })
+           .eq('adjust', true).eq('note', REF_NOTE_FILLEUL).neq('score', fp)
+    ]);
+    if (cP.error || cF.error) {
+      console.error('[Supabase] rétroactif parrainage (comptage):', cP.error || cF.error);
+      return null;
+    }
+    const nP = cP.count || 0, nF = cF.count || 0;
+    if (!nP && !nF) return { parrain: 0, filleul: 0 };
+
+    const lignes = [];
+    if (nP) lignes.push(`· ${nP} crédit${nP > 1 ? 's' : ''} de parrain → ${pp} pt${pp > 1 ? 's' : ''} chacun`);
+    if (nF) lignes.push(`· ${nF} bonus de bienvenue → ${fp} pt${fp > 1 ? 's' : ''} chacun`);
+    if (!confirm(`Appliquer le nouveau barème aux parrainages DÉJÀ versés ?\n\n${lignes.join('\n')}\n\n`
+      + `Le classement général sera modifié.\n`
+      + `Annuler = le nouveau barème ne vaudra que pour les prochains parrainages.`)) return null;
+
+    if (nP) {
+      const { error } = await _supa.from('scores').update({ score: pp })
+        .eq('adjust', true).like('note', REF_NOTE_PARRAIN + '%').neq('score', pp);
+      if (error) { console.error('[Supabase] rétroactif parrain:', error); return null; }
+    }
+    if (nF) {
+      const { error } = await _supa.from('scores').update({ score: fp })
+        .eq('adjust', true).eq('note', REF_NOTE_FILLEUL).neq('score', fp);
+      if (error) { console.error('[Supabase] rétroactif filleul:', error); return null; }
+    }
+    await scoresFetch(true);
+    return { parrain: nP, filleul: nF };
+  }
+
   async function saveReferralPts() {
     const btn    = document.getElementById('btn-save-referral');
     const status = document.getElementById('referral-save-status');
@@ -5728,12 +5805,32 @@
 
     const ok = await dbPush('features');
 
+    // Le nouveau barème s'applique aussi aux parrainages déjà versés
+    // (confirmation demandée, avec le nombre exact de lignes concernées).
+    let retro = null;
+    if (ok) {
+      btn.textContent = '⏳ Application rétroactive…';
+      retro = await applyReferralPtsRetro();
+    }
+
     btn.disabled    = false;
     btn.textContent = '💾 Sauvegarder les réglages';
 
+    let retroHtml = '';
+    if (retro && (retro.parrain || retro.filleul)) {
+      const parts = [];
+      if (retro.parrain) parts.push(`${retro.parrain} crédit${retro.parrain > 1 ? 's' : ''} de parrain`);
+      if (retro.filleul) parts.push(`${retro.filleul} bonus de bienvenue`);
+      retroHtml = `<br>↩️ Rétroactif appliqué : ${parts.join(' · ')} recalculé${(retro.parrain + retro.filleul) > 1 ? 's' : ''}.`;
+    } else if (retro) {
+      retroHtml = `<br>↩️ Rien à recalculer : les parrainages déjà versés étaient déjà à ce barème.`;
+    } else {
+      retroHtml = `<br>↩️ Parrainages déjà versés <strong>inchangés</strong> — le barème ne vaut que pour les prochains.`;
+    }
+
     status.innerHTML = ok
       ? `<div style="padding:10px 13px;border-radius:8px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.18);font-size:.8rem;">
-          ✅ <strong>Barème enregistré dans Supabase</strong> — parrain ${referralParrainPoints()} pts · filleul ${referralFilleulPoints()} pts
+          ✅ <strong>Barème enregistré dans Supabase</strong> — parrain ${referralParrainPoints()} pts · filleul ${referralFilleulPoints()} pts${retroHtml}
         </div>`
       : `<div style="padding:10px 13px;border-radius:8px;background:rgba(192,57,43,.1);border:1px solid rgba(192,57,43,.4);font-size:.8rem;">
           ⚠️ <strong>Erreur Supabase</strong> — réglage actif en mémoire uniquement.
@@ -7143,16 +7240,65 @@
     return d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   }
 
-  function showAlreadyPlayedPopup() {
+  // `playedDs` (optionnel) : date de début de la journée déjà jouée. Fourni depuis
+  // le rattrapage, le pop-up nomme alors la journée concernée au lieu de parler de
+  // « la partie du jour » et masque le rappel de la prochaine session.
+  function showAlreadyPlayedPopup(playedDs) {
+    const todayStart = (getActivePlanForDate(planningTodayStr()) || {})._startDate || planningTodayStr();
+    const isPast     = !!playedDs && playedDs !== todayStart;
+    const titleEl = document.getElementById('already-played-title');
+    const introEl = document.getElementById('already-played-intro');
+    if (titleEl) titleEl.innerHTML = isPast ? 'Partie déjà jouée&nbsp;!' : 'Partie du jour déjà jouée&nbsp;!';
+    if (introEl) introEl.innerHTML = isPast
+      ? `Tu as déjà joué la partie du ${fmtSessionLong(playedDs)}. Une seule participation par journée.`
+      : 'Tu as déjà joué ta partie. Rendez-vous à la prochaine session&nbsp;:';
     const nextEl = document.getElementById('already-played-next');
     if (nextEl) {
       const nextDs = getNextSessionStartDs();
       nextEl.textContent = nextDs
         ? '📅 ' + fmtSessionLong(nextDs)
         : 'Prochaine session bientôt annoncée';
+      nextEl.style.display = isPast ? 'none' : '';
     }
     const ov = document.getElementById('already-played-overlay');
     if (ov) ov.style.display = 'flex';
+  }
+
+  /* Anti-rejeu — état partagé illisible : sans la liste à jour des parties déjà
+     enregistrées, impossible de savoir si le joueur a déjà joué la journée. On
+     refuse de lancer plutôt que d'autoriser un rejeu (incident du 26/07/2026). */
+  function showSyncBlockedPopup() {
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-inner" style="max-width:360px;text-align:center;">
+      <h2 style="color:var(--or);margin-bottom:10px;">Connexion impossible</h2>
+      <p style="color:rgba(255,255,255,.75);font-size:.9rem;line-height:1.5;margin-bottom:18px;">
+        Impossible de vérifier tes parties déjà jouées pour le moment. Vérifie ta connexion
+        et réessaie dans un instant.
+      </p>
+      <button class="btn btn-gold btn-full mb0" onclick="this.closest('.modal-overlay').remove()">Fermer</button>
+    </div>`;
+    document.body.appendChild(ov);
+  }
+
+  /* Partie refusée par la base : une ligne existait déjà pour ce joueur et cette
+     journée (index unique scores_one_game_per_session). Cas résiduel — le contrôle
+     applicatif s'est appuyé sur un cache incomplet. Le score n'est pas enregistré. */
+  function showDuplicateGamePopup(plannedDs) {
+    const when = plannedDs ? ` du ${fmtSessionLong(plannedDs)}` : '';
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-inner" style="max-width:360px;text-align:center;">
+      <h2 style="color:var(--or);margin-bottom:10px;">Partie déjà enregistrée</h2>
+      <p style="color:rgba(255,255,255,.75);font-size:.9rem;line-height:1.5;margin-bottom:18px;">
+        Ta partie${when} était déjà enregistrée : une seule participation compte par journée.
+        Ce résultat n'a donc pas été ajouté à ton total.
+      </p>
+      <button class="btn btn-gold btn-full mb0" onclick="this.closest('.modal-overlay').remove();nav('home')">Retour à l'accueil</button>
+    </div>`;
+    document.body.appendChild(ov);
   }
 
   function closeAlreadyPlayedPopup() {
@@ -9224,7 +9370,9 @@
     const myReferralCode = isMyCard ? ((LS.getAccounts()[lcName] || {}).referralCode || null) : null;
     const shareBlock = myReferralCode ? `
       <div style="margin-top:6px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:10px;">
-        <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;margin-bottom:8px;">Partage ton code parrain. Dès qu'un ami crée son compte avec et joue sa première partie, vous gagnez des points tous les deux.</div>
+        <div style="font-size:.76rem;color:rgba(255,255,255,.5);line-height:1.45;margin-bottom:8px;">${filleuls.length
+          ? `Ta récompense de parrain a déjà été versée pour ton premier filleul (une seule fois). Partage quand même ton code : chaque nouvel ami touchera son bonus de bienvenue.`
+          : `Partage ton code parrain. Dès que ton premier filleul crée son compte avec et joue sa première partie, vous gagnez des points tous les deux. La récompense de parrain n'est versée qu'une seule fois.`}</div>
         <div style="display:flex;gap:8px;align-items:stretch;">
           <div style="flex:1;display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;letter-spacing:3px;color:var(--or);background:rgba(255,205,0,.08);border:1px dashed rgba(255,205,0,.35);border-radius:10px;padding:8px;">${esc(myReferralCode)}</div>
           <button class="btn btn-gold" style="flex-shrink:0;padding:0 16px;margin:0;" onclick="pcShareReferral('pcard-referral-msg')">Partager</button>
@@ -9251,7 +9399,7 @@
       <div style="display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
         <div style="flex:1;min-width:110px;background:rgba(255,205,0,.06);border:1px solid rgba(255,205,0,.2);border-radius:10px;padding:8px 10px;text-align:center;">
           <div style="color:var(--or);font-weight:800;font-size:1.1rem;">${filleuls.length}</div>
-          <div style="color:rgba(255,255,255,.5);font-size:.72rem;">Filleul${filleuls.length > 1 ? 's' : ''}</div>
+          <div style="color:rgba(255,255,255,.5);font-size:.72rem;">Filleul${filleuls.length > 1 ? 's' : ''} crédité${filleuls.length > 1 ? 's' : ''}</div>
         </div>
         <div style="flex:1;min-width:110px;background:rgba(255,205,0,.06);border:1px solid rgba(255,205,0,.2);border-radius:10px;padding:8px 10px;text-align:center;">
           <div style="color:var(--or);font-weight:800;font-size:1.1rem;">+${referralTotal}</div>
@@ -12987,11 +13135,15 @@
   ═══════════════════════════════════════════════════ */
   // Vrai si `pseudo` a déjà joué la session planifiée identifiée par sa date de début.
   // v3 : dérivé des parties enregistrées (table scores, champ plannedDate).
+  // Le rapprochement de pseudo suit exactement l'index unique côté base
+  // (scores_one_game_per_session : lower(btrim(name)), planned_date, hors adjust/beta),
+  // pour que le contrôle applicatif et le garde-fou serveur ne divergent jamais.
   function hasPlayedSession(pseudo, startDate) {
     if (!pseudo || !startDate) return false;
-    const p = pseudo.toLowerCase();
+    const p = pseudo.trim().toLowerCase();
     return (_db.scores || []).some(s =>
-      !s.beta && s.plannedDate === startDate && (s.name || '').toLowerCase() === p);
+      !s.beta && !s.adjust && s.plannedDate === startDate &&
+      (s.name || '').trim().toLowerCase() === p);
   }
 
   // Vrai si le joueur a joué une partie (hors bêta) dont la DATE DE JEU tombe dans la
@@ -13001,10 +13153,10 @@
   // rattachées à une AUTRE session (plannedDate différent) pour éviter les faux positifs.
   function hasPlayedInWindow(pseudo, startDs, endDs) {
     if (!pseudo || !startDs) return false;
-    const p   = pseudo.toLowerCase();
+    const p   = pseudo.trim().toLowerCase();
     const end = endDs || startDs;
     return (_db.scores || []).some(s => {
-      if (s.beta || s.adjust || (s.name || '').toLowerCase() !== p) return false;
+      if (s.beta || s.adjust || (s.name || '').trim().toLowerCase() !== p) return false;
       if (s.plannedDate && s.plannedDate !== startDs) return false;
       const d = (s.date || '').slice(0, 10);
       return d && d >= startDs && d <= end;
@@ -13343,8 +13495,14 @@
 
     document.getElementById('already-played-alert').style.display = 'none';
 
-    // Rafraîchir l'état partagé avant la vérification "déjà joué" (autres appareils)
-    await Promise.all([scoresFetch(true), dbPull('planning')]);
+    // Rafraîchir l'état partagé avant la vérification "déjà joué" (autres appareils).
+    // Cette lecture EST l'anti-rejeu : si elle échoue, le cache local peut ignorer des
+    // parties déjà enregistrées. On refuse alors de lancer plutôt que d'ouvrir un rejeu
+    // (incident du 26/07/2026). La base refuse de toute façon le doublon en dernier
+    // recours (index unique scores_one_game_per_session), mais la partie serait jouée
+    // pour rien.
+    const [scoresOk] = await Promise.all([scoresFetch(true), dbPull('planning')]);
+    if (_supa && !scoresOk && !feat('betaTest')) { showSyncBlockedPopup(); return; }
 
     const allJoueur = getActiveQ().filter(q => q.type === 'joueur');
     if (allJoueur.length < 2) { document.getElementById('no-q-alert').style.display = 'block'; return; }
@@ -13379,7 +13537,10 @@
     // En production, un joueur ne peut participer qu'une seule fois à une session donnée
     const alreadyPlayed = catchUpStart ? hasPlayedSession(name, planStartDate) : hasPlayedToday(name);
     if (alreadyPlayed) {
+      // L'encart de l'écran « prénom » n'est plus atteignable (compte obligatoire,
+      // départ depuis l'accueil) : on informe via le pop-up, sinon rien ne se passe.
       document.getElementById('already-played-alert').style.display = 'block';
+      showAlreadyPlayedPopup(planStartDate);
       return;
     }
 
@@ -17418,16 +17579,24 @@
     }
 
     // Carte parrainage : code partageable du joueur (récupéré via accounts_public)
+    // La récompense de parrain n'est versée que pour le PREMIER filleul : dès qu'une
+    // ligne « Parrainage : … » existe au nom du joueur, le bonus est déjà encaissé.
     const refCard = document.getElementById('pc-referral-card');
     const refCodeEl = document.getElementById('pc-referral-code');
     const refCode = account && account.referralCode;
     if (refCard && refCodeEl) {
       if (refCode) {
         refCodeEl.textContent = refCode;
-        const ptsEl = document.getElementById('pc-referral-pts');
-        if (ptsEl) {
-          const pp = referralParrainPoints();
-          ptsEl.textContent = `${pp} point${pp > 1 ? 's' : ''}`;
+        const txtEl = document.getElementById('pc-referral-text');
+        if (txtEl) {
+          const pp     = referralParrainPoints();
+          const lcMe   = name.toLowerCase();
+          const refUsed = LS.getLeaderboard().some(e => e.adjust
+            && (e.name || '').toLowerCase() === lcMe
+            && typeof e.note === 'string' && e.note.startsWith('Parrainage : '));
+          txtEl.innerHTML = refUsed
+            ? `Bonus de parrainage déjà encaissé : il n'est versé que pour ton <strong style="color:var(--or);">premier filleul</strong>. Continue à partager ton code — chaque nouvel ami touchera son bonus de bienvenue.`
+            : `Partage ton code. Dès que ton <strong style="color:var(--or);">premier filleul</strong> crée son compte avec et joue sa première partie, tu gagnes <strong style="color:var(--or);">${pp} point${pp > 1 ? 's' : ''}</strong> — une seule fois.`;
         }
         refCard.style.display = '';
       } else {
