@@ -2134,7 +2134,10 @@
     .onze-slot.coach.empty .onze-slot-disc { border-style:solid;border-color:rgba(255,205,0,.7);color:var(--or);font-size:.62rem; }
     .onze-slot.coach.filled .onze-slot-disc { background:#1f2a44;border-color:var(--or); }
     .onze-slot-name { font-size:.6rem;font-weight:700;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9);background:rgba(0,0,0,.5);padding:1px 6px;border-radius:6px;max-width:82px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
-    .onze-complete-banner { background:rgba(255,205,0,.1);border:1px solid var(--or);border-radius:10px;padding:12px 14px;text-align:center;font-weight:800;color:var(--or);margin-bottom:14px;font-size:.9rem; }
+    .onze-private { position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;text-align:center;padding:0 22px;background:rgba(0,0,0,.72);backdrop-filter:blur(3px); }
+    .onze-private-t { font-size:.92rem;font-weight:800;color:var(--or);text-transform:uppercase;letter-spacing:.5px; }
+    .onze-private-s { font-size:.78rem;font-weight:600;color:rgba(255,255,255,.7);line-height:1.5;max-width:280px; }
+    .onze-complete-banner {background:rgba(255,205,0,.1);border:1px solid var(--or);border-radius:10px;padding:12px 14px;text-align:center;font-weight:800;color:var(--or);margin-bottom:14px;font-size:.9rem; }
     .onze-coll-row { display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06); }
     .onze-coll-row:last-child { border-bottom:none; }
     .onze-coll-name { flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
@@ -5225,6 +5228,78 @@
     finally { if (btn) btn.disabled = false; }
   }
 
+  /* ═══ Confidentialité de « Mon Onze » ═══
+     Le terrain et la collection d'un joueur révèlent les « Qui suis-je ? »
+     qu'il a devinés : les exposer revient à donner les réponses. Un Onze
+     n'est donc visible QUE par son propriétaire (et par l'admin).
+     Côté serveur, accounts_public ne renvoie le champ `onze` complet qu'au
+     compte appelant (pseudo + jeton) ou à l'admin authentifié ; pour tous les
+     autres comptes seul un résumé chiffré, sans le moindre nom de joueur
+     (`onze_pub`), est transmis. */
+  function canSeeOnze(name) {
+    if (adminLogged) return true;
+    const k = (name || '').toLowerCase().trim();
+    return !!(k && _localUser && _localUser.pseudo.toLowerCase() === k);
+  }
+
+  /* Même règle pour le détail des réponses d'une partie (carte joueur) :
+     intitulés des questions, « Qui suis-je ? » trouvés et réponses saisies
+     donneraient les questions de la journée à qui n'a pas encore joué. */
+  function canSeeAnswers(name) { return canSeeOnze(name); }
+
+  /* Résumé public d'un Onze : uniquement des compteurs, jamais un id de joueur.
+     Sert au classement (bonus) et aux stats comparatives (1 vs 1, carte joueur). */
+  function onzeSummaryOf(onze) {
+    const o        = (onze && typeof onze === 'object') ? onze : {};
+    const slots    = Array.isArray(o.slots) ? o.slots : [];
+    const archives = Array.isArray(o.archives) ? o.archives : [];
+    const placed   = slots.filter(Boolean).length;
+    const fromArchives = archives.reduce((s, ar) => s + (Number(ar && ar.bonusAwarded) || 0), 0);
+    // Rétrocompat : bonus top-level (ancienne structure avant archives)
+    const legacy = (archives.length === 0 && o.bonusAwarded != null) ? (Number(o.bonusAwarded) || 0) : 0;
+    return {
+      bonus:      fromArchives + legacy,
+      placed,
+      coach:      !!o.coach,
+      complete:   placed === 11 && !!o.coach,
+      archives:   archives.length,
+      collection: Array.isArray(o.collection) ? o.collection.length : 0,
+      pending:    !!(o.pending && typeof o.pending === 'object')
+    };
+  }
+
+  /* Résumé normalisé pour un pseudo quelconque : calculé depuis le Onze complet
+     quand on y a droit (le sien / vue admin), sinon depuis le résumé serveur. */
+  function onzeSummaryForName(name) {
+    const acc = LS.getAccounts()[(name || '').toLowerCase().trim()] || {};
+    if (acc.onze) return onzeSummaryOf(acc.onze);
+    const p = acc.onzePub || {};
+    return {
+      bonus:      Number(p.bonus)      || 0,
+      placed:     Number(p.placed)     || 0,
+      coach:      !!p.coach,
+      complete:   !!p.complete,
+      archives:   Number(p.archives)   || 0,
+      collection: Number(p.collection) || 0,
+      pending:    !!p.pending
+    };
+  }
+
+  /* Retire du cache local les Onze devenus invisibles (déconnexion admin ou
+     joueur, cache hérité d'une version antérieure à la confidentialité). */
+  function _purgeForeignOnze() {
+    let changed = false;
+    Object.keys(_db.accounts || {}).forEach(k => {
+      const a = _db.accounts[k];
+      if (a && a.onze && !canSeeOnze(a.pseudo || k)) {
+        a.onzePub = a.onzePub || onzeSummaryOf(a.onze);
+        delete a.onze;
+        changed = true;
+      }
+    });
+    if (changed) _backupAccounts();
+  }
+
   /* ═══ Table accounts (v3) : comptes joueurs ═══ */
   /* Lecture « légère » d'accounts_public : toutes les colonnes SAUF avatar
      (~38 Ko au lieu de ~28 Mo — les avatars représentaient 99 % de l'egress
@@ -5232,15 +5307,28 @@
      et conservés dans le cache local. Deux listes de colonnes : avec
      onboarding_pp_pending (RPC finale) et sans (RPC actuellement déployée) ;
      on mémorise celle que le serveur accepte. */
+  const _ACC_COLS_PRIV = 'key,pseudo,onze,onze_pub,referral_code,onboarding_pp_pending,onboarding_yt_pending';
   const _ACC_COLS_FULL = 'key,pseudo,onze,referral_code,onboarding_pp_pending,onboarding_yt_pending';
   const _ACC_COLS_MIN  = 'key,pseudo,onze,referral_code,onboarding_yt_pending';
-  let _accCols = null;
+  /* Appel mémorisé : { cols, args } — args = true quand le serveur accepte
+     pseudo + jeton (migration confidentialité), auquel cas il renvoie le Onze
+     complet du seul compte appelant. */
+  let _accCall = null;
   async function _accountsRpcLight() {
-    for (const cols of (_accCols ? [_accCols] : [_ACC_COLS_FULL, _ACC_COLS_MIN])) {
-      const { data, error } = await _supa.rpc('accounts_public').select(cols);
-      if (!error) { _accCols = cols; return data || []; }
+    const tok  = _getAuthToken();
+    const me   = (_localUser && tok) ? { p_pseudo: _localUser.pseudo, p_token: tok } : null;
+    const tries = _accCall ? [_accCall] : [
+      { cols: _ACC_COLS_PRIV, args: true  },
+      { cols: _ACC_COLS_FULL, args: false },
+      { cols: _ACC_COLS_MIN,  args: false }
+    ];
+    for (const t of tries) {
+      const q = (t.args && me) ? _supa.rpc('accounts_public', me) : _supa.rpc('accounts_public');
+      const { data, error } = await q.select(t.cols);
+      if (!error) { _accCall = t; return data || []; }
     }
     // Repli (colonnes inattendues côté serveur) : RPC complète, avatars compris
+    _accCall = null;
     const { data, error } = await _supa.rpc('accounts_public');
     if (error) throw error;
     return data || [];
@@ -5253,7 +5341,12 @@
     if (Object.keys(_db.accounts).length) return;
     try {
       const bk = JSON.parse(localStorage.getItem('rc_bk_accounts') || '{}');
-      if (bk && typeof bk === 'object' && !Array.isArray(bk)) _db.accounts = bk;
+      if (bk && typeof bk === 'object' && !Array.isArray(bk)) {
+        _db.accounts = bk;
+        // Les backups d'avant la confidentialité contiennent les Onze de tout le
+        // monde : on ne garde que ceux qu'on a le droit de voir.
+        _purgeForeignOnze();
+      }
     } catch {}
   }
 
@@ -5266,8 +5359,30 @@
       _accountsSeedFromBackup();
       // v4 : lecture via RPC publique — ne renvoie JAMAIS le hash ni le jeton.
       const data = await _accountsRpcLight();
+      const prev = (_db.accounts && typeof _db.accounts === 'object') ? _db.accounts : {};
       const map = {};
-      data.forEach(r => { map[r.key] = { pseudo: r.pseudo, avatar: r.avatar || (_db.accounts[r.key] && _db.accounts[r.key].avatar) || undefined, onze: r.onze || undefined, referralCode: r.referral_code || undefined, onboardingPpPending: !!r.onboarding_pp_pending, onboardingYtPending: !!r.onboarding_yt_pending }; });
+      data.forEach(r => {
+        const p    = prev[r.key] || {};
+        const mine = canSeeOnze(r.pseudo || r.key);
+        // Le Onze complet n'est JAMAIS conservé pour un autre compte que le sien
+        // (ou tous, en vue admin). Sur un serveur d'avant la migration, la RPC
+        // renvoie encore le Onze de tout le monde : on le jette ici même.
+        const rOnze = (r.onze && typeof r.onze === 'object') ? r.onze : null;
+        const full  = mine ? (rOnze || p.onze || null) : null;
+        const pub   = (r.onze_pub && typeof r.onze_pub === 'object') ? r.onze_pub
+                    : rOnze ? onzeSummaryOf(rOnze)
+                    : full  ? onzeSummaryOf(full)
+                    : p.onzePub || undefined;
+        map[r.key] = {
+          pseudo: r.pseudo,
+          avatar: r.avatar || p.avatar || undefined,
+          onze: full || undefined,
+          onzePub: pub,
+          referralCode: r.referral_code || undefined,
+          onboardingPpPending: !!r.onboarding_pp_pending,
+          onboardingYtPending: !!r.onboarding_yt_pending
+        };
+      });
       _db.accounts = map;
       _accountsFreshAt = Date.now();
       _backupAccounts();
@@ -5675,10 +5790,14 @@
     return Number.isFinite(v) && v >= 0 ? v : 0;
   }
 
-  /* Bonus "Onze complet" cumulé pour un joueur (somme de toutes ses archives). */
+  /* Bonus "Onze complet" cumulé pour un joueur (somme de toutes ses archives).
+     Pour les autres joueurs, le Onze complet n'est plus transmis au client
+     (confidentialité) : le total vient du résumé serveur, qui applique
+     exactement la même formule. */
   function onzeBonusForName(name) {
     const acc = LS.getAccounts()[(name || '').toLowerCase().trim()];
-    if (!acc || !acc.onze) return 0;
+    if (!acc) return 0;
+    if (!acc.onze) return Number(acc.onzePub && acc.onzePub.bonus) || 0;
     const archives = Array.isArray(acc.onze.archives) ? acc.onze.archives : [];
     const fromArchives = archives.reduce((s, ar) => s + (Number(ar.bonusAwarded) || 0), 0);
     // Rétrocompat : bonus top-level (ancienne structure avant archives)
@@ -5960,6 +6079,9 @@
     if (authOk) {
       adminLogged = true;
       sessionStorage.setItem('rcAdminLogged', '1');
+      // Les Onze des joueurs ne sont envoyés qu'à l'admin authentifié : la
+      // lecture faite avant la connexion n'en contenait aucun, on la refait.
+      accountsFetch(true);
       errEl.style.display = 'none';
       document.getElementById('admin-pwd').value = '';
       nav('admin');
@@ -5977,6 +6099,7 @@
     adminSupaAuthed = false;
     if (_supa) { try { _supa.auth.signOut(); } catch {} }
     sessionStorage.removeItem('rcAdminLogged');
+    _purgeForeignOnze();   // les Onze des joueurs ne doivent pas rester en cache
     nav('home');
   }
 
@@ -8484,11 +8607,27 @@
     </div>`;
   }
 
+  /* Avertissement admin : des joueurs ont bien une collection côté serveur mais
+     aucun Onze complet n'est arrivé → lecture réservée à l'admin authentifié. */
+  function _onzeAdminWarnHtml() {
+    const accs = Object.values(LS.getAccounts() || {});
+    const someData = accs.some(a => a && a.onzePub && (a.onzePub.collection || a.onzePub.placed || a.onzePub.archives));
+    if (!someData || accs.some(a => a && a.onze)) return '';
+    return `<div class="card" style="margin-bottom:12px;border-color:rgba(227,6,19,.45);">
+      <div style="font-size:.82rem;color:rgba(255,255,255,.75);line-height:1.55;">
+        Les Onze des joueurs ne sont pas chargés : le serveur ne les transmet qu'à l'admin connecté au <strong>compte Supabase Auth</strong> (chaque Onze contient les « Qui suis-je ? » devinés). Reconnecte-toi avec le mot de passe du compte Auth pour les consulter et les valider.
+      </div>
+    </div>`;
+  }
+
   function renderOnzeDashboard() {
     const el = document.getElementById('onze-dashboard');
     if (!el) return;
     if (!adminLogged) { el.innerHTML = ''; return; }
-    const pendingCard = _onzePendingCardHtml();
+    // Les Onze complets ne sont transmis qu'à l'admin connecté au compte
+    // Supabase Auth. En mode repli (mot de passe local), le serveur ne renvoie
+    // que les résumés : mieux vaut le dire que d'afficher des Onze vides.
+    const pendingCard = _onzeAdminWarnHtml() + _onzePendingCardHtml();
     const { rows, byIdQ } = _onzeDiscrepancies();
     const titleHtml = '<span style="font-size:.88rem;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:.5px;">🃏 Suivi des collections</span>';
     if (!rows.length) {
@@ -9178,12 +9317,17 @@
     };
     const fmtShort = d => d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
 
+    // Confidentialité : le détail d'une partie (questions posées, « Qui suis-je ? »
+    // trouvés, réponses saisies) livrerait les questions de la journée à un joueur
+    // qui n'a pas encore joué. Score et date restent publics (ils sont déjà au
+    // classement) ; le dépliage est réservé au joueur lui-même et à l'admin.
+    const answersVisible = canSeeAnswers(name);
     const historyRows = games.length ? games.map(g => `
-      <div class="pcard-game-row" style="cursor:default;" onmouseenter="toggleGameDetail('${g.id}',true)" onmouseleave="toggleGameDetail('${g.id}',false)">
+      <div class="pcard-game-row" style="cursor:default;"${answersVisible ? ` onmouseenter="toggleGameDetail('${g.id}',true)" onmouseleave="toggleGameDetail('${g.id}',false)"` : ''}>
         <span class="pcard-game-score">${g.score}</span>
         <span class="pcard-game-date">${fmtFull(g.date)}</span>
       </div>
-      <div id="gdet-${g.id}" style="display:none;padding:2px 0 10px 6px;border-bottom:1px solid rgba(255,255,255,.06);">${gameDetailHtml(g)}</div>`).join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucune partie jouée.</p>';
+      ${answersVisible ? `<div id="gdet-${g.id}" style="display:none;padding:2px 0 10px 6px;border-bottom:1px solid rgba(255,255,255,.06);">${gameDetailHtml(g)}</div>` : ''}`).join('') : '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:12px 0;">Aucune partie jouée.</p>';
 
     // Historique des ajustements manuels (admin)
     const adjustRows = adjustments.map(g => {
@@ -9250,7 +9394,11 @@
         <button class="btn btn-danger btn-sm" id="pcard-del-btn" onclick="pcardDeletePlayer()" style="margin:0;">Supprimer ce joueur</button>
       </div>`;
 
-    // Mon Onze du joueur (lecture seule)
+    // Mon Onze du joueur (lecture seule).
+    // Confidentialité : le terrain et la collection donnent les réponses des
+    // « Qui suis-je ? » — seuls le propriétaire du Onze et l'admin les voient.
+    const onzeVisible = canSeeOnze(name);
+    const onzeSum     = onzeSummaryForName(name);
     const onze        = onzeForName(name);
     const placedCount = onze.slots.filter(Boolean).length;
     const onzeComplete = placedCount === 11 && !!onze.coach;
@@ -9260,7 +9408,7 @@
     const collSet = new Set(onze.collection);
     // Suivi (admin) : ensemble des « Qui suis-je ? » réellement DEVINÉS par le joueur,
     // toutes parties confondues (détails de partie, statut ✓ trouvé).
-    const guessedSet = onzeGuessedIds(name);
+    const guessedSet = onzeVisible ? onzeGuessedIds(name) : new Set();
     const grantedSet = new Set(onze.granted);
     // Liste détaillée des joueurs collectionnés (nom + postes + statut placé)
     // + marqueur admin « jamais deviné » / « ajouté par l'admin » et bouton de retrait.
@@ -9329,7 +9477,18 @@
         <div class="onze-pitch">${onzePitchReadonlyHtml(arOnze)}</div>
       </div>`;
     }).join('') : '';
-    const onzeSection = `
+    // Version « privée » : uniquement des compteurs, aucun nom de joueur.
+    const onzeSectionPrivate = `
+      <div class="pcard-section-title">🎽 Mon Onze</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+        <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">${onzeSum.placed}/11${onzeSum.coach ? ' + ENT' : ''}</span>
+        <span style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:3px 10px;color:rgba(255,255,255,.7);font-weight:700;font-size:.74rem;">🃏 ${onzeSum.collection}/${totalJoueursQ}</span>
+        ${onzeSum.archives ? `<span style="background:rgba(255,205,0,.1);border:1px solid rgba(255,205,0,.25);border-radius:20px;padding:3px 10px;color:var(--or);font-weight:700;font-size:.74rem;">${onzeSum.archives} archivé${onzeSum.archives > 1 ? 's' : ''}</span>` : ''}
+      </div>
+      <p style="color:rgba(255,255,255,.55);font-size:.82rem;line-height:1.5;margin:0 0 6px;">
+        Le Onze de ${esc(name)} reste privé : il dévoilerait les « Qui suis-je ? » qu'il a devinés. Seul ${esc(name)} voit son terrain et sa collection.
+      </p>`;
+    const onzeSection = !onzeVisible ? onzeSectionPrivate : `
       <div class="pcard-section-title">🎽 Mon Onze${onze.pending
         ? ' <span style="color:var(--or);">· à valider</span>'
         : (onzeComplete ? ' <span style="color:var(--or);">· complet ✓</span>' : '')}</div>
@@ -9505,12 +9664,16 @@
     const totalScore = all.reduce((s, g) => s + (Number(g.score) || 0), 0) + onzeBonus;
     const bestScore  = games.length ? Math.max(...games.map(g => Number(g.score) || 0)) : 0;
     const avgScore   = games.length ? (games.reduce((s, g) => s + (Number(g.score) || 0), 0) / games.length) : 0;
-    const onze = onzeForName(name);
-    const placed = onze.slots.filter(Boolean).length;
-    const currentComplete = placed === 11 && !!onze.coach;
-    const archives = onze.archives.length;
+    // Les compteurs viennent du résumé : ils ne révèlent aucun nom de joueur.
+    // Le terrain lui-même n'est disponible que pour son propriétaire (ou l'admin).
+    const sum      = onzeSummaryForName(name);
+    const visible  = canSeeOnze(name);
+    const onze     = visible ? onzeForName(name) : null;
+    const placed   = sum.placed;
+    const currentComplete = sum.complete;
+    const archives = sum.archives;
     return {
-      name, onze, placed, currentComplete, archives,
+      name, onze, visible, placed, coach: sum.coach, currentComplete, archives,
       totalScore, bestScore, onzeBonus, avgScore,
       completed: archives + (currentComplete ? 1 : 0)
     };
@@ -9560,6 +9723,18 @@
     if (inp && filter) { inp.focus(); inp.setSelectionRange(filter.length, filter.length); }
   }
 
+  // Terrain d'un des deux camps : visible seulement pour son propriétaire
+  // (et pour l'admin). Sinon, un voile sur le terrain avec le nombre de
+  // joueurs placés — les compteurs ne trahissent aucune réponse.
+  function vsPitchHtml(p) {
+    if (p.visible && p.onze) return onzePitchReadonlyHtml(p.onze);
+    return `<div class="onze-private">
+      <div class="onze-private-t">Onze privé</div>
+      <div class="onze-private-s">Seul ${esc(p.name)} voit son terrain — il dévoilerait les « Qui suis-je ? » devinés.</div>
+      <div class="onze-private-s" style="color:rgba(255,255,255,.5);">${p.placed}/11 placé${p.placed > 1 ? 's' : ''}${p.coach ? ' + ENT' : ''}</div>
+    </div>`;
+  }
+
   // Étape 2 : afficher la confrontation des deux joueurs.
   function showVersus(name) {
     _vsRight = name;
@@ -9603,8 +9778,8 @@
       </div>
       ${rowsHtml}
       <div class="vs-pitches" id="vs-pitches" onscroll="vsPitchesScrolled(this)">
-        <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(a.name)}</div><div class="onze-pitch">${onzePitchReadonlyHtml(a.onze)}</div></div>
-        <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(b.name)}</div><div class="onze-pitch">${onzePitchReadonlyHtml(b.onze)}</div></div>
+        <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(a.name)}</div><div class="onze-pitch">${vsPitchHtml(a)}</div></div>
+        <div class="vs-pitch-col"><div class="vs-pitch-cap">Onze de ${esc(b.name)}</div><div class="onze-pitch">${vsPitchHtml(b)}</div></div>
       </div>
       <div class="vs-pitch-dots">
         <button class="vs-pitch-dot on" onclick="vsPitchGo(0)" aria-label="Onze de ${esc(a.name)}"></button>
@@ -11558,13 +11733,16 @@
     }
   }
 
-  // Vérification immédiate au retour sur l'onglet (tous les timers actifs)
+  // Vérification immédiate au retour sur l'onglet (tous les timers actifs) ; au
+  // départ, on fige l'état de la partie pour pouvoir la reprendre telle quelle
+  // (c'est le moment où le joueur bascule d'application ou verrouille l'écran).
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden) return;
+    if (document.hidden) { saveQuizProgress(); return; }
     if (quizDeadline  > 0) updateTimerDisplay();
     if (testDeadline  > 0) updateTestTimerDisplay();
     if (bonusDeadline > 0) updateBonusTimerDisplay();
   });
+  window.addEventListener('pagehide', saveQuizProgress);
 
   /* ═══════════════════════════════════════════════════
      ADMIN PANEL RENDER
@@ -13495,6 +13673,12 @@
 
     document.getElementById('already-played-alert').style.display = 'none';
 
+    // Partie interrompue (application fermée en cours de jeu) : on la reprend au
+    // lieu d'en lancer une nouvelle. Sans ça, abandonner en cours de route
+    // suffirait à rejouer la journée en connaissant déjà les questions.
+    const resumeSt = loadQuizProgress();
+    if (resumeSt) { showResumeQuizPopup(resumeSt); return; }
+
     // Rafraîchir l'état partagé avant la vérification "déjà joué" (autres appareils).
     // Cette lecture EST l'anti-rejeu : si elle échoue, le cache local peut ignorer des
     // parties déjà enregistrées. On refuse alors de lancer plutôt que d'ouvrir un rejeu
@@ -13593,6 +13777,218 @@
   function launchQuiz() {
     document.getElementById('quiz-launch-overlay').style.display = 'none';
     startQuizTimer();
+    saveQuizProgress();
+  }
+
+  /* ═══════════════════════════════════════════════════
+     PARTIE EN COURS — reprise après interruption
+     ═══════════════════════════════════════════════════
+     Le score n'est écrit dans `scores` qu'à l'écran de résultats : une partie
+     quittée en route ne laissait aucune trace. Un joueur pouvait donc voir les
+     deux « Qui suis-je ? », fermer l'application, chercher les réponses, puis
+     relancer la journée à zéro — l'anti-rejeu ne voyait rien passer puisque
+     aucune ligne n'avait été écrite.
+     On sauvegarde donc l'état de la partie dans localStorage. Au retour, elle
+     reprend exactement où elle s'est arrêtée : mêmes questions, même indice
+     atteint, mêmes tentatives consommées, et le chrono repart de l'échéance
+     d'origine — une question dont le temps s'est écoulé pendant l'absence est
+     perdue, comme si le joueur était resté devant son écran.
+     C'est un garde-fou de confort et d'équité, local à l'appareil ; la règle
+     « une partie par journée », elle, est tenue par la base (voir scoreInsert). */
+  const QUIZ_RESUME_KEY        = 'rcQuizResume';
+  const QUIZ_RESUME_MAX_AGE_MS = 7 * 24 * 3600 * 1000;   // au-delà, on repart proprement
+
+  function saveQuizProgress() {
+    if (feat('betaTest')) return;                        // mode test : pas de reprise imposée
+    if (!session || !Array.isArray(session.questions) || !session.questions.length) return;
+    if (session.retroBonus) return;                      // mini-partie « bonus débloqué »
+    // Partie terminée : ne jamais la ré-enregistrer. Sans ces deux gardes, un
+    // simple rechargement après l'écran de résultats (pagehide → sauvegarde)
+    // recréait un point de reprise sur une partie déjà comptée, que la reprise
+    // suivante renvoyait aux résultats — et donc à un second enregistrement.
+    if (session.finished) return;
+    if (session.idx >= session.questions.length) return;
+    try {
+      localStorage.setItem(QUIZ_RESUME_KEY, JSON.stringify({
+        v: 1,
+        pseudo: session.name,
+        savedAt: Date.now(),
+        plannedDate: session.plannedDate || null,
+        catchUp: !!session.catchUp,
+        maxScore: session.maxScore,
+        score: session.score,
+        idx: session.idx,
+        // Les questions sont référencées par id : la base de questions reste la
+        // source de vérité, la sauvegarde ne fige que le déroulé de la partie.
+        qIds: session.questions.map(q => ({ id: q.id, bj: !!q._isBonusJoueur })),
+        bonusJoueurId: session.bonusJoueur ? session.bonusJoueur.id : null,
+        answers: session.answers.map(a => {
+          const { q, ...rest } = a;
+          return { ...rest, qId: q ? q.id : null, bj: !!(q && q._isBonusJoueur) };
+        }),
+        deadline: quizDeadline || 0,
+        timerDuration: quizTimerDuration,
+        jIdx: quizJoueurIndiceIdx, jTries: quizJoueurTryCount, jWrongs: quizJoueurWrongs,
+        ml: { found: (mlState.found || []).slice(), wrongCount: mlState.wrongCount || 0,
+              wrongs: (mlState.wrongs || []).slice() },
+        multiSel: (quizMultiSelected || []).slice()
+      }));
+    } catch {}
+  }
+
+  function clearQuizProgress() {
+    try { localStorage.removeItem(QUIZ_RESUME_KEY); } catch {}
+  }
+
+  // Sauvegarde valide pour l'utilisateur connecté, ou null. Une sauvegarde d'un
+  // autre compte ou trop ancienne est ignorée (et purgée).
+  function loadQuizProgress() {
+    let st = null;
+    try { st = JSON.parse(localStorage.getItem(QUIZ_RESUME_KEY) || 'null'); } catch { return null; }
+    if (!st || st.v !== 1 || !Array.isArray(st.qIds) || !st.qIds.length) return null;
+    if (Date.now() - (st.savedAt || 0) > QUIZ_RESUME_MAX_AGE_MS) { clearQuizProgress(); return null; }
+    if (feat('betaTest')) return null;
+    if (!_localUser || (st.pseudo || '').trim().toLowerCase() !== (_localUser.pseudo || '').trim().toLowerCase()) return null;
+    return st;
+  }
+
+  // Reconstruit la partie interrompue et rend la main au joueur. Renvoie false si
+  // une question de la partie a disparu de la base entre-temps : la sauvegarde est
+  // alors abandonnée et la journée redevient jouable normalement.
+  function restoreQuizProgress(st) {
+    const byId = {};
+    LS.getQ().forEach(q => { byId[q.id] = q; });
+    const asQ = ref => {
+      const q = byId[ref.id !== undefined ? ref.id : ref.qId];
+      if (!q) return null;
+      return ref.bj ? Object.assign({}, q, { _isBonusJoueur: true }) : q;
+    };
+
+    const questions = [];
+    for (const ref of st.qIds) { const q = asQ(ref); if (!q) return false; questions.push(q); }
+    const answers = [];
+    for (const a of (st.answers || [])) {
+      const q = asQ(a);
+      if (!q) return false;
+      const { qId, bj, ...rest } = a;
+      answers.push({ ...rest, q });
+    }
+
+    session = {
+      name: st.pseudo, questions,
+      bonusJoueur: st.bonusJoueurId ? (byId[st.bonusJoueurId] || null) : null,
+      idx: Math.min(Math.max(0, st.idx || 0), questions.length - 1),
+      answers, score: Number(st.score) || 0, maxScore: Number(st.maxScore) || 0,
+      plannedDate: st.plannedDate || null, catchUp: !!st.catchUp
+    };
+    nav('quiz');
+
+    // Le joueur avait déjà répondu et lisait le verdict (ou l'écran mi-quiz) :
+    // nextQ() rejoue la logique de suite — question suivante, bonus joueur
+    // éventuel, ou résultats si tout était répondu.
+    if (answers.length > session.idx) {
+      session.idx = answers.length - 1;
+      nextQ();
+      return true;
+    }
+
+    renderQ(true);                       // rendu neuf de la question en cours…
+    restoreQuestionState(st);            // …puis on y réinjecte l'état sauvegardé
+    const left = st.deadline ? st.deadline - Date.now() : 0;
+    if (!st.deadline) {
+      startQuizTimer();                  // question pas encore lancée : chrono neuf
+    } else if (left <= 0) {
+      onTimerExpired();                  // temps écoulé pendant l'absence : question perdue
+    } else {
+      resumeQuizTimer(st.timerDuration, left);
+    }
+    saveQuizProgress();
+    return true;
+  }
+
+  // Réapplique l'état interne de la question en cours (indice atteint, tentatives
+  // consommées, grille Liste, options cochées) après le rendu neuf de renderQ.
+  function restoreQuestionState(st) {
+    const q = session.questions[session.idx];
+    if (!q) return;
+    if (q.type === 'joueur') {
+      const last = Math.max(0, (q.indices || []).length - 1);
+      quizJoueurIndiceIdx = Math.min(Math.max(0, Number(st.jIdx) || 0), last);
+      quizJoueurTryCount  = Math.max(0, Number(st.jTries) || 0);
+      quizJoueurWrongs    = Array.isArray(st.jWrongs) ? st.jWrongs.slice() : [];
+      renderJoueurQuizIndices('qz', q, quizJoueurIndiceIdx);
+      updateJoueurRevealBtn('qz', q, quizJoueurIndiceIdx);
+    } else if (q.type === 'multi-libre') {
+      const ml = st.ml || {};
+      mlState.found      = Array.isArray(ml.found)  ? ml.found.slice()  : [];
+      mlState.wrongCount = Math.max(0, Number(ml.wrongCount) || 0);
+      mlState.wrongs     = Array.isArray(ml.wrongs) ? ml.wrongs.slice() : [];
+      renderMlBoard('qz', q);
+    } else if (q.type === 'qcm' || q.type === 'qcm-multi') {
+      quizMultiSelected = Array.isArray(st.multiSel) ? st.multiSel.slice() : [];
+      quizMultiSelected.forEach(i =>
+        document.getElementById('opt-' + i)?.classList.add('multi-selected'));
+    }
+    updateSidebar();
+  }
+
+  // Variante de startQuizTimer pour un chrono déjà entamé : la durée d'origine
+  // sert à la géométrie de l'anneau, le temps restant vient de l'échéance
+  // sauvegardée — le joueur ne récupère pas les secondes écoulées.
+  function resumeQuizTimer(duration, msLeft) {
+    if (!feat('timer')) return;
+    const dur = duration || 15;
+    if (msLeft <= 0) return;
+    quizTimerDuration = dur;
+    quizDeadline      = Date.now() + Math.min(msLeft, dur * 1000);
+    const wrap = document.getElementById('qz-timer-wrap');
+    if (!wrap) return;
+    wrap.style.display = 'flex';
+    updateTimerDisplay();
+    quizTimerInterval = setInterval(updateTimerDisplay, 200);
+  }
+
+  /* Pop-up de reprise : le joueur doit comprendre pourquoi il ne repart pas de
+     zéro. Un seul bouton — la reprise n'est pas optionnelle, sinon abandonner
+     redeviendrait un moyen de rejouer la journée. */
+  function showResumeQuizPopup(st) {
+    const when = st.plannedDate ? ` du ${fmtSessionLong(st.plannedDate)}` : '';
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-inner" style="max-width:360px;text-align:center;">
+      <h2 style="color:var(--or);margin-bottom:10px;">Partie en cours</h2>
+      <p style="color:rgba(255,255,255,.75);font-size:.9rem;line-height:1.5;margin-bottom:18px;">
+        Ta partie${when} n'est pas terminée. On la reprend là où tu t'es arrêté —
+        le chrono a continué de tourner pendant ton absence.
+      </p>
+      <button class="btn btn-gold btn-full mb0" id="resume-quiz-go">Reprendre ma partie</button>
+    </div>`;
+    document.body.appendChild(ov);
+    ov.querySelector('#resume-quiz-go').onclick = () => {
+      ov.remove();
+      if (!restoreQuizProgress(st)) {
+        // Questions introuvables : on repart proprement plutôt que de bloquer le joueur.
+        clearQuizProgress();
+        nav('home');
+        showQuizResumeLostPopup();
+      }
+    };
+  }
+
+  function showQuizResumeLostPopup() {
+    const ov = document.createElement('div');
+    ov.className = 'modal-overlay';
+    ov.style.display = 'flex';
+    ov.innerHTML = `<div class="modal-inner" style="max-width:360px;text-align:center;">
+      <h2 style="color:var(--or);margin-bottom:10px;">Partie introuvable</h2>
+      <p style="color:rgba(255,255,255,.75);font-size:.9rem;line-height:1.5;margin-bottom:18px;">
+        Les questions de ta partie interrompue ne sont plus disponibles. Tu peux
+        relancer la journée normalement.
+      </p>
+      <button class="btn btn-gold btn-full mb0" onclick="this.closest('.modal-overlay').remove()">Fermer</button>
+    </div>`;
+    document.body.appendChild(ov);
   }
 
   // Première partie d'un joueur : aucun score (hors ajustements admin) à son nom.
@@ -13830,6 +14226,7 @@
     }
     if (!skipTimer) startQuizTimer();
     updateSidebar();
+    saveQuizProgress();   // point de reprise : début de chaque question
   }
 
   /* ═══════════════════════════════════════════════════
@@ -15785,6 +16182,10 @@
       beta: isBeta
     });
 
+    // La partie est enregistrée : plus rien à reprendre.
+    session.finished = true;
+    clearQuizProgress();
+
     // Valider la collection Mon Onze une fois la partie terminée
     answers.forEach((a, i) => { if (a.ok && a.q && a.q.type === 'joueur') collectPlayer(a.q, i * 800); });
 
@@ -16258,6 +16659,7 @@
     _inbox = [];
     LS.setLoggedPseudo(null);
     _setAuthToken(null);
+    _purgeForeignOnze();   // plus personne de connecté : aucun Onze ne reste en cache
     updateHomeAuthArea();
     nav('home');
   }

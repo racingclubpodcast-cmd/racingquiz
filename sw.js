@@ -1,4 +1,4 @@
-const CACHE = 'rc-quiz-v43';
+const CACHE = 'rc-quiz-v45';
 const PRECACHE = [
   './',
   './index.html',
