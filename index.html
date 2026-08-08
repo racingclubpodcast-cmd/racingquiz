@@ -9410,6 +9410,9 @@
     // toutes parties confondues (détails de partie, statut ✓ trouvé).
     const guessedSet = onzeVisible ? onzeGuessedIds(name) : new Set();
     const grantedSet = new Set(onze.granted);
+    // Joueurs consommés par un Onze déjà validé : plus disponibles pour le
+    // prochain Onze du joueur (dérivé des archives, cf. onzeLockedIds).
+    const lockedSet = onzeLockedIds(onze);
     // Liste détaillée des joueurs collectionnés (nom + postes + statut placé)
     // + marqueur admin « jamais deviné » / « ajouté par l'admin » et bouton de retrait.
     const collRows = onze.collection
@@ -9428,6 +9431,7 @@
                 ? `<button class="onze-coll-unplace" title="Retirer ce joueur du Onze (il reste dans la collection)" onclick="adminRemoveFromOnze('${q.id}')">✓ placé</button>`
                 : '<span class="onze-coll-placed">✓ placé</span>')
             : ''}
+          ${!placed && lockedSet.has(q.id) ? '<span class="onze-coll-placed" style="background:rgba(255,255,255,.1);color:rgba(255,255,255,.4);" title="Déjà utilisé dans un Onze validé : plus disponible pour un nouveau Onze">archivé</span>' : ''}
           ${granted ? '<span class="onze-coll-warn" title="Non deviné en partie : ajouté manuellement par l\'admin, conservé tel quel">ajouté par l\'admin</span>' : ''}
           ${notGuessed ? '<span class="onze-coll-warn" title="Collectionné mais jamais deviné en partie : sera retiré automatiquement à la prochaine ouverture de l\'app par ce joueur">⚠ non deviné</span>' : ''}
           ${adminLogged ? `<button class="onze-coll-del" title="Retirer de la collection" onclick="adminRemoveFromCollection('${q.id}')">✕</button>` : ''}
@@ -10271,13 +10275,22 @@
       ? newOnze.pending : null;
     if (!pending) return;
     const pts = onzeBonusPoints();
+    // Réemploi : un joueur du Onze envoyé figure déjà dans un Onze archivé. Ne
+    // devrait plus arriver (le terrain se libère tout seul), mais un envoi parti
+    // d'une version antérieure de l'app peut encore en contenir.
+    const lockedBefore = onzeLockedIds(newOnze);
+    const byIdQ = {};
+    LS.getQ().forEach(q => { byIdQ[q.id] = q; });
+    const reused = pending.slots.filter(Boolean).concat(pending.coach ? [pending.coach] : [])
+      .filter(id => lockedBefore.has(id))
+      .map(id => (byIdQ[id] ? byIdQ[id].playerName : id));
     if (!confirm(`Valider le Onze de ${name} ?\n\n`
+      + (reused.length ? `⚠ Déjà utilisé(s) dans un Onze archivé : ${reused.join(', ')}.\n\n` : '')
       + (pts > 0 ? `+${pts} pts bonus seront ajoutés à son total.\n` : '')
       + 'Son Onze rejoint ses Onzes archivés et il pourra en composer un nouveau.')) return;
     if (!_supa) { alert('Serveur indisponible.'); return; }
 
-    if (!Array.isArray(newOnze.archives))   newOnze.archives   = [];
-    if (!Array.isArray(newOnze.usedInOnze)) newOnze.usedInOnze = [];
+    if (!Array.isArray(newOnze.archives)) newOnze.archives = [];
     newOnze.archives = newOnze.archives.concat([{
       formation:    ONZE_FORMATIONS[pending.formation] ? pending.formation : newOnze.formation,
       slots:        [...pending.slots],
@@ -10288,8 +10301,9 @@
     }]);
     // Verrouiller les joueurs utilisés : ils ne pourront plus servir dans un
     // nouveau Onze (ils restent dans la collection, marqués « archivé »).
-    const used = pending.slots.filter(Boolean).concat(pending.coach ? [pending.coach] : []);
-    used.forEach(id => { if (!newOnze.usedInOnze.includes(id)) newOnze.usedInOnze.push(id); });
+    // Recalculé depuis TOUTES les archives : le champ se répare de lui-même
+    // pour les Onze validés avant l'introduction du verrou.
+    newOnze.usedInOnze = [...onzeLockedIds(newOnze)];
     // Remise à zéro du terrain courant
     newOnze.slots        = Array(11).fill(null);
     newOnze.coach        = null;
@@ -13506,7 +13520,7 @@
     const byId = {};
     LS.getQ().forEach(q => { byId[q.id] = q; });
     const placed = new Set([...onze.slots, onze.coach].filter(Boolean));
-    const locked = new Set(onze.usedInOnze);
+    const locked = onzeLockedIds(onze);
     // Cases libres de la formation courante (+ case entraîneur si vide)
     const freeSlots = ONZE_FORMATIONS[onze.formation].filter((s, i) => !onze.slots[i]);
     if (!onze.coach) freeSlots.push({ acc: ['ENT'] });
@@ -17056,8 +17070,12 @@
     const byId = {};
     LS.getQ().forEach(q => { byId[q.id] = q; });
     const initialsOf = q => q.playerName.trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase();
-    let html = ONZE_FORMATIONS[onze.formation].map((s, i) => {
-      const q = onze.slots[i] ? byId[onze.slots[i]] : null;
+    // Archive sans formation connue (donnée héritée) : on retombe sur le 4-4-2
+    // plutôt que de faire planter tout l'écran.
+    const slotsDef = ONZE_FORMATIONS[onze.formation] || ONZE_FORMATIONS['4-4-2'];
+    const arSlots  = Array.isArray(onze.slots) ? onze.slots : [];
+    let html = slotsDef.map((s, i) => {
+      const q = arSlots[i] ? byId[arSlots[i]] : null;
       return `<div class="onze-slot ${q ? 'filled' : 'empty'}" style="left:${s.x}%;top:${s.y}%;cursor:default;" title="${s.acc.map(c => ONZE_POSTES[c]).join(' / ')}">
         <div class="onze-slot-disc">${q ? initialsOf(q) : (s.label || s.acc[0])}</div>
         ${q ? `<div class="onze-slot-name">${esc(q.playerName)}</div>` : ''}
@@ -17167,6 +17185,51 @@
     return out;
   }
 
+  /* ═══ Joueurs verrouillés par un Onze déjà validé ═══
+     Un joueur (ou entraîneur) qui a figuré dans un Onze validé par l'admin est
+     « consommé » : il reste dans la collection, marqué archivé, mais ne peut
+     plus servir dans un nouveau Onze.
+     L'ensemble est DÉRIVÉ des archives du compte, pas seulement lu dans
+     onze.usedInOnze : la règle s'applique ainsi aussi aux Onze validés AVANT
+     son introduction, dont les joueurs n'avaient jamais été verrouillés.
+     onze.usedInOnze reste pris en compte (verrous sans archive correspondante). */
+  function onzeLockedIds(onze) {
+    const o   = (onze && typeof onze === 'object') ? onze : {};
+    const out = new Set(Array.isArray(o.usedInOnze) ? o.usedInOnze : []);
+    (Array.isArray(o.archives) ? o.archives : []).forEach(ar => {
+      if (!ar || typeof ar !== 'object') return;
+      (Array.isArray(ar.slots) ? ar.slots : []).forEach(id => { if (id) out.add(id); });
+      if (ar.coach) out.add(ar.coach);
+    });
+    return out;
+  }
+
+  /* Libère les cases du terrain occupées par un joueur désormais verrouillé.
+     Indispensable en rattrapage : les Onze validés avant l'introduction du
+     verrou n'avaient rien bloqué, leurs joueurs ont donc pu être replacés sur
+     le terrain courant — voire figurer dans un Onze envoyé à l'admin, qui est
+     alors annulé (le joueur recompose avec le reste de sa collection).
+     Renvoie true si quelque chose a changé ; la sauvegarde incombe à l'appelant. */
+  function onzeReleaseLocked(onze) {
+    const locked = onzeLockedIds(onze);
+    if (!locked.size) return false;
+    let changed = false;
+    if (Array.isArray(onze.slots)) {
+      onze.slots = onze.slots.map(id => {
+        if (id && locked.has(id)) { changed = true; return null; }
+        return id;
+      });
+    }
+    if (onze.coach && locked.has(onze.coach)) { onze.coach = null; changed = true; }
+    const pend = onzePendingOf(onze);
+    if (pend && (pend.slots.some(id => id && locked.has(id)) || (pend.coach && locked.has(pend.coach)))) {
+      onze.pending = null;
+      changed = true;
+    }
+    if (changed) console.info('[Onze] cases libérées : joueur(s) déjà utilisé(s) dans un Onze validé.');
+    return changed;
+  }
+
   /* Aligne la collection du joueur connecté sur la vérité : ré-ajoute les
      devinés manquants (push account_set_onze perdu — jeton invalidé, réseau)
      ET retire les entrées jamais devinées. Libère au passage les cases du
@@ -17177,14 +17240,19 @@
 
   async function reconcileOnzeCollection(accountsAreFresh) {
     const a = _onzeAccount();
-    if (!a || !onzeTruthReady()) return false;
+    if (!a) return false;
+    // Verrou des Onze validés : ne dépend que des archives du compte, donc
+    // s'applique même quand la vérité « devinés » n'est pas encore disponible.
+    let released = onzeReleaseLocked(a.onze);
+    if (released) _onzeSave();
+    if (!onzeTruthReady()) return released;
     const legit   = new Set(onzeLegitCollection(_localUser.pseudo, a.onze));
     const before  = a.onze.collection.slice();
     const prune   = onzeCanPrune(_localUser.pseudo);
     const kept    = prune ? before.filter(id => legit.has(id)) : before.slice();
     const added   = [...legit].filter(id => !kept.includes(id));
     const removed = prune ? before.filter(id => !legit.has(id)) : [];
-    if (!added.length && !removed.length) return false;
+    if (!added.length && !removed.length) return released;
 
     // Un changement est nécessaire : avant d'écraser le Onze côté serveur, on
     // s'assure que les exceptions admin du compte (granted / revoked) sont à
@@ -17192,11 +17260,11 @@
     // par le joueur un ajout ou un retrait que l'admin vient de faire.
     // Le refetch forcé ne coûte un appel QUE quand il y a vraiment à corriger.
     if (!accountsAreFresh) {
-      if (_onzeReconciling) return false;
+      if (_onzeReconciling) return released;
       _onzeReconciling = true;
       try {
-        if (!await accountsFetch(true)) return false;   // hors ligne : on réessaiera
-        return await reconcileOnzeCollection(true);
+        if (!await accountsFetch(true)) return released;   // hors ligne : on réessaiera
+        return (await reconcileOnzeCollection(true)) || released;
       } finally { _onzeReconciling = false; }
     }
 
@@ -17222,7 +17290,10 @@
      `pseudo` omis (vue admin en lecture seule) → pas de filtre. */
   function onzeIsComplete(onze, pseudo) {
     const legit = (pseudo && onzeEnforceable(pseudo)) ? new Set(onzeLegitCollection(pseudo, onze)) : null;
-    const ok = id => !!id && (!legit || legit.has(id));
+    // Un joueur déjà utilisé dans un Onze validé ne compte pas non plus : il ne
+    // peut ni compléter ni faire valider un nouveau Onze.
+    const locked = onzeLockedIds(onze);
+    const ok = id => !!id && !locked.has(id) && (!legit || legit.has(id));
     return onze.slots.filter(ok).length === 11 && ok(onze.coach);
   }
 
@@ -17375,10 +17446,11 @@
     if (!shownColl.length) {
       collEl.innerHTML = '<p style="text-align:center;color:rgba(255,255,255,.35);font-size:.82rem;padding:14px 0;">Aucun joueur collectionné pour l\'instant.<br>Devine des joueurs en partie pour les ajouter ici !</p>';
     } else {
+      const lockedSet = onzeLockedIds(onze);
       collEl.innerHTML = shownColl.map(id => {
         const q = byId[id];
         const placed = onze.slots.includes(id) || onze.coach === id;
-        const locked = Array.isArray(onze.usedInOnze) && onze.usedInOnze.includes(id);
+        const locked = lockedSet.has(id);
         const pos = (q.positions || []).length ? q.positions.join(', ') : '—';
         return `<div class="onze-coll-row">
           <span class="onze-coll-name">${esc(q.playerName)}</span>
@@ -17454,7 +17526,9 @@
 
     const current = isCoach ? onze.coach : onze.slots[i];
     const usedInCurrent = id => onze.slots.includes(id) || onze.coach === id;
-    const locked = new Set(Array.isArray(onze.usedInOnze) ? onze.usedInOnze : []);
+    // Joueurs consommés par un Onze déjà validé (archives comprises) : plus
+    // proposables pour un nouveau Onze.
+    const locked = onzeLockedIds(onze);
     // Dernier filet de sécurité : seuls les joueurs légitimes (devinés en partie,
     // ou accordés par l'admin) peuvent être proposés à une case du terrain, même
     // si la collection stockée contient encore une entrée parasite.
@@ -17491,6 +17565,11 @@
     // Un joueur non deviné ne peut pas être positionné, quel que soit l'état
     // de la collection stockée.
     if (onzeEnforceable(_localUser.pseudo) && !onzeLegitCollection(_localUser.pseudo, a.onze).includes(qid)) {
+      closeOnzeSlotModal();
+      return;
+    }
+    // Ni un joueur déjà utilisé dans un Onze validé (il est consommé).
+    if (onzeLockedIds(a.onze).has(qid)) {
       closeOnzeSlotModal();
       return;
     }
