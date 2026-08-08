@@ -2057,6 +2057,8 @@
     /* Largeur fixe : un score à demi-point (« 45,5 pts ») ne décale pas le « x/x sur 34 » des autres lignes. */
     .lb-score { font-weight:700;color:var(--or);font-size:.95rem;min-width:62px;text-align:right;font-variant-numeric:tabular-nums; }
     .lb-games { font-size:.75rem;color:rgba(255,255,255,.45);font-weight:600;font-variant-numeric:tabular-nums; }
+    /* Nombre de Onze complétés (validés par l'admin) — classement général uniquement */
+    .lb-onze { color:var(--rouge);font-weight:800;font-size:.9rem;font-variant-numeric:tabular-nums;min-width:10px;text-align:right; }
     .lb-badge-txt { font-size:.68rem;color:rgba(255,255,255,.38);white-space:nowrap; }
 
     /* ── Barre de qualification playoffs (sous la 16e place, onglet Saison régulière) ── */
@@ -3927,10 +3929,10 @@
           <div id="onze-collection" style="max-height:300px;overflow-y:auto;"></div>
         </div>
 
-        <div class="card" id="onze-archives-card" style="margin-bottom:12px;display:none;">
-          <div class="pcard-section-title" style="margin-top:0;margin-bottom:10px;">🏆 Onzes archivés</div>
-          <div id="onze-archives"></div>
-        </div>
+        <!-- Onzes archivés : pas affichés en ligne (terrains lourds à scroller),
+             on les ouvre dans une modale à la demande. -->
+        <button class="btn btn-outline btn-full" id="onze-archives-btn"
+                style="display:none;margin-bottom:12px;" onclick="openOnzeArchives()">Voir Onze archivé</button>
 
         <button class="btn btn-ghost btn-full mb0" onclick="nav('player-card')">← Retour au profil</button>
       </div>
@@ -4169,6 +4171,20 @@
         <div id="eq-err" class="alert alert-error" style="display:none;"></div>
         <button class="btn btn-red btn-full" id="eq-save-btn" onclick="saveEdit()">Sauvegarder</button>
         <button class="btn btn-ghost btn-full mb0" onclick="closeEditModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════ ONZE — MODAL DES ONZES ARCHIVÉS ═══ -->
+  <div id="onze-archives-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeOnzeArchives()">
+    <div class="modal-inner">
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:16px;">
+          <h3 style="margin:0;font-size:1rem;" id="onze-archives-title">Onzes archivés</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeOnzeArchives()">✕</button>
+        </div>
+        <div id="onze-archives"></div>
+        <button class="btn btn-ghost btn-full mb0" onclick="closeOnzeArchives()">Fermer</button>
       </div>
     </div>
   </div>
@@ -15688,12 +15704,21 @@
       const gamesHtml = (clickable && totalSessions > 0)
         ? `<span class="lb-games" title="${e.gamesPlayed} partie(s) jouée(s) sur ${totalSessions} possible(s) à ce jour · ${SEASON_MATCHDAYS} sur la saison">${e.gamesPlayed}/${totalSessions}<span style="opacity:.55;"> sur ${SEASON_MATCHDAYS}</span></span>`
         : '';
+      // Classement général : nombre de Onze complétés (= archivés après
+      // validation admin), en rouge à droite du total. Compteur public : le
+      // résumé onzePub ne révèle aucun joueur de la collection.
+      // La colonne est rendue même à 0 (span vide) : sans elle les « x pts »
+      // des autres lignes seraient décalés.
+      const nbOnze = st.tab === 'general' ? onzeSummaryForName(e.name).archives : 0;
+      const onzeHtml = st.tab === 'general'
+        ? `<span class="lb-onze"${nbOnze > 0 ? ` title="${nbOnze} Onze complété${nbOnze > 1 ? 's' : ''}"` : ''}>${nbOnze > 0 ? nbOnze : ''}</span>`
+        : '';
       return `<div class="${rowCls}"${rowAttrs}>
         <div class="lb-rank${rankCls}">${rankHtml}</div>
         ${vsAvatarHtml(e.name, 'lb-avatar')}
         <div class="lb-name">${esc(e.name)}</div>
         <div class="lb-right">
-          ${gamesHtml}<span class="lb-score">${e.score} pts</span>
+          ${gamesHtml}<span class="lb-score">${e.score} pts</span>${onzeHtml}
         </div>
       </div>`;
     });
@@ -17461,28 +17486,48 @@
       }).join('');
     }
 
-    // Archives
-    const archivesEl   = document.getElementById('onze-archives');
-    const archivesCard = document.getElementById('onze-archives-card');
-    if (archivesEl) {
-      const archives = Array.isArray(onze.archives) ? onze.archives : [];
-      if (archivesCard) archivesCard.style.display = archives.length ? 'block' : 'none';
-      if (!archives.length) {
-        archivesEl.innerHTML = '';
-      } else {
-        const fmtDate = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
-        archivesEl.innerHTML = archives.map((ar, idx) => {
-          const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
-          const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
-          return `<div style="margin-bottom:16px;">
-            <div style="font-size:.75rem;font-weight:700;color:var(--or);margin-bottom:6px;">
-              Onze #${idx + 1} — ${fmtDate(ar.validatedAt)}${pts}
-            </div>
-            <div class="onze-pitch" style="margin-bottom:0;">${onzePitchReadonlyHtml(arOnze)}</div>
-          </div>`;
-        }).reverse().join('');
-      }
+    // Archives : seulement le bouton d'ouverture ici — les terrains sont
+    // construits à la demande dans la modale (cf. openOnzeArchives).
+    const archivesBtn = document.getElementById('onze-archives-btn');
+    if (archivesBtn) {
+      const nbArchives = Array.isArray(onze.archives) ? onze.archives.length : 0;
+      archivesBtn.style.display = nbArchives ? '' : 'none';
+      archivesBtn.textContent = nbArchives > 1 ? 'Voir Onzes archivés' : 'Voir Onze archivé';
     }
+  }
+
+  /* ── Onzes archivés : modale (terrains en lecture seule, du plus récent au plus ancien) ── */
+  function openOnzeArchives() {
+    const a  = _onzeAccount();
+    const el = document.getElementById('onze-archives');
+    const modal = document.getElementById('onze-archives-modal');
+    if (!a || !el || !modal) return;
+    const archives = Array.isArray(a.onze.archives) ? a.onze.archives : [];
+    if (!archives.length) return;
+
+    const titleEl = document.getElementById('onze-archives-title');
+    if (titleEl) titleEl.textContent = archives.length > 1
+      ? `Onzes archivés (${archives.length})`
+      : 'Onze archivé';
+
+    const fmtDate = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+    el.innerHTML = archives.map((ar, idx) => {
+      const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
+      const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
+      return `<div style="margin-bottom:16px;">
+        <div style="font-size:.75rem;font-weight:700;color:var(--or);margin-bottom:6px;">
+          Onze #${idx + 1} — ${fmtDate(ar.validatedAt)}${pts}
+        </div>
+        <div class="onze-pitch" style="margin-bottom:0;">${onzePitchReadonlyHtml(arOnze)}</div>
+      </div>`;
+    }).reverse().join('');
+
+    modal.style.display = 'flex';
+  }
+
+  function closeOnzeArchives() {
+    const modal = document.getElementById('onze-archives-modal');
+    if (modal) modal.style.display = 'none';
   }
 
   /* Changement de formation : on replace automatiquement les joueurs compatibles */
