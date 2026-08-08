@@ -4179,11 +4179,15 @@
   <div id="onze-archives-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeOnzeArchives()">
     <div class="modal-inner">
       <div class="card">
-        <div class="flex-between" style="margin-bottom:16px;">
-          <h3 style="margin:0;font-size:1rem;" id="onze-archives-title">Onzes archivés</h3>
-          <button class="btn btn-ghost btn-sm" onclick="closeOnzeArchives()">✕</button>
+        <div class="flex-between" style="margin-bottom:16px;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+            <h3 style="margin:0;font-size:1rem;" id="onze-archives-title">Onzes archivés</h3>
+            <button class="btn btn-ghost btn-sm" id="onze-archives-toggle" style="margin:0;flex-shrink:0;"
+                    title="Afficher les Onzes archivés" onclick="toggleOnzeArchives()">+</button>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0;" onclick="closeOnzeArchives()">✕</button>
         </div>
-        <div id="onze-archives"></div>
+        <div id="onze-archives" style="display:none;"></div>
         <button class="btn btn-ghost btn-full mb0" onclick="closeOnzeArchives()">Fermer</button>
       </div>
     </div>
@@ -8755,14 +8759,17 @@
     const ppPendN = players.filter(p => p.ppPending).length;
     const ytPendN = players.filter(p => p.ytPending).length;
 
+    // Le pseudo passe par `data-pname`, jamais en littéral dans le `onclick` :
+    // esc() n'échappe pas l'apostrophe, et un pseudo comme « Liver' » cassait
+    // le handler (erreur de syntaxe → bouton sans effet).
     const okBtn = (pseudo, task) => adminSupaAuthed
-      ? `<button title="Annuler le bonus" onclick="adminRevokeOnboarding('${esc(pseudo)}','${task}')" style="background:none;border:none;cursor:pointer;color:#00C851;font-weight:700;font-size:.82rem;padding:2px 4px;line-height:1;border-radius:3px;" onmouseover="this.style.color='#ff4444';this.style.background='rgba(255,68,68,.1)'" onmouseout="this.style.color='#00C851';this.style.background='none'">✓</button>`
+      ? `<button title="Annuler le bonus" data-pname="${esc(pseudo)}" onclick="adminRevokeOnboarding(this.dataset.pname,'${task}')" style="background:none;border:none;cursor:pointer;color:#00C851;font-weight:700;font-size:.82rem;padding:2px 4px;line-height:1;border-radius:3px;" onmouseover="this.style.color='#ff4444';this.style.background='rgba(255,68,68,.1)'" onmouseout="this.style.color='#00C851';this.style.background='none'">✓</button>`
       : `<span style="color:#00C851;font-weight:700;">✓</span>`;
     const nok  = () => `<span style="color:rgba(255,255,255,.22);">✗</span>`;
     const pend = c => `<span style="color:rgba(255,205,0,.7);font-style:italic;">${c}</span>`;
 
     const valBtn = (pseudo, task) => adminSupaAuthed
-      ? `<button class="btn btn-gold btn-sm" style="font-size:.7rem;padding:3px 9px;margin:0;line-height:1.4;" onclick="adminValidateOnboarding('${esc(pseudo)}','${task}')">Valider</button>`
+      ? `<button class="btn btn-gold btn-sm" style="font-size:.7rem;padding:3px 9px;margin:0;line-height:1.4;" data-pname="${esc(pseudo)}" onclick="adminValidateOnboarding(this.dataset.pname,'${task}')">Valider</button>`
       : pend('En attente');
 
     const rows = players.map(p => {
@@ -8796,10 +8803,20 @@
   async function adminValidateOnboarding(pseudo, task) {
     if (!adminSupaAuthed || !_supa) return;
     const { data, error } = await _supa.rpc('account_admin_validate_onboarding', { p_pseudo: pseudo, p_task: task });
-    if (error) { console.warn('[AdminOnboarding] erreur validation:', error); return; }
+    // Sans retour visible, un refus serveur (déclaration déjà traitée, pseudo
+    // introuvable, session admin expirée) ressemblait à un bouton inerte.
+    if (error) {
+      console.warn('[AdminOnboarding] erreur validation:', error);
+      alert(`Validation impossible pour ${pseudo} : ${error.message || 'erreur Supabase'}`);
+      return;
+    }
     if (data) {
       await Promise.all([scoresFetch(true), accountsFetch(true)]);
       renderOnboardingDashboard();
+    } else {
+      await Promise.all([scoresFetch(true), accountsFetch(true)]);
+      renderOnboardingDashboard();
+      alert(`Bonus non validé pour ${pseudo} : la déclaration n'est plus en attente, ou la session admin Supabase a expiré (Réglages → compte Auth).`);
     }
   }
 
@@ -8808,7 +8825,11 @@
     const label = task === 'pp' ? 'photo de profil' : 'abonnement YouTube';
     if (!confirm(`Annuler le bonus « ${label} » de ${pseudo} ?`)) return;
     const { data, error } = await _supa.rpc('account_admin_revoke_onboarding', { p_pseudo: pseudo, p_task: task });
-    if (error) { console.warn('[AdminOnboarding] erreur révocation:', error); return; }
+    if (error) {
+      console.warn('[AdminOnboarding] erreur révocation:', error);
+      alert(`Annulation impossible pour ${pseudo} : ${error.message || 'erreur Supabase'}`);
+      return;
+    }
     if (data) {
       await Promise.all([scoresFetch(true), accountsFetch(true)]);
       renderOnboardingDashboard();
@@ -9522,7 +9543,12 @@
       ${collHeaderHtml}
       ${collHtml}
       ${trackingHtml}
-      ${archivesHtml ? `<div class="pcard-section-title" style="margin-top:16px;">🏆 Onzes archivés (${onze.archives.length})</div>${archivesHtml}` : ''}`;
+      ${archivesHtml ? `<div class="pcard-section-title" style="margin-top:16px;display:flex;align-items:center;gap:10px;">
+        <span>🏆 Onzes archivés (${onze.archives.length})</span>
+        <button class="btn btn-ghost btn-sm" id="pcard-archives-toggle" style="margin:0;flex-shrink:0;"
+                title="Afficher les Onzes archivés" onclick="togglePcardArchives()">+</button>
+      </div>
+      <div id="pcard-archives" style="display:none;">${archivesHtml}</div>` : ''}`;
 
     // Récapitulatif parrainage : points générés par le joueur comme parrain ou filleul.
     // Tout est dérivé des lignes d'ajustement (`adjust=true`) créées par le trigger Supabase :
@@ -17496,7 +17522,24 @@
     }
   }
 
-  /* ── Onzes archivés : modale (terrains en lecture seule, du plus récent au plus ancien) ── */
+  /* Carte joueur : masquer / afficher les terrains archivés (masqués par défaut).
+     Le bouton porte « + » quand c'est masqué, « − » quand c'est affiché. */
+  function togglePcardArchives() {
+    const el = document.getElementById('pcard-archives');
+    const tg = document.getElementById('pcard-archives-toggle');
+    if (!el) return;
+    const show = el.style.display === 'none';
+    el.style.display = show ? '' : 'none';
+    if (tg) {
+      tg.textContent = show ? '−' : '+';
+      tg.title = show ? 'Masquer les Onzes archivés' : 'Afficher les Onzes archivés';
+    }
+  }
+
+  /* ── Onzes archivés : modale (terrains en lecture seule, du plus récent au plus ancien).
+     Les terrains sont MASQUÉS à l'ouverture : le joueur les révèle avec le bouton
+     « Afficher » à côté du titre (un Onze archivé révèle des « Qui suis-je ? » devinés,
+     autant ne pas les étaler dès l'ouverture). ── */
   function openOnzeArchives() {
     const a  = _onzeAccount();
     const el = document.getElementById('onze-archives');
@@ -17510,19 +17553,41 @@
       ? `Onzes archivés (${archives.length})`
       : 'Onze archivé';
 
-    const fmtDate = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
-    el.innerHTML = archives.map((ar, idx) => {
-      const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
-      const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
-      return `<div style="margin-bottom:16px;">
-        <div style="font-size:.75rem;font-weight:700;color:var(--or);margin-bottom:6px;">
-          Onze #${idx + 1} — ${fmtDate(ar.validatedAt)}${pts}
-        </div>
-        <div class="onze-pitch" style="margin-bottom:0;">${onzePitchReadonlyHtml(arOnze)}</div>
-      </div>`;
-    }).reverse().join('');
+    // État par défaut : masqué. Le contenu n'est construit qu'au premier « Afficher ».
+    el.innerHTML = '';
+    el.style.display = 'none';
+    const tg = document.getElementById('onze-archives-toggle');
+    if (tg) { tg.textContent = '+'; tg.title = 'Afficher les Onzes archivés'; }
 
     modal.style.display = 'flex';
+  }
+
+  /* Bascule masquer / afficher les terrains archivés dans la modale. */
+  function toggleOnzeArchives() {
+    const el = document.getElementById('onze-archives');
+    const tg = document.getElementById('onze-archives-toggle');
+    if (!el) return;
+    const show = el.style.display === 'none';
+    if (show && !el.innerHTML) {
+      const a = _onzeAccount();
+      const archives = (a && Array.isArray(a.onze.archives)) ? a.onze.archives : [];
+      const fmtDate = ts => new Date(ts).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+      el.innerHTML = archives.map((ar, idx) => {
+        const arOnze = { formation: ar.formation, slots: ar.slots, coach: ar.coach };
+        const pts = ar.bonusAwarded > 0 ? ` · +${ar.bonusAwarded} pts` : '';
+        return `<div style="margin-bottom:16px;">
+          <div style="font-size:.75rem;font-weight:700;color:var(--or);margin-bottom:6px;">
+            Onze #${idx + 1} — ${fmtDate(ar.validatedAt)}${pts}
+          </div>
+          <div class="onze-pitch" style="margin-bottom:0;">${onzePitchReadonlyHtml(arOnze)}</div>
+        </div>`;
+      }).reverse().join('');
+    }
+    el.style.display = show ? '' : 'none';
+    if (tg) {
+      tg.textContent = show ? '−' : '+';
+      tg.title = show ? 'Masquer les Onzes archivés' : 'Afficher les Onzes archivés';
+    }
   }
 
   function closeOnzeArchives() {
