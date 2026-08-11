@@ -17760,7 +17760,7 @@
      maxCum   = valeur max pour l'axe Y
      slot/barW/padL/padR/padT/padB/plotH = géométrie partagée
      Retourne { svgHtml, tipHtml[], colCxPx[] }  */
-  function _buildScoreChartSvg(cols, maxCum, { slot, barW, padL, padR, padT, padB, plotH, qById, fmtDate }) {
+  function _buildScoreChartSvg(cols, maxCum, { slot, barW, padL, padR, padT, padB, plotH, qById, fmtDate, showAnswers }) {
     const plotW = slot * cols.length;
     const W = padL + plotW + padR, H = padT + plotH + padB;
     const baseY = padT + plotH;
@@ -17843,6 +17843,14 @@
         return `<div class="chart-tip-head">${prefix}${dateStr}</div><div class="chart-tip-empty">Partie à venir</div>`;
       }
       const g = col.game;
+      // Confidentialité (même règle que l'historique des parties, cf. canSeeAnswers) :
+      // les intitulés des questions et les noms des « Qui suis-je ? » donneraient les
+      // questions de la journée. Sur la carte d'un autre joueur, on ne garde que le
+      // score et le cumul, déjà publics au classement.
+      if (!showAnswers) {
+        return `<div class="chart-tip-head">${prefix}${dateStr} · ${Number(g.score) || 0} pts · cumul ${col.cumAfter || 0} pts</div>`
+             + `<div class="chart-tip-empty">Le détail des réponses reste privé.</div>`;
+      }
       const dets = Array.isArray(g.details) ? g.details : [];
       const rows = dets.map(de => {
         const q = qById[de.id];
@@ -18006,7 +18014,11 @@
     const availW = (container.offsetWidth || 320) - 2; // -2 pour éviter tout arrondi
     const slot   = Math.floor((availW - padL - padR) / MAX_VISIBLE);
     const barW   = Math.min(24, Math.floor(slot * 0.45));
-    const GEO = { slot, barW, padL, padR, padT, padB, plotH, qById, fmtDate };
+    // Le détail des questions n'apparaît dans les infobulles que pour le propriétaire
+    // de la carte (et l'admin) : sur la carte d'un autre joueur, il révélerait les
+    // questions du jour. Le flag suit GEO jusqu'au graphique plein écran.
+    const GEO = { slot, barW, padL, padR, padT, padB, plotH, qById, fmtDate,
+                  showAnswers: canSeeAnswers(pseudo) };
 
     // Compléter avec des colonnes vides si nécessaire pour toujours atteindre MAX_VISIBLE
     const paddedCols = [...allCols];
