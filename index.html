@@ -554,15 +554,6 @@
     .btn-edit:hover { background: rgba(255,205,0,.12); }
     .q-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
 
-    /* ── Vocabulaire allemand (Réglages) : liste compacte, lecture plus ergonomique.
-       Scopé au conteneur pour ne pas densifier la base de questions qui partage .q-item. ── */
-    #vocab-list-container .q-item    { padding: 8px 10px; margin-bottom: 6px; gap: 9px; align-items: center; }
-    #vocab-list-container .q-text    { font-size: .84rem; margin-bottom: 1px; }
-    #vocab-list-container .q-answer  { font-size: .75rem; margin-top: 1px; }
-    #vocab-list-container .q-meta    { font-size: .71rem; }
-    #vocab-list-container .q-actions { flex-direction: row; flex-wrap: wrap; gap: 5px; align-items: center; margin-left: auto; }
-    #vocab-list-container .q-actions .btn { padding: 4px 8px; font-size: .72rem; }
-
     /* ── DB filter dropdown ── */
     .db-filter-menu {
       position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
@@ -1490,36 +1481,6 @@
     }
     .home-social-logos a img:hover { transform: scale(1.12); }
 
-    /* ── Mot allemand du jour (clin d'œil à Dino Toppmöller) ── */
-    .german-flag-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 99px;
-      padding: 5px 12px 5px 6px;
-      margin: 2px 0 14px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: all .15s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .german-flag-btn:hover { border-color: rgba(255,205,0,.5); background: rgba(255,205,0,.07); transform: translateY(-1px); }
-    .german-flag-btn .flag-de {
-      width: 26px; height: 18px; border-radius: 3px; display: block; flex-shrink: 0;
-      box-shadow: 0 1px 3px rgba(0,0,0,.4);
-    }
-    .german-flag-btn .flag-label { font-size: .72rem; font-weight: 700; color: rgba(255,255,255,.7); white-space: nowrap; }
-    .german-word-card { text-align: center; }
-    .german-word-flag { width: 64px; height: 42px; border-radius: 5px; margin: 0 auto 14px; box-shadow: 0 3px 12px rgba(0,0,0,.5); }
-    .german-word-term { font-size: 2rem; font-weight: 800; color: var(--or); margin: 0 0 4px; font-family: 'Calleo', sans-serif; word-break: break-word; }
-    .german-word-trans { font-size: 1.05rem; color: #fff; margin: 0 0 14px; }
-    .german-word-example { font-size: .85rem; color: rgba(255,255,255,.6); font-style: italic; line-height: 1.5; margin: 0 0 4px; }
-    .german-word-date { font-size: .72rem; color: rgba(255,255,255,.35); margin: 0 0 18px; }
-    .german-word-empty { font-size: .9rem; color: rgba(255,255,255,.6); line-height: 1.6; margin: 8px 0 18px; }
-    .german-word-footer { font-size: .72rem; color: rgba(255,255,255,.4); line-height: 1.5; border-top: 1px solid rgba(255,255,255,.08); padding-top: 12px; margin-bottom: 14px; }
-
     /* ── Admin Dashboard (right sidebar) ── */
     #admin-dashboard {
       position: fixed;
@@ -1928,7 +1889,11 @@
 
     /* ── Graphique points par partie (player card) ── */
     .score-chart-wrap { position:relative; }
-    .score-chart-scroll { overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch; }
+    .score-chart-scroll { overflow-x:auto;overflow-y:hidden;padding-bottom:4px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--or) transparent; }
+    .score-chart-scroll::-webkit-scrollbar { height:8px; }
+    .score-chart-scroll::-webkit-scrollbar-track { background:transparent;margin:0 6px; }
+    .score-chart-scroll::-webkit-scrollbar-thumb { background:linear-gradient(to right, var(--rouge), var(--or));border-radius:99px;border:2px solid transparent;background-clip:padding-box; }
+    .score-chart-scroll::-webkit-scrollbar-thumb:hover { background:var(--or);background-clip:padding-box;border:2px solid transparent; }
     .score-chart-svg { display:block;height:auto; }
     .score-chart-svg .sc-bar { fill:var(--or);transition:fill .12s;pointer-events:none; }
     .score-chart-svg .sc-bar.is-hover { fill:#ffd633; }
@@ -2206,15 +2171,6 @@
       <img src="logo_700x700.png" class="logo" alt="Racing Club Podcast">
       <h1 style="font-family:'Calleo',sans-serif;">Le Racing Quiz</h1>
       <p class="subtitle app-subtitle" style="font-family:'Calleo',sans-serif;">Votre révision estivale</p>
-      <!-- Mot allemand du jour — clin d'œil à Dino Toppmöller, supporter du RC Lens -->
-      <button class="german-flag-btn" onclick="openGermanWord()" title="Le mot allemand du jour" aria-label="Le mot allemand du jour">
-        <svg class="flag-de" viewBox="0 0 5 3" preserveAspectRatio="none" aria-hidden="true">
-          <rect width="5" height="1" y="0" fill="#000"/>
-          <rect width="5" height="1" y="1" fill="#D00"/>
-          <rect width="5" height="1" y="2" fill="#FFCE00"/>
-        </svg>
-        <span class="flag-label">Toi aussi, deviens Topp en allemand</span>
-      </button>
       <!-- Section auth (cachée si déjà connecté) -->
       <div class="card" id="home-auth-section" style="max-width:400px;width:100%;">
         <div class="auth-toggle">
@@ -2760,7 +2716,6 @@
             <div class="settings-cat-header">Apparence</div>
             <nav class="settings-nav">
               <button class="settings-nav-item" id="snav-app-subtitle" onclick="showSettingsPanel('app-subtitle')">Texte personnalisé</button>
-              <button class="settings-nav-item" id="snav-app-vocab" onclick="showSettingsPanel('app-vocab')">Vocabulaire allemand</button>
             </nav>
             <div class="settings-cat-header">Sécurité</div>
             <nav class="settings-nav">
@@ -2920,53 +2875,6 @@
                 </div>
                 <button class="btn btn-gold btn-full" id="btn-save-subtitle" onclick="saveSubtitle()">💾 Sauvegarder</button>
                 <div id="subtitle-save-status" style="margin-top:10px;"></div>
-              </div>
-            </div>
-
-            <!-- Panel : Vocabulaire allemand -->
-            <div id="settings-panel-app-vocab" class="settings-panel">
-              <div class="card">
-                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-                  <div>
-                    <div style="font-weight:800;font-size:.95rem;">🇩🇪 Vocabulaire allemand <span id="vocab-count" style="color:var(--or);font-weight:700;font-size:.8rem;"></span></div>
-                    <div style="font-size:.73rem;color:rgba(255,255,255,.5);">Un mot par jour dès le démarrage.</div>
-                  </div>
-                  <button class="btn btn-red btn-sm" id="vocab-add-btn" onclick="vocabOpenForm()" style="margin-left:auto;white-space:nowrap;">+ Ajouter</button>
-                </div>
-
-                <!-- Jour de démarrage : le 1er mot de la liste y est affiché, puis un mot par jour -->
-                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.2);border-radius:12px;padding:9px 12px;margin-bottom:10px;">
-                  <div class="form-group mb0" style="flex:0 0 auto;min-width:160px;margin:0;">
-                    <label class="field-label">📅 Jour de démarrage</label>
-                    <input type="date" id="vocab-start" onchange="vocabSetStart()">
-                  </div>
-                  <div id="vocab-start-info" style="flex:1;min-width:160px;font-size:.74rem;color:rgba(255,255,255,.6);line-height:1.4;"></div>
-                </div>
-
-                <!-- Formulaire d'ajout / édition (masqué par défaut) -->
-                <div id="vocab-form" style="display:none;background:rgba(255,255,255,.04);border:1px solid rgba(255,205,0,.25);border-radius:12px;padding:14px;margin-bottom:14px;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                    <span id="vocab-form-title" style="font-weight:700;color:var(--or);font-size:.85rem;text-transform:uppercase;letter-spacing:.4px;">Nouveau mot</span>
-                    <button class="btn btn-ghost btn-sm" onclick="vocabCloseForm()">✕</button>
-                  </div>
-                  <div class="form-group">
-                    <label class="field-label">Mot allemand *</label>
-                    <input type="text" id="vocab-word" placeholder="Ex : das Tor" maxlength="80">
-                  </div>
-                  <div class="form-group">
-                    <label class="field-label">Traduction française *</label>
-                    <input type="text" id="vocab-translation" placeholder="Ex : le but / la cage" maxlength="120">
-                  </div>
-                  <div class="form-group">
-                    <label class="field-label">Exemple (optionnel)</label>
-                    <input type="text" id="vocab-example" placeholder="Ex : Was für ein Tor! — Quel but !" maxlength="200">
-                  </div>
-                  <div id="vocab-form-err" class="alert alert-error" style="display:none;margin-bottom:10px;"></div>
-                  <input type="hidden" id="vocab-edit-orig">
-                  <button class="btn btn-red btn-full mb0" onclick="vocabSubmit()">Enregistrer</button>
-                </div>
-
-                <div id="vocab-list-container"></div>
               </div>
             </div>
 
@@ -4323,28 +4231,6 @@
     </div>
   </div>
 
-  <!-- ════════════════════════════════════ MOT ALLEMAND DU JOUR ═══ -->
-  <div id="german-word-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeGermanWord()">
-    <div class="modal-inner" style="max-width:420px;">
-      <div class="card german-word-card" style="margin-bottom:0;">
-        <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="closeGermanWord()">✕</button>
-        </div>
-        <svg class="german-word-flag" viewBox="0 0 5 3" preserveAspectRatio="none" aria-hidden="true">
-          <rect width="5" height="1" y="0" fill="#000"/>
-          <rect width="5" height="1" y="1" fill="#D00"/>
-          <rect width="5" height="1" y="2" fill="#FFCE00"/>
-        </svg>
-        <div id="german-word-body"></div>
-        <p class="german-word-footer">
-          🇩🇪 En l'honneur de <strong>Dino Toppmöller</strong>, supporter du RC Lens.<br>
-          Un mot d'allemand par jour, pour briller en tribune.
-        </p>
-        <button class="btn btn-ghost btn-full mb0" onclick="closeGermanWord()">Fermer</button>
-      </div>
-    </div>
-  </div>
-
   <!-- ════════════════════════════════════ TOUTES LES PARTIES JOUÉES ═══ -->
   <div id="all-games-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeAllGamesPopup()">
     <div class="modal-inner" style="max-width:520px;">
@@ -4564,9 +4450,9 @@
      v3 : le contenu (questions, tags, media, réglages, planning) vit dans la table
      clé/valeur quiz_data (écriture réservée à l'admin authentifié — RLS), tandis que
      les scores et les comptes joueurs ont leurs propres tables (voir supabase-v3-setup.sql). */
-  const QUIZ_DATA_KEYS = ['questions', 'tags', 'media', 'features', 'planning', 'vocab'];
+  const QUIZ_DATA_KEYS = ['questions', 'tags', 'media', 'features', 'planning'];
   let _db = {
-    questions: [], tags: [], media: [], features: {}, planning: {}, vocab: [],
+    questions: [], tags: [], media: [], features: {}, planning: {},
     scores: [], accounts: {}
   };
   let adminSupaAuthed = false; // session Supabase Auth active (écritures contenu autorisées par RLS)
@@ -5613,13 +5499,6 @@
     } else {
       await seedFromJson();
     }
-    // Pré-remplissage du vocabulaire allemand (clé "vocab") à partir de la graine codée.
-    // Le backup localStorage de dbPush garantit le fonctionnement hors-ligne ; l'écriture
-    // Supabase réussira à la première sauvegarde admin (RLS).
-    if (!Array.isArray(_db.vocab) || !_db.vocab.length) {
-      _db.vocab = VOCAB_SEED.slice();
-      await dbPush('vocab');
-    }
     await Promise.all([scoresFetch(), accountsFetch()]);
   }
 
@@ -5721,8 +5600,6 @@
     saveRotation : (arr) => localStorage.setItem('rcRotation', JSON.stringify(arr)),
     getPlanning   : ()    => (_db.planning && typeof _db.planning === 'object')   ? _db.planning : {},
     savePlanning  : (obj) => { _db.planning = obj; dbPush('planning'); },
-    getVocab      : ()    => Array.isArray(_db.vocab)                             ? _db.vocab     : [],
-    saveVocab     : (arr) => { _db.vocab = arr; dbPush('vocab'); },
     /* v3 : usedInGame est dérivé des parties enregistrées (table scores) */
     getUsedInGame   : ()    => computeUsedInGame(),
     getLeaderboard      : ()    => Array.isArray(_db.scores) ? _db.scores : [],
@@ -6157,7 +6034,7 @@
   let dbSearchTerm   = '';
   let dbActiveFilters = new Set(); // 'joueur' | 'bonus' | 'with-tag' | 'no-tag' | 'new'
   let dbSubTab = sessionStorage.getItem('rcDbSubTab') || 'joueur'; // 'joueur' | 'bonus' | 'match'
-  if (!['joueur', 'bonus', 'match'].includes(dbSubTab)) dbSubTab = 'joueur'; // 'vocab' a déménagé dans Réglages › Apparence
+  if (!['joueur', 'bonus', 'match'].includes(dbSubTab)) dbSubTab = 'joueur';
   const DB_PAGE_SIZE = 10;
 
   // Question « Match » : thématique dédiée (titulaires + buteurs + coach), mécanique Liste
@@ -6820,7 +6697,6 @@
       const st = document.getElementById('referral-save-status');
       if (st) st.innerHTML = '';
     }
-    if (id === 'app-vocab') renderVocabAdmin();
     if (id === 'game-playoffs') renderPlayoffSettings();
   }
 
@@ -11977,158 +11853,6 @@
     renderAdmin();
   }
 
-  /* ═══════════════════════════════════════════════════
-     VOCABULAIRE ALLEMAND — gestion admin (clé quiz_data "vocab")
-  ═══════════════════════════════════════════════════ */
-  // Jour de démarrage : date du 1er mot de la liste. Les mots suivants sont
-  // affichés un jour après l'autre (index 0 → start, index 1 → start+1, …).
-  function vocabStartDate() {
-    const f = (typeof LS !== 'undefined' && LS.getFeatures) ? (LS.getFeatures() || {}) : {};
-    if (f.vocabStart) return f.vocabStart;
-    // Repli : plus ancienne date présente sur les entrées héritées, sinon graine.
-    const list = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : [];
-    const dated = (Array.isArray(list) ? list : []).map(w => w && w.date).filter(Boolean).sort();
-    return dated.length ? dated[0] : '2026-06-16';
-  }
-  // Date (YYYY-MM-DD) du mot à la position `i` de la séquence.
-  function vocabDateAtIndex(i) {
-    const d = new Date(vocabStartDate() + 'T00:00:00');
-    d.setDate(d.getDate() + i);
-    return planningDateStr(d);
-  }
-  // Position dans la séquence correspondant à une date (peut être négative / hors liste).
-  function vocabIndexForDate(ds) {
-    const a = new Date(vocabStartDate() + 'T00:00:00');
-    const b = new Date(ds + 'T00:00:00');
-    return Math.round((b - a) / 86400000);
-  }
-
-  function vocabSetStart() {
-    const v = document.getElementById('vocab-start').value;
-    if (!v) return;
-    const f = LS.getFeatures();
-    f.vocabStart = v;
-    LS.saveFeatures(f);
-    renderVocabAdmin();
-  }
-
-  function renderVocabAdmin() {
-    const list = LS.getVocab().slice(); // l'ordre du tableau = la séquence des jours
-    const today = planningTodayStr();
-    document.getElementById('vocab-count').textContent = `${list.length} mot${list.length > 1 ? 's' : ''}`;
-    updateDbSubtabCounts();
-
-    const startInput = document.getElementById('vocab-start');
-    if (startInput) startInput.value = vocabStartDate();
-    const info = document.getElementById('vocab-start-info');
-    if (info) {
-      info.innerHTML = list.length
-        ? `Du <b style="color:var(--or);">${esc(planningFmtDs(vocabStartDate()))}</b> au <b style="color:var(--or);">${esc(planningFmtDs(vocabDateAtIndex(list.length - 1)))}</b>.`
-        : `Le 1<sup>er</sup> mot s'affiche le jour de démarrage.`;
-    }
-
-    const cont = document.getElementById('vocab-list-container');
-    if (!list.length) {
-      cont.innerHTML = `<div class="empty-state" style="padding:24px;">Aucun mot pour le moment.<br>Cliquez sur « + Ajouter un mot ».</div>`;
-      return;
-    }
-    cont.innerHTML = list.map((w, i) => {
-      const ds = vocabDateAtIndex(i);
-      const isToday = ds === today;
-      const dateLabel = planningFmtDs(ds);
-      return `
-        <div class="q-item" style="${isToday ? 'border-color:rgba(255,205,0,.5);' : ''}">
-          <div style="display:flex;flex-direction:column;align-items:center;gap:2px;flex-shrink:0;min-width:62px;">
-            <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.4);">#${i + 1}</div>
-            <div style="font-size:.7rem;font-weight:700;color:var(--or);text-align:center;line-height:1.15;">${esc(dateLabel)}</div>
-            ${isToday ? `<span class="q-badge-new" style="background:var(--or);color:#1a1a1a;">AUJOURD'HUI</span>` : ''}
-          </div>
-          <div class="q-body">
-            <div class="q-text"><span style="color:var(--or);font-weight:800;">${esc(w.word)}</span></div>
-            <div class="q-answer">${esc(w.translation)}</div>
-            ${w.example ? `<div class="q-meta" style="font-style:italic;">${esc(w.example)}</div>` : ''}
-          </div>
-          <div class="q-actions">
-            <button class="btn btn-ghost btn-sm" onclick="vocabMove(${i},-1)" title="Monter (plus tôt)" ${i === 0 ? 'disabled' : ''}>▲</button>
-            <button class="btn btn-ghost btn-sm" onclick="vocabMove(${i},1)" title="Descendre (plus tard)" ${i === list.length - 1 ? 'disabled' : ''}>▼</button>
-            <button class="btn btn-edit btn-sm" onclick="vocabEditRow(${i})">Modifier</button>
-            <button class="btn btn-edit btn-sm" onclick="vocabTest('${ds}')" title="Tester en condition joueur">⚗</button>
-            <button class="btn btn-ghost btn-sm" onclick="vocabDelete(${i})" title="Supprimer">✕</button>
-          </div>
-        </div>`;
-    }).join('');
-  }
-
-  function vocabOpenForm() {
-    document.getElementById('vocab-form-title').textContent = 'Nouveau mot';
-    document.getElementById('vocab-edit-orig').value = '';
-    document.getElementById('vocab-word').value = '';
-    document.getElementById('vocab-translation').value = '';
-    document.getElementById('vocab-example').value = '';
-    document.getElementById('vocab-form-err').style.display = 'none';
-    document.getElementById('vocab-form').style.display = 'block';
-  }
-
-  function vocabCloseForm() {
-    document.getElementById('vocab-form').style.display = 'none';
-  }
-
-  function vocabEditRow(i) {
-    const w = LS.getVocab()[i];
-    if (!w) return;
-    document.getElementById('vocab-form-title').textContent = 'Modifier le mot';
-    document.getElementById('vocab-edit-orig').value = String(i);
-    document.getElementById('vocab-word').value = w.word || '';
-    document.getElementById('vocab-translation').value = w.translation || '';
-    document.getElementById('vocab-example').value = w.example || '';
-    document.getElementById('vocab-form-err').style.display = 'none';
-    document.getElementById('vocab-form').style.display = 'block';
-    document.getElementById('vocab-form').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
-
-  function vocabSubmit() {
-    const err  = document.getElementById('vocab-form-err');
-    const orig = document.getElementById('vocab-edit-orig').value;
-    const word = document.getElementById('vocab-word').value.trim();
-    const translation = document.getElementById('vocab-translation').value.trim();
-    const example = document.getElementById('vocab-example').value.trim();
-    const fail = msg => { err.textContent = msg; err.style.display = 'block'; };
-    if (!word) return fail('Le mot allemand est obligatoire.');
-    if (!translation) return fail('La traduction est obligatoire.');
-
-    const arr = LS.getVocab().slice();
-    const entry = { word, translation, example };
-    if (orig === '') {
-      arr.push(entry);                       // nouvel ajout : en fin de séquence
-    } else {
-      const i = parseInt(orig, 10);
-      if (i >= 0 && i < arr.length) arr[i] = entry; else arr.push(entry);
-    }
-    LS.saveVocab(arr);
-    vocabCloseForm();
-    renderVocabAdmin();
-  }
-
-  function vocabDelete(i) {
-    const arr = LS.getVocab().slice();
-    const w = arr[i];
-    if (!w) return;
-    if (!confirm(`Supprimer le mot « ${w.word} » ?\nLes mots suivants seront décalés d'un jour.`)) return;
-    arr.splice(i, 1);
-    LS.saveVocab(arr);
-    renderVocabAdmin();
-  }
-
-  // Déplace un mot dans la séquence (dir = -1 plus tôt, +1 plus tard).
-  function vocabMove(i, dir) {
-    const arr = LS.getVocab().slice();
-    const j = i + dir;
-    if (j < 0 || j >= arr.length) return;
-    const tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
-    LS.saveVocab(arr);
-    renderVocabAdmin();
-  }
-
   function dbSearchFilter(val) {
     dbSearchTerm = val.trim();
     dbPageQ = 0;
@@ -14071,132 +13795,6 @@
       _pendingAfterRules = null;
       fn();
     }
-  }
-
-  /* ═══════════════════════════════════════════════════
-     MOT ALLEMAND DU JOUR (clin d'œil à Dino Toppmöller)
-     ───────────────────────────────────────────────────
-     VOCAB_SEED = graine de démarrage (50 mots, issus de vocab_allemand.xlsx).
-     La source de vérité réelle est Supabase (clé quiz_data "vocab"), éditable
-     depuis l'admin → Réglages → Apparence → « Vocabulaire allemand ».
-     VOCAB_SEED ne sert qu'au premier remplissage de la base (voir initDB) et
-     de repli si la base est vide.
-     Le mot du jour dépend du « jour de démarrage » (features.vocabStart) :
-     l'ordre du tableau = la séquence des jours (index 0 → jour de démarrage,
-     index 1 → +1 jour, …). Le champ `date` des entrées héritées est ignoré.
-     Format d'une entrée : { word, translation, example? }
-  ═══════════════════════════════════════════════════ */
-  const VOCAB_SEED = [
-    { date: "2026-06-16", word: "das Tor", translation: "le but / la cage", example: "Was für ein Tor! — Quel but !" },
-    { date: "2026-06-17", word: "Hallo", translation: "bonjour / salut", example: "Hallo, wie geht's? — Salut, ça va ?" },
-    { date: "2026-06-18", word: "der Ball", translation: "le ballon", example: "Der Ball ist rund. — Le ballon est rond." },
-    { date: "2026-06-19", word: "Danke", translation: "merci", example: "Danke schön! — Merci beaucoup !" },
-    { date: "2026-06-20", word: "der Fußball", translation: "le football", example: "Ich liebe Fußball. — J'adore le football." },
-    { date: "2026-06-21", word: "Bitte", translation: "s'il te plaît / de rien", example: "Ein Bier, bitte. — Une bière, s'il te plaît." },
-    { date: "2026-06-22", word: "das Spiel", translation: "le match / le jeu", example: "Das Spiel beginnt. — Le match commence." },
-    { date: "2026-06-23", word: "Ja", translation: "oui", example: "Ja, gerne! — Oui, avec plaisir !" },
-    { date: "2026-06-24", word: "der Spieler", translation: "le joueur", example: "Er ist ein guter Spieler. — C'est un bon joueur." },
-    { date: "2026-06-25", word: "Nein", translation: "non", example: "Nein, danke. — Non, merci." },
-    { date: "2026-06-26", word: "die Mannschaft", translation: "l'équipe", example: "Unsere Mannschaft gewinnt. — Notre équipe gagne." },
-    { date: "2026-06-27", word: "der Tag", translation: "le jour", example: "Schönen Tag! — Bonne journée !" },
-    { date: "2026-06-28", word: "der Torwart", translation: "le gardien de but", example: "Der Torwart hält den Ball. — Le gardien arrête le ballon." },
-    { date: "2026-06-29", word: "die Nacht", translation: "la nuit", example: "Gute Nacht! — Bonne nuit !" },
-    { date: "2026-06-30", word: "der Schiedsrichter", translation: "l'arbitre", example: "Der Schiedsrichter pfeift. — L'arbitre siffle." },
-    { date: "2026-07-01", word: "das Wasser", translation: "l'eau", example: "Ich trinke Wasser. — Je bois de l'eau." },
-    { date: "2026-07-02", word: "das Stadion", translation: "le stade", example: "Das Stadion ist voll. — Le stade est plein." },
-    { date: "2026-07-03", word: "das Brot", translation: "le pain", example: "Frisches Brot. — Du pain frais." },
-    { date: "2026-07-04", word: "der Trainer", translation: "l'entraîneur", example: "Der Trainer ist zufrieden. — L'entraîneur est satisfait." },
-    { date: "2026-07-05", word: "der Freund", translation: "l'ami", example: "Mein bester Freund. — Mon meilleur ami." },
-    { date: "2026-07-06", word: "der Sieg", translation: "la victoire", example: "Ein wichtiger Sieg! — Une victoire importante !" },
-    { date: "2026-07-07", word: "die Liebe", translation: "l'amour", example: "Liebe ist schön. — L'amour est beau." },
-    { date: "2026-07-08", word: "die Niederlage", translation: "la défaite", example: "Eine bittere Niederlage. — Une défaite amère." },
-    { date: "2026-07-09", word: "das Haus", translation: "la maison", example: "Mein Haus ist groß. — Ma maison est grande." },
-    { date: "2026-07-10", word: "das Unentschieden", translation: "le match nul", example: "Es endet unentschieden. — Ça finit par un nul." },
-    { date: "2026-07-11", word: "die Stadt", translation: "la ville", example: "Lens ist eine Stadt. — Lens est une ville." },
-    { date: "2026-07-12", word: "die Halbzeit", translation: "la mi-temps", example: "In der Halbzeit. — À la mi-temps." },
-    { date: "2026-07-13", word: "das Auto", translation: "la voiture", example: "Das Auto ist rot. — La voiture est rouge." },
-    { date: "2026-07-14", word: "der Anstoß", translation: "le coup d'envoi", example: "Der Anstoß ist um 15 Uhr. — Le coup d'envoi est à 15h." },
-    { date: "2026-07-15", word: "die Sonne", translation: "le soleil", example: "Die Sonne scheint. — Le soleil brille." },
-    { date: "2026-07-16", word: "der Elfmeter", translation: "le penalty", example: "Er verwandelt den Elfmeter. — Il transforme le penalty." },
-    { date: "2026-07-17", word: "der Regen", translation: "la pluie", example: "Es gibt Regen. — Il y a de la pluie." },
-    { date: "2026-07-18", word: "die Ecke", translation: "le corner", example: "Eine gefährliche Ecke. — Un corner dangereux." },
-    { date: "2026-07-19", word: "essen", translation: "manger", example: "Wir essen zusammen. — Nous mangeons ensemble." },
-    { date: "2026-07-20", word: "das Abseits", translation: "le hors-jeu", example: "Das war Abseits! — C'était hors-jeu !" },
-    { date: "2026-07-21", word: "trinken", translation: "boire", example: "Möchtest du trinken? — Veux-tu boire ?" },
-    { date: "2026-07-22", word: "die gelbe Karte", translation: "le carton jaune", example: "Er bekommt die gelbe Karte. — Il reçoit le carton jaune." },
-    { date: "2026-07-23", word: "gehen", translation: "aller / marcher", example: "Wir gehen nach Hause. — On rentre à la maison." },
-    { date: "2026-07-24", word: "die rote Karte", translation: "le carton rouge", example: "Rote Karte für den Spieler! — Carton rouge pour le joueur !" },
-    { date: "2026-07-25", word: "sprechen", translation: "parler", example: "Sprichst du Deutsch? — Parles-tu allemand ?" },
-    { date: "2026-07-26", word: "der Stürmer", translation: "l'attaquant", example: "Der Stürmer schießt ein Tor. — L'attaquant marque un but." },
-    { date: "2026-07-27", word: "gut", translation: "bon / bien", example: "Sehr gut! — Très bien !" },
-    { date: "2026-07-28", word: "der Verteidiger", translation: "le défenseur", example: "Ein starker Verteidiger. — Un défenseur solide." },
-    { date: "2026-07-29", word: "schön", translation: "beau / joli", example: "Ein schöner Tag. — Une belle journée." },
-    { date: "2026-07-30", word: "die Tribüne", translation: "la tribune", example: "Die Fans sind auf der Tribüne. — Les fans sont en tribune." },
-    { date: "2026-07-31", word: "groß", translation: "grand", example: "Ein großes Stadion. — Un grand stade." },
-    { date: "2026-08-01", word: "der Freistoß", translation: "le coup franc", example: "Ein Freistoß aus 20 Metern. — Un coup franc à 20 mètres." },
-    { date: "2026-08-02", word: "klein", translation: "petit", example: "Ein kleines Kind. — Un petit enfant." },
-    { date: "2026-08-03", word: "die Meisterschaft", translation: "le championnat", example: "Wir gewinnen die Meisterschaft. — On gagne le championnat." },
-    { date: "2026-08-04", word: "die Zeit", translation: "le temps", example: "Ich habe keine Zeit. — Je n'ai pas le temps." },
-  ];
-
-  // Mot affiché quand aucune entrée n'est planifiée pour la journée.
-  const GERMAN_WORD_FALLBACK = {
-    word: 'Auf geht’s!',
-    translation: 'Allez, c’est parti !',
-    example: 'Auf geht’s, Lens! — Allez, Lens !'
-  };
-
-  function germanWordForDate(ds) {
-    const list = (typeof LS !== 'undefined' && LS.getVocab) ? LS.getVocab() : VOCAB_SEED;
-    const arr = Array.isArray(list) ? list : VOCAB_SEED;
-    // Le mot dépend désormais du jour de démarrage : index = nombre de jours écoulés.
-    const i = (typeof vocabIndexForDate === 'function') ? vocabIndexForDate(ds) : -1;
-    if (i < 0 || i >= arr.length) return null;
-    return arr[i] || null;
-  }
-
-  // Ouvre la modale "mot du jour". Sans argument : mot de la date du jour (vue joueur).
-  // Avec un `forceDate` (YYYY-MM-DD) : mode test admin — affiche le mot de cette date
-  // exactement comme le verra le joueur, avec un bandeau « test ».
-  function openGermanWord(forceDate = null) {
-    const isTest = !!forceDate;
-    const ds = forceDate || ((typeof planningTodayStr === 'function') ? planningTodayStr() : new Date().toISOString().slice(0, 10));
-    const entry = germanWordForDate(ds);
-    const w = entry || GERMAN_WORD_FALLBACK;
-    const esc = s => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-    // Libellé de date « lun. 16 juin 2026 »
-    let dateLabel = '';
-    try {
-      const d = new Date(ds + 'T00:00:00');
-      dateLabel = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'long', year: 'numeric' });
-    } catch (e) { dateLabel = ds; }
-
-    let html = '';
-    if (isTest) {
-      html += `<div style="background:rgba(100,180,255,.13);border:1px solid rgba(100,180,255,.4);color:#64b4ff;border-radius:8px;padding:7px 12px;margin-bottom:14px;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.4px;">⚗ Aperçu test — vue joueur</div>`;
-    }
-    html += `<p class="german-word-term">${esc(w.word)}</p>`;
-    html += `<p class="german-word-trans">${esc(w.translation)}</p>`;
-    if (w.example) html += `<p class="german-word-example">« ${esc(w.example)} »</p>`;
-    html += `<p class="german-word-date">${esc(dateLabel)}</p>`;
-    if (!entry) {
-      html += `<p class="german-word-empty">Le mot du jour n’est pas encore programmé — revenez plus tard !</p>`;
-    }
-    document.getElementById('german-word-body').innerHTML = html;
-
-    const modal = document.getElementById('german-word-modal');
-    modal.style.display = 'flex';
-    modal.scrollTop = 0;
-  }
-
-  function closeGermanWord() {
-    document.getElementById('german-word-modal').style.display = 'none';
-  }
-
-  // Bouton ⚗ « Tester » d'une ligne du vocabulaire (admin) : affiche le mot en condition joueur.
-  function vocabTest(date) {
-    openGermanWord(date);
   }
 
   /* ═══════════════════════════════════════════════════
