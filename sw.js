@@ -1,4 +1,4 @@
-const CACHE = 'rc-quiz-v48';
+const CACHE = 'rc-quiz-v52';
 const PRECACHE = [
   './',
   './index.html',
@@ -12,6 +12,12 @@ const PRECACHE = [
   './Insta.png',
   './X.png',
   './manifest.json',
+  // Favicon sorti du <head> (il y vivait en base64, 106 Ko sur le chemin
+  // critique) + vignette de partage des liens.
+  './favicon.ico',
+  './favicon-32.png',
+  './apple-touch-icon.png',
+  './og-card.jpg',
 ];
 
 self.addEventListener('install', e => {
