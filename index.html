@@ -7,14 +7,16 @@
   <meta name="description" content="Le quiz quotidien du Racing Club Podcast : deux « Qui suis-je ? » par journée, un classement Sang et Or, et votre Onze à composer.">
 
   <!-- Aperçu des liens partagés (shareOnX, shareVersus, partage du Onze).
-       ⚠ À FAIRE AVANT LA PROCHAINE MISE EN LIGNE : remplacer les deux URL
-       ci-dessous par l'adresse réelle du site. Les réseaux sociaux exigent une
-       URL ABSOLUE pour og:image — avec un chemin relatif, le lien partagé
-       s'affiche sans vignette. -->
+       Les réseaux sociaux exigent une URL ABSOLUE pour og:image et
+       twitter:image : avec un chemin relatif, le lien partagé s'affiche sans
+       vignette. Les deux URL ci-dessous pointent donc explicitement vers le
+       site publié (GitHub Pages, dépôt racingclubpodcast-cmd/racingquiz). À
+       corriger si le site déménage. -->
   <meta property="og:site_name" content="Le Racing Quiz">
   <meta property="og:title" content="Le Racing Quiz">
   <meta property="og:description" content="Saurez-vous reconnaître les joueurs du Racing ? Nouvelle journée à chaque match.">
-  <meta property="og:image" content="og-card.jpg">
+  <meta property="og:url" content="https://racingclubpodcast-cmd.github.io/racingquiz/">
+  <meta property="og:image" content="https://racingclubpodcast-cmd.github.io/racingquiz/og-card.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:type" content="website">
@@ -22,7 +24,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Le Racing Quiz">
   <meta name="twitter:description" content="Saurez-vous reconnaître les joueurs du Racing ? Nouvelle journée à chaque match.">
-  <meta name="twitter:image" content="og-card.jpg">
+  <meta name="twitter:image" content="https://racingclubpodcast-cmd.github.io/racingquiz/og-card.jpg">
 
   <link rel="icon" href="favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -5787,6 +5789,7 @@
   let _myThreads      = [];    // liste des fils du joueur (métadonnées)
   let _threadReplies  = [];    // réponses du fil actuellement ouvert
   let _threadOpenId   = null;  // id du message dont la modale est ouverte
+  let _threadLoadError = false; // la lecture du fil a échoué → ne pas afficher un fil vide muet
 
   async function myThreadsFetch() {
     if (!_supa || !_localUser) { _myThreads = []; return false; }
@@ -5851,15 +5854,21 @@
 
     const tok = _getAuthToken();
     _threadReplies = [];
-    if (_supa && _localUser && tok) {
+    // Un échec de lecture doit être VISIBLE : avant le 26/11/2026 l'erreur était
+    // avalée en silence et le joueur voyait un fil vide, sans savoir que des
+    // réponses de l'admin existaient (cf. bug 42702 sur message_thread_for).
+    _threadLoadError = !(_supa && _localUser && tok);
+    if (!_threadLoadError) {
       try {
         const { data, error } = await _supa.rpc('message_thread_for', { p_pseudo: _localUser.pseudo, p_token: tok, p_message_id: id });
-        if (!error) _threadReplies = data || [];
-      } catch {}
+        if (error) { _threadLoadError = true; console.error('[Supabase] ouverture du fil impossible:', error); }
+        else _threadReplies = data || [];
+      } catch (e) { _threadLoadError = true; console.error('[Supabase] ouverture du fil impossible:', e); }
     }
     _renderThreadModalBody(t);
     // Les réponses admin viennent d'être marquées lues côté serveur : on rafraîchit les compteurs.
-    if (t) t.unread_count = 0;
+    // Lecture échouée = rien n'a été lu : on laisse le compteur de non-lus intact.
+    if (t && !_threadLoadError) t.unread_count = 0;
     renderMyThreads();
     if (typeof updateHomeAuthArea === 'function') updateHomeAuthArea();
   }
@@ -5874,6 +5883,13 @@
       html += `<div style="max-width:90%;margin-right:auto;background:rgba(255,255,255,.05);border-radius:10px;padding:8px 11px;">
         <div style="font-size:.66rem;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:2px;">Toi · ${fmt(t.created_at)}</div>
         <div style="font-size:.85rem;color:#fff;white-space:pre-wrap;">${esc(t.body)}</div>
+      </div>`;
+    }
+    // Lecture des réponses impossible : on le dit, plutôt que de laisser croire
+    // que l'administration n'a jamais répondu.
+    if (_threadLoadError) {
+      html += `<div style="max-width:90%;margin:4px auto;background:rgba(227,6,19,.12);border:1px solid rgba(227,6,19,.35);border-radius:10px;padding:8px 11px;">
+        <div style="font-size:.82rem;color:#fff;">Impossible d'afficher les réponses pour le moment. Réessaie dans un instant — ton message, lui, est bien arrivé.</div>
       </div>`;
     }
     html += _threadReplies.map(r => {
@@ -17775,12 +17791,14 @@
     return /^data:image\/[a-z0-9.+-]+;base64,[A-Za-z0-9+/=]+$/i.test(s) ? esc(s) : '';
   }
 
-  /* Supprime les accents, normalise les apostrophes, met en minuscules */
+  /* Supprime les accents, normalise les apostrophes, traite les traits d'union,
+     tirets, points et puces comme des espaces, met en minuscules */
   function normalizeStr(s) {
     return String(s)
       .normalize('NFD')
       .replace(/[̀-ͯ]/g, '')
       .replace(/[''ʼ`]/g, ' ')
+      .replace(/[-‐‑‒–—―_·•.]/g, ' ')
       .toLowerCase()
       .replace(/\s+/g, ' ')
       .trim();
@@ -17806,20 +17824,32 @@
     return dp[m][n];
   }
 
-  /* Comparaison tolérante : accents ignorés, articles retirés, 1 lettre d'écart acceptée si ≥ 4 caractères,
+  /* Comparaison souple de deux chaînes déjà normalisées : égalité stricte,
+     1 lettre d'écart (si ≥ 4 caractères), ou égalité une fois tous les séparateurs
+     retirés — ainsi "Adjovi-Bocco", "Adjovi Bocco" et "AdjoviBocco" sont équivalents. */
+  function looseEq(a, b) {
+    if (a === b) return true;
+    if (b.length >= 4 && levenshtein(a, b) <= 1) return true;
+    const ac = a.replace(/ /g, ''), bc = b.replace(/ /g, '');
+    if (!ac || !bc) return false;
+    if (ac === bc) return true;
+    if (bc.length >= 4 && levenshtein(ac, bc) <= 1) return true;
+    return false;
+  }
+
+  /* Comparaison tolérante : accents et traits d'union ignorés, articles retirés,
+     1 lettre d'écart acceptée si ≥ 4 caractères,
      et la réponse attendue peut être contenue dans une phrase plus longue du joueur */
   function isMatch(val, answer) {
     const a = normalizeStr(val);
     const b = normalizeStr(answer);
-    if (a === b) return true;
-    if (b.length >= 4 && levenshtein(a, b) <= 1) return true;
+    if (looseEq(a, b)) return true;
 
     // Passe 2 — sans articles (ex : "le LOSC" → "losc" == "losc")
     const as = stripArticles(a);
     const bs = stripArticles(b);
     if (as && bs) {
-      if (as === bs) return true;
-      if (bs.length >= 4 && levenshtein(as, bs) <= 1) return true;
+      if (looseEq(as, bs)) return true;
 
       // Passe 3 — la réponse attendue est présente en mots entiers dans la phrase du joueur
       // ex : "il est en deuxieme division" contient "deuxieme division", "ils sont en D2" contient "D2"
@@ -17854,8 +17884,7 @@
       for (let j = i; j < bw.length; j++) {
         chunk = chunk ? chunk + ' ' + bw[j] : bw[j];
         if (chunk.length < 3) continue;
-        if (a === chunk) return true;
-        if (chunk.length >= 4 && levenshtein(a, chunk) <= 1) return true;
+        if (looseEq(a, chunk)) return true;
       }
     }
     if (variants && variants.length) {

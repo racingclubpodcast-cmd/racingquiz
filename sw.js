@@ -1,4 +1,4 @@
-const CACHE = 'rc-quiz-v52';
+const CACHE = 'rc-quiz-v55';
 const PRECACHE = [
   './',
   './index.html',
@@ -22,7 +22,14 @@ const PRECACHE = [
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => c.addAll(PRECACHE))
+    caches.open(CACHE).then(c =>
+      // Un fichier à la fois, et surtout PAS `addAll` : celui-ci est
+      // tout-ou-rien — un seul 404 (un asset de cette liste oublié dans le
+      // dépôt GitHub) faisait échouer l'installation entière, donc aucun
+      // cache hors-ligne du tout, alors que les 18 autres fichiers étaient
+      // là. Un asset manquant est maintenant simplement ignoré.
+      Promise.all(PRECACHE.map(u => c.add(u).catch(() => {})))
+    )
   );
   self.skipWaiting();
 });
