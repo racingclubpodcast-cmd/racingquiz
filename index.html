@@ -2906,6 +2906,29 @@
         </div>
       </div>
       <button id="home-contact-btn" class="btn btn-ghost btn-full" style="max-width:380px;margin-top:18px;margin-bottom:0;font-size:.85rem;" onclick="openContactFromHome()">✉ Contactez-nous</button>
+
+      <!-- Suivi d'une demande d'aide envoyée sans compte (code de suivi).
+           Visible uniquement hors connexion, quand un code est mémorisé sur cet
+           appareil — ou à la demande, pour saisir un code venu d'ailleurs. -->
+      <div id="home-ticket-card" class="card" style="display:none;max-width:380px;width:100%;margin-top:12px;padding:14px 16px;">
+        <div style="font-size:.86rem;font-weight:800;color:var(--or);margin-bottom:6px;">Ta demande d'aide</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <span id="home-ticket-code" style="flex:1;font-family:monospace;font-size:.92rem;letter-spacing:.06em;color:#fff;min-width:0;overflow:hidden;text-overflow:ellipsis;"></span>
+          <button class="btn btn-ghost btn-sm" style="flex-shrink:0;margin:0;font-size:.7rem;padding:4px 9px;" onclick="helpTicketClear()">Oublier</button>
+        </div>
+        <div id="home-ticket-info" style="font-size:.76rem;color:rgba(255,255,255,.45);margin-bottom:10px;"></div>
+        <button class="btn btn-gold btn-full mb0" style="font-size:.8rem;" onclick="openTicketThread(helpTicketGet())">Ouvrir ma demande</button>
+      </div>
+
+      <button id="home-ticket-link" class="btn btn-ghost btn-full" style="display:none;max-width:380px;margin-top:8px;margin-bottom:0;font-size:.76rem;" onclick="helpTicketAskCode()">J'ai un code de suivi</button>
+      <div id="home-ticket-entry" style="display:none;max-width:380px;width:100%;margin-top:8px;">
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="home-ticket-input" placeholder="RCQ-XXXX-XXXX" autocomplete="off"
+                 style="flex:1;font-family:monospace;font-size:.85rem;letter-spacing:.06em;text-align:center;padding:9px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;min-width:0;">
+          <button class="btn btn-gold btn-sm" style="flex-shrink:0;margin:0;" onclick="helpTicketOpenTyped()">Ouvrir</button>
+        </div>
+        <div id="home-ticket-entry-fb" style="font-size:.73rem;margin-top:5px;min-height:0;"></div>
+      </div>
       <button id="home-logout-btn" class="btn btn-danger btn-full mb0" onclick="authSignOut()" style="display:none;max-width:380px;margin-top:10px;font-size:.82rem;">Se déconnecter</button>
       <p style="margin-top:18px;font-size:.68rem;color:rgba(255,255,255,.25);text-align:center;">by <a href="https://www.youtube.com/@LeRacingClubPodcast" target="_blank" rel="noopener" style="color:rgba(255,255,255,.35);text-decoration:none;" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">Racing Club Podcast</a></p>
       </div><!-- /.hm-foot -->
@@ -5418,20 +5441,52 @@
      Exécuter supabase-messages-migration.sql avant utilisation. */
   let _messages = [];   // cache admin des messages chargés
 
+  /* Envoi d'un message « Contactez-nous ».
+     Passe par la RPC `contact_send` : elle applique le plafond anti-inondation,
+     vérifie les tailles, et renvoie un CODE DE SUIVI (`RCQ-XXXX-XXXX`) quand la
+     demande d'aide est envoyée sans compte — c'est ce code qui permet ensuite
+     de relire les réponses de l'admin sans jamais se connecter.
+     Renvoie { ok:true, ticket } ou { ok:false, reason }. */
   async function messageInsert(m) {
-    if (!_supa) return false;
+    if (!_supa) return { ok: false };
+    const tok  = _getAuthToken();
+    const logged = !!(_localUser && _localUser.pseudo && tok);
+    const { data, error } = await _supa.rpc('contact_send', {
+      p_type: m.type,
+      p_body: m.body,
+      p_question_ref: m.question_ref || null,
+      p_answer: m.answer || null,
+      p_extra:  m.extra  || null,
+      p_author: m.author || null,
+      p_pseudo: logged ? _localUser.pseudo : null,
+      p_token:  logged ? tok : null
+    });
+    if (!error) return { ok: true, ticket: (data && data.ticket) || null };
+
+    const txt = error.message || '';
+    if (/rate_limited/.test(txt)) return { ok: false, reason: 'rate' };
+    if (/too_long/.test(txt))     return { ok: false, reason: 'long' };
+    if (/empty_body/.test(txt))   return { ok: false, reason: 'empty' };
+    if (error.code !== 'PGRST202') {
+      console.error('[Supabase] contact_send:', error);
+      return { ok: false };
+    }
+
+    // RPC absente — supabase-contact-ticket-migration.sql pas encore appliquée :
+    // repli sur l'ancien chemin (insertion directe, sans code ni plafond).
+    console.warn('[Supabase] RPC contact_send absente — exécutez supabase-contact-ticket-migration.sql (ni code de suivi ni plafond anti-inondation).');
     const base = {
       type: m.type, question_ref: m.question_ref || null, body: m.body,
       answer: m.answer || null, extra: m.extra || null, author: m.author || null
     };
-    let { error } = await _supa.from('messages').insert({ ...base, author_key: m.author_key || null });
-    if (error && /author_key/i.test(error.message || '')) {
+    let { error: e2 } = await _supa.from('messages').insert({ ...base, author_key: m.author_key || null });
+    if (e2 && /author_key/i.test(e2.message || '')) {
       // Colonne absente — migration supabase-message-replies-migration.sql pas encore appliquée : repli sans le lien de fil.
       console.warn('[Supabase] colonne messages.author_key manquante — exécutez supabase-message-replies-migration.sql (fil de discussion indisponible).');
-      ({ error } = await _supa.from('messages').insert(base));
+      ({ error: e2 } = await _supa.from('messages').insert(base));
     }
-    if (error) { console.error('[Supabase] insertion message:', error); return false; }
-    return true;
+    if (e2) { console.error('[Supabase] insertion message:', e2); return { ok: false }; }
+    return { ok: true, ticket: null };
   }
 
   let _msgReplies = {};   // fil de discussion admin : { message_id → [réponses] }
@@ -5640,8 +5695,22 @@
       html += '</div>';
     }
     // Zone de réponse : possible dès qu'on sait à quel compte rattacher le fil
-    // (clé enregistrée à l'envoi, ou pseudo déclaré correspondant à un compte).
-    if (_msgAuthorKey(m)) {
+    // (clé enregistrée à l'envoi, ou pseudo déclaré correspondant à un compte),
+    // ou dès qu'un code de suivi existe — la personne sans compte lira la
+    // réponse en rouvrant son fil avec ce code.
+    const hasTicket = !!m.ticket_code;
+    if (hasTicket && !_msgAuthorKey(m)) {
+      html += `<div style="margin-top:10px;background:rgba(227,6,19,.10);border:1px solid rgba(227,6,19,.3);border-radius:10px;padding:8px 11px;">
+        <div style="font-size:.74rem;color:#fff;line-height:1.5;">
+          Demande envoyée <strong>sans compte</strong>, suivie par le code
+          <span style="font-family:monospace;color:var(--or);">${esc(m.ticket_code)}</span>.
+          L'identité n'est pas vérifiée : ce code prouve seulement que la personne a écrit ce message.
+          <strong>Ne communique jamais un mot de passe réinitialisé dans ce fil</strong> — vérifie d'abord
+          par un autre canal à qui tu as affaire.
+        </div>
+      </div>`;
+    }
+    if (_msgAuthorKey(m) || hasTicket) {
       html += `<div style="margin-top:10px;display:flex;gap:8px;align-items:flex-end;">
         <textarea id="reply-input-${m.id}" rows="1" placeholder="Répondre à ${esc(m.author || 'ce joueur')}…" style="flex:1;resize:vertical;min-height:38px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-size:.84rem;font-family:inherit;"></textarea>
         <button class="btn btn-gold btn-sm" style="font-size:.74rem;padding:8px 14px;white-space:nowrap;" onclick="onAdminReply(${m.id})">Répondre</button>
@@ -5789,7 +5858,10 @@
   let _myThreads      = [];    // liste des fils du joueur (métadonnées)
   let _threadReplies  = [];    // réponses du fil actuellement ouvert
   let _threadOpenId   = null;  // id du message dont la modale est ouverte
-  let _threadLoadError = false; // la lecture du fil a échoué → ne pas afficher un fil vide muet
+  let _threadLoadError = false; // false | 'error' | 'notfound' — ne jamais afficher un fil vide muet
+  let _threadIsTicket  = false; // fil ouvert avec un code de suivi (personne sans compte)
+  let _ticketCode      = null;  // code de suivi du fil ouvert, le cas échéant
+  let _ticketMsg       = null;  // message d'origine du fil ouvert par code
 
   async function myThreadsFetch() {
     if (!_supa || !_localUser) { _myThreads = []; return false; }
@@ -5837,7 +5909,9 @@
   }
 
   async function openThreadModal(id) {
-    _threadOpenId = id;
+    _threadOpenId   = id;
+    _threadIsTicket = false;   // fil rattaché à un compte, pas à un code de suivi
+    _ticketCode     = null;
     const t = _myThreads.find(x => x.id === id);
     const subj = document.getElementById('thread-subject');
     const bodyEl = document.getElementById('thread-body');
@@ -5888,8 +5962,11 @@
     // Lecture des réponses impossible : on le dit, plutôt que de laisser croire
     // que l'administration n'a jamais répondu.
     if (_threadLoadError) {
+      const txt = _threadLoadError === 'notfound'
+        ? 'Ce code de suivi ne correspond à aucune demande. Vérifie-le, ou envoie-nous un nouveau message depuis « Contactez-nous ».'
+        : 'Impossible d\'afficher les réponses pour le moment. Réessaie dans un instant — ton message, lui, est bien arrivé.';
       html += `<div style="max-width:90%;margin:4px auto;background:rgba(227,6,19,.12);border:1px solid rgba(227,6,19,.35);border-radius:10px;padding:8px 11px;">
-        <div style="font-size:.82rem;color:#fff;">Impossible d'afficher les réponses pour le moment. Réessaie dans un instant — ton message, lui, est bien arrivé.</div>
+        <div style="font-size:.82rem;color:#fff;">${txt}</div>
       </div>`;
     }
     html += _threadReplies.map(r => {
@@ -5909,7 +5986,12 @@
 
   function closeThreadModal() {
     document.getElementById('thread-modal').style.display = 'none';
-    _threadOpenId = null;
+    _threadOpenId   = null;
+    _threadIsTicket = false;
+    _ticketCode     = null;
+    _ticketMsg      = null;
+    const wrap = document.getElementById('thread-reply-wrap');
+    if (wrap) wrap.style.display = '';
   }
 
   async function onThreadReply() {
@@ -5919,6 +6001,8 @@
     const setFb = (msg, ok) => { if (fb) { fb.textContent = msg; fb.style.color = ok ? '#9be29b' : '#ff6b6b'; } };
     const body = inp ? inp.value.trim() : '';
     if (!body) { setFb('Ta réponse ne peut pas être vide.', false); return; }
+    // Fil ouvert avec un code de suivi (personne sans compte) : autre RPC.
+    if (_threadIsTicket) { await onTicketReply(body, inp, btn, setFb); return; }
     if (!_supa || !_localUser) { setFb('Connexion requise.', false); return; }
     const tok = _getAuthToken();
     if (!tok) { setFb('Session expirée — reconnecte-toi.', false); return; }
@@ -5932,6 +6016,154 @@
       setFb('Réponse envoyée.', true);
       _renderThreadModalBody(_myThreads.find(x => x.id === _threadOpenId));
       await myThreadsFetch(); renderMyThreads();
+    } catch { setFb('Échec de l\'envoi. Réessaie.', false); }
+    finally { if (btn) btn.disabled = false; }
+  }
+
+  /* ═══ Demande d'aide SANS COMPTE — code de suivi ═══
+     Une personne qui a perdu son mot de passe ne peut plus se connecter : son
+     fil ne peut donc pas être rattaché à un compte. À l'envoi, le serveur lui
+     attribue un code `RCQ-XXXX-XXXX` (voir supabase-contact-ticket-migration.sql)
+     qui tient lieu de clé : il est mémorisé sur l'appareil ET affiché pour
+     qu'elle puisse le noter et revenir depuis un autre navigateur.
+     ⚠ Ce code prouve « j'ai écrit ce message », PAS « je possède ce compte ». */
+  const HELP_TICKET_KEY = 'rcHelpTicket';
+
+  function helpTicketGet()      { try { return localStorage.getItem(HELP_TICKET_KEY) || null; } catch { return null; } }
+  function helpTicketSave(code) { try { localStorage.setItem(HELP_TICKET_KEY, code); } catch {} }
+  function helpTicketClear()    { try { localStorage.removeItem(HELP_TICKET_KEY); } catch {} renderHelpTicketCard(); }
+
+  function helpTicketCopy() {
+    const el = document.getElementById('contact-ticket-code');
+    if (!el) return;
+    el.select();
+    try { navigator.clipboard.writeText(el.value); } catch { try { document.execCommand('copy'); } catch {} }
+  }
+
+  /* Encart « Ta demande d'aide » en bas de l'accueil : visible uniquement si un
+     code de suivi est mémorisé sur cet appareil et que personne n'est connecté
+     (un joueur connecté retrouve ses fils dans sa carte joueur). */
+  async function renderHelpTicketCard() {
+    const card = document.getElementById('home-ticket-card');
+    if (!card) return;
+    const code = helpTicketGet();
+    if (!code || _localUser) { card.style.display = 'none'; return; }
+    card.style.display = '';
+    const codeEl = document.getElementById('home-ticket-code');
+    if (codeEl) codeEl.textContent = code;
+    const infoEl = document.getElementById('home-ticket-info');
+    if (!infoEl) return;
+    // Texte par défaut : le compteur ci-dessous peut ne pas répondre (hors ligne,
+    // ou migration pas encore appliquée) — la carte ne doit jamais rester muette.
+    infoEl.textContent = 'Ouvre ta demande pour voir nos réponses.';
+    infoEl.style.color = 'rgba(255,255,255,.45)';
+    if (!_supa) return;
+    try {
+      const { data, error } = await _supa.rpc('ticket_unread_for', { p_code: code });
+      if (error) return;
+      const n = data || 0;
+      infoEl.textContent = n > 0
+        ? (n > 1 ? n + ' nouvelles réponses de l\'administration' : 'Une nouvelle réponse de l\'administration')
+        : 'Aucune nouvelle réponse pour le moment.';
+      infoEl.style.color = n > 0 ? 'var(--or)' : 'rgba(255,255,255,.45)';
+    } catch {}
+  }
+
+  /* Affiche ou masque tout le bloc « code de suivi » de l'accueil.
+     Un joueur connecté n'en a pas besoin : ses échanges sont dans sa carte. */
+  function _syncHelpTicketUi() {
+    const link  = document.getElementById('home-ticket-link');
+    const entry = document.getElementById('home-ticket-entry');
+    const show  = !_localUser && feat('contact');
+    if (link)  link.style.display  = show ? '' : 'none';
+    if (entry && !show) entry.style.display = 'none';
+    renderHelpTicketCard();
+  }
+
+  /* Saisie manuelle d'un code (autre appareil, cache vidé, PWA réinstallée). */
+  function helpTicketAskCode() {
+    const wrap = document.getElementById('home-ticket-entry');
+    if (!wrap) return;
+    const open = wrap.style.display !== 'none';
+    wrap.style.display = open ? 'none' : '';
+    if (!open) { const i = document.getElementById('home-ticket-input'); if (i) { i.value = ''; i.focus(); } }
+  }
+
+  function helpTicketOpenTyped() {
+    const i  = document.getElementById('home-ticket-input');
+    const fb = document.getElementById('home-ticket-entry-fb');
+    const code = i ? i.value.trim().toUpperCase() : '';
+    if (!code) { if (fb) { fb.textContent = 'Saisis ton code de suivi.'; fb.style.color = '#ff6b6b'; } return; }
+    if (fb) fb.textContent = '';
+    openTicketThread(code, true);
+  }
+
+  /* Ouvre le fil correspondant à un code de suivi, dans la même modale que les
+     fils des joueurs connectés. `remember` mémorise le code s'il est valide. */
+  async function openTicketThread(code, remember) {
+    const c = String(code || '').trim().toUpperCase();
+    if (!c) return;
+    _threadIsTicket  = true;
+    _ticketCode      = c;
+    _threadOpenId    = null;
+    _threadReplies   = [];
+    _threadLoadError = false;
+
+    const subj   = document.getElementById('thread-subject');
+    const bodyEl = document.getElementById('thread-body');
+    const fb     = document.getElementById('thread-reply-fb');
+    const inp    = document.getElementById('thread-reply-input');
+    const wrap   = document.getElementById('thread-reply-wrap');
+    if (fb)  fb.textContent = '';
+    if (inp) inp.value = '';
+    if (wrap) wrap.style.display = '';
+    if (subj) subj.innerHTML = `<strong style="color:var(--or);">Demande d'aide</strong> · ${esc(c)}`;
+    if (bodyEl) bodyEl.innerHTML = '<p style="font-size:.82rem;color:rgba(255,255,255,.4);text-align:center;margin:12px 0;">Chargement…</p>';
+    document.getElementById('thread-modal').style.display = 'flex';
+
+    let msg = null;
+    if (_supa) {
+      try {
+        const { data, error } = await _supa.rpc('ticket_thread_for', { p_code: c });
+        if (error || !data) { _threadLoadError = 'error'; console.error('[Supabase] ticket_thread_for:', error); }
+        else if (!data.ok)  { _threadLoadError = 'notfound'; }
+        else {
+          msg = data.message || null;
+          _ticketMsg = msg;
+          _threadReplies = data.replies || [];
+          if (remember) helpTicketSave(c);
+        }
+      } catch (e) { _threadLoadError = 'error'; console.error('[Supabase] ticket_thread_for:', e); }
+    } else {
+      _threadLoadError = 'error';
+    }
+
+    if (_threadLoadError === 'notfound' && wrap) wrap.style.display = 'none';
+    if (subj && msg && msg.question_ref) {
+      subj.innerHTML = `<strong style="color:var(--or);">${esc(msg.question_ref)}</strong> · ${esc(c)}`;
+    }
+    _renderThreadModalBody(msg);
+    renderHelpTicketCard();
+  }
+
+  /* Réponse du joueur dans un fil ouvert par code de suivi. */
+  async function onTicketReply(body, inp, btn, setFb) {
+    if (!_supa || !_ticketCode) { setFb('Envoi indisponible pour le moment.', false); return; }
+    if (btn) btn.disabled = true;
+    setFb('Envoi…', true);
+    try {
+      const { data, error } = await _supa.rpc('ticket_reply_send', { p_code: _ticketCode, p_body: body });
+      if (error) {
+        const txt = error.message || '';
+        setFb(/rate_limited/.test(txt) ? 'Tu as déjà envoyé plusieurs réponses — réessaie dans une heure.'
+            : /too_long/.test(txt)     ? 'Ta réponse est trop longue (2000 caractères maximum).'
+            : 'Échec de l\'envoi. Réessaie.', false);
+        return;
+      }
+      _threadReplies.push({ id: data && data.id, sender: 'player', body, created_at: new Date().toISOString() });
+      if (inp) inp.value = '';
+      setFb('Réponse envoyée.', true);
+      _renderThreadModalBody(_ticketMsg);
     } catch { setFb('Échec de l\'envoi. Réessaie.', false); }
     finally { if (btn) btn.disabled = false; }
   }
@@ -17641,6 +17873,8 @@
     document.getElementById('c-help-subject').value     = '';
     document.getElementById('c-help-message').value     = '';
     document.getElementById('contact-err').style.display = 'none';
+    const okEl = document.getElementById('contact-ok');
+    if (okEl) { okEl.style.display = 'none'; okEl.innerHTML = ''; }
     document.getElementById('contact-modal').style.display = 'flex';
   }
 
@@ -17742,12 +17976,35 @@
     btn.textContent = '⏳ Envoi en cours…';
 
     try {
-      const ok = await messageInsert(msg);
-      if (!ok) throw new Error('insert failed');
-      okEl.textContent = contactCurrentType === 'help'
-        ? '✅ Message envoyé ! On revient vers vous au plus vite.'
-        : '✅ Message envoyé ! Merci pour votre contribution.';
-      okEl.style.display = 'block';
+      const res = await messageInsert(msg);
+      if (!res || !res.ok) {
+        const why = res && res.reason;
+        errEl.textContent =
+          why === 'rate' ? 'Tu as déjà envoyé plusieurs messages — laisse-nous le temps de répondre et réessaie dans une heure.'
+        : why === 'long' ? 'Ton message est trop long. Résume-le en 2000 caractères maximum.'
+        : 'Erreur lors de l\'envoi. Réessaie, ou écris directement à ' + CONTACT_EMAIL + '.';
+        errEl.style.display = 'block';
+        return;
+      }
+      if (res.ticket) {
+        // Demande d'aide envoyée sans compte : le code de suivi est le SEUL
+        // moyen de revenir lire la réponse. On le mémorise sur l'appareil et
+        // on l'affiche en grand pour que la personne puisse le noter.
+        helpTicketSave(res.ticket);
+        okEl.innerHTML = `Message envoyé ! Voici ton <strong>code de suivi</strong> — note-le, il te permettra de lire notre réponse sans te connecter :
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px;">
+            <input type="text" id="contact-ticket-code" readonly onclick="this.select()" value="${esc(res.ticket)}"
+                   style="flex:1;font-family:monospace;font-size:1rem;letter-spacing:.08em;text-align:center;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:rgba(255,205,0,.08);color:var(--or);min-width:0;">
+            <button class="btn btn-gold btn-sm" style="flex-shrink:0;margin:0;" onclick="helpTicketCopy()">Copier</button>
+          </div>
+          <div style="font-size:.74rem;color:rgba(255,255,255,.55);margin-top:8px;">Il est aussi retenu sur cet appareil : tu retrouveras ta demande en bas de l'accueil.</div>`;
+        okEl.style.display = 'block';
+      } else {
+        okEl.textContent = contactCurrentType === 'help'
+          ? '✅ Message envoyé ! On revient vers vous au plus vite.'
+          : '✅ Message envoyé ! Merci pour votre contribution.';
+        okEl.style.display = 'block';
+      }
       // Réinitialise et ferme après 3 s
       document.getElementById('c-question-ref').value      = '';
       document.getElementById('c-error-desc').value        = '';
@@ -17757,7 +18014,10 @@
       document.getElementById('c-help-pseudo').value       = '';
       document.getElementById('c-help-subject').value      = '';
       document.getElementById('c-help-message').value      = '';
-      setTimeout(closeContact, 3000);
+      // Avec un code de suivi affiché, on NE referme PAS tout seul : la personne
+      // doit avoir le temps de le noter. Elle ferme elle-même la fenêtre.
+      if (res.ticket) renderHelpTicketCard();
+      else setTimeout(closeContact, 3000);
     } catch (err) {
       console.error('[Supabase] envoi message:', err);
       errEl.textContent = 'Erreur lors de l\'envoi. Veuillez réessayer ou contacter directement ' + CONTACT_EMAIL + '.';
@@ -18304,8 +18564,10 @@
         b.style.display = n > 0 ? 'inline-block' : 'none';
       });
       renderHomeCatchUp();
+      _syncHelpTicketUi();
     } else {
       renderHomeCatchUp();
+      _syncHelpTicketUi();
       authCta.style.display = 'block';
       playSection.style.display = 'none';
       if (profileBtn) profileBtn.style.display = 'none';
