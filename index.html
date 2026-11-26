@@ -2920,12 +2920,17 @@
         <button class="btn btn-gold btn-full mb0" style="font-size:.8rem;" onclick="openTicketThread(helpTicketGet())">Ouvrir ma demande</button>
       </div>
 
-      <button id="home-ticket-link" class="btn btn-ghost btn-full" style="display:none;max-width:380px;margin-top:8px;margin-bottom:0;font-size:.76rem;" onclick="helpTicketAskCode()">J'ai un code de suivi</button>
+      <button id="home-ticket-link" class="btn btn-ghost btn-full" style="display:none;max-width:380px;margin-top:8px;margin-bottom:0;font-size:.76rem;" onclick="helpTicketAskCode()">Suivre ma demande d'aide</button>
       <div id="home-ticket-entry" style="display:none;max-width:380px;width:100%;margin-top:8px;">
         <div style="display:flex;gap:8px;">
           <input type="text" id="home-ticket-input" placeholder="RCQ-XXXX-XXXX" autocomplete="off"
                  style="flex:1;font-family:monospace;font-size:.85rem;letter-spacing:.06em;text-align:center;padding:9px 11px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;min-width:0;">
           <button class="btn btn-gold btn-sm" style="flex-shrink:0;margin:0;" onclick="helpTicketOpenTyped()">Ouvrir</button>
+        </div>
+        <!-- Précision utile : le code de suivi se confond facilement avec le
+             code parrain, qui n'a rien à voir (invitation d'un ami). -->
+        <div style="font-size:.72rem;color:rgba(255,255,255,.4);margin-top:5px;line-height:1.45;">
+          Le code reçu à l'envoi de ta demande. Ce n'est pas ton code parrain.
         </div>
         <div id="home-ticket-entry-fb" style="font-size:.73rem;margin-top:5px;min-height:0;"></div>
       </div>
