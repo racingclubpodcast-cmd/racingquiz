@@ -4569,9 +4569,7 @@
         <div id="home-auth-error" class="alert alert-error" style="display:none;margin-bottom:12px;"></div>
         <div id="home-auth-success" class="alert alert-success" style="display:none;margin-bottom:12px;"></div>
         <button id="home-auth-btn" class="btn btn-red btn-full" data-mode="login" onclick="homeAuthSubmit()">Se connecter</button>
-        <p style="text-align:center;margin-top:12px;font-size:.74rem;color:rgba(255,255,255,.4);line-height:1.45;">
-          Mot de passe oublié&nbsp;? Ferme cette fenêtre et écris-nous depuis «&nbsp;Contactez-nous&nbsp;», en bas de l'accueil.
-        </p>
+        <button id="home-forgot-btn" class="btn btn-ghost btn-full mb0" style="margin-top:12px;font-size:.78rem;" onclick="openRecovery()">Mot de passe oublié&nbsp;?</button>
       </div>
     </div>
   </div>
@@ -4946,6 +4944,73 @@
           <div id="thread-reply-fb" style="font-size:.74rem;margin-top:4px;min-height:0;"></div>
           <button id="thread-reply-btn" class="btn btn-gold btn-full mb0" style="margin-top:8px;" onclick="onThreadReply()">Envoyer</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ════════════════════════ MOT DE PASSE OUBLIÉ ═══
+       Chemin dédié depuis l'accueil. La personne donne le pseudo enregistré,
+       puis trois joueurs de son Onze en cours : le serveur compare au terrain
+       réellement enregistré et transmet le score à l'admin (jamais à elle). -->
+  <div id="recovery-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this)closeRecovery()">
+    <div class="modal-inner">
+      <div class="card">
+        <div class="flex-between" style="margin-bottom:14px;">
+          <h3 style="margin:0;font-size:1rem;font-weight:800;">Mot de passe oublié</h3>
+          <button class="btn btn-ghost btn-sm" onclick="closeRecovery()">✕</button>
+        </div>
+
+        <div id="recovery-form">
+          <p style="color:rgba(255,255,255,.6);font-size:.82rem;margin:0 0 16px;line-height:1.55;">
+            Pour qu'on soit sûrs que le compte est bien le tien, donne-nous ton pseudo
+            puis trois joueurs présents dans ton <strong>Onze en cours</strong> — celui que tu
+            as composé et pas encore envoyé à la validation. Personne d'autre ne peut le voir.
+          </p>
+          <div class="form-group">
+            <label class="field-label">Ton pseudo</label>
+            <input type="text" id="rec-pseudo" placeholder="Le pseudo de ton compte…" autocomplete="username">
+            <p class="field-hint">Exactement celui enregistré lors de ton inscription.</p>
+          </div>
+          <div class="form-group">
+            <label class="field-label">Trois joueurs de ton Onze en cours</label>
+            <input type="text" id="rec-j1" placeholder="Joueur 1…" style="margin-bottom:8px;">
+            <input type="text" id="rec-j2" placeholder="Joueur 2…" style="margin-bottom:8px;">
+            <input type="text" id="rec-j3" placeholder="Joueur 3…">
+            <p class="field-hint">Les titulaires placés sur ton terrain. L'orthographe exacte n'est pas exigée.</p>
+          </div>
+          <div id="recovery-err" class="alert alert-error" style="display:none;margin-bottom:12px;"></div>
+          <button id="recovery-btn" class="btn btn-red btn-full mb0" onclick="onRecoverySend()">Envoyer ma demande</button>
+        </div>
+
+        <div id="recovery-done" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ═══════════════ CHANGEMENT DE MOT DE PASSE IMPOSÉ ═══
+       Après une connexion avec un mot de passe provisoire. Volontairement sans
+       croix ni fermeture au clic extérieur : tant que le joueur n'a pas choisi
+       son mot de passe, le provisoire reste en circulation dans un fil. -->
+  <div id="mustpwd-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-inner">
+      <div class="card">
+        <h3 style="margin:0 0 10px;font-size:1rem;font-weight:800;">Choisis ton mot de passe</h3>
+        <p style="color:rgba(255,255,255,.6);font-size:.82rem;margin:0 0 16px;line-height:1.55;">
+          Tu viens de te connecter avec un mot de passe provisoire. Choisis-en un à toi
+          pour sécuriser ton compte — l'ancien ne fonctionnera plus.
+        </p>
+        <div class="form-group">
+          <label class="field-label">Nouveau mot de passe</label>
+          <input type="password" id="mustpwd-new" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label class="field-label">Confirme le mot de passe</label>
+          <input type="password" id="mustpwd-confirm" autocomplete="new-password">
+        </div>
+        <div id="mustpwd-msg" style="display:none;font-size:.78rem;margin-bottom:10px;"></div>
+        <button id="mustpwd-btn" class="btn btn-gold btn-full mb0" onclick="onMustChangePwd()">Valider</button>
       </div>
     </div>
   </div>
@@ -5710,6 +5775,7 @@
         </div>
       </div>`;
     }
+    html += _renderIdentityChallenge(m);
     if (_msgAuthorKey(m) || hasTicket) {
       html += `<div style="margin-top:10px;display:flex;gap:8px;align-items:flex-end;">
         <textarea id="reply-input-${m.id}" rows="1" placeholder="Répondre à ${esc(m.author || 'ce joueur')}…" style="flex:1;resize:vertical;min-height:38px;padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#fff;font-size:.84rem;font-family:inherit;"></textarea>
@@ -5731,6 +5797,127 @@
     if (m.author_key) return m.author_key;
     const k = (m.author || '').trim().toLowerCase();
     return (k && _db.accounts && _db.accounts[k]) ? k : null;
+  }
+
+  /* ═══ Récupération de compte : défi d'identité + mot de passe provisoire ═══
+     Affiché sous une demande d'aide dont le pseudo déclaré correspond à un
+     compte. On montre le « Mon Onze » du titulaire — le seul contenu VRAIMENT
+     privé d'un compte : le code parrain, les scores et l'avatar sont lisibles
+     publiquement, ils ne prouvent rien. L'admin pose la question, compare, et
+     ne génère un provisoire qu'une fois convaincu.
+     Voir supabase-password-recovery-migration.sql. */
+  function _renderIdentityChallenge(m) {
+    if (m.type !== 'help') return '';
+    const key = _msgAuthorKey(m);
+    if (!key) return '';
+    const acc = _db.accounts && _db.accounts[key];
+    if (!acc) return '';
+
+    const onze = acc.onze || {};
+    const coll = Array.isArray(onze.collection) ? onze.collection : [];
+    const byIdQ = {};
+    try { LS.getQ().forEach(q => { byIdQ[q.id] = q; }); } catch {}
+    const names = coll.map(id => byIdQ[id])
+                      .filter(q => q && q.type === 'joueur')
+                      .map(q => q.playerName || '')
+                      .filter(Boolean);
+    // Le terrain est le meilleur secret : la composition d'un Onze est un CHOIX
+    // personnel, alors que la collection découle des « Qui suis-je ? » devinés —
+    // or tout le monde joue les mêmes questions, donc un habitué peut deviner
+    // une bonne partie de la collection d'un autre. Les COMPTES, eux, sont
+    // publics (onze_pub expose collection/placed/archives) : ne jamais demander
+    // « combien de joueurs as-tu ? », la réponse se lit sans aucun jeton.
+    const slots   = Array.isArray(onze.slots) ? onze.slots : [];
+    const placedN = slots.map(id => byIdQ[id]).filter(q => q && q.type === 'joueur')
+                         .map(q => q.playerName || '').filter(Boolean);
+    const coachQ  = onze.coach ? byIdQ[onze.coach] : null;
+    const coach   = coachQ ? (coachQ.playerName || '') : '';
+
+    // Score de correspondance calculé par le serveur quand la demande vient du
+    // parcours « Mot de passe oublié » (recovery_request) : n noms cités sur 3
+    // retrouvés dans le Onze EN COURS du compte déclaré.
+    let scoreHtml = '';
+    if (m.recovery_match) {
+      const parts = String(m.recovery_match).split('/');
+      const good  = Number(parts[0]) || 0;
+      const total = Number(parts[1]) || 3;
+      const full  = good >= total && total > 0;
+      scoreHtml = `<div style="margin-top:6px;display:inline-block;font-size:.74rem;font-weight:800;padding:3px 10px;border-radius:6px;
+           background:${full ? 'rgba(0,200,81,.15)' : good > 0 ? 'rgba(255,205,0,.15)' : 'rgba(227,6,19,.15)'};
+           color:${full ? '#00C851' : good > 0 ? 'var(--or)' : '#ff6b6b'};">
+           ${good}/${total} joueur${good > 1 ? 's' : ''} reconnu${good > 1 ? 's' : ''} dans son Onze en cours</div>
+         <div style="font-size:.74rem;color:rgba(255,255,255,.5);margin-top:4px;line-height:1.5;">
+           ${full ? 'Correspondance totale : l\'usurpation devient très improbable, sans être impossible.'
+                  : good > 0 ? 'Correspondance partielle — fais préciser dans le fil avant de réinitialiser.'
+                  : 'Aucun nom ne correspond. Ne réinitialise pas sans une autre vérification.'}
+         </div>`;
+    }
+
+    let secret;
+    if (placedN.length) {
+      secret = `${scoreHtml}
+         <div style="font-size:.76rem;color:rgba(255,255,255,.75);margin-top:7px;line-height:1.6;">
+           Onze <strong>en cours</strong> de <strong>${esc(acc.pseudo || key)}</strong> — formation
+           <span style="color:var(--or);">${esc(onze.formation || '?')}</span>${coach ? `, coach <span style="color:var(--or);">${esc(coach)}</span>` : ''}<br>
+           Titulaires : <span style="color:var(--or);">${esc(placedN.join(', '))}</span>
+         </div>
+         <div style="font-size:.74rem;color:rgba(255,255,255,.5);margin-top:6px;line-height:1.5;">
+           <strong>Fais-lui citer trois de ces titulaires.</strong> Ce terrain n'a jamais quitté son écran.
+           N'utilise ni le coach (les entraîneurs sont peu nombreux, il se devine) ni le <em>nombre</em>
+           de joueurs (il est public).
+         </div>`;
+    } else if (names.length) {
+      secret = `${scoreHtml}
+         <div style="font-size:.76rem;color:rgba(255,255,255,.75);margin-top:7px;line-height:1.5;">
+           Ce compte n'a pas encore composé de terrain. Collection de <strong>${esc(acc.pseudo || key)}</strong> :
+           <span style="color:var(--or);">${esc(names.join(', '))}</span>
+         </div>
+         <div style="font-size:.74rem;color:rgba(255,255,255,.5);margin-top:6px;line-height:1.5;">
+           Fais-lui citer deux ou trois noms — mais sois prudent : tout le monde joue les mêmes
+           « Qui suis-je&nbsp;? », un habitué peut en deviner une partie. Recoupe avec autre chose.
+         </div>`;
+    } else {
+      secret = `${scoreHtml}
+         <div style="font-size:.76rem;color:rgba(255,255,255,.6);margin-top:7px;line-height:1.5;">
+           Ce compte n'a ni terrain ni collection : il n'y a rien de privé sur quoi l'interroger.
+           Vérifie son identité autrement (podcast, réseaux) avant d'aller plus loin.
+         </div>`;
+    }
+
+    return `<div style="margin-top:10px;background:rgba(255,205,0,.07);border:1px solid rgba(255,205,0,.28);border-radius:10px;padding:9px 12px;">
+      <div style="font-size:.74rem;font-weight:800;color:var(--or);">Vérification d'identité — compte « ${esc(acc.pseudo || key)} »</div>
+      ${secret}
+      <button class="btn btn-danger btn-sm" style="font-size:.72rem;padding:5px 11px;margin-top:9px;" onclick="onAdminTempPwd('${esc(key)}', ${m.id})">Générer un mot de passe provisoire</button>
+      <div id="temppwd-fb-${m.id}" style="font-size:.74rem;margin-top:5px;min-height:0;"></div>
+    </div>`;
+  }
+
+  /* Génère un provisoire (48 h, à changer à la première connexion) et le place
+     dans la zone de réponse — l'admin relit puis envoie lui-même. */
+  async function onAdminTempPwd(key, msgId) {
+    const fb = document.getElementById('temppwd-fb-' + msgId);
+    const setFb = (t, ok) => { if (fb) { fb.textContent = t; fb.style.color = ok ? '#9be29b' : '#ff6b6b'; } };
+    if (!_supa) { setFb('Serveur indisponible.', false); return; }
+    if (!confirm(`Générer un mot de passe provisoire pour « ${key} » ?\n\n`
+      + `L'ancien mot de passe sera immédiatement invalidé et les sessions ouvertes fermées. `
+      + `Si tu n'es pas certain de parler au vrai titulaire, annule : il se retrouverait bloqué à son tour.`)) return;
+    setFb('Génération…', true);
+    const { data, error } = await _supa.rpc('account_admin_reset_temp', { p_key: key });
+    if (error) {
+      setFb(error.code === 'PGRST202'
+        ? 'Migration non appliquée (exécutez supabase-password-recovery-migration.sql).'
+        : 'Échec : ' + (error.message || 'connexion admin requise'), false);
+      return;
+    }
+    await accountsFetch(true);
+    const ta = document.getElementById('reply-input-' + msgId);
+    if (ta) {
+      ta.value = `Voici ton mot de passe provisoire : ${data}\n\n`
+        + `Connecte-toi avec, puis choisis tout de suite ton nouveau mot de passe — l'application te le demandera. `
+        + `Ce provisoire expire dans 48 heures.`;
+      ta.focus();
+    }
+    setFb('Provisoire généré et placé dans la réponse — relis, puis envoie.', true);
   }
 
   async function onAdminReply(id) {
@@ -6422,6 +6609,9 @@
     const { data, error } = await _supa.rpc('account_login', { p_pseudo: pseudo, p_pwd: pwd });
     if (error) return { error: 'other', detail: error.message };
     if (!data) return { error: 'bad_creds' };
+    // Mot de passe provisoire périmé : le mot de passe est BON, il est juste
+    // hors délai (48 h). Message distinct de « identifiants incorrects ».
+    if (data.error === 'expired') return { error: 'expired' };
     _setAuthToken(data.token);
     return { ok: true, profile: data };
   }
@@ -18209,6 +18399,9 @@
     const saved = LS.getLoggedPseudo();
     if (saved) { _localUser = { pseudo: saved }; }
     updateHomeAuthArea();
+    // Session restaurée sans repasser par account_login : si le mot de passe
+    // était provisoire, l'obligation de le changer tient toujours.
+    if (saved && mustPwdGet()) openMustChangePwd();
   }
 
   /* authSetMode() / authSubmit() ont été retirés le 12/11/2026 avec l'écran
@@ -18216,7 +18409,138 @@
      passent désormais uniquement par homeAuthSetMode() / homeAuthSubmit(),
      dans la feuille #auth-sheet. */
 
+  /* ═══ Parcours « mot de passe oublié » ═══
+     Pseudo enregistré + trois joueurs du Onze EN COURS. Le serveur
+     (recovery_request) compare au terrain réel et joint le score « n/3 » à la
+     demande, visible du seul admin : lui renvoyer le score donnerait un oracle
+     pour essayer des noms jusqu'à tomber juste.
+     Voir supabase-recovery-request-migration.sql. */
+  function openRecovery() {
+    const m = document.getElementById('recovery-modal');
+    if (!m) return;
+    ['rec-pseudo', 'rec-j1', 'rec-j2', 'rec-j3'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+    const err = document.getElementById('recovery-err');
+    if (err) err.style.display = 'none';
+    const form = document.getElementById('recovery-form');
+    const done = document.getElementById('recovery-done');
+    if (form) form.style.display = '';
+    if (done) { done.style.display = 'none'; done.innerHTML = ''; }
+    // La feuille de connexion resterait au-dessus de la modale.
+    const sheet = document.getElementById('auth-sheet');
+    if (sheet) sheet.style.display = 'none';
+    m.style.display = 'flex';
+  }
+
+  function closeRecovery() {
+    const m = document.getElementById('recovery-modal');
+    if (m) m.style.display = 'none';
+  }
+
+  async function onRecoverySend() {
+    const err  = document.getElementById('recovery-err');
+    const btn  = document.getElementById('recovery-btn');
+    const show = t => { if (err) { err.textContent = t; err.style.display = 'block'; } };
+    const val  = id => { const e = document.getElementById(id); return e ? e.value.trim() : ''; };
+
+    const pseudo = val('rec-pseudo');
+    const names  = [val('rec-j1'), val('rec-j2'), val('rec-j3')].filter(Boolean);
+    if (err) err.style.display = 'none';
+    if (!pseudo)          { show('Indique le pseudo de ton compte.'); return; }
+    if (names.length < 3) { show('Cite bien trois joueurs de ton Onze en cours.'); return; }
+    if (!_supa)           { show('Connexion au serveur indisponible. Réessaie plus tard.'); return; }
+
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Envoi en cours…'; }
+    try {
+      const { data, error } = await _supa.rpc('recovery_request', { p_pseudo: pseudo, p_names: names });
+      if (error) {
+        const txt = error.message || '';
+        show(/rate_limited/.test(txt)
+              ? 'Tu as déjà envoyé plusieurs demandes — laisse-nous le temps de répondre et réessaie dans une heure.'
+          : error.code === 'PGRST202'
+              ? 'Ce service n\'est pas encore disponible. Écris-nous depuis « Contactez-nous », en bas de l\'accueil.'
+              : 'Erreur lors de l\'envoi. Réessaie, ou écris-nous depuis « Contactez-nous ».');
+        return;
+      }
+      if (!data || !data.ok) {
+        show(data && data.error === 'no_account'
+          ? 'Aucun compte ne porte ce pseudo. Vérifie l\'orthographe exacte de ton inscription.'
+          : 'Erreur lors de l\'envoi. Réessaie plus tard.');
+        return;
+      }
+      // Demande déposée : le code de suivi est le seul moyen de lire la réponse.
+      helpTicketSave(data.ticket);
+      const form = document.getElementById('recovery-form');
+      const done = document.getElementById('recovery-done');
+      if (form) form.style.display = 'none';
+      if (done) {
+        done.innerHTML = `<p style="color:rgba(255,255,255,.75);font-size:.84rem;margin:0 0 12px;line-height:1.55;">
+            Demande envoyée. On vérifie et on te répond dans ce fil. Note ton <strong>code de suivi</strong> :
+            il te permet de lire notre réponse sans être connecté.
+          </p>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="contact-ticket-code" readonly onclick="this.select()" value="${esc(data.ticket)}"
+                   style="flex:1;font-family:monospace;font-size:1rem;letter-spacing:.08em;text-align:center;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,205,0,.4);background:rgba(255,205,0,.08);color:var(--or);min-width:0;">
+            <button class="btn btn-gold btn-sm" style="flex-shrink:0;margin:0;" onclick="helpTicketCopy()">Copier</button>
+          </div>
+          <div style="font-size:.74rem;color:rgba(255,255,255,.55);margin-top:8px;">Il est aussi retenu sur cet appareil : tu retrouveras ta demande en bas de l'accueil.</div>
+          <button class="btn btn-ghost btn-full" style="margin-top:14px;margin-bottom:0;font-size:.8rem;" onclick="closeRecovery()">Fermer</button>`;
+        done.style.display = '';
+      }
+      renderHelpTicketCard();
+    } catch {
+      show('Erreur lors de l\'envoi. Réessaie plus tard.');
+    } finally {
+      if (btn) { btn.disabled = false; btn.textContent = 'Envoyer ma demande'; }
+    }
+  }
+
+  /* ═══ Mot de passe provisoire : changement imposé ═══
+     `must_change` vient de account_login (colonne accounts.pwd_temp, posée par
+     account_admin_reset_temp). On le retient aussi en local : une session
+     restaurée au rechargement ne repasse pas par account_login, et le joueur
+     doit malgré tout choisir son mot de passe.
+     Voir supabase-password-recovery-migration.sql. */
+  const MUST_PWD_KEY = 'rcMustChangePwd';
+  function mustPwdGet()    { try { return localStorage.getItem(MUST_PWD_KEY) === '1'; } catch { return false; } }
+  function mustPwdSet(on)  { try { on ? localStorage.setItem(MUST_PWD_KEY, '1') : localStorage.removeItem(MUST_PWD_KEY); } catch {} }
+
+  function openMustChangePwd() {
+    const m = document.getElementById('mustpwd-modal');
+    if (!m || !_localUser) return;
+    ['mustpwd-new', 'mustpwd-confirm'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+    const msg = document.getElementById('mustpwd-msg');
+    if (msg) msg.style.display = 'none';
+    m.style.display = 'flex';
+  }
+
+  async function onMustChangePwd() {
+    const newEl  = document.getElementById('mustpwd-new');
+    const confEl = document.getElementById('mustpwd-confirm');
+    const msgEl  = document.getElementById('mustpwd-msg');
+    const btn    = document.getElementById('mustpwd-btn');
+    const show = (t, ok) => { if (msgEl) { msgEl.textContent = t; msgEl.style.color = ok ? '#2ecc71' : '#e74c3c'; msgEl.style.display = 'block'; } };
+    const npwd = newEl ? newEl.value : '';
+    const conf = confEl ? confEl.value : '';
+    if (!npwd)          { show('Choisis un mot de passe.', false); return; }
+    if (npwd !== conf)  { show('Les deux mots de passe ne correspondent pas.', false); return; }
+    const tok = _getAuthToken();
+    if (!_supa || !_localUser || !tok) { show('Session expirée — reconnecte-toi.', false); return; }
+    if (btn) btn.disabled = true;
+    try {
+      const { data, error } = await _supa.rpc('account_change_pwd', {
+        p_pseudo: _localUser.pseudo, p_token: tok, p_new_pwd: npwd
+      });
+      if (error) { show('Échec : ' + (error.message || 'réessaie'), false); return; }
+      _setAuthToken(data);     // jeton neuf renvoyé par la RPC
+      mustPwdSet(false);
+      show('Mot de passe enregistré. Bon quiz !', true);
+      setTimeout(() => { const m = document.getElementById('mustpwd-modal'); if (m) m.style.display = 'none'; }, 1200);
+    } catch { show('Échec : réessaie.', false); }
+    finally { if (btn) btn.disabled = false; }
+  }
+
   function authSignOut() {
+    mustPwdSet(false);
     _localUser = null;
     _inbox = [];
     LS.setLoggedPseudo(null);
@@ -18690,6 +19014,8 @@
         if (errEl) {
           errEl.textContent = res.error === 'no_supa'
             ? 'Connexion au serveur indisponible. Réessaie plus tard.'
+            : res.error === 'expired'
+            ? 'Ce mot de passe provisoire a expiré (48 h). Écris-nous depuis « Contactez-nous » pour en recevoir un nouveau.'
             : 'Pseudo ou mot de passe incorrect.';
           errEl.style.display = 'block';
         }
@@ -18705,6 +19031,8 @@
       _localUser = { pseudo: prof.pseudo, onboardingPpDone: !!prof.onboarding_pp_done, onboardingPpPending: !!prof.onboarding_pp_pending, onboardingYtDone: !!prof.onboarding_yt_done, onboardingYtPending: !!prof.onboarding_yt_pending };
       LS.setLoggedPseudo(prof.pseudo);
       updateHomeAuthArea();
+      // Connexion avec un mot de passe provisoire : le joueur doit en choisir un.
+      if (prof.must_change) { mustPwdSet(true); openMustChangePwd(); }
       // Pas de refusion du pending local : la réconciliation ci-dessous recalcule
       // la collection à partir des parties jouées.
       _onzePendingClear(key);
