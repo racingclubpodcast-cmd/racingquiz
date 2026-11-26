@@ -4906,6 +4906,17 @@
 
         <!-- Besoin d'aide (accessible sans compte : mot de passe perdu, etc.) -->
         <div id="csec-help" style="display:none;">
+          <!-- Un joueur qui a perdu son mot de passe arrive naturellement ici.
+               On le redirige vers le parcours dédié, qui vérifie son identité
+               au lieu de déposer un simple message sans preuve. -->
+          <div style="background:rgba(255,205,0,.08);border:1px solid rgba(255,205,0,.3);border-radius:10px;padding:11px 13px;margin-bottom:16px;">
+            <div style="font-size:.84rem;font-weight:800;color:var(--or);margin-bottom:4px;">Mot de passe oublié&nbsp;?</div>
+            <div style="font-size:.78rem;color:rgba(255,255,255,.65);line-height:1.5;margin-bottom:10px;">
+              Il y a un parcours dédié, plus rapide&nbsp;: on te demande ton pseudo et trois joueurs
+              de ton Onze ou de ta collection, et on te renvoie un mot de passe provisoire.
+            </div>
+            <button class="btn btn-gold btn-full mb0" style="font-size:.8rem;" onclick="openRecovery()">Récupérer mon compte</button>
+          </div>
           <div class="form-group">
             <label class="field-label">Votre pseudo</label>
             <input type="text" id="c-help-pseudo" placeholder="Le pseudo de votre compte, si vous le connaissez…">
@@ -4913,7 +4924,7 @@
           </div>
           <div class="form-group">
             <label class="field-label">Objet *</label>
-            <input type="text" id="c-help-subject" placeholder="Mot de passe oublié, problème de connexion…">
+            <input type="text" id="c-help-subject" placeholder="Problème de connexion, question sur une partie…">
           </div>
           <div class="form-group mb0">
             <label class="field-label">Votre message *</label>
@@ -18486,9 +18497,12 @@
     const done = document.getElementById('recovery-done');
     if (form) form.style.display = '';
     if (done) { done.style.display = 'none'; done.innerHTML = ''; }
-    // La feuille de connexion resterait au-dessus de la modale.
+    // La feuille de connexion — ou la fenêtre « Contactez-nous », d'où l'on
+    // peut aussi arriver — resterait au-dessus de la modale.
     const sheet = document.getElementById('auth-sheet');
     if (sheet) sheet.style.display = 'none';
+    const cm = document.getElementById('contact-modal');
+    if (cm) cm.style.display = 'none';
     m.style.display = 'flex';
   }
 
