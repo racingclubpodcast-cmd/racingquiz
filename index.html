@@ -1471,6 +1471,118 @@
       font-size: .68rem; font-weight: 800; line-height: 1;
     }
 
+    /* ── Recherche globale (admin) ──
+       Palette de recherche : un seul champ pour atteindre une entrée, un
+       joueur, une journée, un message, un tag, un média ou un réglage. */
+    #gsearch-trigger {
+      display: flex; align-items: center; gap: 10px;
+      width: 100%; margin: -10px 0 14px;
+      padding: 10px 14px; border-radius: 12px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.45);
+      font-family: inherit; font-size: .84rem; text-align: left;
+      cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+    }
+    #gsearch-trigger:hover { background: rgba(255,205,0,.07); border-color: rgba(255,205,0,.4); color: rgba(255,255,255,.75); }
+    .gs-trigger-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gs-trigger-kbd {
+      flex-shrink: 0; font-size: .68rem; font-weight: 700; letter-spacing: .5px;
+      padding: 2px 7px; border-radius: 6px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.4);
+    }
+    #gsearch-overlay {
+      position: fixed; inset: 0; z-index: 400;
+      background: rgba(0,0,0,.82);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      display: none; align-items: flex-start; justify-content: center;
+      padding: 56px 16px 24px; overflow-y: auto;
+    }
+    #gsearch-overlay.on { display: flex; }
+    .gs-panel {
+      width: 100%; max-width: 560px;
+      background: rgba(22,22,22,.98);
+      border: 1px solid rgba(255,205,0,.25);
+      border-radius: 16px; overflow: hidden;
+      box-shadow: 0 24px 60px rgba(0,0,0,.6);
+      animation: gsIn .18s ease;
+    }
+    @keyframes gsIn { from { transform: translateY(-12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .gs-head { padding: 14px 16px 11px; border-bottom: 1px solid rgba(255,255,255,.07); }
+    #gsearch-input {
+      width: 100%; margin: 0 0 10px;
+      padding: 11px 14px; border-radius: 10px;
+      background: rgba(255,255,255,.07);
+      border: 1.5px solid rgba(255,205,0,.35);
+      color: #fff; font-family: inherit; font-size: .95rem; outline: none;
+    }
+    #gsearch-input::placeholder { color: rgba(255,255,255,.33); }
+    .gs-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+    .gs-chip {
+      font-size: .72rem; font-weight: 700; padding: 4px 10px; border-radius: 99px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      color: rgba(255,255,255,.55); cursor: pointer; font-family: inherit;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .gs-chip:hover { border-color: rgba(255,205,0,.45); color: rgba(255,255,255,.85); }
+    .gs-chip.on { background: rgba(255,205,0,.16); border-color: var(--or); color: var(--or); }
+    .gs-chip-n { opacity: .6; font-weight: 600; margin-left: 4px; }
+    .gs-body {
+      max-height: 56vh; overflow-y: auto; padding: 6px 8px 10px;
+      scrollbar-width: thin; scrollbar-color: var(--or) transparent;
+    }
+    .gs-body::-webkit-scrollbar { width: 8px; }
+    .gs-body::-webkit-scrollbar-track { background: transparent; margin: 6px 0; }
+    .gs-body::-webkit-scrollbar-thumb { background: linear-gradient(var(--rouge), var(--or)); border-radius: 99px; border: 2px solid transparent; background-clip: padding-box; }
+    .gs-group {
+      font-size: .68rem; font-weight: 800; text-transform: uppercase; letter-spacing: .6px;
+      color: rgba(255,205,0,.72); padding: 11px 10px 5px;
+    }
+    .gs-group-n { color: rgba(255,255,255,.3); font-weight: 600; }
+    .gs-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 9px 10px; border-radius: 10px; cursor: pointer;
+      border: 1px solid transparent;
+    }
+    .gs-item:hover { background: rgba(255,255,255,.05); }
+    .gs-item.sel { background: rgba(255,205,0,.1); border-color: rgba(255,205,0,.35); }
+    .gs-item-main { flex: 1; min-width: 0; }
+    .gs-item-title { font-size: .87rem; font-weight: 700; color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gs-item-sub { font-size: .74rem; color: rgba(255,255,255,.45); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .gs-item-badge {
+      flex-shrink: 0; margin-top: 1px;
+      font-size: .64rem; font-weight: 800; text-transform: uppercase; letter-spacing: .4px;
+      padding: 3px 7px; border-radius: 6px;
+      background: rgba(255,255,255,.08); color: rgba(255,255,255,.55);
+    }
+    .gs-empty { font-size: .83rem; color: rgba(255,255,255,.4); text-align: center; padding: 26px 14px; line-height: 1.5; }
+    .gs-more { font-size: .73rem; color: rgba(255,205,0,.65); padding: 4px 10px 8px; cursor: pointer; }
+    .gs-more:hover { color: var(--or); text-decoration: underline; }
+    .gs-foot {
+      display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+      padding: 9px 16px; border-top: 1px solid rgba(255,255,255,.07);
+      font-size: .7rem; color: rgba(255,255,255,.35);
+    }
+    .gs-foot kbd {
+      font-family: inherit; font-size: .66rem; font-weight: 700;
+      padding: 1px 5px; border-radius: 4px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14);
+      color: rgba(255,255,255,.5);
+    }
+    /* Message ciblé depuis la recherche : surlignage temporaire de la carte */
+    .msg-card-flash { animation: msgFlash 1.6s ease; }
+    @keyframes msgFlash {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,205,0,0); }
+      15%, 55% { box-shadow: 0 0 0 3px rgba(255,205,0,.55); }
+    }
+    @media (max-width: 600px) {
+      #gsearch-overlay { padding: 16px 10px; }
+      .gs-trigger-kbd { display: none; }
+      .gs-body { max-height: 62vh; }
+      .gs-foot { display: none; }
+    }
+
     /* ── Settings sidebar layout ── */
     .settings-layout { display: flex; gap: 20px; align-items: flex-start; }
     .settings-sidebar {
@@ -3043,6 +3155,13 @@
           <button class="btn btn-ghost btn-sm" onclick="adminLogout()">Déconnexion</button>
         </div>
       </div>
+
+      <!-- Recherche globale : ouvre la palette (entrées, joueurs, journées,
+           messages, tags, médias, réglages). Raccourci Ctrl/Cmd + K. -->
+      <button type="button" id="gsearch-trigger" onclick="openGlobalSearch()">
+        <span class="gs-trigger-text">Rechercher une entrée, un joueur, une journée…</span>
+        <span class="gs-trigger-kbd">Ctrl K</span>
+      </button>
 
       <div class="tabs-nav">
         <div class="tabs">
@@ -5750,7 +5869,7 @@
                    : unreadRepl        ? 'rgba(227,6,19,.45)' : 'rgba(255,255,255,.1)';
       const bg     = risk === 'danger' ? 'rgba(227,6,19,.08)'
                    : m.handled         ? 'rgba(255,255,255,.02)' : 'rgba(255,255,255,.04)';
-      return `<div class="msg-card" style="border:${risk === 'danger' ? '2px' : '1px'} solid ${border};border-radius:12px;padding:12px 14px;margin-bottom:10px;background:${bg};${m.handled ? 'opacity:.6;' : ''}">
+      return `<div class="msg-card" id="msgcard-${m.id}" style="border:${risk === 'danger' ? '2px' : '1px'} solid ${border};border-radius:12px;padding:12px 14px;margin-bottom:10px;background:${bg};${m.handled ? 'opacity:.6;' : ''}">
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <span style="font-size:.72rem;font-weight:700;padding:2px 8px;border-radius:6px;background:${tagBg};color:${tagFg};">${tag}</span>
           <span style="font-family:monospace;font-size:.7rem;color:rgba(255,255,255,.4);" title="Référence du message (colonne id)">#${m.id}</span>
@@ -8021,6 +8140,401 @@
     const current = sessionStorage.getItem('rcAdminTab') || 'list';
     adminTab(current === 'settings' ? 'list' : 'settings');
   }
+
+  /* ═══════════════════════════════════════════════════
+     RECHERCHE GLOBALE (admin)
+     Un seul champ pour atteindre n'importe quoi depuis le panel admin :
+     entrées (Qui suis-je ?, Bonus, Match), joueurs, journées du planning,
+     messages reçus, tags, médias et panneaux de réglages. L'index est
+     reconstruit à chaque ouverture (les données sont déjà en mémoire), puis
+     une seconde fois quand Supabase a répondu — sans gêner la saisie.
+     Un résultat ne se contente pas d'afficher : il emmène à l'endroit exact
+     (éditeur d'entrée, carte joueur, jour du calendrier, message surligné,
+     panneau de réglages).
+  ═══════════════════════════════════════════════════ */
+  const GS_CATS = [
+    { key: 'entree',  label: 'Entrées',  one: 'Entrée'   },
+    { key: 'joueur',  label: 'Joueurs',  one: 'Joueur'   },
+    { key: 'journee', label: 'Journées', one: 'Journée'  },
+    { key: 'message', label: 'Messages', one: 'Message'  },
+    { key: 'tag',     label: 'Tags',     one: 'Tag'      },
+    { key: 'media',   label: 'Médias',   one: 'Média'    },
+    { key: 'reglage', label: 'Réglages', one: 'Réglage'  },
+  ];
+  const GS_CAT_ONE     = GS_CATS.reduce((o, c) => { o[c.key] = c.one; return o; }, {});
+  const GS_TOP_PER_CAT = 5;    // aperçu par catégorie en vue « Tout »
+  const GS_MAX_IN_CAT  = 60;   // plafond quand une catégorie est sélectionnée
+
+  /* Panneaux de réglages indexés : [id showSettingsPanel, libellé, mots-clés] */
+  const GS_SETTINGS = [
+    ['db-questions',  'Base de questions',       'import export json sauvegarde base donnees questions'],
+    ['db-categories', 'Catégories de questions', 'categories activer desactiver joueurs bonus matchs'],
+    ['db-tags',       'Tags',                    'tags etiquettes couleurs'],
+    ['game-onze',     'Mon Onze',                'onze bonus points collection terrain coach'],
+    ['game-referral', 'Parrainage',              'parrain filleul code points parrainage'],
+    ['game-midbreak', 'Pause fraîcheur',         'pause fraicheur media video image mi-temps'],
+    ['game-playoffs', 'Playoffs',                'playoffs bracket duel elimination finale'],
+    ['app-subtitle',  'Texte personnalisé',      'sous-titre accroche texte accueil'],
+    ['sec-password',  'Changer le mot de passe', 'mot de passe admin securite connexion'],
+    ['maint-avatars', 'Photos de profil',        'avatars recompression photos profil poids egress'],
+    ['maintenance',   'Réinitialisation',        'reset reinitialisation effacer planning scores comptes'],
+  ];
+
+  let _gsIndex   = null;
+  let _gsCat     = 'tout';
+  let _gsResults = [];
+  let _gsSel     = 0;
+  let _gsExpand  = null;   // catégorie dépliée en vue « Tout »
+
+  function gsTrunc(s, n) {
+    const t = String(s == null ? '' : s).replace(/\s+/g, ' ').trim();
+    return t.length > n ? t.slice(0, n - 1) + '…' : t;
+  }
+
+  /* Construit l'index de recherche à plat. Chaque enregistrement porte son
+     texte normalisé (`hay`) et l'action à exécuter quand on le choisit. */
+  function gsBuildIndex() {
+    const out  = [];
+    const tags = LS.getTags();
+    const allQ = LS.getQ();
+    const tagName = id => (tags.find(t => t.id === id) || {}).name || '';
+
+    const push = (cat, title, sub, hayParts, go) => {
+      const hay = normalizeStr(hayParts.filter(v => v != null && v !== '').join(' '));
+      const titleNorm = normalizeStr(title);
+      out.push({ cat, title, sub, go, hay, words: hay.split(' '), titleNorm, titleWords: titleNorm.split(' ') });
+    };
+
+    /* ── Entrées (Qui suis-je ?, Bonus, Match) ── */
+    allQ.forEach(q => {
+      const isJ   = q.type === 'joueur';
+      const isM   = isMatchQ(q);
+      const title = isJ ? (q.playerName || '(joueur sans nom)') : (q.text || '(entrée sans énoncé)');
+      const typeLbl = isJ ? 'Qui suis-je ?'
+                    : isM ? 'Match'
+                    : q.type === 'qcm'         ? 'QCM'
+                    : q.type === 'qcm-multi'   ? 'QCM multiple'
+                    : q.type === 'multi-libre' ? 'Liste'
+                    : 'Libre';
+      const tagNames = (q.tags || []).map(tagName).filter(Boolean);
+      const hay = [q.id, title, typeLbl, q.text, q.answer, q.playerName,
+        ...(q.answers || []), ...(q.mlAnswers || []), ...(q.options || []),
+        ...(q.playerVariants || []), ...(q.indices || []), ...(q.positions || []),
+        ...tagNames];
+      if (q.bonus) hay.push(q.bonus.text, q.bonus.answer,
+        ...(q.bonus.answers || []), ...(q.bonus.options || []), ...(q.bonus.mlAnswers || []));
+      const sub = [typeLbl, q.id,
+        q.active === false ? 'désactivée' : null,
+        tagNames.length ? tagNames.join(', ') : null].filter(Boolean).join(' · ');
+      push('entree', gsTrunc(title, 90), sub, hay, () => {
+        adminTab('list');
+        setDbSubTab(isJ ? 'joueur' : isM ? 'match' : 'bonus');
+        openEditModal(q.id);
+      });
+    });
+
+    /* ── Joueurs : comptes + participants au classement, agrégés en une passe ── */
+    const agg = new Map();
+    LS.getLeaderboard().forEach(s => {
+      const n = (s.name || '').trim();
+      if (!n) return;
+      const k = n.toLowerCase();
+      const e = agg.get(k) || { name: n, games: 0, pts: 0, acct: false, ref: '' };
+      if (!s.adjust) e.games++;
+      e.pts += Number(s.score) || 0;
+      agg.set(k, e);
+    });
+    Object.values(LS.getAccounts()).forEach(a => {
+      if (!a || !a.pseudo) return;
+      const k = a.pseudo.trim().toLowerCase();
+      const e = agg.get(k) || { name: a.pseudo, games: 0, pts: 0, acct: false, ref: '' };
+      e.name = a.pseudo;
+      e.acct = true;
+      e.ref  = a.referralCode || '';
+      agg.set(k, e);
+    });
+    [...agg.values()].forEach(p => {
+      const sub = [p.acct ? 'Compte' : 'Sans compte',
+        `${p.games} partie${p.games > 1 ? 's' : ''}`,
+        `${p.pts} pt${Math.abs(p.pts) > 1 ? 's' : ''}`,
+        p.ref ? 'code ' + p.ref : null].filter(Boolean).join(' · ');
+      push('joueur', p.name, sub, [p.name, p.ref, 'joueur compte'], () => openPlayerCard(p.name));
+    });
+
+    /* ── Journées du planning (J1 → J34) ── */
+    const qById  = new Map(allQ.map(q => [q.id, q]));
+    const qLabel = id => {
+      if (!id) return '';
+      const q = qById.get(id);
+      if (!q) return '(entrée supprimée)';
+      return q.type === 'joueur' ? (q.playerName || q.id) : gsTrunc(q.text || q.id, 46);
+    };
+    planningMatchdays().forEach(m => {
+      const span = (m.endDate && m.endDate !== m.startDate)
+        ? `${planningFmtDs(m.startDate)} → ${planningFmtDs(m.endDate)}`
+        : planningFmtDs(m.startDate);
+      const parts = [qLabel(m.plan.j1), qLabel(m.plan.j2), qLabel(m.plan.bonus)].filter(Boolean);
+      push('journee', `J${m.num} — ${span}`, parts.join(' · ') || 'Aucune entrée planifiée',
+        [`j${m.num}`, `journee ${m.num}`, m.startDate, m.endDate, span, ...parts,
+         m.plan.j1, m.plan.j2, m.plan.bonus],
+        () => gsGoPlanning(m.startDate));
+    });
+
+    /* ── Messages reçus (« Contactez-nous », y compris codes de suivi) ── */
+    _messages.forEach(m => {
+      const typeLbl = m.type === 'error' ? 'Signalement' : m.type === 'propose' ? 'Proposition' : 'Aide';
+      let when = '';
+      try {
+        when = new Date(m.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      } catch {}
+      const sub = [typeLbl, m.author || 'Anonyme', when,
+        m.handled ? 'traité' : 'à traiter',
+        m.ticket_code ? 'suivi ' + m.ticket_code : null].filter(Boolean).join(' · ');
+      push('message', gsTrunc(m.question_ref || m.body || '(message vide)', 90), sub,
+        [m.id, typeLbl, m.author, m.body, m.answer, m.extra, m.question_ref, m.ticket_code],
+        () => gsGoMessage(m.id));
+    });
+
+    /* ── Tags ── */
+    tags.forEach(t => {
+      const n = allQ.filter(q => Array.isArray(q.tags) && q.tags.includes(t.id)).length;
+      push('tag', t.name, `${n} entrée${n > 1 ? 's' : ''} · Réglages → Tags`,
+        [t.name, 'tag etiquette'],
+        () => { adminTab('settings'); showSettingsPanel('db-tags'); });
+    });
+
+    /* ── Médias de la pause fraîcheur ── */
+    LS.getMedia().forEach(m => {
+      push('media', m.name || '(média sans nom)',
+        [m.active === false ? 'désactivé' : 'actif', m.caption, gsTrunc(m.url, 44)].filter(Boolean).join(' · '),
+        [m.name, m.caption, m.url, 'media pause fraicheur'],
+        () => { adminTab('settings'); showSettingsPanel('game-midbreak'); });
+    });
+
+    /* ── Panneaux de réglages ── */
+    GS_SETTINGS.forEach(([id, label, kw]) => {
+      push('reglage', label, 'Réglages → ' + label, [label, kw, 'reglage parametre'],
+        () => { adminTab('settings'); showSettingsPanel(id); });
+    });
+
+    return out;
+  }
+
+  /* Ouvre le planning sur le mois de `ds` et déplie le jour correspondant. */
+  function gsGoPlanning(ds) {
+    adminTab('planning');
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const d = new Date(ds + 'T00:00:00');
+    planningMonthOffset  = (d.getFullYear() - today.getFullYear()) * 12 + (d.getMonth() - today.getMonth());
+    planningSelectedDate = ds;
+    renderPlanning();
+  }
+
+  /* Ouvre la messagerie sur le message visé et le surligne brièvement.
+     Le rendu de la liste peut suivre un aller-retour Supabase : on retente
+     une fois après 400 ms si la carte n'est pas encore dans le DOM. */
+  function gsGoMessage(id) {
+    adminTab('messagerie');
+    setMessagerieSubTab('received');
+    setMessageFilter('all');
+    const focus = () => {
+      const el = document.getElementById('msgcard-' + id);
+      if (!el) return false;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.remove('msg-card-flash');
+      void el.offsetWidth;                 // relance l'animation si déjà posée
+      el.classList.add('msg-card-flash');
+      setTimeout(() => el.classList.remove('msg-card-flash'), 1800);
+      return true;
+    };
+    if (!focus()) setTimeout(focus, 400);
+  }
+
+  /* Classement des résultats. Passe 1 : tous les mots de la requête doivent
+     apparaître (sous-chaîne). Passe 2, seulement si la passe 1 ne donne rien :
+     tolérance d'une faute de frappe par mot (Levenshtein ≤ 1, ≥ 4 lettres) —
+     le même esprit que la tolérance de réponse du jeu. */
+  function gsRank(query) {
+    const qn = normalizeStr(query);
+    if (!qn) return [];
+    const tokens = qn.split(' ').filter(Boolean);
+    const idx    = _gsIndex || [];
+
+    const pass = fuzzy => {
+      const hits = [];
+      for (const rec of idx) {
+        let score = 0, ok = true;
+        for (const tk of tokens) {
+          const i = rec.hay.indexOf(tk);
+          if (i >= 0) { score += (i === 0 || rec.hay[i - 1] === ' ') ? 6 : 3; continue; }
+          if (fuzzy && tk.length >= 4 && rec.words.some(w =>
+                Math.abs(w.length - tk.length) <= 1 && levenshtein(w, tk) <= 1)) { score += 2; continue; }
+          ok = false; break;
+        }
+        if (!ok) continue;
+        if (rec.titleNorm === qn)              score += 30;
+        else if (rec.titleNorm.startsWith(qn)) score += 18;
+        else if (rec.titleNorm.includes(qn))   score += 9;
+        else if (fuzzy && tokens.every(tk => rec.titleWords.some(w => w.includes(tk)
+                   || (tk.length >= 4 && Math.abs(w.length - tk.length) <= 1 && levenshtein(w, tk) <= 1))))
+          score += 14;    // « ziany » doit remonter « Stéphane Ziani », pas un énoncé qui le cite
+        hits.push({ rec, score });
+      }
+      hits.sort((a, b) => b.score - a.score || a.rec.title.localeCompare(b.rec.title, 'fr'));
+      return hits.map(h => h.rec);
+    };
+
+    const strict = pass(false);
+    return strict.length ? strict : pass(true);
+  }
+
+  function gsItemHtml(r, i) {
+    return `<div class="gs-item" data-i="${i}" onclick="gsActivate(${i})" onmousemove="gsHover(${i})">
+      <div class="gs-item-main">
+        <div class="gs-item-title">${esc(r.title)}</div>
+        ${r.sub ? `<div class="gs-item-sub">${esc(r.sub)}</div>` : ''}
+      </div>
+      <span class="gs-item-badge">${GS_CAT_ONE[r.cat] || r.cat}</span>
+    </div>`;
+  }
+
+  function gsRenderChips(counts, total) {
+    const el = document.getElementById('gsearch-chips');
+    if (!el) return;
+    const chip = (key, label, n) =>
+      `<button type="button" class="gs-chip${_gsCat === key ? ' on' : ''}" onclick="gsSetCat('${key}')">${label
+        }${n != null ? `<span class="gs-chip-n">${n}</span>` : ''}</button>`;
+    el.innerHTML = chip('tout', 'Tout', total)
+      + GS_CATS.filter(c => counts[c.key] || _gsCat === c.key)
+               .map(c => chip(c.key, c.label, counts[c.key] || 0)).join('');
+  }
+
+  function gsRender() {
+    const input = document.getElementById('gsearch-input');
+    const body  = document.getElementById('gsearch-results');
+    if (!body) return;
+    const q   = input ? input.value.trim() : '';
+    const all = q ? gsRank(q) : [];
+
+    const counts = {};
+    all.forEach(r => { counts[r.cat] = (counts[r.cat] || 0) + 1; });
+    gsRenderChips(counts, all.length);
+
+    if (!q) {
+      _gsResults = [];
+      body.innerHTML = '<div class="gs-empty">Tapez pour chercher une entrée, un joueur, une journée,<br>un message, un tag, un média ou un réglage.</div>';
+      return;
+    }
+
+    const shown = _gsCat === 'tout' ? all : all.filter(r => r.cat === _gsCat);
+    if (!shown.length) {
+      _gsResults = [];
+      body.innerHTML = `<div class="gs-empty">Aucun résultat pour « ${esc(q)} ».</div>`;
+      return;
+    }
+
+    const flat = [];
+    let html = '';
+    if (_gsCat === 'tout') {
+      GS_CATS.forEach(c => {
+        const list = shown.filter(r => r.cat === c.key);
+        if (!list.length) return;
+        const limit = _gsExpand === c.key ? GS_MAX_IN_CAT : GS_TOP_PER_CAT;
+        html += `<div class="gs-group">${c.label} <span class="gs-group-n">${list.length}</span></div>`;
+        list.slice(0, limit).forEach(r => { html += gsItemHtml(r, flat.length); flat.push(r); });
+        if (list.length > limit) {
+          html += `<div class="gs-more" onclick="gsExpandCat('${c.key}')">Voir les ${list.length - limit} autres</div>`;
+        }
+      });
+    } else {
+      shown.slice(0, GS_MAX_IN_CAT).forEach(r => { html += gsItemHtml(r, flat.length); flat.push(r); });
+      if (shown.length > GS_MAX_IN_CAT) {
+        html += `<div class="gs-more" style="cursor:default;text-decoration:none;">${shown.length - GS_MAX_IN_CAT} autre(s) résultat(s) — affinez la recherche.</div>`;
+      }
+    }
+
+    _gsResults = flat;
+    if (_gsSel >= flat.length) _gsSel = 0;
+    body.innerHTML = html;
+    gsSyncSel();
+  }
+
+  function gsSyncSel() {
+    const body = document.getElementById('gsearch-results');
+    if (!body) return;
+    body.querySelectorAll('.gs-item').forEach(el =>
+      el.classList.toggle('sel', Number(el.dataset.i) === _gsSel));
+    const cur = body.querySelector('.gs-item.sel');
+    if (cur) cur.scrollIntoView({ block: 'nearest' });
+  }
+
+  function gsOnInput()      { _gsSel = 0; _gsExpand = null; gsRender(); }
+  function gsSetCat(key)    { _gsCat = key; _gsExpand = null; _gsSel = 0; gsRender(); }
+  function gsExpandCat(key) { _gsExpand = key; gsRender(); }
+  function gsHover(i)       { if (_gsSel !== i) { _gsSel = i; gsSyncSel(); } }
+
+  function gsMove(d) {
+    if (!_gsResults.length) return;
+    _gsSel = (_gsSel + d + _gsResults.length) % _gsResults.length;
+    gsSyncSel();
+  }
+
+  function gsActivate(i) {
+    const r = _gsResults[typeof i === 'number' ? i : _gsSel];
+    if (!r) return;
+    closeGlobalSearch();
+    try { r.go(); } catch (e) { console.warn('[Recherche globale] action impossible :', e); }
+  }
+
+  function gsIsOpen() {
+    const ov = document.getElementById('gsearch-overlay');
+    return !!ov && ov.classList.contains('on');
+  }
+
+  function openGlobalSearch(prefill) {
+    if (!adminLogged) return;
+    const ov  = document.getElementById('gsearch-overlay');
+    const inp = document.getElementById('gsearch-input');
+    if (!ov || !inp) return;
+    _gsIndex = gsBuildIndex();
+    _gsCat   = 'tout';
+    _gsExpand = null;
+    _gsSel   = 0;
+    if (typeof prefill === 'string') inp.value = prefill;
+    ov.classList.add('on');
+    gsRender();
+    inp.focus();
+    inp.select();
+    // Données volatiles (messages, comptes, scores) : rafraîchies en arrière-plan,
+    // l'index est reconstruit à la réponse si la palette est toujours ouverte.
+    Promise.all([messagesFetch(), accountsFetch(), scoresFetch()]).then(() => {
+      if (!gsIsOpen()) return;
+      _gsIndex = gsBuildIndex();
+      gsRender();
+    }).catch(() => {});
+  }
+
+  function closeGlobalSearch() {
+    const ov = document.getElementById('gsearch-overlay');
+    if (ov) ov.classList.remove('on');
+  }
+
+  document.addEventListener('keydown', e => {
+    const k = (e.key || '').toLowerCase();
+    // Ctrl/Cmd + K : ouvre ou ferme la palette, uniquement dans le panel admin
+    if ((e.ctrlKey || e.metaKey) && k === 'k') {
+      const view = document.getElementById('view-admin');
+      if (!adminLogged || !view || !view.classList.contains('active')) return;
+      e.preventDefault();
+      if (gsIsOpen()) closeGlobalSearch(); else openGlobalSearch();
+      return;
+    }
+    if (!gsIsOpen()) return;
+    if (e.key === 'Escape')         { e.preventDefault(); closeGlobalSearch(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); gsMove(1); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); gsMove(-1); }
+    else if (e.key === 'Enter')     { e.preventDefault(); gsActivate(); }
+  });
 
   const DEFAULT_SUBTITLE = 'Votre révision estivale';
 
@@ -21400,6 +21914,24 @@
   <!-- ══ Player Card overlay ══ -->
   <div id="pcard-overlay" class="pcard-overlay" style="display:none;" onclick="if(event.target===this)closePlayerCard()">
     <div class="pcard-panel" id="pcard-content"></div>
+  </div>
+
+  <!-- ══ Recherche globale (admin) ══ -->
+  <div id="gsearch-overlay" onclick="if(event.target===this)closeGlobalSearch()">
+    <div class="gs-panel">
+      <div class="gs-head">
+        <input type="text" id="gsearch-input" autocomplete="off" spellcheck="false"
+               placeholder="Entrée, joueur, journée, message, tag, réglage…"
+               oninput="gsOnInput()">
+        <div class="gs-chips" id="gsearch-chips"></div>
+      </div>
+      <div class="gs-body" id="gsearch-results"></div>
+      <div class="gs-foot">
+        <span><kbd>↑</kbd> <kbd>↓</kbd> naviguer</span>
+        <span><kbd>Entrée</kbd> ouvrir</span>
+        <span><kbd>Échap</kbd> fermer</span>
+      </div>
+    </div>
   </div>
 
   <!-- ══ 1 vs 1 overlay ══ -->
